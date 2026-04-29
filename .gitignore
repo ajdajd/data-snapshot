@@ -96,4 +96,5 @@ pdf_input/
 model_outputs/
 models/
 notebooks/data/
+notebooks/annotation_corpus/
 scratch/
