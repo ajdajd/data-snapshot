@@ -4,12 +4,80 @@ Shared utility functions for the data snapshot annotation project.
 Provides common helpers used across adapter modules and evaluation tools.
 """
 
+from __future__ import annotations
+
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Literal, Sequence
+
+from PIL import Image
 
 from dsa.constants import MIN_PREDICTION_AREA
+
+
+def convert_pdf_to_images(
+    pdf_path: str | Path,
+    dpi: int = 300,
+    backend: Literal["pymupdf", "pdf2image"] = "pymupdf",
+) -> list[Image.Image]:
+    """Convert each page of a PDF file to a PIL image.
+
+    Parameters
+    ----------
+    pdf_path : str | Path
+        Path to the PDF file.
+    dpi : int
+        Resolution for rendering, in dots per inch.
+    backend : {"pymupdf", "pdf2image"}
+        Library to use for PDF rendering.  ``"pymupdf"`` (default) is
+        faster and requires no system dependencies.  ``"pdf2image"``
+        delegates to poppler via the ``pdf2image`` package.
+
+    Returns
+    -------
+    list[Image.Image]
+        One PIL RGB image per page, in document order.
+
+    Raises
+    ------
+    ValueError
+        If *backend* is not one of the supported values.
+    ImportError
+        If the requested backend package is not installed.
+    """
+    if backend == "pymupdf":
+        try:
+            import pymupdf  # noqa: F811
+        except ImportError as exc:
+            raise ImportError(
+                "pymupdf is required for the 'pymupdf' backend. "
+                "Install it with: pip install pymupdf"
+            ) from exc
+
+        doc = pymupdf.open(str(pdf_path))
+        images: list[Image.Image] = []
+        for page in doc:
+            pix = page.get_pixmap(dpi=dpi)
+            images.append(pix.pil_image())
+        doc.close()
+        return images
+
+    if backend == "pdf2image":
+        try:
+            from pdf2image import convert_from_path
+        except ImportError as exc:
+            raise ImportError(
+                "pdf2image is required for the 'pdf2image' backend. "
+                "Install it with: pip install pdf2image"
+            ) from exc
+
+        return convert_from_path(str(pdf_path), dpi=dpi)
+
+    raise ValueError(
+        f"Unknown PDF backend: {backend!r}. "
+        f"Supported values: 'pymupdf', 'pdf2image'."
+    )
 
 
 def load_json(path: str | Path) -> dict:

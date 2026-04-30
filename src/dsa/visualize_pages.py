@@ -9,10 +9,10 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+from typing import Literal
 
 import cv2
 import numpy as np
-from pdf2image import convert_from_path
 from tqdm.auto import tqdm
 
 from dsa.constants import (
@@ -23,7 +23,7 @@ from dsa.constants import (
     PRED_COLOR_BGR,
     VP_OUTPUT_DIR,
 )
-from dsa.utils import load_json
+from dsa.utils import convert_pdf_to_images, load_json
 
 
 def _group_pages_by_doc(
@@ -48,19 +48,24 @@ def _group_pages_by_doc(
     return out
 
 
-def convert_pdf_to_opencv_images(pdf_path: str | Path) -> list[np.ndarray]:
+def convert_pdf_to_opencv_images(
+    pdf_path: str | Path,
+    backend: Literal["pymupdf", "pdf2image"] = "pymupdf",
+) -> list[np.ndarray]:
     """Convert PDF to a list of OpenCV BGR images.
 
     Parameters
     ----------
     pdf_path : str or Path
         Path to PDF file
+    backend : {"pymupdf", "pdf2image"}
+        Library to use for PDF-to-image rendering.
 
     Returns
     -------
     List of ndarray objects
     """
-    pil_pages = convert_from_path(pdf_path)
+    pil_pages = convert_pdf_to_images(pdf_path, backend=backend)
     images = []
 
     for pil_img in pil_pages:
@@ -126,11 +131,12 @@ def visualize_snapshots(
     pred_json_path: str,
     input_pdf_dir: str,
     output_dir: str,
+    pdf_backend: str = "pymupdf",
 ):
     """Render visualization PNGs.
 
     Output filename:
-        `{filename.pdf}_page_XXX.png`
+        ``{filename.pdf}_page_XXX.png``
 
     Parameters
     ----------
@@ -138,10 +144,12 @@ def visualize_snapshots(
         Path to ground truth json file
     pred_json_path : str or path
         Path to prediction json file
-    pdf_input_dir : str or path
+    input_pdf_dir : str or path
         Path to directory of PDF files
     output_dir : str or path
         Path to save annotated pages
+    pdf_backend : {"pymupdf", "pdf2image"}
+        Library to use for PDF-to-image rendering.
     """
     gt = load_json(gt_json_path)
     pr = load_json(pred_json_path)
@@ -162,7 +170,7 @@ def visualize_snapshots(
 
         gt_doc_pages = gt_pages.get(doc_id, {})
         pr_doc_pages = pr_pages.get(doc_id, {})
-        images = convert_pdf_to_opencv_images(str(pdf_path))
+        images = convert_pdf_to_opencv_images(str(pdf_path), backend=pdf_backend)
         for page_index, img in enumerate(images):
             canvas = img.copy()
 
@@ -214,6 +222,13 @@ if __name__ == "__main__":
         default=VP_OUTPUT_DIR,
         help="Path to save annotated pages",
     )
+    ap.add_argument(
+        "--pdf_backend",
+        type=str,
+        choices=["pymupdf", "pdf2image"],
+        default="pymupdf",
+        help="PDF-to-image rendering backend (default: pymupdf).",
+    )
     args = ap.parse_args()
 
     visualize_snapshots(
@@ -221,6 +236,7 @@ if __name__ == "__main__":
         pred_json_path=args.pred_json_path,
         input_pdf_dir=args.input_pdf_dir,
         output_dir=args.output_dir,
+        pdf_backend=args.pdf_backend,
     )
 
     print("Visualization complete.")

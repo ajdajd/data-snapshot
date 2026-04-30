@@ -14,8 +14,9 @@ import argparse
 import json
 from pathlib import Path
 
-from pdf2image import convert_from_path
 from tqdm.auto import tqdm
+
+from dsa.utils import convert_pdf_to_images
 
 BASE_HOST_PATH = "/data/local-files/?d="
 LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT = "labelstudio_data/"
@@ -43,7 +44,7 @@ def main(input_dir: str | Path, dataset_name: str) -> None:
 
     files = list(Path(input_dir).rglob("*.pdf"))
     for f in tqdm(files):
-        images = convert_from_path(pdf_path=f, dpi=300)
+        images = convert_pdf_to_images(f, dpi=300)
 
         image_list = []
         for idx, image in enumerate(images):

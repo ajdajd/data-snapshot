@@ -32,16 +32,10 @@ This repository consists of two parts:
 
 ## Environment setup
 
-### 1. Install dependencies
-
-1. Install the repository.
-    ```shell
-    pip install -e .
-    ```
-2. Install Poppler.
-    ```shell
-    sudo apt-get install poppler-utils
-    ```
+### 1. Install the repository
+```shell
+pip install -e .
+```
 
 ### 2. Add API key to the `.env` file
 

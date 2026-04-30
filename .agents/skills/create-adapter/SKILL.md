@@ -103,11 +103,10 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from pdf2image import convert_from_path
 from tqdm.auto import tqdm
 
 from dsa.constants import LABEL_MAP, ROOT
-from dsa.utils import normalize_bboxes_xyxy, utc_now_iso
+from dsa.utils import convert_pdf_to_images, normalize_bboxes_xyxy, utc_now_iso
 
 # ── Constants ──────────────────────────────────────────────────────────
 MODEL_NAME = "<model-identifier>"
@@ -168,10 +167,12 @@ class <AdapterName>Config:
         device: str = "cpu",
         dpi: int = 300,
         store_doc_path_as: str = "relative",
+        pdf_backend: str = "pymupdf",
     ) -> None:
         self.device = device
         self.dpi = dpi
         self.store_doc_path_as = store_doc_path_as
+        self.pdf_backend = pdf_backend
 
 
 # ── Main adapter function ─────────────────────────────────────────────
@@ -237,7 +238,7 @@ def run_<adapter_name>_adapter_directory(
             }
         )
 
-        images = convert_from_path(str(pdf_path), dpi=cfg.dpi)
+        images = convert_pdf_to_images(pdf_path, dpi=cfg.dpi, backend=cfg.pdf_backend)
 
         for page_index, image in enumerate(
             tqdm(images, desc=f"Pages: {pdf_path.name}", leave=False)
@@ -327,6 +328,13 @@ if __name__ == "__main__":
         choices=["relative", "absolute"],
         default="relative",
     )
+    parser.add_argument(
+        "--pdf_backend",
+        type=str,
+        choices=["pymupdf", "pdf2image"],
+        default="pymupdf",
+        help="PDF-to-image rendering backend (default: pymupdf).",
+    )
     # TODO: Add model-specific CLI args
     args = parser.parse_args()
 
@@ -339,6 +347,7 @@ if __name__ == "__main__":
         device=args.device,
         dpi=args.dpi,
         store_doc_path_as=args.store_doc_path_as,
+        pdf_backend=args.pdf_backend,
     )
 
     out_path = run_<adapter_name>_adapter_directory(
@@ -376,6 +385,7 @@ Always import from `dsa.utils` and `dsa.constants` — **do not duplicate**.
 
 | Function | Purpose |
 |----------|---------|
+| `convert_pdf_to_images(pdf_path, dpi, backend)` | Convert PDF pages to `list[PIL.Image.Image]`. Supports `"pymupdf"` (default) and `"pdf2image"` backends. |
 | `normalize_bboxes_xyxy(bboxes, width, height)` | Convert absolute-pixel or already-normalized bboxes to `[0,1]` xyxy. Handles clamping, reordering, degenerate-box filtering. |
 | `utc_now_iso()` | ISO 8601 UTC timestamp with `Z` suffix. |
 | `clamp01(x)` | Clamp a float to `[0, 1]`. |

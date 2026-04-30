@@ -7,13 +7,14 @@ preparation utilities used across Label Studio management scripts.
 
 import os
 from pathlib import Path
+from typing import Literal
 
 from dotenv import load_dotenv
 from label_studio_sdk import LabelStudio
-from pdf2image import convert_from_path
 from tqdm.auto import tqdm
 
 from dsa.constants import ROOT
+from dsa.utils import convert_pdf_to_images
 
 load_dotenv()
 
@@ -97,6 +98,7 @@ def import_tasks_to_project(
 def convert_pdfs_to_images(
     input_pdf_dir: str | Path,
     dataset_name: str,
+    backend: Literal["pymupdf", "pdf2image"] = "pymupdf",
 ) -> dict[str, list[str]]:
     """Convert PDF files to per-page PNG images for Label Studio.
 
@@ -110,6 +112,8 @@ def convert_pdfs_to_images(
         Directory containing PDF files to process.
     dataset_name : str
         Name of the dataset directory under ``labelstudio_data/``.
+    backend : {"pymupdf", "pdf2image"}
+        Library to use for PDF-to-image rendering.
 
     Returns
     -------
@@ -124,7 +128,7 @@ def convert_pdfs_to_images(
     files = list(Path(input_pdf_dir).rglob("*.pdf"))
 
     for f in tqdm(files, desc="Converting PDFs to images"):
-        images = convert_from_path(pdf_path=f, dpi=300)
+        images = convert_pdf_to_images(f, dpi=300, backend=backend)
         image_list: list[str] = []
 
         for idx, image in enumerate(images):

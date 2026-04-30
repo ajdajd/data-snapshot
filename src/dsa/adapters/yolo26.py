@@ -17,12 +17,17 @@ from pathlib import Path
 from typing import Any
 
 from huggingface_hub import hf_hub_download
-from pdf2image import convert_from_path
+
 from tqdm.auto import tqdm
 from ultralytics import YOLO
 
 from dsa.constants import INPUT_PDF_DIR, LABEL_MAP, MODELS_DIR, ROOT
-from dsa.utils import filter_small_predictions, normalize_bboxes_xyxy, utc_now_iso
+from dsa.utils import (
+    convert_pdf_to_images,
+    filter_small_predictions,
+    normalize_bboxes_xyxy,
+    utc_now_iso,
+)
 
 MODEL_NAME = "Armaggheddon/yolo26-document-layout"
 MODEL_FILENAME = "yolo26m_doc_layout.pt"
@@ -90,6 +95,8 @@ class YOLO26Config:
     filter_small : bool
         If ``True``, discard predictions whose normalised bounding-box area
         is below ``MIN_PREDICTION_AREA``.
+    pdf_backend : {"pymupdf", "pdf2image"}
+        Library to use for PDF-to-image rendering.
     """
 
     def __init__(
@@ -103,6 +110,7 @@ class YOLO26Config:
         imgsz: int = 1024,
         store_doc_path_as: str = "relative",
         filter_small: bool = True,
+        pdf_backend: str = "pymupdf",
     ) -> None:
         self.repo_id = repo_id
         self.filename = filename
@@ -113,6 +121,7 @@ class YOLO26Config:
         self.imgsz = imgsz
         self.store_doc_path_as = store_doc_path_as
         self.filter_small = filter_small
+        self.pdf_backend = pdf_backend
 
 
 def run_yolo26_adapter_directory(
@@ -189,7 +198,9 @@ def run_yolo26_adapter_directory(
             }
         )
 
-        images = convert_from_path(str(pdf_path), dpi=cfg.dpi)
+        images = convert_pdf_to_images(
+            pdf_path, dpi=cfg.dpi, backend=cfg.pdf_backend
+        )
 
         for page_index, image in enumerate(
             tqdm(images, desc=f"Pages: {pdf_path.name}", leave=False)
@@ -330,6 +341,13 @@ if __name__ == "__main__":
         default=True,
         help="Filter out predictions with very small bounding-box area.",
     )
+    parser.add_argument(
+        "--pdf_backend",
+        type=str,
+        choices=["pymupdf", "pdf2image"],
+        default="pymupdf",
+        help="PDF-to-image rendering backend (default: pymupdf).",
+    )
     args = parser.parse_args()
 
     pdf_dir = Path(args.input_pdf_dir)
@@ -347,6 +365,7 @@ if __name__ == "__main__":
         imgsz=args.imgsz,
         store_doc_path_as=args.store_doc_path_as,
         filter_small=args.filter_small_predictions,
+        pdf_backend=args.pdf_backend,
     )
 
     out_path = run_yolo26_adapter_directory(
