@@ -1,3 +1,4 @@
+import argparse
 import logging
 from tqdm.auto import tqdm
 
@@ -17,14 +18,13 @@ logging.basicConfig(
     filemode="a",
 )
 
-BATCHES = "pdf_input/unhcr_batch{x}"
 OUTPUT_DIR = "data/batch_runs/"
 
 
-def tfid_batch_runner():
+def tfid_batch_runner(source, batch_start, batch_end):
     logging.info("Start TFID runner.")
-    for b in tqdm(range(1, 10), desc="Processing batches"):
-        path_dir = BATCHES.replace("{x}", str(b))
+    for b in tqdm(range(batch_start, batch_end + 1), desc="Processing batches"):
+        path_dir = f"pdf_input/{source}_batch{b}"
         out_path = OUTPUT_DIR + f"tfid-large_unhcr_batch{b}.json"
         logging.info(f"Started: {path_dir}")
         cfg = TFIDConfig(
@@ -43,10 +43,10 @@ def tfid_batch_runner():
         logging.info(f"Wrote: {out_path}")
 
 
-def yolo11_runner():
+def yolo11_runner(source, batch_start, batch_end):
     logging.info("Start yolo11 runner.")
-    for b in tqdm(range(1, 10), desc="Processing batches"):
-        path_dir = BATCHES.replace("{x}", str(b))
+    for b in tqdm(range(batch_start, batch_end + 1), desc="Processing batches"):
+        path_dir = f"pdf_input/{source}_batch{b}"
         out_path = OUTPUT_DIR + f"yolo11_unhcr_batch{b}.json"
         logging.info(f"Started: {path_dir}")
         cfg = YOLO11Config(
@@ -69,10 +69,10 @@ def yolo11_runner():
         logging.info(f"Wrote: {out_path}")
 
 
-def yolo26_runner():
+def yolo26_runner(source, batch_start, batch_end):
     logging.info("Start yolo26 runner.")
-    for b in tqdm(range(1, 10), desc="Processing batches"):
-        path_dir = BATCHES.replace("{x}", str(b))
+    for b in tqdm(range(batch_start, batch_end + 1), desc="Processing batches"):
+        path_dir = f"pdf_input/{source}_batch{b}"
         out_path = OUTPUT_DIR + f"yolo26_unhcr_batch{b}.json"
         logging.info(f"Started: {path_dir}")
         cfg = YOLO26Config(
@@ -95,10 +95,10 @@ def yolo26_runner():
         logging.info(f"Wrote: {out_path}")
 
 
-def doclayoutyolo_runner():
+def doclayoutyolo_runner(source, batch_start, batch_end):
     logging.info("Start doclayoutyolo runner.")
-    for b in tqdm(range(1, 10), desc="Processing batches"):
-        path_dir = BATCHES.replace("{x}", str(b))
+    for b in tqdm(range(batch_start, batch_end + 1), desc="Processing batches"):
+        path_dir = f"pdf_input/{source}_batch{b}"
         out_path = OUTPUT_DIR + f"doclayoutyolo_unhcr_batch{b}.json"
         logging.info(f"Started: {path_dir}")
         cfg = DocLayoutYOLOConfig(
@@ -120,7 +120,27 @@ def doclayoutyolo_runner():
 
 
 if __name__ == "__main__":
-    tfid_batch_runner()
-    yolo11_runner()
-    yolo26_runner()
-    doclayoutyolo_runner()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--source",
+        type=str,
+        choices=["unhcr", "prwp", "refugee"],
+        required=True,
+        help="Source name (unhcr, prwp, refugee)",
+    )
+    parser.add_argument(
+        "--batch_start",
+        type=int,
+        required=True,
+    )
+    parser.add_argument(
+        "--batch_end",
+        type=int,
+        required=True,
+    )
+    args = parser.parse_args()
+
+    doclayoutyolo_runner(args.source, args.batch_start, args.batch_end)
+    yolo11_runner(args.source, args.batch_start, args.batch_end)
+    yolo26_runner(args.source, args.batch_start, args.batch_end)
+    tfid_batch_runner(args.source, args.batch_start, args.batch_end)
