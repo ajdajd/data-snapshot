@@ -11,6 +11,7 @@ requires-python = ">=3.10,<3.11"
 readme = "README.md"
 
 dependencies = [
+    "countrycode>=0.6.0",
     "label-studio-sdk==2.0.19",
     "pymupdf>=1.25.0",
     "python-dotenv",
