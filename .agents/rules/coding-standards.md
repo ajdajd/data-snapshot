@@ -33,4 +33,4 @@ To ensure consistency and maintainability across the codebase, all contributors 
 
 ## 5. Development Environment
 
-- **Conda Environment**: All commands and script executions must be performed within the `data-snapshot` conda environment.
+- **Conda Environment**: All commands and script executions must be performed within the `data-snapshot` conda environment. When running terminal commands, always prefix with `conda run -n data-snapshot` (e.g., `conda run -n data-snapshot python3 my_script.py`). Never use bare `python3` without the conda prefix.
