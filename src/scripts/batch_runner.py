@@ -99,7 +99,7 @@ def doclayoutyolo_runner(source, batch_start, batch_end):
     logging.info("Start doclayoutyolo runner.")
     for b in tqdm(range(batch_start, batch_end + 1), desc="Processing batches"):
         path_dir = f"pdf_input/{source}_batch{b}"
-        out_path = OUTPUT_DIR + f"doclayoutyolo_unhcr_batch{b}.json"
+        out_path = OUTPUT_DIR + f"doclayoutyolo_{source}_batch{b}.json"
         logging.info(f"Started: {path_dir}")
         cfg = DocLayoutYOLOConfig(
             model_path=str(MODELS_DIR / "doclayout_yolo_docstructbench_imgsz1024.pt"),
