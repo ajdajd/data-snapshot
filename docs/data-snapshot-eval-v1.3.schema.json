@@ -122,7 +122,6 @@
     "predictions": {
       "description": "Per-page container of objects. Used for both GT and predictions.",
       "type": "array",
-      "minItems": 1,
       "items": { "$ref": "#/$defs/pageEntry" }
     }
   },
