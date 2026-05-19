@@ -69,7 +69,7 @@
               "type": "array",
               "minItems": 2,
               "maxItems": 2,
-              "items": [{ "type": "number", "const": 0.0 }, { "type": "number", "const": 1.0 }]
+              "prefixItems": [{ "type": "number", "const": 0.0 }, { "type": "number", "const": 1.0 }]
             },
             "origin": { "type": "string", "const": "top_left" }
           }
@@ -132,7 +132,7 @@
       "type": "array",
       "minItems": 4,
       "maxItems": 4,
-      "items": [
+      "prefixItems": [
         { "type": "number", "minimum": 0.0, "maximum": 1.0 },
         { "type": "number", "minimum": 0.0, "maximum": 1.0 },
         { "type": "number", "minimum": 0.0, "maximum": 1.0 },
