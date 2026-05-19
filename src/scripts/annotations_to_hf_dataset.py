@@ -14,7 +14,13 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
+import jsonschema
+
 from dsa.utils import load_json
+from dsa.constants import ROOT
+
+# Resolve the schema path relative to the project root.
+_SCHEMA_PATH = ROOT / "docs/data-snapshot-eval-v1.3.schema.json"
 
 
 def split_annotations(
@@ -40,6 +46,8 @@ def split_annotations(
     ------
     FileNotFoundError
         If *input_json_path* does not exist.
+    FileNotFoundError
+        If the evaluation schema file cannot be found.
     KeyError
         If the input JSON is missing required top-level keys.
     """
@@ -49,6 +57,10 @@ def split_annotations(
     if not input_json_path.is_file():
         raise FileNotFoundError(f"Input file not found: {input_json_path}")
 
+    if not _SCHEMA_PATH.is_file():
+        raise FileNotFoundError(f"Schema file not found: {_SCHEMA_PATH}")
+
+    schema = load_json(_SCHEMA_PATH)
     data = load_json(input_json_path)
 
     label_map = data["label_map"]
@@ -65,6 +77,7 @@ def split_annotations(
 
     docs_with_annotations = 0
     docs_without_annotations = 0
+    validation_failures: list[str] = []
 
     for doc in documents:
         doc_id = doc["doc_id"]
@@ -76,6 +89,14 @@ def split_annotations(
             "documents": [doc],
             "predictions": doc_preds,
         }
+
+        # Validate against the schema before writing
+        try:
+            jsonschema.validate(instance=doc_json, schema=schema)
+        except jsonschema.ValidationError as exc:
+            validation_failures.append(doc_id)
+            print(f"  [SCHEMA ERROR] {doc_id}: {exc.message}")
+            continue
 
         fname = f"{Path(doc_id).stem}_annotations.json"
         out_path = output_dir / fname
@@ -90,6 +111,7 @@ def split_annotations(
             print(f"  [no annotations] {doc_id}")
 
     total = len(documents)
+    files_written = total - len(validation_failures)
     print(
         f"\nSplit complete.\n"
         f"  Input file:              {input_json_path}\n"
@@ -97,8 +119,14 @@ def split_annotations(
         f"  Total documents:         {total}\n"
         f"  With annotations:        {docs_with_annotations}\n"
         f"  Without annotations:     {docs_without_annotations}\n"
-        f"  Files written:           {total}"
+        f"  Validation failures:     {len(validation_failures)}\n"
+        f"  Files written:           {files_written}"
     )
+
+    if validation_failures:
+        print("\nDocuments that failed schema validation:")
+        for doc_id in validation_failures:
+            print(f"  - {doc_id}")
 
 
 if __name__ == "__main__":
