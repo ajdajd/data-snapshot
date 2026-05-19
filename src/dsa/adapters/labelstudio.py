@@ -62,40 +62,13 @@ def _ls_rect_to_xyxy_norm(rect_value: dict[str, Any]) -> list[float]:
     return [x1, y1, x2, y2]
 
 
-def _best_page_dims_for_item(
-    results: list[dict[str, Any]], item_index: int
-) -> tuple[int, int] | None:
-    """Infer page image dimensions from rectangle results.
 
-    Scans the annotation results for any ``rectanglelabels`` entry on the
-    given page that includes ``original_width`` and ``original_height``.
-
-    Parameters
-    ----------
-    results : list[dict[str, Any]]
-        The ``"result"`` list from a Label Studio annotation.
-    item_index : int
-        Page index within the task (0-based).
-
-    Returns
-    -------
-    tuple[int, int] | None
-        ``(width_px, height_px)`` if found, ``None`` otherwise.
-    """
-    for r in results:
-        if r.get("type") == "rectanglelabels" and r.get("item_index") == item_index:
-            ow = r.get("original_width")
-            oh = r.get("original_height")
-            if isinstance(ow, int) and isinstance(oh, int) and ow > 0 and oh > 0:
-                return ow, oh
-    return None
 
 
 def convert_labelstudio_export_to_eval_v13(
     input_json_path: str | Path,
     output_json_path: str | Path,
     *,
-    dataset_id: str = "labelstudio_export",
     created_at: str | None = None,
     label_map: dict[str, str] | None = None,
 ) -> dict[str, Any]:
@@ -114,8 +87,6 @@ def convert_labelstudio_export_to_eval_v13(
         Path to the Label Studio export JSON file.
     output_json_path : str | Path
         Destination path for the ground-truth JSON.
-    dataset_id : str
-        Identifier for this dataset in the output metadata.
     created_at : str | None
         ISO 8601 timestamp override.  When ``None``, uses the latest
         ``updated_at`` from the export tasks.
@@ -207,6 +178,7 @@ def convert_labelstudio_export_to_eval_v13(
                         ),
                         "label": label,
                         "bbox": bbox,
+                        "score": None,
                     }
                 )
 
@@ -216,22 +188,11 @@ def convert_labelstudio_export_to_eval_v13(
 
             page_id = f"{doc_id}::p{page_index:03d}"
 
-            dims = _best_page_dims_for_item(results, page_index)
-            if dims is None:
-                width_px, height_px = 1, 1
-            else:
-                width_px, height_px = dims
-
             page_entries.append(
                 {
                     "page_id": page_id,
                     "doc_id": doc_id,
                     "page_index": int(page_index),
-                    "image": {
-                        "width_px": int(width_px),
-                        "height_px": int(height_px),
-                        "path": str(page_path),
-                    },
                     "objects": objects,
                 }
             )
@@ -249,8 +210,9 @@ def convert_labelstudio_export_to_eval_v13(
         "info": {
             "schema_version": "1.3",
             "type": "ground_truth",
-            "dataset_id": dataset_id,
             "created_at": created_at,
+            "run_id": None,
+            "model": {"name": "human annotation"},
             "coordinate_system": {
                 "type": "normalized_xyxy",
                 "range": [0.0, 1.0],
@@ -299,18 +261,11 @@ if __name__ == "__main__":
         default=str(OUTPUT_JSON_PATH),
         help="Destination path for the ground-truth JSON.",
     )
-    parser.add_argument(
-        "--dataset_id",
-        type=str,
-        default="labelstudio_export",
-        help="Dataset identifier for the output metadata.",
-    )
     args = parser.parse_args()
 
     result = convert_labelstudio_export_to_eval_v13(
         args.input_json_path,
         args.output_json_path,
-        dataset_id=args.dataset_id,
     )
     n_docs = len(result.get("documents", []))
     n_pages = len(result.get("predictions", []))

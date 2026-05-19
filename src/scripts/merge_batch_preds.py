@@ -186,28 +186,16 @@ def combine_batch_predictions(
 
     # Build combined info block from the first file
     reference_info = batch_data[0].get("info", {})
-    file_type = reference_info.get("type", "prediction")
     model_name = reference_info.get("model", {}).get("name", "unknown")
 
-    combined_info: dict[str, Any] = {
+    combined_info = {
         "schema_version": reference_info.get("schema_version", "1.3"),
-        "type": file_type,
+        "type": reference_info.get("type", "prediction"),
+        "created_at": datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "run_id": _generate_run_id(model_name),
+        "model": reference_info.get("model", {}),
         "coordinate_system": reference_info.get("coordinate_system", {}),
     }
-
-    if file_type == "ground_truth":
-        combined_info["dataset_id"] = reference_info.get(
-            "dataset_id", "merged_ground_truth"
-        )
-        combined_info["created_at"] = datetime.now(tz=timezone.utc).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        )
-    else:
-        combined_info["created_at"] = datetime.now(tz=timezone.utc).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        )
-        combined_info["run_id"] = _generate_run_id(model_name)
-        combined_info["model"] = reference_info.get("model", {})
 
     output = {
         "label_map": batch_data[0].get("label_map", {}),
