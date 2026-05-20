@@ -68,6 +68,10 @@ def split_annotations(
     documents = data["documents"]
     predictions = data["predictions"]
 
+    # Strip timezone offset from created_at for HuggingFace compatibility.
+    if "created_at" in info and isinstance(info["created_at"], str):
+        info["created_at"] = info["created_at"].replace("Z", "").replace("+00:00", "")
+
     # Build a lookup: doc_id -> list of prediction page entries
     preds_by_doc: dict[str, list[dict]] = defaultdict(list)
     for page_entry in predictions:
