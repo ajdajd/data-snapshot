@@ -30,6 +30,22 @@ configs:
     path: "metadata/prwp/*.json"
   - split: refugee
     path: "metadata/refugee/*.json"
+- config_name: documents
+  data_files:
+  - split: unhcr
+    path: "documents/unhcr/*.pdf"
+  - split: prwp
+    path: "documents/prwp/*.pdf"
+  - split: refugee
+    path: "documents/refugee/*.pdf"
+- config_name: snapshots
+  data_files:
+  - split: unhcr
+    path: "snapshots/unhcr/*.png"
+  - split: prwp
+    path: "snapshots/prwp/*.png"
+  - split: refugee
+    path: "snapshots/refugee/*.png"
 ---
 
 # Dataset card for data-snapshot
@@ -43,26 +59,36 @@ The repository is organized as follows:
 
 ```
 ai4data/data-snapshot/
-├── annotations/<source>/*.json                 # Contains annotation files per document
-├── metadata/<source>/*.json                    # Document-level metadata
-├── schemas/data-snapshot-eval-v1.3.schema.json # Provides the schema of the annotation file					
+├── annotations/<source>/*.json  # Contains annotation files per document
+├── documents/<source>/*.pdf     # Actual PDFs
+├── metadata/<source>/*.json     # Document-level metadata
+├── schemas/*.json               # Provides the schema of the annotation and metadata files
+├── snapshots/<source>/*.png     # Image files corresponding to the annotations
 └── README.md
 ```
 
 ### Subsets
 - `annotations`
   - JSON files that indicate the data snapshots: their object class (Figure / Table) and bounding box locations (in normalized `[x1, y1, x2, y2]` format, top-left origin)
-  - Follows the schema provided in `data-snapshot-eval-v1.3.schema.json`
-  - Provided on a per-document basis or a combined JSON file per source
+  - Follows the schema provided in `schemas/data-snapshot-eval-v1.3.schema.json`
+  - Provided on a per-document basis; documents that do not have data snapshots will still have an annotation file present but list of bounding boxes will be empty.
+- `documents`
+  - Actual PDF files that were annotated
 - `metadata`
+  - Document-level metadata following the [World Bank Metadata Standards (Chapter 5 — Documents)](https://worldbank.github.io/schema-guide/chapter05.html), schema provided in `schemas/metadata_schema.json`.
   - Provided on a per-document basis
+  - All files across all sources share a uniform schema (same keys at every nesting level)
+- `snapshots`
+  - PNG files extracted from the documents and bounding box locations
 
 ### Sources
 - UNHCR
-- PRWP (WIP)
-- Refugee (WIP)
+- PRWP
+- Refugee
 
 ## Schema
+
+### Annotations
 
 The annotation files follow the **Data Snapshot Evaluation Format (v1.3)**. Below is a simplified, human-readable example of the JSON schema with explanatory comments for each field.
 
@@ -80,8 +106,11 @@ The annotation files follow the **Data Snapshot Evaluation Format (v1.3)**. Belo
   "info": {
     "schema_version": "1.3",
     "type": "ground_truth",  // Indicates these are human annotations
-    "dataset_id": "data-snapshot_unhcr",
-    "created_at": "2026-04-17T12:00:00Z",
+    "created_at": "2026-05-20T13:44:29",
+    "run_id": "human-annotation-combined-e3432dce89",
+    "model": {
+      "name": "human annotation"
+    },
     "coordinate_system": {
       "type": "normalized_xyxy",
       "range": [0.0, 1.0],  // Bounding boxes are normalized between 0 and 1
@@ -104,23 +133,33 @@ The annotation files follow the **Data Snapshot Evaluation Format (v1.3)**. Belo
       "page_id": "1_advocacy_note_mineaction_-_niger_eng.pdf::p001",
       "doc_id": "1_advocacy_note_mineaction_-_niger_eng.pdf",
       "page_index": 0,  // 0-indexed page number
-      // Image data for Label Studio (ignore this)
-      "image": {
-        "width_px": 2481,
-        "height_px": 3508,
-        "path": "images/1_advocacy_note_mineaction_-_niger_eng.pdf_p001.png"
-      },
       "objects": [
         {
           "id": "obj_001",
           "label": "Figure",  // Matches a label_map entry
-          "bbox": [0.1, 0.2, 0.8, 0.6],  // Normalized [x_min, y_min, x_max, y_max]
+          "bbox": [0.029, 0.177, 0.595, 0.735],  // Normalized [x_min, y_min, x_max, y_max]
+          "score": null  // Always null for ground truth
         }
       ]
     }
   ]
 }
 ```
+
+### Metadata
+
+The metadata files follow the [**World Bank Document Metadata Schema**](https://worldbank.github.io/schema-guide/chapter05.html). See `schemas/metadata_schema.json` for the formal JSON schema definition.
+
+All metadata files across all sources share a uniform schema (same keys at every nesting level, same types) to ensure compatibility with Apache Arrow and HuggingFace streaming.
+
+Top-level fields:
+-  `type`
+- `metadata_information`
+- `document_description`
+- `provenance`
+- `tags`
+- `schematype`
+- `additional` - contains source-specific fields (e.g. `additional.unhcr_*` for UNHCR, `additional.wds_*` for WDS API-sourced datasets).
 
 ## Dataset creation
 The annotations were produced through human labeling using Label Studio.
