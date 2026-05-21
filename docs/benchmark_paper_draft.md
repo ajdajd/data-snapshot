@@ -4,23 +4,23 @@
 AJ Carl P. Dy \<ady@worldbank.org\>, Aivin V. Solatorio \<asolatorio@worldbank.org\>
 
 **Code Repository:** https://github.com/ajdajd/data-snapshot-annotation  
-**Dataset:** https://huggingface.co/datasets/ajdajd/data-snapshot
+**Dataset:** https://huggingface.co/datasets/ai4data/data-snapshot
 
 ---
 
 # Abstract
 
-Institutional PDF archives contain substantial amounts of operational and analytical information embedded within figures and tables. Existing document AI systems and benchmarks have largely focused on OCR, generic layout understanding, or scientific publishing corpora, leaving a significant gap in the extraction of semantically meaningful “data snapshots” from complex development and humanitarian documents.
+Institutional PDF archives contain substantial amounts of operational and analytical information embedded within figures and tables. Existing document layout benchmarks largely optimize for generic layout extraction and do not distinguish semantically meaningful analytical content from irrelevant layout objects such as decorative images, logos, or tables of contents. This creates a gap between benchmark-oriented layout detection and operationally useful data extraction.
 
-We introduce **data-snapshot**, a benchmark dataset and evaluation framework for figure and table extraction from real-world institutional PDFs spanning humanitarian protection reports, World Bank policy research working papers, and project appraisal documents. Unlike existing layout benchmarks, data-snapshot distinguishes between generic layout objects and analytically relevant visual regions intended for downstream operational use. For example, humanitarian reports frequently contain decorative photographs that are technically figures but not meaningful data snapshots, while institutional reports often contain tables of contents and formatting tables that do not contain reusable analytical information.
+This work presents a benchmark dataset and evaluation framework for semantically meaningful figure and table extraction from institutional PDFs spanning humanitarian reports, World Bank policy research working papers, and project appraisal documents. We benchmark multiple off-the-shelf open-source layout detection systems and evaluate both detection accuracy and spatial extraction quality using metrics designed for downstream analytical usability.
 
-The benchmark evaluates both object detection quality and spatial extraction quality using a set of metrics designed specifically for operational extraction workflows. We benchmark multiple open-source layout detection systems and demonstrate that current approaches struggle to achieve reliable extraction quality on this domain despite strong performance on existing academic benchmarks.
-
-Our findings suggest that current open-source document AI tooling remains insufficient for robust large-scale extraction workflows over institutional PDF archives. We release the dataset, source PDFs, annotations, and benchmarking code to support future research in operational document intelligence.
+Our results show that current document layout models struggle to generalize to operational institutional documents despite strong performance on conventional academic benchmarks. We release the dataset, source PDFs, annotations, and benchmarking code to support future research in operational document intelligence.
 
 ---
 
 # 1. Introduction
+
+## 1.1 Operational Knowledge in Institutional PDFs
 
 Institutional PDF archives remain one of the largest repositories of operational knowledge in development, humanitarian response, public policy, and international finance. Organizations such as the World Bank, UNHCR, and humanitarian coordination clusters continuously publish reports containing statistical tables, monitoring dashboards, financing summaries, implementation matrices, geospatial maps, and analytical visualizations.
 
@@ -28,26 +28,36 @@ However, much of this information remains inaccessible to downstream AI systems 
 
 This issue is particularly important in operational settings where narrative text may summarize only a narrow subset of findings while additional information remains embedded within tables and figures. Humanitarian reports may describe high-level trends in prose while detailed incident distributions remain visible only inside charts and dashboards. Policy research papers may discuss conclusions narratively while econometric outputs and comparative statistics remain embedded within tables. Project appraisal documents may describe interventions textually while financing allocations, procurement structures, and implementation details appear only within structured matrices.
 
-We refer to the extraction of these semantically meaningful visual regions as **data snapshot extraction**. A data snapshot is defined as a bounded visual region containing structured or semi-structured information intended for analytical interpretation or operational reuse. Examples include statistical tables, analytical charts, operational dashboards, financing matrices, monitoring summaries, and geospatial visualizations.
+## 1.2 Defining Data Snapshots
 
-Importantly, not all figures and tables are data snapshots. Humanitarian and institutional PDFs frequently contain decorative photographs, logos, cover images, tables of contents, recommendation blocks, and formatting tables that are technically classified as figures or tables but do not contain reusable analytical information. Existing layout benchmarks generally do not distinguish between generic layout objects and semantically meaningful data snapshots, encouraging models to optimize for broad layout extraction rather than operationally useful extraction.
+We refer to the extraction of semantically meaningful visual regions from institutional PDFs as **data snapshot extraction**.
+
+A **data snapshot** is defined as a bounded visual region within a document page containing structured or semi-structured information intended for analytical interpretation or operational reuse. Examples include statistical tables, analytical charts, operational dashboards, financing matrices, monitoring summaries, and geospatial visualizations.
+
+Importantly, not all figures and tables are data snapshots. Humanitarian and institutional PDFs frequently contain decorative photographs, logos, cover images, tables of contents, recommendation blocks, and formatting tables that are technically classified as figures or tables but do not contain reusable analytical information.
+
+Existing layout benchmarks generally do not distinguish between generic layout objects and semantically meaningful data snapshots. As a result, models trained on these datasets are encouraged to optimize for broad layout extraction rather than operationally useful extraction.
 
 This distinction creates what we refer to as the **data snapshot extraction gap**:
 > the inability of current document AI systems to reliably identify and isolate semantically meaningful visual regions containing reusable operational information.
 
-While document layout analysis has advanced substantially in recent years, most existing benchmarks focus on scientific publishing corpora, OCR-centric parsing tasks, or generic segmentation objectives. Operational institutional PDFs introduce substantially different challenges, including multilingual layouts, infographic-heavy pages, embedded dashboards, annex-heavy reports, mixed raster/vector content, and heterogeneous formatting accumulated across decades of institutional publishing.
+## 1.3 Why Specialized Snapshot Detection Still Matters
 
-To address this gap, we introduce **data-snapshot**, a benchmark specifically designed for evaluating figure and table extraction from operational institutional PDFs. Our benchmark spans humanitarian reports, policy research working papers, and project appraisal documents, emphasizing real-world operational document complexity rather than clean academic layouts.
+Recent multimodal large language models are capable of extracting information from figures and tables directly from page images. However, using general-purpose multimodal pipelines for large-scale institutional document processing remains computationally expensive.
 
-Our contributions are as follows:
+In many operational workflows, only a small fraction of document content contains analytically relevant visual information. Data snapshots often occupy less than 30% of a page and may appear in only a handful of pages within long institutional reports. As a result, pipelines that process entire documents uniformly may spend substantial computational resources analyzing visually irrelevant content.
 
-1. We introduce a benchmark dataset for semantically meaningful data snapshot extraction from institutional PDFs.
+This creates a strong incentive for efficient snapshot localization systems that can isolate semantically meaningful visual regions prior to downstream processing. In practice, accurate snapshot localization can reduce both the total amount of visual content requiring expensive multimodal processing and the amount of irrelevant document context propagated into downstream extraction pipelines.
 
-2. We demonstrate that existing layout detection systems struggle to generalize to operational institutional document ecosystems despite strong performance on conventional layout benchmarks.
+## 1.4 Benchmarking Existing Open-Source Systems
 
-3. We introduce an evaluation framework that separates object detection quality from spatial extraction quality.
+Despite recent advances in document layout analysis, most existing benchmarks focus on scientific publishing corpora, OCR-centric parsing tasks, or generic segmentation objectives. Operational institutional PDFs introduce substantially different challenges, including multilingual layouts, infographic-heavy pages, embedded dashboards, annex-heavy reports, mixed raster/vector content, and heterogeneous formatting accumulated across decades of institutional publishing.
 
-4. We release source PDFs, annotations, metadata, and benchmarking code to support future research in operational document intelligence.
+This work presents a benchmark for evaluating semantically meaningful figure and table extraction from operational institutional PDFs. The benchmark spans humanitarian reports, policy research working papers, and project appraisal documents, emphasizing real-world operational document complexity rather than clean academic layouts.
+
+Rather than proposing a new model architecture, our objective is to establish realistic baselines for current open-source capabilities. We benchmark multiple off-the-shelf document layout detection systems in order to evaluate how well existing models generalize to operational institutional document ecosystems.
+
+Our work makes four primary contributions. First, we construct a benchmark dataset for semantically meaningful data snapshot extraction spanning humanitarian reports, policy research papers, and project appraisal documents. Second, we develop an evaluation framework that separates object detection quality from spatial extraction quality. Third, we benchmark multiple off-the-shelf open-source layout detection systems under operational document conditions. Finally, we release source PDFs, annotations, metadata, and benchmarking code to support future research in operational document intelligence.
 
 ---
 
@@ -108,8 +118,8 @@ The benchmark aggregates documents from three major institutional document famil
 ## 3.4 Annotation Workflow
 
 Annotations were produced using a semi-assisted human-in-the-loop workflow. Two pretrained layout detection systems were first used to generate candidate annotations:
-- DocLayout-YOLO for figures,
-- YOLO11 for tables.
+- DocLayout-YOLO for figures
+- YOLO11 for tables
 
 These annotations were then manually reviewed and corrected page-by-page using Label Studio. All final annotations were manually verified by a human annotator.
 
@@ -145,7 +155,7 @@ Predicted bounding boxes are matched against ground-truth annotations using Inte
 
 We report:
 - Precision
-- Recall.
+- Recall
 
 Precision measures the fraction of predicted snapshots that correspond to valid ground-truth objects, while Recall measures the fraction of ground-truth snapshots successfully detected by the model.
 
@@ -161,9 +171,9 @@ Conventional object detection metrics alone are insufficient for evaluating oper
 - axes labels.
 
 To capture downstream extraction usability, we separately evaluate spatial extraction quality using three complementary metrics:
-- IoU,
-- Area Recall (Coverage),
-- Area Precision (Purity).
+- Area Recall (Coverage)
+- Area Precision (Purity)
+- Intersection-over-Union (IoU)
 
 ### Area Recall (Coverage)
 
@@ -171,13 +181,25 @@ Area recall measures the fraction of the ground-truth region captured by the pre
 
 High coverage is important because downstream extraction pipelines require semantically complete crops. Missing titles, legends, or explanatory footnotes may significantly reduce the usefulness of the extracted snapshot.
 
+[PLACEHOLDER — Equation]
+
 ### Area Precision (Purity)
 
 Area precision measures the fraction of the predicted bounding box belonging to the ground-truth object.
 
 High purity indicates that the extracted crop contains minimal irrelevant surrounding content.
 
+[PLACEHOLDER — Equation]
+
+### Intersection-over-Union (IoU)
+
+Unlike Area Recall and Area Precision, which separately measure completeness and cleanliness of extraction, Intersection-over-Union (IoU) provides a single metric that jointly captures both properties. It measures the overlap between a predicted bounding box and its corresponding ground-truth annotation. It is computed as the ratio between the area of overlap and the area of the union between the two regions.
+
+[PLACEHOLDER — Equation]
+
 [PLACEHOLDER — Visualization Showing Why Spatial Metrics Matter]
+
+In this benchmark, IoU is used both for determining valid detections and for evaluating overall spatial alignment quality between predicted and annotated data snapshots.
 
 ## 4.3 Bounding Box Filtering
 
@@ -191,23 +213,23 @@ This filtering substantially improved precision across all evaluated models whil
 
 We benchmark four open-source layout detection systems spanning OCR-aware architectures, YOLO-based document detectors, and transformer-based document encoders.
 
-**[TF-ID-Large](https://huggingface.co/yifeihu/TF-ID-large)**
+**TF-ID-Large**
 
-TF-ID-Large is a vision-language document layout detection model developed by Yifei Hu for extracting tables and figures from academic papers. The model is built by fine-tuning the large variant of Florence-2, trained on the custom TF-ID arXiv Papers dataset, which contains manually annotated academic-paper page images with bounding boxes for tables and figures.
+[TF-ID-Large](https://huggingface.co/yifeihu/TF-ID-large) is a vision-language document layout detection model developed by Yifei Hu for extracting tables and figures from academic papers. The model is built by fine-tuning the large variant of Florence-2, trained on the custom TF-ID arXiv Papers dataset, which contains manually annotated academic-paper page images with bounding boxes for tables and figures.
 
-**[DocLayout-YOLO](https://huggingface.co/papers/2410.12628)**
+**DocLayout-YOLO**
 
-DocLayout-YOLO is a real-time document layout analysis model proposed by Zhiyuan Zhao et al. that extends the YOLOv10 object detection architecture for document understanding tasks such as detecting text blocks, tables, figures, titles, and other layout elements. To improve generalization, the authors introduced the large-scale synthetic pretraining corpus DocSynth-300K. The model is first pretrained on DocSynth-300K and then fine-tuned on downstream layout-analysis datasets including DocLayNet and D4LA. During inference, DocLayout-YOLO performs direct object detection on rendered document pages, predicting bounding boxes and semantic layout labels in a single-stage detection pipeline without requiring OCR or multimodal text encoding.
+[DocLayout-YOLO](https://huggingface.co/papers/2410.12628) is a real-time document layout analysis model proposed by Zhiyuan Zhao et al. that extends the YOLOv10 object detection architecture for document understanding tasks such as detecting text blocks, tables, figures, titles, and other layout elements. To improve generalization, the authors introduced the large-scale synthetic pretraining corpus DocSynth-300K. The model is first pretrained on DocSynth-300K and then fine-tuned on downstream layout-analysis datasets including DocLayNet and D4LA. During inference, DocLayout-YOLO performs direct object detection on rendered document pages, predicting bounding boxes and semantic layout labels in a single-stage detection pipeline without requiring OCR or multimodal text encoding.
 
-**[YOLOv11 for Advanced Document Layout Analysis (medium)](https://huggingface.co/Armaggheddon/yolo11-document-layout)**
+**YOLOv11 for Advanced Document Layout Analysis (medium)**
 
-YOLOv11 for Advanced Document Layout Analysis is a family of lightweight document layout analysis models built on the Ultralytics YOLO11 object detection architecture and fine-tuned specifically for document understanding tasks on the DocLayNet benchmark dataset. The models are designed to detect semantic document layout classes such as text blocks, titles, tables, figures, captions, and lists, using a purely vision-based single-stage detection pipeline. Architecturally, the models inherit the convolutional backbone, feature pyramid aggregation, and anchor-free detection head introduced in YOLO11, optimized for fast real-time inference while maintaining strong localization accuracy. During inference, document pages are rendered as images and passed directly through the YOLO detector, which predicts bounding boxes and class labels for layout regions in a single forward pass without requiring OCR or multimodal text embeddings.
+[YOLOv11 for Advanced Document Layout Analysis](https://huggingface.co/Armaggheddon/yolo11-document-layout) is a family of lightweight document layout analysis models built on the Ultralytics YOLO11 object detection architecture and fine-tuned specifically for document understanding tasks on the DocLayNet benchmark dataset. The models are designed to detect semantic document layout classes such as text blocks, titles, tables, figures, captions, and lists, using a purely vision-based single-stage detection pipeline. Architecturally, the models inherit the convolutional backbone, feature pyramid aggregation, and anchor-free detection head introduced in YOLO11, optimized for fast real-time inference while maintaining strong localization accuracy. During inference, document pages are rendered as images and passed directly through the YOLO detector, which predicts bounding boxes and class labels for layout regions in a single forward pass without requiring OCR or multimodal text embeddings.
 
 We used the medium variant for the benchmarks in this paper.
 
-**[YOLOv26 for Advanced Document Layout Analysis (medium)](https://huggingface.co/Armaggheddon/yolo26-document-layout)**
+**YOLOv26 for Advanced Document Layout Analysis (medium)**
 
-YOLOv26 for Advanced Document Layout Analysis is based on the newer Ultralytics YOLO26 architecture and the updated DocLayNet v1.2 dataset.
+[YOLOv26 for Advanced Document Layout Analysis](https://huggingface.co/Armaggheddon/yolo26-document-layout) is based on the newer Ultralytics YOLO26 architecture and the updated DocLayNet v1.2 dataset.
 
 We used the medium variant for the benchmarks in this paper.
 
