@@ -16,8 +16,8 @@ from pathlib import Path
 
 import jsonschema
 
-from dsa.utils import load_json
-from dsa.constants import ROOT
+from data_snapshot.utils import load_json
+from data_snapshot.constants import ROOT
 
 # Resolve the schema path relative to the project root.
 _SCHEMA_PATH = ROOT / "docs/data-snapshot-eval-v1.3.schema.json"

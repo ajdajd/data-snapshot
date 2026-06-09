@@ -21,8 +21,8 @@ from huggingface_hub import hf_hub_download
 from tqdm.auto import tqdm
 from ultralytics import YOLO
 
-from dsa.constants import INPUT_PDF_DIR, LABEL_MAP, MODELS_DIR, ROOT
-from dsa.utils import (
+from data_snapshot.constants import INPUT_PDF_DIR, LABEL_MAP, MODELS_DIR, ROOT
+from data_snapshot.utils import (
     convert_pdf_to_images,
     filter_small_predictions,
     normalize_bboxes_xyxy,
@@ -67,8 +67,6 @@ def _coerce_label(raw: Any) -> str | None:
     if s_low in _LABEL_NORMALIZATION:
         return _LABEL_NORMALIZATION[s_low]
     return None
-
-
 
 
 class YOLO11Config:
@@ -200,9 +198,7 @@ def run_yolo11_adapter_directory(
             }
         )
 
-        images = convert_pdf_to_images(
-            pdf_path, dpi=cfg.dpi, backend=cfg.pdf_backend
-        )
+        images = convert_pdf_to_images(pdf_path, dpi=cfg.dpi, backend=cfg.pdf_backend)
 
         for page_index, image in enumerate(
             tqdm(images, desc=f"Pages: {pdf_path.name}", leave=False)

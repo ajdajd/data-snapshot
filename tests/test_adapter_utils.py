@@ -1,10 +1,15 @@
-"""Tests for shared adapter utilities in ``dsa.utils``."""
+"""Tests for shared adapter utilities in ``data_snapshot.utils``."""
 
 import re
 
 import pytest
 
-from dsa.utils import clamp01, normalize_bboxes_xyxy, sanitize_bbox, utc_now_iso
+from data_snapshot.utils import (
+    clamp01,
+    normalize_bboxes_xyxy,
+    sanitize_bbox,
+    utc_now_iso,
+)
 
 
 class TestUtcNowIso:

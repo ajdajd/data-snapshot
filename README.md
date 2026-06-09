@@ -1,12 +1,53 @@
-# data-snapshot-annotation
+# data-snapshot
 
-Label Studio and model evaluation framework for data snapshot detection in PDF documents.
+Data snapshot toolkit for PDF documents.
 
-This repository consists of two parts: 
-1. Label Studio for annotation
-2. Model evaluation
+This package provides the source code for [Benchmarking Open-Source Layout Detection Models for Data Snapshot Extraction from Institutional Documents](https://arxiv.org/abs/2606.06242).
 
-# Label Studio
+Dataset: [ai4data/data-snapshot](https://huggingface.co/datasets/ai4data/data-snapshot)
+
+## Package structure
+
+```
+src/data_snapshot/
+├── annotation/       # Label Studio annotation project management
+├── inference/        # Layout detection model adapters
+├── evaluation/       # Evaluation framework
+├── metadata/         # Metadata tools
+├── misc/             # Other tools
+├── constants.py      # Shared constants
+└── utils.py          # Shared utilities
+```
+
+## Installation
+
+```shell
+# Core package
+pip install -e .
+
+# With model-specific dependencies
+pip install -e .[tfid]             # TF-ID adapter
+pip install -e .[doclayout_yolo]   # DocLayout-YOLO adapter
+pip install -e .[yolo11]           # YOLO11 adapter
+pip install -e .[yolo26]           # YOLO26 adapter
+pip install -e .[viz]              # Visualization
+
+# All dependencies (development)
+pip install -e .[dev]
+```
+
+### Environment variables
+
+Copy `.env.template` to `.env` and fill in the required values:
+```
+LABELSTUDIO_API_KEY=    # Required for annotation workflows (See `Add API key` section)
+```
+
+---
+
+# Annotation
+
+Annotation workflows for creating ground truth datasets on Label Studio.
 
 ## First time setup
 
@@ -30,14 +71,7 @@ This repository consists of two parts:
     ```
 4. Open `http://localhost:8080/` on a web browser and create a login.
 
-## Environment setup
-
-### 1. Install the repository
-```shell
-pip install -e .
-```
-
-### 2. Add API key to the `.env` file
+## Add API key
 
 1. Open Label Studio.
 2. At the top-left corner, click the hamburger menu (≡) and select `Organization`.
@@ -54,27 +88,27 @@ pip install -e .
     ```shell
     docker compose up
     ```
-3. Run `create_tasks.py`. 
+3. Run `create_tasks.py`.
     ```shell
-    python create_tasks.py \
+    python -m data_snapshot.annotation.create_tasks \
     --project_name="My annotation project" \
     --dataset_name=my_dataset \
-    --input_pdf_dir=pdf_input/ 
+    --input_pdf_dir=pdf_input/
     ```
 4. Open Label Studio and refresh the web browser. The newly created project should appear.
 
 ## Setting up a new PDF annotation project with pre-labeling
 
 1. Add PDF files to annotate in the `pdf_input` directory.
-2. Generate prediction file(s). See [Generating prediction files](#generating-prediction-files) for the list of supported models and installation info.
+2. Generate prediction file(s). See [Inference](#inference) for the list of supported models and installation info.
     ```shell
-    python src/dsa/adapters/{adapter}.py \
+    python -m data_snapshot.inference.{adapter} \
     --input_pdf_dir=pdf_input/ \
     --output_json_path=data/evaluation_input/preds.json
     ```
 3. (Optional) Combine prediction files by assigning a class to a source.
     ```shell
-    python src/scripts/combine_pred_files.py \
+    python -m data_snapshot.annotation.merge_class_preds \
     --figure_preds=data/evaluation_input/preds1.json \
     --table_preds=data/evaluation_input/preds2.json \
     --output_json_path=data/evaluation_input/combined_preds.json  
@@ -85,13 +119,13 @@ pip install -e .
     ```
 5. Create project and tasks.
     ```shell
-    python create_tasks_with_prelabeling.py \
+    python -m data_snapshot.annotation.create_tasks_with_prelabeling \
     --project_name="My project with prelabeling" \
     --dataset_name=my_dataset \
     --input_pdf_dir=pdf_input/ \
     --pred_json_path=data/evaluation_input/preds.json
     ```
-6. Open Label Studio and refresh the web browser. The newly created project should appear.
+5. Open Label Studio and refresh the web browser. The newly created project should appear.
 
 ## Backing up an annotation project
 
@@ -102,7 +136,7 @@ pip install -e .
 2. Before exporting, make sure all annotations are submitted and that there are no drafts. You check this by going to the project page and filter for tasks where drafts exist.
 3. Run `export_project.py`. This will create the backup JSON file in the specified path.
     ```shell
-    python src/scripts/export_project.py \
+    python -m data_snapshot.annotation.export_project \
     --project_id=22 \
     --output_path=data/backups/project_22_backup.json
     ```
@@ -112,118 +146,98 @@ pip install -e .
 1. Prepare the following files:
     1. Backup JSON file (e.g., `backups/project_22_backup.json`)
     2. PDF files (e.g., in `pdf_input/`)
-2. Make sure Label Studio is started and an [API key is added to the `.env` file](#2-add-api-key-to-the-env-file).
+2. Make sure Label Studio is started and an [API key is added to the `.env` file](#add-api-key).
     ```shell
     docker compose up
     ```
 3. Run `import_project.py`.
     ```shell
-    python src/scripts/import_project.py \
+    python -m data_snapshot.annotation.import_project \
     --project_name="My restored project" \
     --input_path=backups/project_22_backup.json \
     --input_pdf_dir=pdf_input/
     ```
-    Note: `dataset_name` is an optional parameter that must match the value in the backup file. If not specified, the script will infer it from the backup file. 
-    
-    If value is not correct, the images will not load properly and the source storage must be manually configured. See [docs/manual_setup.md](docs/manual_setup.md) for instructions. 
+    Note: `dataset_name` is an optional parameter that must match the value in the backup file. If not specified, the script will infer it from the backup file.
 
-# Model evaluation
+    If value is not correct, the images will not load properly and the source storage must be manually configured. See [docs/manual_setup.md](docs/manual_setup.md) for instructions.
 
-Evaluating models requires two files:
-1. Ground truth JSON file - provides the bounding boxes against which the evaluator will compare the predictions (usually from human annotations)
-2. Prediction JSON file - provides the bounding boxes generated by the model you want to evaluate
+---
 
-These should match the schema laid out in the Data Snapshot Evaluation Format (v1.3).
+# Inference
 
-As such, for any model you want to evaluate, a small adapter module must be written. The file [docs/data-snapshot-eval-v1.3.schema.json](docs/data-snapshot-eval-v1.3.schema.json) provides the full specification.
+Layout detection model adapters that perform the following:
+1. Run Figure and Table extraction on a directory of PDF files.
+2. Convert the raw model outputs into the [Unified Evaluation Schema v1.3 format](docs/data-snapshot-eval-v1.3.schema.json).
 
-To run an evaluation, run `evaluate_model.py`.
+For unsupported models, a small adapter module must be written for them for integration into this repository's framework.
+
+## Supported models
+
+| Model | Optional Dependency | Adapter Module |
+|---|---|---|
+| [yifeihu/TF-ID-large](https://huggingface.co/yifeihu/TF-ID-large) | `pip install -e .[tfid]` | `data_snapshot.inference.tfid` |
+| [juliozhao/DocLayout-YOLO-DocStructBench](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench) | `pip install -e .[doclayout_yolo]` | `data_snapshot.inference.doclayoutyolo` |
+| [Armaggheddon/yolo11-document-layout](https://huggingface.co/Armaggheddon/yolo11-document-layout) | `pip install -e .[yolo11]` | `data_snapshot.inference.yolo11` |
+| [Armaggheddon/yolo26-document-layout](https://huggingface.co/Armaggheddon/yolo26-document-layout) | `pip install -e .[yolo26]` | `data_snapshot.inference.yolo26` |
+
+## Generating prediction files
+
+These prediction files will be used in evaluation.
+
 ```shell
-python src/dsa/evaluate_model.py \
---gt_json_path=path/to/ground_truth.json \
---pred_json_path=path/to/preds.json \
---output_report_path=data/evaluation_output/report.json
+# Example: DocLayout-YOLO
+pip install -e .[doclayout_yolo]
+python -m data_snapshot.inference.doclayoutyolo \
+    --input_pdf_dir=pdf_input/ \
+    --output_json_path=data/evaluation_input/doclayoutyolo.json
 ```
+
+All adapters follow the same CLI pattern with `--input_pdf_dir` and `--output_json_path` arguments.
+
+---
+
+# Evaluation
+
+Evaluation framework for benchmarking layout detection models against human-annotated ground truth.
+
+See [docs/evaluation_spec.md](docs/evaluation_spec.md) for the full evaluation specification.
 
 ## Pre-requisites
 
-1. Install the repository.
-    ```shell
-    pip install -e .
-    ```
-2. Generate ground truth file `ground_truth.json` from human annotations.
+1. Generate ground truth file from human annotations.
     1. Export annotations by following the [backup procedure](#backing-up-an-annotation-project).
-    2. Run `labelstudio.py`. Make sure to point `input_json_path` to the file generated from the previous step.
+    2. Run the Label Studio adapter:
         ```shell
-        python src/dsa/adapters/labelstudio.py \
+        python -m data_snapshot.annotation.labelstudio_adapter \
         --input_json_path=path/to/exported_json \
         --output_json_path=data/evaluation_input/ground_truth.json
         ```
 
-## Generating prediction files
+## Running an evaluation
 
-Supported models:
-- [yifeihu/TF-ID-large](https://huggingface.co/yifeihu/TF-ID-large)
-  1. Install additional dependencies.
-        ```shell
-        pip install -e .[tfid]
-        ```
-  2. Run `tfid.py`.
-        ```shell
-        python src/dsa/adapters/tfid.py \
-        --input_pdf_dir=pdf_input/ \
-        --output_json_path=data/evaluation_input/tfid-large.json
-        ```
-- [juliozhao/DocLayout-YOLO-DocStructBench](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench)
-  1. Install additional dependencies.
-        ```shell
-        pip install -e .[doclayout_yolo]
-        ```
-  2. Run `doclayoutyolo.py`.
-        ```shell
-        python src/dsa/adapters/doclayoutyolo.py \
-        --input_pdf_dir=pdf_input/ \
-        --output_json_path=data/evaluation_input/doclayoutyolo.json
-        ```
-- [Armaggheddon/yolo11-document-layout](https://huggingface.co/Armaggheddon/yolo11-document-layout)
-  1. Install additional dependencies.
-        ```shell
-        pip install -e .[yolo11]
-        ```
-  2. Run `yolo11.py`.
-        ```shell
-        python src/dsa/adapters/yolo11.py \
-        --input_pdf_dir=pdf_input/ \
-        --output_json_path=data/evaluation_input/yolo11.json
-        ```
-- [Armaggheddon/yolo26-document-layout](https://huggingface.co/Armaggheddon/yolo26-document-layout)
-  1. Install additional dependencies.
-        ```shell
-        pip install -e .[yolo26]
-        ```
-  2. Run `yolo26.py`.
-        ```shell
-        python src/dsa/adapters/yolo26.py \
-        --input_pdf_dir=pdf_input/ \
-        --output_json_path=data/evaluation_input/yolo26.json
-        ```
+```shell
+python -m data_snapshot.evaluation.evaluate_model \
+    --gt_json_path=path/to/ground_truth.json \
+    --pred_json_path=path/to/preds.json \
+    --output_report_path=data/evaluation_output/report.json
+```
+
+Both ground truth and prediction files must conform to the [Unified Evaluation Schema v1.3](docs/data-snapshot-eval-v1.3.schema.json).
+
 ## Visualizing predictions
 
 To render annotated page images comparing ground truth and predictions:
 
-1. Install additional dependencies.
-    ```shell
-    pip install -e .[viz]
-    ```
-
-2. Run `visualize_pages.py`.
-    ```shell
-    python src/dsa/visualize_pages.py \
+```shell
+pip install -e .[viz]
+python -m data_snapshot.evaluation.visualize_pages \
     --gt_json_path=path/to/gt.json \
     --pred_json_path=path/to/pred.json \
     --input_pdf_dir=pdf_input \
     --output_dir=data/visualize_pages/
-    ```
+```
+
+---
 
 # Troubleshooting
 
@@ -233,3 +247,25 @@ To render annotated page images comparing ground truth and predictions:
     # Note: Make sure your cwd is the project directory!
     sudo chmod -R 777 .
     ```
+
+---
+
+# License
+
+MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+# Citation
+
+```bibtex
+@misc{dy2026benchmarkingopensourcelayoutdetection,
+      title={Benchmarking Open-Source Layout Detection Models for Data Snapshot Extraction from Institutional Documents}, 
+      author={AJ Carl P. Dy and Aivin V. Solatorio},
+      year={2026},
+      eprint={2606.06242},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2606.06242}, 
+}
+```

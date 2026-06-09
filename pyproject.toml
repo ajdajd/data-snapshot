@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "data-snapshot-annotation"
+name = "data-snapshot"
 version = "0.1.0"
 description = "Label Studio and evaluation framework for data snapshot detection in PDF documents"
 requires-python = ">=3.10,<3.11"
@@ -42,7 +42,7 @@ viz = [
     "opencv-python",
 ]
 dev = [
-    "data-snapshot-annotation[tfid,doclayout_yolo,viz,yolo11,yolo26]",
+    "data-snapshot[tfid,doclayout_yolo,viz,yolo11,yolo26]",
     "pytest==9.0.2",
     "black==25.1.0",
 ]

@@ -1,19 +1,16 @@
 import json
 import pytest
 
-from dsa.constants import ROOT
-from dsa.utils import load_json
-from dsa.adapters.labelstudio import (
-    convert_labelstudio_export_to_eval_v13,
-    LS_EXPORT_JSON_PATH,
-)
-from dsa.adapters.doclayoutyolo import (
+from data_snapshot.constants import ROOT
+from data_snapshot.utils import load_json
+from data_snapshot.annotation.labelstudio_adapter import convert_labelstudio_export_to_eval_v13
+from data_snapshot.inference.doclayoutyolo import (
     DocLayoutYOLOConfig,
     run_doclayout_yolo_adapter_directory,
 )
-from dsa.adapters.tfid import TFIDConfig, run_tfid_adapter_directory
-from dsa.adapters.yolo26 import YOLO26Config, run_yolo26_adapter_directory
-from dsa.adapters.yolo11 import YOLO11Config, run_yolo11_adapter_directory
+from data_snapshot.inference.tfid import TFIDConfig, run_tfid_adapter_directory
+from data_snapshot.inference.yolo26 import YOLO26Config, run_yolo26_adapter_directory
+from data_snapshot.inference.yolo11 import YOLO11Config, run_yolo11_adapter_directory
 
 INPUT_PDF_DIR = ROOT / "tests/data/pdf_input"
 

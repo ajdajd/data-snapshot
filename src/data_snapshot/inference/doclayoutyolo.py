@@ -1,12 +1,12 @@
 """
-YOLO26 adapter -> Unified Evaluation Schema v1.3.
+DocLayout-YOLO adapter -> Unified Evaluation Schema v1.3.
 
 - Input: directory of PDFs
 - Output: single JSON file matching data-snapshot-eval-v1.3.schema.json
 
-Model: YOLO26 Document Layout
-  - Local  : models/yolo26m_doc_layout.pt
-  - Remote : Armaggheddon/yolo26-document-layout (HuggingFace repo ID)
+Model: DocLayout-YOLO fine-tuned on DocStructBench
+  - Local  : models/doclayout_yolo_docstructbench_imgsz1024.pt
+  - Remote : juliozhao/DocLayout-YOLO-DocStructBench (HuggingFace repo ID)
 """
 
 from __future__ import annotations
@@ -16,26 +16,28 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from huggingface_hub import hf_hub_download
+from doclayout_yolo import YOLOv10
 
 from tqdm.auto import tqdm
-from ultralytics import YOLO
 
-from dsa.constants import INPUT_PDF_DIR, LABEL_MAP, MODELS_DIR, ROOT
-from dsa.utils import (
+from data_snapshot.constants import INPUT_PDF_DIR, LABEL_MAP, MODELS_DIR, ROOT
+from data_snapshot.utils import (
     convert_pdf_to_images,
     filter_small_predictions,
     normalize_bboxes_xyxy,
     utc_now_iso,
 )
 
-MODEL_NAME = "Armaggheddon/yolo26-document-layout"
-MODEL_FILENAME = "yolo26m_doc_layout.pt"
-OUTPUT_JSON_PATH = ROOT / "data/evaluation_input/yolo26.json"
-IMGSZ = 1280
+MODEL_NAME = "juliozhao/DocLayout-YOLO-DocStructBench"
+MODEL_FILENAME = "doclayout_yolo_docstructbench_imgsz1024.pt"
+MODEL_PATH_DEFAULT = MODELS_DIR / MODEL_FILENAME
+OUTPUT_JSON_PATH = ROOT / "data/evaluation_input/doclayoutyolo.json"
+IMGSZ = 1024
 
-# Raw YOLO class names that map to canonical labels.
+# DocLayout-YOLO / DocStructBench class names that map to our canonical labels.
+# All other classes (title, text, caption, formula, …) are ignored.
 _LABEL_NORMALIZATION: dict[str, str] = {
+    "figure": "Figure",
     "picture": "Figure",
     "table": "Table",
 }
@@ -43,12 +45,12 @@ _ALLOWED_LABELS = set(LABEL_MAP.values())
 
 
 def _coerce_label(raw: Any) -> str | None:
-    """Map a raw model class name to a canonical label.
+    """Map a raw YOLO class name to a canonical label.
 
     Parameters
     ----------
     raw : Any
-        Raw class name produced by the model (e.g., ``"Picture"``, ``"Table"``).
+        Raw class name produced by the model (e.g. ``"figure"``, ``"table"``).
 
     Returns
     -------
@@ -69,25 +71,19 @@ def _coerce_label(raw: Any) -> str | None:
     return None
 
 
-class YOLO26Config:
-    """Configuration for the YOLO26 adapter.
-
-    See https://docs.ultralytics.com/modes/predict/#inference-arguments for full list of arguments.
+class DocLayoutYOLOConfig:
+    """Configuration for the DocLayout-YOLO adapter.
 
     Parameters
     ----------
-    repo_id : str
-        HuggingFace model repository ID.
-    filename : str
-        Model weight file name on the HF repo.
+    model_path : str | Path
+        Path to the YOLO ``.pt`` weights file, or a HuggingFace repo ID.
     device : str
-        Torch device string (e.g., ``"cpu"``, ``"cuda:0"``).
+        Torch device string (e.g. ``"cpu"``, ``"cuda:0"``).
     dpi : int
         Resolution for PDF-to-image rendering.
     conf : float
         Minimum confidence threshold for detections.
-    iou : float
-        IoU threshold for NMS.
     imgsz : int
         Input image size passed to the YOLO model.
     store_doc_path_as : str
@@ -101,37 +97,33 @@ class YOLO26Config:
 
     def __init__(
         self,
-        repo_id: str = MODEL_NAME,
-        filename: str = MODEL_FILENAME,
+        model_path: str | Path = MODEL_PATH_DEFAULT,
         device: str = "cpu",
         dpi: int = 300,
-        conf: float = 0.25,
-        iou: float = 0.7,
-        imgsz: int = 1280,
+        conf: float = 0.2,
+        imgsz: int = 1024,
         store_doc_path_as: str = "relative",
         filter_small: bool = True,
         pdf_backend: str = "pymupdf",
     ) -> None:
-        self.repo_id = repo_id
-        self.filename = filename
+        self.model_path = model_path
         self.device = device
         self.dpi = dpi
         self.conf = conf
-        self.iou = iou
         self.imgsz = imgsz
         self.store_doc_path_as = store_doc_path_as
         self.filter_small = filter_small
         self.pdf_backend = pdf_backend
 
 
-def run_yolo26_adapter_directory(
+def run_doclayout_yolo_adapter_directory(
     input_pdf_dir: str | Path,
     output_json_path: str | Path,
     *,
     run_id: str | None = None,
-    config: YOLO26Config | None = None,
+    config: DocLayoutYOLOConfig | None = None,
 ) -> Path:
-    """Run YOLO26 on every PDF in a directory and write predictions.
+    """Run DocLayout-YOLO on every PDF in a directory and write predictions.
 
     Produces a single Unified Evaluation Schema v1.3 JSON file containing
     predictions for all pages across all PDFs.
@@ -145,7 +137,7 @@ def run_yolo26_adapter_directory(
     run_id : str | None
         Optional identifier for this evaluation run. Auto-generated if not
         provided.
-    config : YOLO26Config | None
+    config : DocLayoutYOLOConfig | None
         Adapter configuration. Uses defaults when ``None``.
 
     Returns
@@ -162,22 +154,15 @@ def run_yolo26_adapter_directory(
     output_json_path = Path(output_json_path)
     output_json_path.parent.mkdir(parents=True, exist_ok=True)
 
-    cfg = config or YOLO26Config()
-
-    MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    model_path = hf_hub_download(
-        repo_id=cfg.repo_id,
-        filename=cfg.filename,
-        repo_type="model",
-        local_dir=str(MODELS_DIR),
-    )
-    model = YOLO(model_path)
+    cfg = config or DocLayoutYOLOConfig()
+    # TODO: Implement caching/hf_hub_download if repo_id is given
+    model = YOLOv10(cfg.model_path)
 
     pdf_files = sorted(input_pdf_dir.rglob("*.pdf"))
     if not pdf_files:
         raise FileNotFoundError(f"No PDFs found under: {input_pdf_dir}")
 
-    run_id = run_id or f"yolo26-{uuid.uuid4().hex[:10]}"
+    run_id = run_id or f"doclayout-yolo-{uuid.uuid4().hex[:10]}"
 
     documents: list[dict[str, str]] = []
     predictions: list[dict[str, Any]] = []
@@ -198,9 +183,7 @@ def run_yolo26_adapter_directory(
             }
         )
 
-        images = convert_pdf_to_images(
-            pdf_path, dpi=cfg.dpi, backend=cfg.pdf_backend
-        )
+        images = convert_pdf_to_images(pdf_path, dpi=cfg.dpi, backend=cfg.pdf_backend)
 
         for page_index, image in enumerate(
             tqdm(images, desc=f"Pages: {pdf_path.name}", leave=False)
@@ -209,7 +192,6 @@ def run_yolo26_adapter_directory(
                 image,
                 imgsz=cfg.imgsz,
                 conf=cfg.conf,
-                iou=cfg.iou,
                 device=cfg.device,
                 verbose=False,
             )
@@ -233,7 +215,7 @@ def run_yolo26_adapter_directory(
                 raw_name = names.get(cls_idx, "")
                 label = _coerce_label(raw_name)
                 if label is None:
-                    continue  # skip classes not relevant to detection
+                    continue  # skip non-Figure/Table classes
 
                 score = float(scores_list[i])
                 score = max(0.0, min(1.0, score))
@@ -262,6 +244,7 @@ def run_yolo26_adapter_directory(
                 }
             )
 
+    model_path_str = str(cfg.model_path)
     out = {
         "label_map": LABEL_MAP,
         "info": {
@@ -270,12 +253,12 @@ def run_yolo26_adapter_directory(
             "created_at": utc_now_iso(),
             "run_id": run_id,
             "model": {
-                "name": cfg.repo_id,
-                "version": cfg.filename,
+                "name": MODEL_NAME,
+                "version": MODEL_FILENAME,
                 "notes": (
-                    f"adapter=yolo26; "
+                    f"adapter=doclayout_yolo; model_path={model_path_str}; "
                     f"device={cfg.device}; dpi={cfg.dpi}; "
-                    f"conf={cfg.conf}; iou={cfg.iou}; imgsz={cfg.imgsz}"
+                    f"conf={cfg.conf}; imgsz={cfg.imgsz}"
                 ),
             },
             "coordinate_system": {
@@ -298,7 +281,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Run YOLO26 over a PDF directory and produce a v1.3 prediction JSON."
+        description="Run DocLayout-YOLO over a PDF directory and produce a v1.3 prediction JSON."
     )
     parser.add_argument(
         "--input_pdf_dir",
@@ -315,8 +298,7 @@ if __name__ == "__main__":
     parser.add_argument("--run_id", type=str, default=None)
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--dpi", type=int, default=300)
-    parser.add_argument("--conf", type=float, default=0.25)
-    parser.add_argument("--iou", type=float, default=0.7)
+    parser.add_argument("--conf", type=float, default=0.2)
     parser.add_argument("--imgsz", type=int, default=IMGSZ)
     parser.add_argument(
         "--store_doc_path_as",
@@ -325,15 +307,15 @@ if __name__ == "__main__":
         default="relative",
     )
     parser.add_argument(
-        "--repo_id",
+        "--model_path",
         type=str,
-        default=MODEL_NAME,
-        help=("HuggingFace repo ID for the YOLO26 model."),
-    )
-    parser.add_argument(
-        "--filename",
-        type=str,
-        default=MODEL_FILENAME,
+        default=str(MODEL_PATH_DEFAULT),
+        help=(
+            "Path to a local .pt file, or a HuggingFace repo ID "
+            "(e.g. juliozhao/DocLayout-YOLO-DocStructBench). "
+            "When a repo ID is given the model is downloaded and cached via "
+            "huggingface_hub."
+        ),
     )
     parser.add_argument(
         "--filter_small_predictions",
@@ -355,20 +337,18 @@ if __name__ == "__main__":
     pdf_files = list(pdf_dir.rglob("*.pdf"))
     print(f"PDFs found    : {len(pdf_files)}")
 
-    cfg = YOLO26Config(
-        repo_id=args.repo_id,
-        filename=args.filename,
+    cfg = DocLayoutYOLOConfig(
+        model_path=args.model_path,
         device=args.device,
         dpi=args.dpi,
         conf=args.conf,
-        iou=args.iou,
         imgsz=args.imgsz,
         store_doc_path_as=args.store_doc_path_as,
         filter_small=args.filter_small_predictions,
         pdf_backend=args.pdf_backend,
     )
 
-    out_path = run_yolo26_adapter_directory(
+    out_path = run_doclayout_yolo_adapter_directory(
         args.input_pdf_dir,
         args.output_json_path,
         run_id=args.run_id,

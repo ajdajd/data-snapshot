@@ -11,8 +11,8 @@ import argparse
 import json
 from pathlib import Path
 
-from dsa.constants import MIN_PREDICTION_AREA
-from dsa.utils import filter_small_predictions, load_json
+from data_snapshot.constants import MIN_PREDICTION_AREA
+from data_snapshot.utils import filter_small_predictions, load_json
 
 
 def filter_prediction_file(
@@ -23,7 +23,7 @@ def filter_prediction_file(
     """Load a prediction file, filter small detections, and save the result.
 
     Iterates over every page in the ``predictions`` list and applies
-    :func:`~dsa.utils.filter_small_predictions` to each page's ``objects``
+    :func:`~data_snapshot.utils.filter_small_predictions` to each page's ``objects``
     list.  All other fields (``info``, ``label_map``, ``documents``, etc.)
     are preserved unchanged.
 

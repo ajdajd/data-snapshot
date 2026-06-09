@@ -15,15 +15,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from dsa.constants import (
+from data_snapshot.constants import (
     ROOT,
-    GT_JSON_PATH,
-    PRED_JSON_PATH,
-    OUTPUT_REPORT_PATH,
     IOU_THRESHOLDS,
     LABELS_TO_CONSIDER,
 )
-from dsa.utils import load_json, sanitize_bbox
+from data_snapshot.utils import load_json, sanitize_bbox
 
 
 def bbox_area(b: tuple[float, float, float, float]) -> float:
@@ -587,16 +584,13 @@ if __name__ == "__main__":
     ap.add_argument(
         "--gt_json_path",
         help="Path to ground truth json file",
-        default=GT_JSON_PATH,
     )
     ap.add_argument(
         "--pred_json_path",
         help="Path to prediction json file",
-        default=PRED_JSON_PATH,
     )
     ap.add_argument(
         "--output_report_path",
-        default=OUTPUT_REPORT_PATH,
         help="Path to save output report json",
     )
     ap.add_argument(

@@ -13,8 +13,8 @@ from dotenv import load_dotenv
 from label_studio_sdk import LabelStudio
 from tqdm.auto import tqdm
 
-from dsa.constants import ROOT
-from dsa.utils import convert_pdf_to_images
+from data_snapshot.constants import ROOT
+from data_snapshot.utils import convert_pdf_to_images
 
 load_dotenv()
 

@@ -1,9 +1,10 @@
 import json
 import pytest
 
-from dsa.constants import ROOT
-from dsa.evaluate_model import evaluate
-from dsa.utils import load_json
+from data_snapshot.constants import ROOT
+from data_snapshot.evaluation.evaluate_model import evaluate
+from data_snapshot.utils import load_json
+
 
 def test_evaluate_model():
     ref_path = ROOT / "tests/data/evaluate_model_ref.json"

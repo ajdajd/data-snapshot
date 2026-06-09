@@ -13,7 +13,7 @@ from typing import Any, Literal, Sequence
 
 from PIL import Image
 
-from dsa.constants import MIN_PREDICTION_AREA
+from data_snapshot.constants import MIN_PREDICTION_AREA
 
 
 def convert_pdf_to_images(

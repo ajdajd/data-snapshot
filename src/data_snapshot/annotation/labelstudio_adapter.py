@@ -15,13 +15,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from dsa.constants import INPUT_PDF_DIR, LABEL_MAP, ROOT
-from dsa.utils import clamp01
-
-LS_EXPORT_JSON_PATH = (
-    ROOT / "data/raw_input/project-22-at-2026-03-12-15-10-03fb0566.json"
-)
-OUTPUT_JSON_PATH = ROOT / "data/evaluation_input/ground_truth.json"
+from data_snapshot.constants import INPUT_PDF_DIR, LABEL_MAP, ROOT
+from data_snapshot.utils import clamp01
 
 
 def _ls_rect_to_xyxy_norm(rect_value: dict[str, Any]) -> list[float]:
@@ -60,9 +55,6 @@ def _ls_rect_to_xyxy_norm(rect_value: dict[str, Any]) -> list[float]:
         y2 = clamp01(y1 + eps)
 
     return [x1, y1, x2, y2]
-
-
-
 
 
 def convert_labelstudio_export_to_eval_v13(
@@ -230,16 +222,6 @@ def convert_labelstudio_export_to_eval_v13(
     return output_obj
 
 
-def main() -> None:
-    """Run the Label Studio export conversion with default paths."""
-    result = convert_labelstudio_export_to_eval_v13(
-        LS_EXPORT_JSON_PATH, OUTPUT_JSON_PATH
-    )
-    n_docs = len(result.get("documents", []))
-    n_pages = len(result.get("predictions", []))
-    print(f"Done. {n_docs} documents, {n_pages} pages -> {OUTPUT_JSON_PATH}")
-
-
 if __name__ == "__main__":
     import argparse
 
@@ -252,13 +234,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--input_json_path",
         type=str,
-        default=str(LS_EXPORT_JSON_PATH),
         help="Path to the Label Studio export JSON file.",
     )
     parser.add_argument(
         "--output_json_path",
         type=str,
-        default=str(OUTPUT_JSON_PATH),
         help="Destination path for the ground-truth JSON.",
     )
     args = parser.parse_args()

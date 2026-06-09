@@ -15,15 +15,13 @@ import cv2
 import numpy as np
 from tqdm.auto import tqdm
 
-from dsa.constants import (
-    VP_GT_JSON_PATH,
-    VP_PRED_JSON_PATH,
+from data_snapshot.constants import (
+    ROOT,
     INPUT_PDF_DIR,
     GT_COLOR_BGR,
     PRED_COLOR_BGR,
-    VP_OUTPUT_DIR,
 )
-from dsa.utils import convert_pdf_to_images, load_json
+from data_snapshot.utils import convert_pdf_to_images, load_json
 
 
 def _group_pages_by_doc(
@@ -243,16 +241,23 @@ def visualize_snapshots(
 
 
 if __name__ == "__main__":
+    # Default paths for CLI usage (development convenience).
+    _VP_GT_JSON_PATH = ROOT / "data/evaluation_input/ground_truth.json"
+    _VP_PRED_JSON_PATH = (
+        ROOT / "data/evaluation_input/DocLayout-YOLO-DocStructBench.json"
+    )
+    _VP_OUTPUT_DIR = ROOT / "data/visualize_pages/"
+
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--gt_json_path",
         help="Path to ground truth json file",
-        default=VP_GT_JSON_PATH,
+        default=_VP_GT_JSON_PATH,
     )
     ap.add_argument(
         "--pred_json_path",
         help="Path to prediction json file",
-        default=VP_PRED_JSON_PATH,
+        default=_VP_PRED_JSON_PATH,
     )
     ap.add_argument(
         "--input_pdf_dir",
@@ -261,7 +266,7 @@ if __name__ == "__main__":
     )
     ap.add_argument(
         "--output_dir",
-        default=VP_OUTPUT_DIR,
+        default=_VP_OUTPUT_DIR,
         help="Path to save annotated pages",
     )
     ap.add_argument(

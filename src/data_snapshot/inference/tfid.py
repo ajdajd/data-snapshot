@@ -17,8 +17,8 @@ from PIL.Image import Image
 from tqdm.auto import tqdm
 from transformers import AutoModelForCausalLM, AutoProcessor
 
-from dsa.constants import INPUT_PDF_DIR, LABEL_MAP, ROOT
-from dsa.utils import (
+from data_snapshot.constants import INPUT_PDF_DIR, LABEL_MAP, ROOT
+from data_snapshot.utils import (
     convert_pdf_to_images,
     filter_small_predictions,
     normalize_bboxes_xyxy,
@@ -289,9 +289,7 @@ def run_tfid_adapter_directory(
             }
         )
 
-        images = convert_pdf_to_images(
-            pdf_path, dpi=cfg.dpi, backend=cfg.pdf_backend
-        )
+        images = convert_pdf_to_images(pdf_path, dpi=cfg.dpi, backend=cfg.pdf_backend)
 
         for page_index, image in enumerate(
             tqdm(images, desc=f"Pages: {pdf_path.name}", leave=False)

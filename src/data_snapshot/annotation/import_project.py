@@ -16,13 +16,13 @@ Usage::
 import argparse
 from pathlib import Path
 
-from dsa.ls_helpers import (
+from data_snapshot.annotation.ls_helpers import (
     BASE_HOST_PATH,
     convert_pdfs_to_images,
     create_project,
     import_tasks_to_project,
 )
-from dsa.utils import load_json
+from data_snapshot.utils import load_json
 
 
 def _infer_dataset_name(tasks: list[dict]) -> str:

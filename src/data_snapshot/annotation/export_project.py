@@ -15,7 +15,7 @@ import argparse
 import json
 from pathlib import Path
 
-from dsa.ls_helpers import get_client
+from data_snapshot.annotation.ls_helpers import get_client
 
 
 def export_project(project_id: int, output_path: str | Path) -> None:

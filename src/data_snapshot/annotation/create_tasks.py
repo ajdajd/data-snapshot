@@ -17,7 +17,7 @@ import argparse
 import json
 from pathlib import Path
 
-from dsa.ls_helpers import (
+from data_snapshot.annotation.ls_helpers import (
     LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT,
     convert_pdfs_to_images,
     create_project,

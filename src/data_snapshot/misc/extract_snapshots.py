@@ -18,8 +18,8 @@ import argparse
 from pathlib import Path
 from tqdm.auto import tqdm
 
-from dsa.constants import INPUT_PDF_DIR
-from dsa.utils import convert_pdf_to_images, load_json
+from data_snapshot.constants import INPUT_PDF_DIR
+from data_snapshot.utils import convert_pdf_to_images, load_json
 
 
 def _group_pages_by_doc(

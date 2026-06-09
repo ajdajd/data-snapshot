@@ -1,12 +1,25 @@
+"""Run all layout detection adapters in batch over partitioned PDF directories.
+
+Iterates over numbered batch directories (e.g. ``pdf_input/unhcr_batch1/``)
+and runs each supported adapter, writing per-batch prediction JSON files
+to ``data/batch_runs/``.
+
+Usage::
+
+    python -m data_snapshot.inference.batch_runner \\
+        --source unhcr --batch_start 1 --batch_end 5
+"""
+
 import argparse
 import logging
+
 from tqdm.auto import tqdm
 
-from dsa.constants import MODELS_DIR
-from dsa.adapters.tfid import TFIDConfig, run_tfid_adapter_directory
-from dsa.adapters.yolo11 import YOLO11Config, run_yolo11_adapter_directory
-from dsa.adapters.yolo26 import YOLO26Config, run_yolo26_adapter_directory
-from dsa.adapters.doclayoutyolo import (
+from data_snapshot.constants import MODELS_DIR
+from data_snapshot.inference.tfid import TFIDConfig, run_tfid_adapter_directory
+from data_snapshot.inference.yolo11 import YOLO11Config, run_yolo11_adapter_directory
+from data_snapshot.inference.yolo26 import YOLO26Config, run_yolo26_adapter_directory
+from data_snapshot.inference.doclayoutyolo import (
     DocLayoutYOLOConfig,
     run_doclayout_yolo_adapter_directory,
 )
@@ -21,7 +34,18 @@ logging.basicConfig(
 OUTPUT_DIR = "data/batch_runs/"
 
 
-def tfid_batch_runner(source, batch_start, batch_end):
+def tfid_batch_runner(source: str, batch_start: int, batch_end: int) -> None:
+    """Run the TF-ID adapter across a range of batch directories.
+
+    Parameters
+    ----------
+    source : str
+        Source corpus name (e.g. ``"unhcr"``, ``"prwp"``, ``"refugee"``).
+    batch_start : int
+        First batch number (inclusive).
+    batch_end : int
+        Last batch number (inclusive).
+    """
     logging.info("Start TFID runner.")
     for b in tqdm(range(batch_start, batch_end + 1), desc="Processing batches"):
         path_dir = f"pdf_input/{source}_batch{b}"
@@ -43,7 +67,18 @@ def tfid_batch_runner(source, batch_start, batch_end):
         logging.info(f"Wrote: {out_path}")
 
 
-def yolo11_runner(source, batch_start, batch_end):
+def yolo11_runner(source: str, batch_start: int, batch_end: int) -> None:
+    """Run the YOLO11 adapter across a range of batch directories.
+
+    Parameters
+    ----------
+    source : str
+        Source corpus name (e.g. ``"unhcr"``, ``"prwp"``, ``"refugee"``).
+    batch_start : int
+        First batch number (inclusive).
+    batch_end : int
+        Last batch number (inclusive).
+    """
     logging.info("Start yolo11 runner.")
     for b in tqdm(range(batch_start, batch_end + 1), desc="Processing batches"):
         path_dir = f"pdf_input/{source}_batch{b}"
@@ -69,7 +104,18 @@ def yolo11_runner(source, batch_start, batch_end):
         logging.info(f"Wrote: {out_path}")
 
 
-def yolo26_runner(source, batch_start, batch_end):
+def yolo26_runner(source: str, batch_start: int, batch_end: int) -> None:
+    """Run the YOLO26 adapter across a range of batch directories.
+
+    Parameters
+    ----------
+    source : str
+        Source corpus name (e.g. ``"unhcr"``, ``"prwp"``, ``"refugee"``).
+    batch_start : int
+        First batch number (inclusive).
+    batch_end : int
+        Last batch number (inclusive).
+    """
     logging.info("Start yolo26 runner.")
     for b in tqdm(range(batch_start, batch_end + 1), desc="Processing batches"):
         path_dir = f"pdf_input/{source}_batch{b}"
@@ -95,7 +141,18 @@ def yolo26_runner(source, batch_start, batch_end):
         logging.info(f"Wrote: {out_path}")
 
 
-def doclayoutyolo_runner(source, batch_start, batch_end):
+def doclayoutyolo_runner(source: str, batch_start: int, batch_end: int) -> None:
+    """Run the DocLayout-YOLO adapter across a range of batch directories.
+
+    Parameters
+    ----------
+    source : str
+        Source corpus name (e.g. ``"unhcr"``, ``"prwp"``, ``"refugee"``).
+    batch_start : int
+        First batch number (inclusive).
+    batch_end : int
+        Last batch number (inclusive).
+    """
     logging.info("Start doclayoutyolo runner.")
     for b in tqdm(range(batch_start, batch_end + 1), desc="Processing batches"):
         path_dir = f"pdf_input/{source}_batch{b}"
@@ -120,7 +177,12 @@ def doclayoutyolo_runner(source, batch_start, batch_end):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run all layout detection adapters in batch over "
+            "partitioned PDF directories."
+        )
+    )
     parser.add_argument(
         "--source",
         type=str,
@@ -132,11 +194,13 @@ if __name__ == "__main__":
         "--batch_start",
         type=int,
         required=True,
+        help="First batch number (inclusive).",
     )
     parser.add_argument(
         "--batch_end",
         type=int,
         required=True,
+        help="Last batch number (inclusive).",
     )
     args = parser.parse_args()
 

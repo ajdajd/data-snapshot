@@ -11,7 +11,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from dsa.utils import load_json
+from data_snapshot.utils import load_json
 
 
 def filter_objects_by_label(predictions: list[dict], keep_label: str) -> list[dict]:
