@@ -3,7 +3,9 @@ import pytest
 
 from data_snapshot.constants import ROOT
 from data_snapshot.utils import load_json
-from data_snapshot.annotation.labelstudio_adapter import convert_labelstudio_export_to_eval_v13
+from data_snapshot.annotation.labelstudio_adapter import (
+    convert_labelstudio_export_to_eval_v13,
+)
 from data_snapshot.inference.doclayoutyolo import (
     DocLayoutYOLOConfig,
     run_doclayout_yolo_adapter_directory,

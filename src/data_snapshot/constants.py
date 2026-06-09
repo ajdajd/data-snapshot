@@ -1,8 +1,8 @@
 """
 Project-wide constants and path configurations.
 
-This module provides a centralized location for directory paths, file paths,
-evaluation thresholds, and other settings used throughout the project.
+This module provides a centralized location for directory paths,
+evaluation thresholds, and other settings used throughout the package.
 """
 
 from pathlib import Path

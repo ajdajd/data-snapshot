@@ -27,12 +27,12 @@ Usage
 .. code-block:: bash
 
     # Single directory
-    python src/scripts/metadata/enforce_metadata_schema.py \\
+    python -m data_snapshot.metadata.enforce_metadata_schema \\
         --input_dir data/hf_metadata/prwp/ \\
         --output_dir data/hf_metadata_fixed/prwp/
 
     # Multiple directories — unify schema across subsets
-    python src/scripts/metadata/enforce_metadata_schema.py \\
+    python -m data_snapshot.metadata.enforce_metadata_schema \\
         --input_dir data/hf_metadata/unhcr/ \\
         --input_dir data/hf_metadata/prwp/ \\
         --input_dir data/hf_metadata/refugee/ \\

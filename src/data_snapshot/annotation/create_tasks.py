@@ -7,7 +7,7 @@ configured.
 
 Usage::
 
-    python create_tasks.py \\
+    python -m data_snapshot.annotation.create_tasks \\
         --project_name="My Project" \\
         --input_pdf_dir=pdf_input/ \\
         --dataset_name=dataset

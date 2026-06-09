@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from label_studio_sdk import LabelStudio
 from tqdm.auto import tqdm
 
-from data_snapshot.constants import ROOT
+
 from data_snapshot.utils import convert_pdf_to_images
 
 load_dotenv()
@@ -57,7 +57,8 @@ def create_project(project_name: str) -> int:
     """
     client = get_client()
 
-    with open(ROOT / "labeling_interface_template.xml", "r", encoding="utf-8") as f:
+    _TEMPLATE = Path(__file__).parent / "labeling_interface_template.xml"
+    with open(_TEMPLATE, "r", encoding="utf-8") as f:
         label_config = f.read()
 
     project = client.projects.create(title=project_name, label_config=label_config)

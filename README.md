@@ -166,7 +166,7 @@ Annotation workflows for creating ground truth datasets on Label Studio.
 # Inference
 
 Layout detection model adapters that perform the following:
-1. Run Figure and Table extraction on a directory of PDF files.
+1. Run Figure and Table detection on a directory of PDF files.
 2. Convert the raw model outputs into the [Unified Evaluation Schema v1.3 format](docs/data-snapshot-eval-v1.3.schema.json).
 
 For unsupported models, a small adapter module must be written for them for integration into this repository's framework.
@@ -193,6 +193,15 @@ python -m data_snapshot.inference.doclayoutyolo \
 ```
 
 All adapters follow the same CLI pattern with `--input_pdf_dir` and `--output_json_path` arguments.
+
+## Batch inference
+
+Run all adapters across multiple batch directories:
+
+```shell
+python -m data_snapshot.inference.batch_runner \
+    --source unhcr --batch_start 1 --batch_end 5
+```
 
 ---
 
@@ -235,6 +244,78 @@ python -m data_snapshot.evaluation.visualize_pages \
     --pred_json_path=path/to/pred.json \
     --input_pdf_dir=pdf_input \
     --output_dir=data/visualize_pages/
+```
+
+## Merging batch predictions
+
+Combine multiple per-batch prediction JSON files (e.g. from `batch_runner`) into a single file:
+
+```shell
+python -m data_snapshot.evaluation.merge_batch_preds \
+    --input_dir=data/batch_runs/ \
+    --output_json=data/evaluation_input/combined.json
+```
+
+## Filtering small predictions
+
+Remove predictions whose bounding-box area falls below a threshold:
+
+```shell
+python -m data_snapshot.evaluation.filter_small_preds \
+    --input_json=data/evaluation_input/preds.json \
+    --output_json=data/evaluation_input/preds_filtered.json
+```
+
+---
+
+# Metadata
+
+Tools for converting and enforcing metadata schemas for HuggingFace dataset uploads.
+
+## Converting UNHCR metadata
+
+Convert UNHCR/ReliefWeb scraped metadata JSON files to the Document Metadata Schema:
+
+```shell
+python -m data_snapshot.metadata.unhcr_to_schema \
+    --input_dir=data/hf_metadata/unhcr/ \
+    --output_dir=data/hf_metadata_converted/unhcr/
+```
+
+## Enforcing metadata schema
+
+Unify metadata schemas across dataset subsets for HuggingFace compatibility:
+
+```shell
+python -m data_snapshot.metadata.enforce_metadata_schema \
+    --input_dir data/hf_metadata/unhcr/ \
+    --input_dir data/hf_metadata/prwp/ \
+    --output_dir data/hf_metadata_fixed/
+```
+
+---
+
+# Misc
+
+## Extracting snapshots
+
+Crop annotated bounding boxes from PDF pages into individual PNG files:
+
+```shell
+python -m data_snapshot.misc.extract_snapshots \
+    --input_json=data/evaluation_input/ground_truth.json \
+    --input_pdf_dir=pdf_input/ \
+    --output_dir=data/snapshots/
+```
+
+## Splitting annotations for HuggingFace
+
+Split a combined evaluation JSON file into per-document files for HuggingFace dataset upload:
+
+```shell
+python -m data_snapshot.misc.annotations_to_hf_dataset \
+    --input_json=data/evaluation_input/ground_truth.json \
+    --output_dir=data/hf_annotations/
 ```
 
 ---

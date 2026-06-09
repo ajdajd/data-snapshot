@@ -8,7 +8,7 @@ pre-populated from a model prediction JSON file.
 
 Usage::
 
-    python create_tasks_with_prelabeling.py \\
+    python -m data_snapshot.annotation.create_tasks_with_prelabeling \\
         --input_dir=pdf_input/ \\
         --dataset_name=dataset \\
         --pred_json=data/evaluation_input/DocLayout-YOLO-DocStructBench.json

@@ -1,5 +1,5 @@
 """
-Shared utility functions for the data snapshot annotation project.
+Shared utility functions for the data-snapshot package.
 
 Provides common helpers used across adapter modules and evaluation tools.
 """

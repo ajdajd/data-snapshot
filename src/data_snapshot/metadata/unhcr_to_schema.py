@@ -15,7 +15,7 @@ Usage
 -----
 .. code-block:: bash
 
-    python src/scripts/metadata/unhcr_to_schema.py \
+    python -m data_snapshot.metadata.unhcr_to_schema \
         --input_dir path/to/metadata_dir/ \
         --output_dir path/to/output_dir/
 """
@@ -486,7 +486,7 @@ def main(input_dir: str, output_dir: str) -> None:
 
     print(f"\nDone: {success} converted, {errors} errors")
     print(
-        "\nREMINDER: Run enforce_metadata_schema.py with ALL subsets "
+        "\nREMINDER: Run enforce_metadata_schema with ALL subsets "
         "(--input_dir for each) to unify schemas before uploading to "
         "HuggingFace."
     )
