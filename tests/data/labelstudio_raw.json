@@ -1,0 +1,2714 @@
+[
+  {
+    "id": 305,
+    "annotations": [
+      {
+        "id": 101,
+        "completed_by": 1,
+        "result": [
+          {
+            "id": "2nLz9GMFvQ",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 11.83591152343771,
+              "y": 34.65346534653466,
+              "width": 76.10618377436293,
+              "height": 18.27182718271827,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 1,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "MN1Z6B5zd5",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 0.3818035975302476,
+              "y": 20.522052205220547,
+              "width": 95.19636365087526,
+              "height": 76.95769576957699,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "LMPLhIDH35",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 3.1645569620253133,
+              "y": 5.016774388013854,
+              "width": 91.93037974683536,
+              "height": 92.7513264696435,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 3508,
+            "original_height": 2481
+          },
+          {
+            "id": "sEPML7Oxp9",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 17.690233352234863,
+              "y": 80.37803780378037,
+              "width": 70.88820127478286,
+              "height": 8.100810081008106,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "C0FDICKpB6",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 15.399411767053367,
+              "y": 52.20522052205221,
+              "width": 68.7246475554448,
+              "height": 36.993699369936955,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 10,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "WfF2eUEqf1",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 2.4180894510249114,
+              "y": 2.6102610261026125,
+              "width": 94.56002432165825,
+              "height": 94.41944194419442,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 11,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-02-23T14:21:45.580897Z",
+        "updated_at": "2026-04-10T12:01:51.305465Z",
+        "draft_created_at": "2026-02-23T14:19:43.686389Z",
+        "lead_time": 146.89,
+        "prediction": {},
+        "result_count": 6,
+        "unique_id": "16ba6f82-d632-4e68-9797-6f83bde5be82",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 305,
+        "project": 22,
+        "updated_by": 1,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "file_upload": "702cffe2-tasks.json",
+    "drafts": [],
+    "predictions": [],
+    "data": {
+      "pages": [
+        "/data/local-files/?d=dataset_spec/68487.pdf_p000.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p001.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p002.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p003.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p004.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p005.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p006.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p007.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p008.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p009.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p010.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p011.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p012.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p013.png",
+        "/data/local-files/?d=dataset_spec/68487.pdf_p014.png"
+      ]
+    },
+    "meta": {
+      "file": "68487.pdf"
+    },
+    "created_at": "2026-02-23T14:18:11.342296Z",
+    "updated_at": "2026-04-10T12:01:51.421074Z",
+    "allow_skip": true,
+    "inner_id": 1,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 0,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 22,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 306,
+    "annotations": [
+      {
+        "id": 102,
+        "completed_by": 1,
+        "result": [
+          {
+            "id": "ydbuQSB80E",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.736167734420501,
+              "y": 14.311431143114312,
+              "width": 80.9551543389633,
+              "height": 25.472547254725477,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 0,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "ANz-OY4o4m",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.96913220733838,
+              "y": 40.5040504050405,
+              "width": 80.13977868375073,
+              "height": 27.182718271827184,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 0,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "NYwSwekhgW",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 16.191030867792662,
+              "y": 66.96669666966697,
+              "width": 66.62783925451367,
+              "height": 24.30243024302429,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 1,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "LiQaD9-rhH",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.386721025043668,
+              "y": 30.96309630963095,
+              "width": 83.28479906814216,
+              "height": 28.082808280828104,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 2,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "IpyViRtnCY",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.50320326150262,
+              "y": 60.756075607560746,
+              "width": 78.85847408270247,
+              "height": 22.86228622862279,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "ttKNFh6Qus",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.969132207338378,
+              "y": 19.351935193519363,
+              "width": 82.0034944670937,
+              "height": 73.35733573357336,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 7,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "gKaj134Vro",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.96913220733838,
+              "y": 7.830783078307831,
+              "width": 82.00349446709377,
+              "height": 84.06840684068406,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "WVtPvkdCCa",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.96913220733838,
+              "y": 7.830783078307831,
+              "width": 82.00349446709379,
+              "height": 22.232223222322254,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 9,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "type": "relation",
+            "to_id": "gKaj134Vro",
+            "from_id": "ttKNFh6Qus",
+            "direction": "right"
+          },
+          {
+            "type": "relation",
+            "to_id": "WVtPvkdCCa",
+            "from_id": "gKaj134Vro",
+            "direction": "right"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-02-23T14:23:55.884669Z",
+        "updated_at": "2026-04-13T08:33:56.976228Z",
+        "draft_created_at": "2026-02-23T14:22:00.682360Z",
+        "lead_time": 202.21099999999998,
+        "prediction": {},
+        "result_count": 9,
+        "unique_id": "c24c4cee-24df-4699-a9b4-ff9681cf4c97",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 306,
+        "project": 22,
+        "updated_by": 1,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "file_upload": "702cffe2-tasks.json",
+    "drafts": [
+      {
+        "id": 277,
+        "user": "ajcarl.dy@gmail.com",
+        "created_username": "ajcarl.dy@gmail.com, 1",
+        "created_ago": "7\u00a0minutes",
+        "result": [
+          {
+            "id": "ydbuQSB80E",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.736167734420501,
+              "y": 14.311431143114312,
+              "width": 80.9551543389633,
+              "height": 25.472547254725477,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 0,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "ANz-OY4o4m",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.96913220733838,
+              "y": 40.5040504050405,
+              "width": 80.13977868375073,
+              "height": 27.182718271827184,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 0,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "NYwSwekhgW",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 16.191030867792662,
+              "y": 66.96669666966697,
+              "width": 66.62783925451367,
+              "height": 24.30243024302429,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 1,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "LiQaD9-rhH",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.386721025043668,
+              "y": 30.96309630963095,
+              "width": 83.28479906814216,
+              "height": 28.082808280828104,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 2,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "IpyViRtnCY",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.50320326150262,
+              "y": 60.756075607560746,
+              "width": 78.85847408270247,
+              "height": 22.86228622862279,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "gKaj134Vro",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.96913220733838,
+              "y": 7.830783078307831,
+              "width": 82.00349446709377,
+              "height": 84.06840684068406,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "WVtPvkdCCa",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.96913220733838,
+              "y": 7.830783078307831,
+              "width": 82.00349446709379,
+              "height": 22.232223222322254,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 9,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "ttKNFh6Qus",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.969132207338378,
+              "y": 19.351935193519363,
+              "width": 82.0034944670937,
+              "height": 73.35733573357336,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 7,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "type": "relation",
+            "to_id": "gKaj134Vro",
+            "from_id": "ttKNFh6Qus",
+            "direction": "right"
+          },
+          {
+            "type": "relation",
+            "to_id": "WVtPvkdCCa",
+            "from_id": "gKaj134Vro",
+            "direction": "right"
+          }
+        ],
+        "lead_time": 15.216,
+        "was_postponed": false,
+        "import_id": null,
+        "created_at": "2026-04-13T08:34:13.146688Z",
+        "updated_at": "2026-04-13T08:34:13.146712Z",
+        "task": 306,
+        "annotation": 102
+      }
+    ],
+    "predictions": [],
+    "data": {
+      "pages": [
+        "/data/local-files/?d=dataset_spec/intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf_p000.png",
+        "/data/local-files/?d=dataset_spec/intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf_p001.png",
+        "/data/local-files/?d=dataset_spec/intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf_p002.png",
+        "/data/local-files/?d=dataset_spec/intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf_p003.png",
+        "/data/local-files/?d=dataset_spec/intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf_p004.png",
+        "/data/local-files/?d=dataset_spec/intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf_p005.png",
+        "/data/local-files/?d=dataset_spec/intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf_p006.png",
+        "/data/local-files/?d=dataset_spec/intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf_p007.png",
+        "/data/local-files/?d=dataset_spec/intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf_p008.png",
+        "/data/local-files/?d=dataset_spec/intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf_p009.png"
+      ]
+    },
+    "meta": {
+      "file": "intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf"
+    },
+    "created_at": "2026-02-23T14:18:11.342378Z",
+    "updated_at": "2026-04-13T08:33:57.118802Z",
+    "allow_skip": true,
+    "inner_id": 2,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 0,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 22,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 307,
+    "annotations": [
+      {
+        "id": 103,
+        "completed_by": 1,
+        "result": [
+          {
+            "id": "Vx0Gomjp2Y",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 0.1272678658434163,
+              "y": 9.810981098109806,
+              "width": 34.10778804603557,
+              "height": 23.58235823582361,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "WIGQDSS9Q-",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 1.2726786584341627,
+              "y": 6.750675067506766,
+              "width": 31.30789499748034,
+              "height": 23.402340234023367,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "lOjhHXrjGT",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 0,
+              "y": 36.09360936093605,
+              "width": 34.4895916435658,
+              "height": 18.361836183618372,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "QV2xH1uv2Q",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 0.5090714633736653,
+              "y": 58.59585958595856,
+              "width": 34.235055911878995,
+              "height": 16.921692169216918,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "BKSo4ydfC1",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 0.5090714633736648,
+              "y": 79.47794779477948,
+              "width": 33.980520180192144,
+              "height": 15.841584158415825,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "rOKG00-uY-",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 2.0362858534946606,
+              "y": 30.423042304230425,
+              "width": 30.417019936576494,
+              "height": 20.52205220522053,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "FYxj96Dm9I",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 1.272678658434163,
+              "y": 51.845184518451816,
+              "width": 31.944234326697483,
+              "height": 20.972097209720957,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "EsB1mB6SvW",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 0.6363393292170814,
+              "y": 73.2673267326733,
+              "width": 32.8351093876014,
+              "height": 22.682268226822654,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-02-23T14:30:23.511185Z",
+        "updated_at": "2026-04-10T12:04:41.867580Z",
+        "draft_created_at": "2026-02-23T14:25:04.177456Z",
+        "lead_time": 485.31399999999996,
+        "prediction": {},
+        "result_count": 8,
+        "unique_id": "59baca03-6e6c-4a62-8e24-485bf427c0ae",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 307,
+        "project": 22,
+        "updated_by": 1,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "file_upload": "702cffe2-tasks.json",
+    "drafts": [],
+    "predictions": [],
+    "data": {
+      "pages": [
+        "/data/local-files/?d=dataset_spec/rapport_mensuel_monitoring_de_protection_de_la_region_de_maradi_au_niger_octobre_2022.pdf_p000.png",
+        "/data/local-files/?d=dataset_spec/rapport_mensuel_monitoring_de_protection_de_la_region_de_maradi_au_niger_octobre_2022.pdf_p001.png",
+        "/data/local-files/?d=dataset_spec/rapport_mensuel_monitoring_de_protection_de_la_region_de_maradi_au_niger_octobre_2022.pdf_p002.png",
+        "/data/local-files/?d=dataset_spec/rapport_mensuel_monitoring_de_protection_de_la_region_de_maradi_au_niger_octobre_2022.pdf_p003.png",
+        "/data/local-files/?d=dataset_spec/rapport_mensuel_monitoring_de_protection_de_la_region_de_maradi_au_niger_octobre_2022.pdf_p004.png",
+        "/data/local-files/?d=dataset_spec/rapport_mensuel_monitoring_de_protection_de_la_region_de_maradi_au_niger_octobre_2022.pdf_p005.png",
+        "/data/local-files/?d=dataset_spec/rapport_mensuel_monitoring_de_protection_de_la_region_de_maradi_au_niger_octobre_2022.pdf_p006.png",
+        "/data/local-files/?d=dataset_spec/rapport_mensuel_monitoring_de_protection_de_la_region_de_maradi_au_niger_octobre_2022.pdf_p007.png",
+        "/data/local-files/?d=dataset_spec/rapport_mensuel_monitoring_de_protection_de_la_region_de_maradi_au_niger_octobre_2022.pdf_p008.png"
+      ]
+    },
+    "meta": {
+      "file": "rapport_mensuel_monitoring_de_protection_de_la_region_de_maradi_au_niger_octobre_2022.pdf"
+    },
+    "created_at": "2026-02-23T14:18:11.342422Z",
+    "updated_at": "2026-04-10T12:04:42.013747Z",
+    "allow_skip": true,
+    "inner_id": 3,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 0,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 22,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 308,
+    "annotations": [
+      {
+        "id": 104,
+        "completed_by": 1,
+        "result": [
+          {
+            "id": "B5yAcGNmBa",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 2.8003606162388994,
+              "y": 27.81278127812782,
+              "width": 92.1573220980438,
+              "height": 59.85598559855988,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 2,
+            "image_rotation": 0,
+            "original_width": 2482,
+            "original_height": 3510
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-03-11T15:15:14.163516Z",
+        "updated_at": "2026-03-11T15:15:14.163527Z",
+        "draft_created_at": "2026-03-11T15:14:40.600816Z",
+        "lead_time": 55.55,
+        "prediction": {},
+        "result_count": 1,
+        "unique_id": "12d4e8e3-5ddc-4b22-8953-2a401eb15161",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 308,
+        "project": 22,
+        "updated_by": 1,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "file_upload": "702cffe2-tasks.json",
+    "drafts": [],
+    "predictions": [],
+    "data": {
+      "pages": [
+        "/data/local-files/?d=dataset_spec/202501_bn_older_refugees_moldova_eng.pdf_p000.png",
+        "/data/local-files/?d=dataset_spec/202501_bn_older_refugees_moldova_eng.pdf_p001.png",
+        "/data/local-files/?d=dataset_spec/202501_bn_older_refugees_moldova_eng.pdf_p002.png",
+        "/data/local-files/?d=dataset_spec/202501_bn_older_refugees_moldova_eng.pdf_p003.png",
+        "/data/local-files/?d=dataset_spec/202501_bn_older_refugees_moldova_eng.pdf_p004.png"
+      ]
+    },
+    "meta": {
+      "file": "202501_bn_older_refugees_moldova_eng.pdf"
+    },
+    "created_at": "2026-02-23T14:18:11.342466Z",
+    "updated_at": "2026-03-11T15:15:14.217490Z",
+    "allow_skip": true,
+    "inner_id": 4,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 0,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 22,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 309,
+    "annotations": [
+      {
+        "id": 105,
+        "completed_by": 1,
+        "result": [
+          {
+            "id": "N7Tus5oW9M",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 46.12696563774025,
+              "y": 17.55175517551755,
+              "width": 45.428072218986586,
+              "height": 25.832583258325826,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 1,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "Wo4PmL1U0m",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.619685497961562,
+              "y": 13.95139513951395,
+              "width": 82.0034944670938,
+              "height": 10.081008100810081,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 2,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "vhNUwT8tA_",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 7.804309842748977,
+              "y": 21.512151215121513,
+              "width": 44.49621432731507,
+              "height": 22.59225922592259,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "-AX5KeFLts",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 46.942341292952825,
+              "y": 51.03510351035104,
+              "width": 44.72917880023298,
+              "height": 19.171917191719174,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "efH0NbsfQ_",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 7.8043098427489825,
+              "y": 73.62736273627362,
+              "width": 46.94234129295284,
+              "height": 18.451845184518444,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "-1YOYk4ldh",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 30.751310425160156,
+              "y": 22.142214221422144,
+              "width": 60.687245195107785,
+              "height": 20.072007200720066,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 5,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "C9LDG-tumd",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 10.36691904484566,
+              "y": 18.72187218721872,
+              "width": 27.023878858474085,
+              "height": 17.55175517551755,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "eSXOJsZrPu",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 66.16191030867793,
+              "y": 18.81188118811881,
+              "width": 23.995340710541626,
+              "height": 17.911791179117913,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "AvVKBaw4fI",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 52.649970879440886,
+              "y": 43.204320432043204,
+              "width": 38.43913803145021,
+              "height": 19.261926192619264,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "-jjdnkrL7W",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 25.6260920209668,
+              "y": 75.51755175517552,
+              "width": 65.23005241700642,
+              "height": 15.751575157515745,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-03-11T15:28:14.553000Z",
+        "updated_at": "2026-04-13T08:35:35.072072Z",
+        "draft_created_at": "2026-03-11T15:17:21.028768Z",
+        "lead_time": 791.1030000000001,
+        "prediction": {},
+        "result_count": 10,
+        "unique_id": "4336644b-e49c-47fe-a635-7e4254e9ebbd",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 309,
+        "project": 22,
+        "updated_by": 1,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "file_upload": "702cffe2-tasks.json",
+    "drafts": [],
+    "predictions": [],
+    "data": {
+      "pages": [
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p000.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p001.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p002.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p003.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p004.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p005.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p006.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p007.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p008.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p009.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p010.png",
+        "/data/local-files/?d=dataset_spec/230306_afg_protection_analysis_updates_february_2023.pdf_p011.png"
+      ]
+    },
+    "meta": {
+      "file": "230306_afg_protection_analysis_updates_february_2023.pdf"
+    },
+    "created_at": "2026-02-23T14:18:11.342504Z",
+    "updated_at": "2026-04-13T08:35:35.197727Z",
+    "allow_skip": true,
+    "inner_id": 5,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 0,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 22,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 310,
+    "annotations": [
+      {
+        "id": 106,
+        "completed_by": 1,
+        "result": [
+          {
+            "id": "XHOUE_xgkN",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.712427959213834,
+              "y": 10.261026102610261,
+              "width": 52.49162269998681,
+              "height": 29.7029702970297,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "13BgGxVpQA",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.839834810427384,
+              "y": 40.14401440144013,
+              "width": 53.383470658481755,
+              "height": 23.852385238523848,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "4Dfrd8fnYv",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.45761425678671,
+              "y": 63.996399639964,
+              "width": 55.03975972425803,
+              "height": 25.29252925292529,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "9lZYolLkSI",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 38.98649647134943,
+              "y": 13.41134113411341,
+              "width": 54.147911765763105,
+              "height": 22.77227722772277,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "xFQd-CKZx8",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 38.98649647134943,
+              "y": 37.53375337533754,
+              "width": 55.039759724258026,
+              "height": 24.57245724572457,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "3qPfaF7SNa",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 34.654663530088364,
+              "y": 63.366336633663344,
+              "width": 59.37159266551907,
+              "height": 27.992799279928022,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "LjFvfIib_9",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.45761425678671,
+              "y": 29.522952295229523,
+              "width": 56.31382823639364,
+              "height": 26.642664266426642,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 5,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "6LJt7in4mJ",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.20280055435959,
+              "y": 57.515751575157516,
+              "width": 56.568641938820754,
+              "height": 25.472547254725477,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 5,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "ol1nukrHe4",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 38.4768690664952,
+              "y": 1.6201620162016201,
+              "width": 54.91235287304447,
+              "height": 22.322232223222322,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 6,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "lzmQnINoqy",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.71242795921383,
+              "y": 30.693069306930692,
+              "width": 60.13603377280046,
+              "height": 26.732673267326774,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 6,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "enC3WDigky",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.96724166164095,
+              "y": 58.68586858685868,
+              "width": 59.24418581430548,
+              "height": 27.902790279027883,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 6,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "Z8BpcAqDiT",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 38.094648512854505,
+              "y": 1.5301530153015301,
+              "width": 58.86196526066482,
+              "height": 24.21242124212422,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 7,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "nLDgS5_t02",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 35.80132519101043,
+              "y": 35.103510351035105,
+              "width": 60.13603377280044,
+              "height": 27.002700270027006,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 7,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "cUPljuH65A",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.075393703145984,
+              "y": 63.276327632763255,
+              "width": 57.46048989731567,
+              "height": 26.192619261926154,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 7,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "9dDdABwkrO",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.4576142567867,
+              "y": 3.5103510351035085,
+              "width": 55.931607682752926,
+              "height": 26.73267326732674,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "joMrtMnH7B",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.2028005543596,
+              "y": 42.844284428442855,
+              "width": 56.823455641247854,
+              "height": 25.38253825382538,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "7NkzDNWWhf",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.839834810427405,
+              "y": 1.5301530153015293,
+              "width": 55.54938712911227,
+              "height": 23.582358235823573,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 9,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "d-AStUjhnn",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 37.839834810427405,
+              "y": 26.55265526552656,
+              "width": 55.42198027789874,
+              "height": 22.142214221422144,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 9,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "1rzFdyyyVp",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 35.036884083729056,
+              "y": 57.245724572457256,
+              "width": 61.282695433722466,
+              "height": 27.362736273627377,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 9,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "uVpGREBkj2",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 35.16429093494261,
+              "y": 1.5301530153015301,
+              "width": 61.282695433722466,
+              "height": 22.862286228622867,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 10,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "9zv7TynLzf",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 34.909477232515506,
+              "y": 27.182718271827177,
+              "width": 61.2826954337225,
+              "height": 27.36273627362735,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 10,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "g9yelSxiVY",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.115528858250892,
+              "y": 1.5301530153015301,
+              "width": 28.156914118196816,
+              "height": 47.25472547254726,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 9,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "8HM7l5HYSg",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.242935709464452,
+              "y": 10.171017101710172,
+              "width": 26.75543875484765,
+              "height": 20.25202520252025,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "-njzDPKEkt",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.115528858250893,
+              "y": 32.85328532853286,
+              "width": 27.010252457274763,
+              "height": 58.14581458145815,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "4vlUp345vu",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.242935709464452,
+              "y": 13.051305130513052,
+              "width": 27.9021004157697,
+              "height": 26.192619261926197,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "IpNI3-YVEO",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.115528858250892,
+              "y": 41.94419441944194,
+              "width": 28.156914118196816,
+              "height": 17.371737173717378,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "c12RBamHiD",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.370342560678012,
+              "y": 60.12601260126013,
+              "width": 27.774693564556138,
+              "height": 31.323132313231326,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "0Py0mgw9x2",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.370342560678018,
+              "y": 29.16291629162915,
+              "width": 27.902100415769738,
+              "height": 53.64536453645366,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 5,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "UGVTuPzVM5",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.242935709464452,
+              "y": 85.23852385238524,
+              "width": 28.029507266983256,
+              "height": 5.7605760576057605,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 5,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "QKjvXROouj",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.370342560678012,
+              "y": 1.5301530153015301,
+              "width": 27.774693564556138,
+              "height": 24.032403240324033,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 6,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "egxlYrfiIy",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.242935709464452,
+              "y": 30.423042304230425,
+              "width": 30.06801688640022,
+              "height": 34.11341134113411,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 6,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "KJh3Dn4PU7",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.242935709464452,
+              "y": 67.05670567056706,
+              "width": 30.06801688640022,
+              "height": 22.952295229522946,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 6,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "Nrg_y9BY8g",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.242935709464454,
+              "y": 1.4401440144014401,
+              "width": 29.940610035186666,
+              "height": 27.36273627362737,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 7,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "6_MPPFQkJh",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.242935709464452,
+              "y": 34.74347434743474,
+              "width": 28.5391346718375,
+              "height": 22.232223222322233,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 7,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "m21eIrMG3J",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.115528858250892,
+              "y": 59.4959495949595,
+              "width": 28.66654152305106,
+              "height": 22.502250225022507,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 7,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "JUu9rn-aD4",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.242935709464451,
+              "y": 86.22862286228622,
+              "width": 28.66654152305105,
+              "height": 3.8703870387038743,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 7,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "PLRTuCkFTp",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.242935709464451,
+              "y": 1.5301530153015304,
+              "width": 28.53913467183749,
+              "height": 29.34293429342935,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "QbSGJtlxrT",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.370342560678013,
+              "y": 42.48424842484248,
+              "width": 27.902100415769702,
+              "height": 48.06480648064805,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 8,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "_1O3vf86NC",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.242935709464457,
+              "y": 56.97569756975699,
+              "width": 28.029507266983277,
+              "height": 9.54095409540954,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 9,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "SyIhi8wqYk",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.370342560678012,
+              "y": 69.12691269126913,
+              "width": 27.902100415769695,
+              "height": 21.78217821782178,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 9,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "XI6gs1niys",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.115528858250892,
+              "y": 1.5301530153015301,
+              "width": 28.156914118196816,
+              "height": 6.1206120612061214,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 10,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "OptyzsxCFX",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.115528858250892,
+              "y": 10.171017101710172,
+              "width": 28.156914118196816,
+              "height": 18.9018901890189,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 10,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "id": "m8irhOdhgO",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.370342560678012,
+              "y": 31.413141314131416,
+              "width": 27.902100415769695,
+              "height": 27.002700270027,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 10,
+            "image_rotation": 0,
+            "original_width": 2479,
+            "original_height": 3509
+          },
+          {
+            "type": "relation",
+            "to_id": "QKjvXROouj",
+            "from_id": "UGVTuPzVM5",
+            "direction": "right"
+          },
+          {
+            "type": "relation",
+            "to_id": "Nrg_y9BY8g",
+            "from_id": "KJh3Dn4PU7",
+            "direction": "right"
+          },
+          {
+            "type": "relation",
+            "to_id": "PLRTuCkFTp",
+            "from_id": "JUu9rn-aD4",
+            "direction": "right"
+          },
+          {
+            "type": "relation",
+            "to_id": "g9yelSxiVY",
+            "from_id": "QbSGJtlxrT",
+            "direction": "right"
+          },
+          {
+            "type": "relation",
+            "to_id": "XI6gs1niys",
+            "from_id": "SyIhi8wqYk",
+            "direction": "right"
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-03-11T15:38:32.962773Z",
+        "updated_at": "2026-04-13T08:39:27.283115Z",
+        "draft_created_at": "2026-03-11T15:32:28.539408Z",
+        "lead_time": 1070.809,
+        "prediction": {},
+        "result_count": 44,
+        "unique_id": "d13555ca-8a13-4aa9-a26c-31f362aec3d5",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 310,
+        "project": 22,
+        "updated_by": 1,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "file_upload": "702cffe2-tasks.json",
+    "drafts": [],
+    "predictions": [],
+    "data": {
+      "pages": [
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p000.png",
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p001.png",
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p002.png",
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p003.png",
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p004.png",
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p005.png",
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p006.png",
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p007.png",
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p008.png",
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p009.png",
+        "/data/local-files/?d=dataset_spec/jordanhaus2015finalreport-2.pdf_p010.png"
+      ]
+    },
+    "meta": {
+      "file": "jordanhaus2015finalreport-2.pdf"
+    },
+    "created_at": "2026-02-23T14:18:11.342542Z",
+    "updated_at": "2026-04-13T08:39:27.407967Z",
+    "allow_skip": true,
+    "inner_id": 6,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 0,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 22,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 311,
+    "annotations": [
+      {
+        "id": 107,
+        "completed_by": 1,
+        "result": [
+          {
+            "id": "G2NPrTGKu4",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 7.381536218918145,
+              "y": 64.98649864986498,
+              "width": 85.26947011508886,
+              "height": 26.732673267326724,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 0,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "IB6nWyMzBz",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 6.617929023857649,
+              "y": 11.701170117011692,
+              "width": 89.59657755376507,
+              "height": 20.432043204320426,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 0,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "FSuM6ZX1pe",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.654214877352306,
+              "y": 5.67056705670567,
+              "width": 85.52400584677578,
+              "height": 29.16291629162916,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 1,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-03-11T15:47:41.665559Z",
+        "updated_at": "2026-03-11T15:47:41.665570Z",
+        "draft_created_at": "2026-03-11T15:46:29.147278Z",
+        "lead_time": 88.385,
+        "prediction": {},
+        "result_count": 3,
+        "unique_id": "7a90c273-8124-4548-b06f-233dbbafad17",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 311,
+        "project": 22,
+        "updated_by": 1,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "file_upload": "702cffe2-tasks.json",
+    "drafts": [],
+    "predictions": [],
+    "data": {
+      "pages": [
+        "/data/local-files/?d=dataset_spec/civil_documentation_factsheet_final.pdf_p000.png",
+        "/data/local-files/?d=dataset_spec/civil_documentation_factsheet_final.pdf_p001.png"
+      ]
+    },
+    "meta": {
+      "file": "civil_documentation_factsheet_final.pdf"
+    },
+    "created_at": "2026-02-23T14:18:11.342583Z",
+    "updated_at": "2026-03-11T15:47:41.709756Z",
+    "allow_skip": true,
+    "inner_id": 7,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 0,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 22,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 312,
+    "annotations": [
+      {
+        "id": 108,
+        "completed_by": 1,
+        "result": [],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-03-11T15:47:55.240897Z",
+        "updated_at": "2026-03-11T15:47:55.240906Z",
+        "draft_created_at": null,
+        "lead_time": 9.904,
+        "prediction": {},
+        "result_count": 0,
+        "unique_id": "52ca812d-9a5f-4aa6-aef2-545486b6384e",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 312,
+        "project": 22,
+        "updated_by": 1,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "file_upload": "702cffe2-tasks.json",
+    "drafts": [],
+    "predictions": [],
+    "data": {
+      "pages": [
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p000.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p001.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p002.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p003.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p004.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p005.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p006.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p007.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p008.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p009.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p010.png",
+        "/data/local-files/?d=dataset_spec/5fb3ad4d4.pdf_p011.png"
+      ]
+    },
+    "meta": {
+      "file": "5fb3ad4d4.pdf"
+    },
+    "created_at": "2026-02-23T14:18:11.342624Z",
+    "updated_at": "2026-03-11T15:47:55.286507Z",
+    "allow_skip": true,
+    "inner_id": 8,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 0,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 22,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 313,
+    "annotations": [
+      {
+        "id": 109,
+        "completed_by": 1,
+        "result": [
+          {
+            "id": "yv2JnQHTbR",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 8.736167734420501,
+              "y": 30.78307830783079,
+              "width": 84.33313919627253,
+              "height": 45.9045904590459,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 0,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "ODJeyqMRDQ",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 11.182294700058238,
+              "y": 16.561656165616558,
+              "width": 76.76179382644149,
+              "height": 9.9009900990099,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Table"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 1,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "BM7C04NNty",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 11.415259172976121,
+              "y": 29.43294329432944,
+              "width": 77.22772277227723,
+              "height": 19.261926192619256,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 2,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "LI0vfhZQxD",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 11.531741409435062,
+              "y": 63.546354635463544,
+              "width": 71.63657542224811,
+              "height": 16.021602160216034,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 2,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "E_iJtgk31-",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 11.415259172976121,
+              "y": 61.92619261926193,
+              "width": 33.663366336633665,
+              "height": 18.991899189918975,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 3,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "Pt7bGlP1Ky",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 11.415259172976121,
+              "y": 27.542754275427544,
+              "width": 37.04135119394292,
+              "height": 14.491449144914494,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 4,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          },
+          {
+            "id": "zgHFo8_ZG_",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 11.0658124635993,
+              "y": 26.912691269126913,
+              "width": 57.19277810133954,
+              "height": 32.943294329432945,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 5,
+            "image_rotation": 0,
+            "original_width": 2550,
+            "original_height": 3300
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-03-11T15:49:21.056477Z",
+        "updated_at": "2026-04-13T08:40:23.818049Z",
+        "draft_created_at": "2026-03-11T15:48:14.519244Z",
+        "lead_time": 129.317,
+        "prediction": {},
+        "result_count": 7,
+        "unique_id": "d1a1c4c9-73d1-4be7-a988-c0ea9790d57d",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 313,
+        "project": 22,
+        "updated_by": 1,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "file_upload": "702cffe2-tasks.json",
+    "drafts": [],
+    "predictions": [],
+    "data": {
+      "pages": [
+        "/data/local-files/?d=dataset_spec/analyse_environnement_de_protection_des_regions_de_segou_san_v2_final.pdf_p000.png",
+        "/data/local-files/?d=dataset_spec/analyse_environnement_de_protection_des_regions_de_segou_san_v2_final.pdf_p001.png",
+        "/data/local-files/?d=dataset_spec/analyse_environnement_de_protection_des_regions_de_segou_san_v2_final.pdf_p002.png",
+        "/data/local-files/?d=dataset_spec/analyse_environnement_de_protection_des_regions_de_segou_san_v2_final.pdf_p003.png",
+        "/data/local-files/?d=dataset_spec/analyse_environnement_de_protection_des_regions_de_segou_san_v2_final.pdf_p004.png",
+        "/data/local-files/?d=dataset_spec/analyse_environnement_de_protection_des_regions_de_segou_san_v2_final.pdf_p005.png",
+        "/data/local-files/?d=dataset_spec/analyse_environnement_de_protection_des_regions_de_segou_san_v2_final.pdf_p006.png"
+      ]
+    },
+    "meta": {
+      "file": "analyse_environnement_de_protection_des_regions_de_segou_san_v2_final.pdf"
+    },
+    "created_at": "2026-02-23T14:18:11.342662Z",
+    "updated_at": "2026-04-13T08:40:23.896898Z",
+    "allow_skip": true,
+    "inner_id": 9,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 0,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 22,
+    "updated_by": 1,
+    "comment_authors": []
+  },
+  {
+    "id": 314,
+    "annotations": [
+      {
+        "id": 110,
+        "completed_by": 1,
+        "result": [
+          {
+            "id": "kH9x1W8OrH",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 11.708643657594262,
+              "y": 23.672367236723687,
+              "width": 77.37886243279702,
+              "height": 22.412241224122393,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 1,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "b9tHDpLjeo",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 11.708643657594301,
+              "y": 46.354635463546344,
+              "width": 63.88846865339498,
+              "height": 22.142214221422112,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 1,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          },
+          {
+            "id": "RCnvlxtggq",
+            "type": "rectanglelabels",
+            "value": {
+              "x": 13.490393779402124,
+              "y": 69.12691269126913,
+              "width": 74.45170151839852,
+              "height": 20.52205220522052,
+              "rotation": 0,
+              "rectanglelabels": [
+                "Figure"
+              ]
+            },
+            "origin": "manual",
+            "to_name": "pdf",
+            "from_name": "rectangles",
+            "item_index": 1,
+            "image_rotation": 0,
+            "original_width": 2481,
+            "original_height": 3508
+          }
+        ],
+        "was_cancelled": false,
+        "ground_truth": false,
+        "created_at": "2026-03-11T15:49:38.543611Z",
+        "updated_at": "2026-04-13T08:40:49.894799Z",
+        "draft_created_at": null,
+        "lead_time": 37.307,
+        "prediction": {},
+        "result_count": 3,
+        "unique_id": "57b09981-fc1b-4003-8a71-d1e3d7491e4b",
+        "import_id": null,
+        "last_action": null,
+        "bulk_created": false,
+        "task": 314,
+        "project": 22,
+        "updated_by": 1,
+        "parent_prediction": null,
+        "parent_annotation": null,
+        "last_created_by": null
+      }
+    ],
+    "file_upload": "702cffe2-tasks.json",
+    "drafts": [],
+    "predictions": [],
+    "data": {
+      "pages": [
+        "/data/local-files/?d=dataset_spec/3rp-media-backgrounder.pdf_p000.png",
+        "/data/local-files/?d=dataset_spec/3rp-media-backgrounder.pdf_p001.png",
+        "/data/local-files/?d=dataset_spec/3rp-media-backgrounder.pdf_p002.png"
+      ]
+    },
+    "meta": {
+      "file": "3rp-media-backgrounder.pdf"
+    },
+    "created_at": "2026-02-23T14:18:11.342700Z",
+    "updated_at": "2026-04-13T08:40:49.966537Z",
+    "allow_skip": true,
+    "inner_id": 10,
+    "total_annotations": 1,
+    "cancelled_annotations": 0,
+    "total_predictions": 0,
+    "comment_count": 0,
+    "unresolved_comment_count": 0,
+    "last_comment_updated_at": null,
+    "project": 22,
+    "updated_by": 1,
+    "comment_authors": []
+  }
+]

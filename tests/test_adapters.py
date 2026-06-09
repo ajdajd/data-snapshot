@@ -18,13 +18,16 @@ from dsa.adapters.yolo11 import YOLO11Config, run_yolo11_adapter_directory
 
 @pytest.mark.skip(reason="For debugging purposes only.")
 def test_labelstudio():
-    ref_path = ROOT / "tests/data/ground_truth.json"
-    test_path = ROOT / "tests/data/ground_truth_test.json"
+    raw_path = ROOT / "tests/data/labelstudio_raw.json"
+    ref_path = ROOT / "tests/data/labelstudio_ref.json"
+    test_path = ROOT / "tests/data/labelstudio_test.json"
 
-    convert_labelstudio_export_to_eval_v13(LS_EXPORT_JSON_PATH, test_path)
+    convert_labelstudio_export_to_eval_v13(raw_path, test_path)
 
     ref = load_json(ref_path)
+    del ref["info"]
     test = load_json(test_path)
+    del test["info"]
 
     assert json.dumps(ref) == json.dumps(test)
 
