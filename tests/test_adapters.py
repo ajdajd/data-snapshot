@@ -62,12 +62,12 @@ def test_doclayoutyolo():
 
 @pytest.mark.skip(reason="For debugging purposes only.")
 def test_tfid():
-    ref_path = ROOT / "tests/data/tfid-large.json"
-    test_path = ROOT / "tests/data/tfid-large_test.json"
+    ref_path = ROOT / "tests/data/tfid_ref.json"
+    test_path = ROOT / "tests/data/tfid_test.json"
 
     cfg = TFIDConfig()
     run_tfid_adapter_directory(
-        ROOT / "pdf_input",
+        INPUT_PDF_DIR,
         test_path,
         config=cfg,
     )
