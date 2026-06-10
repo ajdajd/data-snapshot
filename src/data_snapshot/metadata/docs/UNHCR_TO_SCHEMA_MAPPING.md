@@ -6,7 +6,7 @@ This document maps the metadata schema from UNHCR documents scraped from [Relief
 
 **Target schema structure:** The schema guide defines a hierarchical structure with `metadata_information`, `document_description`, `provenance`, `tags`, and `additional`.
 
-**Implementation:** [`src/scripts/unhcr_to_schema.py`](../../../../../../src/scripts/unhcr_to_schema.py)
+**Implementation:** [`src/data_snapshot/metadata/unhcr_to_schema.py`](../unhcr_to_schema.py)
 
 ---
 
@@ -208,4 +208,4 @@ The following schema elements have no source in the UNHCR metadata and are set t
 - [ReliefWeb](https://reliefweb.int)
 - [Schema Guide Chapter 5 - Documents](https://worldbank.github.io/schema-guide/chapter05.html)
 - [WDS mapping reference](./WDS_TO_SCHEMA_MAPPING.md)
-- [Implementation](../../../../../../src/scripts/unhcr_to_schema.py)
+- [Implementation](../unhcr_to_schema.py)
