@@ -1,5 +1,5 @@
 """
-Create Label Studio annotation tasks from PDF files.
+(Deprecated: Use with caution.) Create Label Studio annotation tasks from PDF files.
 
 Converts each page of each PDF into a PNG image and generates a
 ``tasks.json`` file suitable for importing into Label Studio's
@@ -7,7 +7,7 @@ multi-page document annotation workflow.
 
 Usage::
 
-    python create_tasks.py --input_dir=pdf_input/ --dataset_name=dataset
+    python create_tasks_manual.py --input_dir=pdf_input/ --dataset_name=dataset
 """
 
 import argparse
@@ -16,7 +16,7 @@ from pathlib import Path
 
 from tqdm.auto import tqdm
 
-from dsa.utils import convert_pdf_to_images
+from data_snapshot.utils import convert_pdf_to_images
 
 BASE_HOST_PATH = "/data/local-files/?d="
 LABEL_STUDIO_LOCAL_FILES_DOCUMENT_ROOT = "labelstudio_data/"
