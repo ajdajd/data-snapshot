@@ -202,7 +202,7 @@ def combine_predictions(
     n_objects = sum(len(p["objects"]) for p in merged_predictions)
     n_pages = len(merged_predictions)
     print(
-        f"Combined file saved to: {output_json_path} ({n_objects} pages, {n_pages} total objects)"
+        f"Combined file saved to: {output_json_path} ({n_pages} pages, {n_objects} total objects)"
     )
 
 
