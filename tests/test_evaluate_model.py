@@ -21,4 +21,4 @@ def test_evaluate_model():
         output_path=None,
     )
     del res["info"]
-    assert json.dumps(ref) == json.dumps(res)
+    assert ref == res
