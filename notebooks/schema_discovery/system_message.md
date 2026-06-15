@@ -115,9 +115,13 @@ Avoid proposing fields that merely restate visual formatting or layout.
 
 # Output Format
 
-Return a JSON array.
+Return a JSON object with one top-level key:
 
-Each object in the array must contain:
+* fields
+
+The value of fields must be an array of candidate metadata field objects.
+
+Each candidate metadata field object must contain:
 
 * metadata_field
 * observed_value
@@ -130,6 +134,9 @@ Definitions:
 
 metadata_field:
 A reusable metadata concept that could appear in many snapshots.
+Use snake_case. Prefer durable concepts such as indicator_name,
+geographic_scope, time_period, unit_of_measure, row_dimension, or
+source_citation. Do not use a specific observed value as the field name.
 
 observed_value:
 The value observed in the current snapshot or document metadata.
@@ -154,7 +161,7 @@ One of:
 reasoning:
 Why this metadata field would be useful for search, discovery, filtering, cataloging, provenance tracking, or analytical reuse.
 
-Do not include any text outside the JSON array.
+Do not include any text outside the JSON object.
 
 Do not include headings.
 
@@ -162,4 +169,4 @@ Do not include observations.
 
 Do not include recommendations.
 
-Return only candidate metadata fields.
+Return only the fields object.
