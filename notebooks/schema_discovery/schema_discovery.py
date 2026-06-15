@@ -1,9 +1,11 @@
 import base64
-from dotenv import load_dotenv
-from pathlib import Path
 import os
-import re
+from pathlib import Path
+from typing import Literal
+
+from dotenv import load_dotenv
 from openai import OpenAI
+from pydantic import BaseModel
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
@@ -23,6 +25,45 @@ PRICING = {
         "output_per_1M": 4.50,
     },
 }
+
+
+class CandidateField(BaseModel):
+    """Candidate metadata field discovered from a snapshot.
+
+    Attributes
+    ----------
+    metadata_field : str
+        Reusable metadata field name.
+    observed_value : str
+        Value observed in the snapshot or document metadata.
+    description : str
+        Description of what the field represents.
+    source_level : Literal["snapshot", "document", "both"]
+        Source where the value was observed.
+    discovery_value : Literal["high", "medium", "low"]
+        Estimated value of the field for discovery use cases.
+    reasoning : str
+        Explanation of why the field is useful.
+    """
+
+    metadata_field: str
+    observed_value: str
+    description: str
+    source_level: Literal["snapshot", "document", "both"]
+    discovery_value: Literal["high", "medium", "low"]
+    reasoning: str
+
+
+class SchemaDiscoveryResult(BaseModel):
+    """Structured schema discovery result.
+
+    Attributes
+    ----------
+    fields : list[CandidateField]
+        Candidate metadata fields discovered for the snapshot.
+    """
+
+    fields: list[CandidateField]
 
 
 def load_prompt(path: str) -> str:
@@ -82,31 +123,13 @@ def _encode_image_to_data_url(image_path: str) -> str:
     return f"data:{mime};base64,{b64}"
 
 
-def _strip_code_fences(text: str) -> str:
-    """Remove markdown code fences wrapping a JSON block.
-
-    Parameters
-    ----------
-    text : str
-        Raw LLM output text.
-
-    Returns
-    -------
-    str
-        Text with leading/trailing code fences removed.
-    """
-    text = re.sub(r"^```(?:json)?\s*\n?", "", text)
-    text = re.sub(r"\n?```\s*$", "", text)
-    return text.strip()
-
-
 def analyze_snapshot(
     system_prompt: str,
     user_prompt: str,
     image_path: str,
     model: str = "gpt-5.4-mini",
     max_output_tokens: int = 3000,
-) -> dict:
+) -> object:
     """Send a snapshot image to the OpenAI Responses API.
 
     Parameters
@@ -125,13 +148,16 @@ def analyze_snapshot(
     Returns
     -------
     Response
+        Parsed Responses API response with ``output_parsed`` populated as a
+        ``SchemaDiscoveryResult`` when successful.
     """
     client = OpenAI(api_key=api_key)
 
-    response = client.responses.create(
+    response = client.responses.parse(
         model=model,
         max_output_tokens=max_output_tokens,
         reasoning={"effort": "medium"},
+        text_format=SchemaDiscoveryResult,
         input=[
             {
                 "role": "system",
@@ -153,7 +179,7 @@ def analyze_snapshot(
     return response
 
 
-def process_response(response, model):
+def process_response(response: object, model: str) -> dict:
     """Parse Response object and add usage details.
 
     Parameters
@@ -171,16 +197,25 @@ def process_response(response, model):
         ``None`` and ``error`` describes the issue.
     """
     raw_output = response.output_text.strip()
-    cost = compute_cost(model, response.usage)
+    usage = response.usage
+    cost = compute_cost(model, usage)
+    parsed_output = getattr(response, "output_parsed", None)
+    error = None
+
+    if parsed_output is None:
+        error = "Structured output parse failed or response was incomplete."
+        parsed_output_dict = None
+    else:
+        parsed_output_dict = parsed_output.model_dump(mode="json")
 
     output_dict = {
         "raw_output": raw_output,
-        "usage": response.usage,
+        "usage": usage.model_dump(),
         "cost": cost,
         "status": response.status,
         "incomplete_details": response.incomplete_details,
-        "parsed_output": None,
-        "error": None,
+        "parsed_output": parsed_output_dict,
+        "error": error,
     }
 
     return output_dict
