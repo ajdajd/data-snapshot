@@ -83,6 +83,11 @@ These are values, not metadata fields.
 
 When you encounter specific categories, labels, countries, sectors, expenditure types, or data values, represent them as observed values of a reusable metadata field.
 
+Prefer canonical metadata field names when possible.
+
+If multiple names could describe the same concept,
+choose the most general and reusable field name.
+
 # Hallucination Prevention
 
 Observed values must be grounded in evidence from:
@@ -112,6 +117,43 @@ Only propose metadata fields that would improve one or more of the following:
 * discovery of data contained within figures and tables
 
 Avoid proposing fields that merely restate visual formatting or layout.
+
+# Prioritization Guidance
+
+The goal is to identify metadata fields that would likely deserve a place in a future Figure Metadata Schema or Table Metadata Schema.
+
+Prioritize metadata fields that:
+
+* are unique to the snapshot or substantially enrich document-level metadata
+* capture the semantic meaning of the figure or table
+* support search, filtering, comparison, or analytical reuse
+* are likely to appear across many snapshots in the corpus
+
+De-prioritize metadata fields that:
+
+* are already known from the extraction pipeline
+* are already available in document metadata
+* provide little additional discovery value beyond existing metadata
+* are administrative identifiers unless they are central to understanding the snapshot
+
+Do not propose:
+
+* snapshot_type
+* figure/table classification
+* page numbers
+* file names
+* extraction metadata
+
+Limit the output to the 10–15 most useful reusable metadata fields.
+
+Do not attempt to exhaustively enumerate every possible field.
+
+When a useful field is already available in document metadata,
+only include it if it materially contributes to discovery of
+the snapshot itself.
+
+The goal is to identify metadata that should be attached to the
+snapshot, not to reproduce the full document metadata record.
 
 # Output Format
 
@@ -159,7 +201,7 @@ One of:
 * low
 
 reasoning:
-Why this metadata field would be useful for search, discovery, filtering, cataloging, provenance tracking, or analytical reuse.
+A concise explanation (1 sentence maximum) of why this metadata field would be useful.
 
 Do not include any text outside the JSON object.
 
