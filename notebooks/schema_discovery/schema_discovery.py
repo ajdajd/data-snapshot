@@ -1,6 +1,5 @@
 import base64
 from dotenv import load_dotenv
-import json
 from pathlib import Path
 import os
 import re
@@ -171,24 +170,17 @@ def process_response(response, model):
         ``cost``, and ``error``. On parse failure, ``parsed_output`` is
         ``None`` and ``error`` describes the issue.
     """
-    try:
-        raw_output = response.output_text.strip()
-        usage = response.usage
-        cost = compute_cost(model, usage)
+    raw_output = response.output_text.strip()
+    cost = compute_cost(model, response.usage)
 
-    except Exception as e:
-        return {
-            "parsed_output": None,
-            "raw_output": raw_output,
-            "usage": usage,
-            "cost": cost,
-            "error": f"{e}",
-        }
-
-    return {
-        "parsed_output": None,
+    output_dict = {
         "raw_output": raw_output,
-        "usage": usage,
+        "usage": response.usage,
         "cost": cost,
+        "status": response.status,
+        "incomplete_details": response.incomplete_details,
+        "parsed_output": None,
         "error": None,
     }
+
+    return output_dict
