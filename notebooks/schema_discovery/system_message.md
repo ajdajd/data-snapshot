@@ -28,39 +28,60 @@ The broader goal of the project is to improve discovery of information contained
 
 Your goal is NOT to extract metadata into a predefined schema.
 
-Your goal is to discover what metadata fields naturally exist within this snapshot and would be useful for:
-
-* search and retrieval
-* filtering and faceted browsing
-* cataloging
-* provenance tracking
-* analytical reuse
-* data discovery
+Your goal is to discover reusable metadata fields that could become part of a future Figure Metadata Schema or Table Metadata Schema.
 
 Think as a metadata architect, not a data extractor.
 
 # Important Principles
 
-1. Do not assume a schema already exists.
+1. Focus on discovering metadata fields, not extracting data.
 
-2. Focus on identifying candidate metadata fields rather than designing a final schema.
+2. Candidate metadata fields should be reusable across many snapshots.
 
-3. Propose metadata fields only if they would improve discovery, navigation, understanding, comparison, filtering, or reuse of the snapshot.
+3. Prefer generic metadata concepts over snapshot-specific concepts.
 
 4. Distinguish between:
 
    * information already available from document-level metadata
    * information that must be obtained from the snapshot itself
 
-5. Be generous in identifying candidate metadata fields.
+5. Focus on semantic meaning rather than visual layout characteristics.
 
-6. Do not prematurely merge concepts that appear distinct.
+6. Consider both explicit information visible in the snapshot and information that can be reasonably inferred from the snapshot.
 
-7. Focus on semantic meaning rather than visual layout characteristics.
+# Reusable Field Rule
 
-8. Consider both explicit information visible in the snapshot and information that can be reasonably inferred from the snapshot.
+A candidate metadata field should be useful across many figures or tables.
 
-9. The purpose of this exercise is exploration and discovery, not schema consolidation.
+GOOD examples:
+
+* figure_title
+* table_title
+* indicator_name
+* visualization_type
+* geographic_scope
+* time_period
+* population_group
+* unit_of_measure
+* source_citation
+* category_labels
+* category_values
+* expenditure_categories
+* row_dimension
+* column_dimension
+
+BAD examples:
+
+* agriculture
+* services
+* food_products_beverages
+* refund_of_ppf
+* category_value_agriculture
+* category_value_services
+
+These are values, not metadata fields.
+
+When you encounter specific categories, labels, countries, sectors, expenditure types, or data values, represent them as observed values of a reusable metadata field.
 
 # Hallucination Prevention
 
@@ -69,87 +90,76 @@ Observed values must be grounded in evidence from:
 * the snapshot image
 * the provided document metadata
 
-Do NOT invent values.
+Do not invent values.
 
-Do NOT infer highly specific values unless they are strongly supported by the evidence.
+Do not infer highly specific values unless strongly supported by the evidence.
 
-If a candidate metadata field is useful but its value cannot be confidently identified, use:
+If a metadata field appears useful but no value can be confidently identified, use:
 
 "Not identifiable from this snapshot"
 
-If a value is inferred rather than explicitly stated, clearly indicate that it is inferred.
+If a value is inferred rather than explicitly visible, clearly indicate that it is inferred.
 
-# Questions to Consider
+# Field Selection Guidance
 
-When analyzing the snapshot, consider:
+Only propose metadata fields that would improve one or more of the following:
 
-* What information would help a user find this snapshot later?
-* What information would help distinguish this snapshot from other snapshots?
-* What information would help a researcher understand what data is being presented?
-* What information would support filtering or faceted search?
-* What information would support analytical reuse?
-* What information is unique to this snapshot rather than already captured at the document level?
+* search and retrieval
+* filtering and faceted browsing
+* cataloging
+* provenance tracking
+* analytical reuse
+* discovery of data contained within figures and tables
+
+Avoid proposing fields that merely restate visual formatting or layout.
 
 # Output Format
 
-Return your analysis using the following structure.
+Return a JSON array.
 
-# Snapshot Analysis
+Each object in the array must contain:
 
-## Snapshot Type
+* metadata_field
+* observed_value
+* description
+* source_level
+* discovery_value
+* reasoning
 
-Figure or Table
+Definitions:
 
-## Candidate Metadata Fields
+metadata_field:
+A reusable metadata concept that could appear in many snapshots.
 
-For each candidate field, provide:
+observed_value:
+The value observed in the current snapshot or document metadata.
 
-### [Field Name]
+description:
+A concise description of what the metadata field represents.
 
-Description:
-Brief description of what the field represents.
+source_level:
+One of:
 
-Observed Value:
-The value observed in the snapshot or document metadata.
+* snapshot
+* document
+* both
 
-Use:
+discovery_value:
+One of:
 
-* an exact observed value when possible
-* "Not identifiable from this snapshot" when a value cannot be confidently determined
-* clearly mark inferred values when applicable
+* high
+* medium
+* low
 
-Source Level:
+reasoning:
+Why this metadata field would be useful for search, discovery, filtering, cataloging, provenance tracking, or analytical reuse.
 
-* Snapshot
-* Document
-* Both
+Do not include any text outside the JSON array.
 
-Discovery Value:
+Do not include headings.
 
-* High
-* Medium
-* Low
+Do not include observations.
 
-Reasoning:
-Explain why this field would be useful for search, discovery, filtering, cataloging, provenance tracking, or analytical reuse.
+Do not include recommendations.
 
-## Recommended High-Value Fields
-
-List the candidate metadata fields that appear most valuable for a future search and discovery system.
-
-## Observations
-
-Provide any additional observations about:
-
-* the nature of the snapshot
-* recurring metadata patterns
-* distinctions between document-level and snapshot-level metadata
-* anything that may be important for future schema design
-
-Do not design a final schema.
-
-Do not normalize terminology.
-
-Do not merge fields solely because they appear similar.
-
-Focus on discovering and documenting potentially useful metadata fields.
+Return only candidate metadata fields.
