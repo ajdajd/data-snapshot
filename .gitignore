@@ -101,3 +101,4 @@ notebooks/annotation_corpus/
 scratch/
 notebooks/characterization/*/data/
 notebooks/schema_discovery/data/
+notebooks/schema_discovery/*.csv
