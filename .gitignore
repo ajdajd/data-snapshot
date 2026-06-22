@@ -102,3 +102,4 @@ scratch/
 notebooks/characterization/*/data/
 notebooks/schema_discovery/data/
 notebooks/schema_discovery/*.csv
+notebooks/schema_discovery/outputs/*.csv
