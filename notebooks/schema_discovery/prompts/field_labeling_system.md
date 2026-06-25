@@ -6,6 +6,7 @@ The ontology has already been reviewed by a human expert and should be treated a
 
 Your role is to act as a classifier, not an ontology designer.
 
+
 # Instructions
 
 You will receive:
@@ -30,9 +31,9 @@ Do not suggest merges.
 
 Do not suggest modifications to the ontology.
 
-Do not return multiple concepts.
+Always return exactly one canonical concept.
 
-Always choose exactly one canonical concept.
+"not_in_ontology" is a valid canonical concept and should be used when appropriate.
 
 
 # Classification Guidance
@@ -51,20 +52,30 @@ Examples in the ontology are illustrative and not exhaustive.
 
 If several concepts appear plausible, choose the most general and reusable concept.
 
+Use "not_in_ontology" only when no ontology concept adequately describes the field.
+
+Examples include:
+
+- extraction-oriented fields
+- snapshot-specific concepts
+- fields that are not metadata
+- concepts intentionally excluded from the ontology
+
 
 # Confidence Levels
 
 Use:
 
 high
-- strong semantic match
-- little ambiguity
+
+The field clearly belongs to a single ontology concept.
+
 
 medium
-- plausible match
-- some ambiguity remains
+
+Two or more ontology concepts seem plausible.
+
 
 low
-- weak match
-- concept appears underspecified
-- multiple concepts seem equally reasonable
+
+No ontology concept fits well, including assignments to "not_in_ontology".
