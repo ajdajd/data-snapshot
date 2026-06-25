@@ -42,12 +42,8 @@ Prefer semantic meaning over wording similarity.
 Use all available evidence:
 
 - metadata_field
-- description
-- reasoning
-- observed values
-- field frequency
-- corpus distribution
-- figure/table distribution
+- top_description_fields
+- top_observed_values
 
 The metadata_field name alone may be misleading.
 
