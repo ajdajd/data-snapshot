@@ -1,5 +1,5 @@
-import base64
 import os
+from enum import Enum
 from pathlib import Path
 from typing import Literal
 
@@ -42,6 +42,36 @@ class Classification(BaseModel):
     confidence: Literal["high", "medium", "low"]
 
 
+def make_classification_model(
+    canonical_names: tuple[str, ...],
+) -> type[BaseModel]:
+    """Build a Classification model constrained to known canonical names.
+
+    Parameters
+    ----------
+    canonical_names : tuple[str, ...]
+        Allowed canonical concept names from the ontology.
+
+    Returns
+    -------
+    type[BaseModel]
+        A Pydantic model with ``canonical_name`` constrained to an enum of
+        the provided names and ``confidence`` as
+        ``Literal["high", "medium", "low"]``.
+    """
+    CanonicalName = Enum(
+        "CanonicalName", {name: name for name in canonical_names}
+    )
+
+    class ConstrainedClassification(BaseModel):
+        """Inferred canonical name from a field profile (enum-constrained)."""
+
+        canonical_name: CanonicalName
+        confidence: Literal["high", "medium", "low"]
+
+    return ConstrainedClassification
+
+
 def load_prompt(path: str) -> str:
     return Path(path).read_text(encoding="utf-8")
 
@@ -80,6 +110,7 @@ def analyze_field_profile(
     system_prompt: str,
     user_prompt: str,
     model: str = "gpt-5.4-mini",
+    classification_model: type[BaseModel] = Classification,
 ) -> object:
     """Send prompts to the OpenAI Responses API.
 
@@ -89,23 +120,25 @@ def analyze_field_profile(
         System-level instructions for the model.
     user_prompt : str
         Rendered user prompt with placeholders filled.
-    image_path : str
-        Path to the snapshot image file.
     model : str
         OpenAI model name.
+    classification_model : type[BaseModel]
+        Pydantic model for structured output parsing. Use
+        ``make_classification_model`` to build one constrained to your
+        ontology. Defaults to the unconstrained ``Classification``.
 
     Returns
     -------
     Response
-        Parsed Responses API response with ``output_parsed`` populated as a
-        ``Classification`` when successful.
+        Parsed Responses API response with ``output_parsed`` populated
+        when successful.
     """
     client = OpenAI(api_key=api_key)
 
     response = client.responses.parse(
         model=model,
         reasoning={"effort": "medium"},
-        text_format=Classification,
+        text_format=classification_model,
         input=[
             {
                 "role": "system",

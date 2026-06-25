@@ -42,7 +42,7 @@ Prefer semantic meaning over wording similarity.
 Use all available evidence:
 
 - metadata_field
-- top_description_fields
+- top_description_values
 - top_observed_values
 
 The metadata_field name alone may be misleading.
@@ -68,21 +68,3 @@ low
 - weak match
 - concept appears underspecified
 - multiple concepts seem equally reasonable
-
-
-# Output Format
-
-Return a JSON object containing exactly two fields.
-
-{
-  "canonical_name": "<canonical concept>",
-  "confidence": "high"
-}
-
-Confidence must be one of:
-
-- high
-- medium
-- low
-
-Do not include any text outside the JSON object.
