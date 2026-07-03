@@ -59,7 +59,7 @@ def make_classification_model(
         the provided names and ``confidence`` as
         ``Literal["high", "medium", "low"]``.
     """
-    all_names = canonical_names + ("not_in_ontology",)
+    all_names = canonical_names
     CanonicalName = Enum("CanonicalName", {name: name for name in all_names})
 
     class ConstrainedClassification(BaseModel):
