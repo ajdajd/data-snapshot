@@ -1,0 +1,316 @@
+{
+  "type": "json_schema",
+  "name": "data_snapshot_metadata_v1_1",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "title": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The primary title, caption, or heading that identifies the data snapshot."
+      },
+      "internal_identifier": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "A document-assigned identifier used to reference the snapshot within the source document."
+      },
+      "subject_domain": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The broad thematic, policy, or sectoral domain represented by the snapshot."
+      },
+      "subject_summary": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "A concise summary describing the primary analytical subject or purpose of the snapshot."
+      },
+      "panel_title": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The title or heading of an individual panel within a multi-panel snapshot.\n\nPopulate only when panel titles are explicitly present."
+      },
+      "variable_name": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The primary variable, indicator, metric, or measured concept represented by the snapshot."
+      },
+      "category_dimension": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The conceptual variable or dimension used to organize, group, classify, or compare the represented values."
+      },
+      "category_labels": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "description": "The explicit category names or labels associated with a category dimension."
+      },
+      "population_group": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The human population, beneficiary group, or demographic group that is the primary subject of the represented data. This field describes who the data are about, not how they are categorized or disaggregated."
+      },
+      "time_period": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The period or date range represented by the data."
+      },
+      "temporal_granularity": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The temporal resolution at which the represented data are reported."
+      },
+      "geographic_scope": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The primary geographic area represented by the snapshot."
+      },
+      "geographic_entities": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "description": "Named geographic entities explicitly represented within the snapshot."
+      },
+      "geographic_granularity": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The administrative or spatial level at which data are reported."
+      },
+      "geographic_role": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "description": "The semantic role played by geographic entities within the represented data."
+      },
+      "location_type": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The type of physical location represented."
+      },
+      "unit_of_measure": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The unit used to interpret reported quantitative values."
+      },
+      "currency": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The currency denomination used for monetary values."
+      },
+      "measure_type": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The statistical form in which values are expressed."
+      },
+      "comparison_group": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "description": "The benchmark, comparator, reference group, cohort, scenario, or entity against which the represented data are compared.\n\nPopulate only when the snapshot explicitly presents a comparative relationship. This field captures the intended comparison or benchmark represented by the snapshot, not simply the categories used to organize the data."
+      },
+      "row_dimension": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The conceptual variable represented by table rows."
+      },
+      "column_dimension": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The conceptual variable represented by table columns."
+      },
+      "visualization_type": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The primary visualization used to encode the represented data."
+      },
+      "data_source": {
+        "type": [
+          "array",
+          "null"
+        ],
+        "items": {
+          "type": "string"
+        },
+        "description": "The dataset, survey, publication, or other cited source from which the represented data originate."
+      },
+      "source_document_title": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The title of the parent document containing the snapshot."
+      },
+      "language": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The language used within the snapshot."
+      },
+      "interpretive_note": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "Explanatory notes, caveats, assumptions, footnotes, or methodological remarks explicitly provided within the snapshot to aid interpretation.\n\nPopulate only when such notes are explicitly present."
+      },
+      "project_name": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The project, program, operation, or initiative associated with the snapshot."
+      },
+      "project_identifier": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The formal identifier assigned to the associated project or operation."
+      },
+      "project_component": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The project component, workstream, or results area represented by the snapshot."
+      },
+      "intervention_type": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The intervention, service, policy, or operational activity represented."
+      },
+      "financial_measure": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The financial quantity or funding-related measure represented by the snapshot."
+      },
+      "financing_source": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The organization or funding source providing financial support."
+      },
+      "financing_instrument": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The financing mechanism associated with the represented activity."
+      },
+      "analysis_method": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The analytical, statistical, or computational method used to produce the reported results.\n\nPopulate only when explicitly stated."
+      },
+      "data_collection_method": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "The method or instrument used to collect the underlying data.\n\nPopulate only when explicitly stated."
+      }
+    },
+    "required": [
+      "title",
+      "internal_identifier",
+      "subject_domain",
+      "subject_summary",
+      "panel_title",
+      "variable_name",
+      "category_dimension",
+      "category_labels",
+      "population_group",
+      "time_period",
+      "temporal_granularity",
+      "geographic_scope",
+      "geographic_entities",
+      "geographic_granularity",
+      "geographic_role",
+      "location_type",
+      "unit_of_measure",
+      "currency",
+      "measure_type",
+      "comparison_group",
+      "row_dimension",
+      "column_dimension",
+      "visualization_type",
+      "data_source",
+      "source_document_title",
+      "language",
+      "interpretive_note",
+      "project_name",
+      "project_identifier",
+      "project_component",
+      "intervention_type",
+      "financial_measure",
+      "financing_source",
+      "financing_instrument",
+      "analysis_method",
+      "data_collection_method"
+    ]
+  }
+}
