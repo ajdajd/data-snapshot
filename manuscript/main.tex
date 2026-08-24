@@ -1,0 +1,2328 @@
+\documentclass{article}
+\usepackage{iclr2026_conference,times}
+\input{math_commands.tex}
+\usepackage{hyperref}
+\usepackage{url}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[export]{adjustbox}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{ragged2e}
+\usepackage{listings}
+
+\lstset{
+    basicstyle=\scriptsize\ttfamily,
+    breaklines=true,
+    frame=single,
+    captionpos=b
+}
+
+\title{Engineering the Data Snapshot Metadata Schema: A Human-in-the-Loop Methodology with Multimodal LLMs}
+% Alternatives:
+% 1. (Original working title) Leveraging LLM for Schema Mining in Data Snapshots
+% 2. A Human-in-the-Loop Methodology for Metadata Schema Engineering with Multimodal LLMs
+% 3. A Human-in-the-Loop Methodology for Engineering Metadata Schemas for Emerging Multimodal Analytical Artifacts
+% 4. Multimodal LLM-Assisted Metadata Schema Engineering: A Human-in-the-Loop Methodology for Emerging Multimodal Analytical Artifacts
+
+% Note: Emerging = "novel" artifacts. We can drop the word "emerging". But saying "...for Multimodal Analytical Artifacts Without Established Metadata Standards" is too long haha.
+
+% Title key components:
+% - Metadata Schema Engineering
+% - Methodology
+% - Data Snapshots/Multimodal Analytical Artifacts
+% - Human-in-the-loop
+% - Multimodal LLM
+
+\author{AJ Carl P. Dy$^{\dagger}$ \& Aivin V. Solatorio$^{*}$ \\
+Development Data Group \\
+Office of the World Bank Group Chief Statistician \\
+The World Bank \\
+1818 H Street N.W., \\
+Washington, 20433 \\
+District of Columbia, USA \\
+\texttt{\{ady, asolatorio\}@worldbank.org} }
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+\maketitle
+
+\begingroup
+\renewcommand\thefootnote{\fnsymbol{footnote}}
+\footnotetext[2]{GitHub/HF: \href{https://github.com/ajdajd}{\texttt{@ajdajd}}, \href{mailto:ajcarl.dy@gmail.com}{ajcarl.dy@gmail.com}}
+\footnotetext[1]{GitHub/HF: \href{https://github.com/avsolatorio}{\texttt{@avsolatorio}}, \href{mailto:avsolatorio@gmail.com}{avsolatorio@gmail.com}}
+\endgroup
+
+\begin{abstract}
+
+Engineering an initial metadata schema for a previously unsupported artifact type remains a largely manual knowledge engineering task despite recent advances in multimodal large language models (LLMs). Existing metadata standards describe mature vocabularies, while metadata extraction methods typically assume that an appropriate schema already exists. We present a human-in-the-loop methodology for metadata schema engineering that decomposes the process into a sequence of explicit semantic transformations connected by intermediate knowledge artifacts, enabling transparent reasoning, iterative expert review, and reproducible schema development while assigning complementary roles to multimodal LLMs and human experts. The methodology is demonstrated through the development of the Data Snapshot Metadata Schema using a representative collection of 210 data snapshots extracted from institutional documents. Beyond the resulting schema, this work contributes a repeatable methodology for engineering initial metadata schemas and argues that metadata schema engineering constitutes a distinct stage of knowledge engineering that benefits from explicit intermediate knowledge artifacts and complementary human--AI reasoning.
+
+\end{abstract}
+
+\section{Introduction}
+
+Metadata provides the descriptive foundation that enables digital resources to be organized, discovered, exchanged, and reused~\citep{gilliland2008}. Well-designed metadata schemas support consistent annotation, interoperability, retrieval, provenance tracking, and downstream analytical workflows across heterogeneous information systems~\citep{metadatainteroperability2006}. For mature domains, such schemas typically emerge through years of community collaboration, iterative refinement, and the gradual convergence of expert knowledge into widely adopted metadata standards~\citep{caplan2003}.
+
+Recent advances in document understanding and multimodal information systems have made it increasingly feasible to extract analytical artifacts embedded within documents—such as statistical tables, charts, maps, dashboards, and monitoring frameworks—as standalone information objects that can be indexed, retrieved, and managed independently of their source documents~\citep{wang2025,dy2026}. As these artifacts become standalone information objects, they require metadata describing their analytical content, structure, and context, rather than solely the bibliographic properties of the documents from which they originate~\citep{gilliland2008}. While existing metadata standards provide many relevant concepts, no single standard adequately describes the metadata required to represent the analytical semantics of many such artifact types~\citep{gilliland2008}.
+
+Our broader research investigates one such class of artifacts, which we refer to as \emph{data snapshots}: semantically meaningful analytical artifacts extracted from institutional documents and managed as independent information objects~\citep{dy2026}. Developing a metadata extraction and retrieval pipeline for these artifacts required a metadata schema capable of describing the snapshots themselves rather than only their source documents.
+
+Although existing metadata standards provide many concepts applicable to digital resources, they are generally designed for particular resource types or application domains rather than analytical artifacts of this kind~\citep{gilliland2008, metadatainteroperability2006}. In evaluating these standards for our use case, we found that none adequately captured the information required for data snapshots. Consequently, before metadata could be extracted automatically, the metadata schema itself had to be engineered. This revealed a more fundamental challenge: how should an initial metadata schema be systematically engineered for a previously unsupported artifact type? [TODO: Narrow standards claim: Existing metadata standards provide many concepts relevant to data snapshots, but at the outset of this work no dedicated operational metadata schema or directly adoptable metadata profile had been identified for data snapshots as defined here.]
+
+Engineering an initial metadata schema for a previously unsupported artifact type remains a largely expert-driven knowledge engineering task. The process requires discovering candidate metadata concepts from representative artifacts, consolidating semantically related concepts, refining conceptual boundaries, and translating the resulting ontology into an operational metadata schema through iterative expert review.~\citep{uschold&gruninger1996,noy&mcguinness2001}. Existing research has addressed metadata standardization, ontology engineering, and ontology learning as complementary foundations for metadata schema engineering. However, relatively little attention has been devoted to the distinct problem of engineering an initial operational metadata schema for a previously unsupported artifact type before broader community standardization occurs.
+
+[TODO: Clarify what ontology is]
+
+Recent advances in multimodal large language models (LLMs) provide an opportunity to support the exploratory stages of metadata schema engineering~\citep{ding2026,bian2025}. Rather than treating schema engineering as a single prompting task, we propose a human-in-the-loop methodology that decomposes the process into explicit semantic transformations connected by intermediate knowledge artifacts. These artifacts preserve evidence for expert review while enabling multimodal LLMs and human experts to contribute complementary forms of reasoning throughout the workflow.
+
+We demonstrate the methodology through the development of the Data Snapshot Metadata Schema for data snapshots. The case study shows how heterogeneous metadata observations can be progressively transformed into an operational metadata schema through explicit intermediate knowledge artifacts that support transparent human–LLM collaboration. Beyond the resulting schema, the paper contributes a repeatable methodology for engineering metadata schemas for previously unsupported classes of multimodal analytical artifacts.
+
+\section{Related work}
+
+The proposed methodology synthesizes ideas from metadata standards, ontology engineering, human--AI knowledge engineering, and multimodal document understanding to address the problem of engineering an initial operational metadata schema for a previously unsupported multimodal analytical artifact type. Rather than introducing a new paradigm, this work integrates established principles from these research areas into a unified methodology. The following review examines the contribution of each research area and motivates their integration into the proposed methodology.
+
+\subsection{Metadata standards and schema development}
+
+Metadata standards provide standardized descriptive frameworks that enable digital resources to be organized, discovered, exchanged, and preserved across communities~\citep{gilliland2008}. Widely adopted metadata standards, including Dublin Core, DataCite, Schema.org, and SDMX, typically emerge through iterative expert collaboration and successive refinement over time~\citep{caplan2003, greenberg2005}.
+
+These standards primarily define mature metadata vocabularies together with the governance mechanisms and community practices that support their long-term evolution~\citep{greenberg2005}. Accordingly, much of the metadata standards literature emphasizes mature descriptive vocabularies and their long-term governance, while devoting comparatively less attention to the earlier knowledge engineering process of engineering an initial operational schema~\citep{uschold&gruninger1996}.
+
+The proposed methodology addresses this complementary stage of the metadata lifecycle. Rather than focusing on long-term governance or community consensus, it investigates how an initial operational metadata schema can be systematically engineered for previously unsupported analytical artifact types.
+
+[TODO: Insert somewhere (maybe not in this section) This is the first attempt to make a metadata schema for Data Snapshots. This may evolve as future work on Data Snapshots matures.]
+
+[TODO: Clarify relationship to standards: The proposed methodology does not assume that relevant metadata vocabularies are absent; rather, it addresses the earlier task of constructing a dedicated operational profile for an artifact class when no directly adoptable schema has yet been established.]
+
+\subsection{Ontology engineering and ontology induction}
+
+Ontology engineering provides well-established methodologies for constructing conceptual models through the identification, organization, refinement, and validation of domain concepts~\citep{uschold&gruninger1996}. Existing methodologies emphasize systematic knowledge acquisition, expert review, competency-driven design, and iterative refinement of conceptual vocabularies~\citep{noy&mcguinness2001}.
+
+Closely related research in ontology learning investigates automated and semi-automated techniques for constructing or inducing ontologies from textual and other information sources.~\citep{giglou2023}. More recent work has extended these approaches through the use of large language models for ontology induction and taxonomy construction~\citep{bian2025}.
+
+Ontology engineering and metadata schema engineering address related but distinct knowledge engineering problems. Ontologies primarily capture conceptual relationships within a domain, whereas metadata schemas must additionally specify the metadata fields, constraints, and operational structure required for annotation and information management~\citep{noy&mcguinness2001,greenberg2005}. Accordingly, ontology induction serves as an intermediate step toward metadata schema engineering rather than the final outcome.
+
+\subsection{Human--AI knowledge engineering}
+
+Large language models are increasingly used to support knowledge engineering activities including taxonomy generation, ontology construction, knowledge graph development, schema documentation, and structured reasoning~\citep{li2025,bian2025}. Rather than viewing LLMs as fully autonomous knowledge engineers, recent research increasingly emphasizes human--AI collaboration in which language models generate candidate knowledge structures while domain experts retain responsibility for conceptual validation, refinement, and governance~\citep{li2025}. [TODO: Check if these two have a methodology already. Including Giglou2023. Cause if they do, we need to change the paper's positioning to an application or adaption of their methodology. Emphasize distinction as necessary.]
+
+This human-in-the-loop perspective positions LLMs as collaborators that support semantic discovery and knowledge organization while relying on expert oversight for conceptual validation and governance~\citep{bian2025}. The proposed methodology adopts this division of responsibility by assigning multimodal LLMs to semantic discovery, abstraction, and organization, while human experts retain responsibility for conceptual scope, ontology refinement, and final schema engineering.
+
+\subsection{Multimodal document understanding}
+
+Recent advances in multimodal document understanding have substantially improved the automatic understanding of tables, charts, maps, diagrams, dashboards, and other visual analytical artifacts. Existing work has explored structured representations such as chart specifications, scene graphs, visualization ontologies, dashboard models, and other domain-specific representations for representing and reasoning about individual artifact types~\citep{wang2025}.
+
+These approaches typically build upon predefined descriptive representations, whether metadata schemas, ontologies, chart specifications, or scene graphs. The primary objective is therefore structured extraction, information retrieval, or downstream reasoning rather than engineering the descriptive representation itself~\citep{bian2025}.
+
+These approaches generally assume that an appropriate descriptive representation already exists~\citep{bian2025}. In contrast, this work investigates how such a representation can be engineered for a previously unsupported class of multimodal analytical artifacts using complementary contributions from multimodal LLMs and human experts.
+
+\subsection{Positioning of this work}
+
+Collectively, these research areas provide the conceptual foundations for the proposed methodology. Rather than proposing an entirely new paradigm, this work integrates established ideas from metadata standards, ontology engineering, human--AI knowledge engineering, and multimodal document understanding into a unified workflow for engineering initial metadata schemas.
+
+Unlike existing approaches that typically conclude with an ontology, descriptive representation, or metadata extraction pipeline, the proposed methodology explicitly distinguishes metadata discovery, ontology induction, ontology engineering, and schema engineering as separate knowledge engineering activities connected through explicit intermediate knowledge artifacts. Table~\ref{tab:positioning} summarizes this positioning relative to representative research directions.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Comparison with representative research directions contributing to the proposed methodology.}
+    \label{tab:positioning}
+    \renewcommand{\arraystretch}{1.4}
+    \newcolumntype{Y}[1]{>{\hsize=#1\hsize\raggedright\arraybackslash}X}
+    \begin{tabularx}{\textwidth}{Y{0.8} Y{1.1} Y{1.1}}
+    \toprule
+        \textbf{Research direction} & \textbf{Primary focus} & \textbf{What this work adds} \\
+        \midrule
+        Metadata standards & Mature metadata vocabularies and community standards & Focus on initial deployment-ready schema engineering \\ 
+        Ontology engineering and induction & Conceptual models and candidate ontologies & Continues through expert ontology refinement and metadata schema engineering \\ 
+        Human--AI knowledge engineering & Human-assisted semantic discovery and knowledge engineering workflows & Structured human–AI workflow for metadata schema engineering \\ 
+        Multimodal document understanding & Metadata extraction and reasoning using predefined representations & Engineering the metadata representation itself \\ 
+        \textbf{Proposed methodology} & \textbf{Deployment-ready metadata schema} & \textbf{—} \\ 
+    \bottomrule
+    \end{tabularx}
+\end{table}
+
+[TODO: Need to redesign the table. At first glance, the last row which is "Proposed methodology" seems to say "this work adds nothing".]
+
+\section{Conceptual framework}
+
+This paper addresses the problem of engineering metadata schemas for multimodal analytical artifact types that lack an established metadata standard. Before presenting the proposed methodology, we establish the conceptual framework that underpins the remainder of the paper. In particular, we distinguish between \emph{metadata}, \emph{ontology}, and \emph{metadata schema}—terms that are often used differently across knowledge engineering, information science, and database research. We then define the scope of the proposed methodology and formulate the metadata schema engineering problem addressed in this work.
+
+\subsection{Data snapshots as independent information objects}
+
+A \emph{data snapshot} is a semantically meaningful analytical artifact extracted from a document page and treated as an independent information object~\citep{dy2026}. Examples include statistical tables, charts, maps, dashboards, monitoring frameworks, and composite analytical figures. Representative examples are provided in Appendix~\ref{appendix:datasnapshots}. Unlike document pages, data snapshots encapsulate specific analytical content and are often reused, searched, or interpreted independently of their source documents. Treating each data snapshot as an independent information object enables metadata to be assigned at the level where the analytical content is expressed, rather than inherited solely from the source document.
+
+Conventional document-level metadata such as title, author, publication date, or organization provides valuable context about the source document but is insufficient to describe the analytical content of individual data snapshots. For example, multiple data snapshots within the same report may describe different indicators, geographic regions, populations, or time periods while sharing identical document metadata. Effective organization, retrieval, and downstream analysis therefore require metadata that describes the snapshots themselves rather than only the documents from which they were extracted.
+
+\subsection{Conceptual distinctions}
+
+Building on the definition of a data snapshot, we distinguish three closely related concepts that play distinct roles in the proposed metadata schema engineering workflow.
+
+\paragraph{Metadata}
+
+Metadata is descriptive information about a data snapshot. It consists of properties that help identify, interpret, organize, retrieve, or manage a snapshot~\citep{gilliland2008}. Examples include the analytical indicator represented, geographic coverage, temporal coverage, visualization type, source organization, and other descriptive attributes. Metadata primarily answers the question: "What does this snapshot represent?"
+
+\paragraph{Ontology}
+
+An ontology is a conceptual model that defines canonical metadata concepts together with their semantic relationships and meanings~\citep{noy&mcguinness2001}. Rather than specifying implementation details, an ontology establishes shared conceptual definitions that distinguish one metadata concept from another. In the proposed methodology, the ontology serves as the conceptual model from which the operational metadata schema is subsequently engineered.
+
+\paragraph{Metadata schema}
+
+A metadata schema is an operational specification describing which metadata fields should be captured for a data snapshot together with their definitions, intended use, and annotation guidance. Whereas the ontology defines the conceptual vocabulary, the metadata schema defines the operational specification used by subsequent metadata annotation, storage, retrieval, and extraction systems.
+
+Figure~\ref{fig:conceptual_relationship} summarizes the relationships among these concepts.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.35\linewidth]{data/conceptual_hierarchy.png}
+    \caption{Relationship between data snapshots, metadata, ontology, and metadata schema. Data snapshots are described by metadata, metadata concepts are defined within an ontology, and the ontology is operationalized as a metadata schema. Metadata extraction and downstream applications are shown separately because they assume that an operational metadata schema already exists and therefore lie outside the scope of the proposed methodology.}
+    \label{fig:conceptual_relationship}
+\end{figure}
+
+\subsection{Scope}
+
+The proposed methodology addresses the engineering [TODO: Change to "creation"] of an operational metadata schema for previously unsupported multimodal analytical artifacts [TODO: for artifacts that have yet to be associated with a structured schema -- as long as you have a means to analyze it with LLMs]. It does not seek to define a community metadata standard or prescribe long-term governance processes. [TODO: Why not just say "Leverage LLMs in creating ... with human in the loop as part of validation"?] Instead, it focuses on the earlier knowledge engineering activities required to develop an operational metadata schema. Within this scope, ontology engineering serves as an intermediate conceptual activity, while metadata schema engineering additionally addresses deployment concerns such as annotation consistency, usability, and implementation.
+
+The proposed methodology also excludes metadata extraction. Metadata extraction assumes that an operational metadata schema already exists and seeks to populate its fields from previously unseen data snapshots. In contrast, this work addresses the earlier problem of engineering an operational metadata schema. As illustrated in Figure~\ref{fig:conceptual_relationship}, the proposed methodology concludes with the metadata schema. Metadata extraction and downstream applications therefore fall outside the scope of this work.
+
+\subsection{Problem definition}
+
+Engineering [TODO: Reduce "engineering" to "developing" or "creating"] metadata schemas for mature domains [TODO: Reword "mature domains"] often benefits from established metadata standards, community conventions, and extensive domain knowledge. Emerging types of multimodal analytical artifacts, however, often lack dedicated metadata schemas despite becoming increasingly important units of analysis across institutional documents.
+
+[TODO: Framing: Coming from an engineering and AI background, how would you streamline the different processes?]
+
+[TODO: We should argue: We are trying to discover what data snapshots are. Unlike the "usual" stuff like documents, pictures, etc. whose properties are already defined and clear, in contrast, data snapshots are novel objects that we have yet to understand the extent of its characteristics. We want to mine its properties and this is the solution. This is the driving case for the paper.]
+
+[TODO: Mental model: we have an objective to create a schema. One approach is to sit down and define it. But how about the long-tail that we won't be able to think of that are equally important?]
+
+We therefore consider the following problem:
+
+\begin{quote}
+Given a representative collection of multimodal analytical artifacts for which no dedicated metadata schema exists, how can human experts engineer an operational metadata schema suitable for metadata annotation and downstream applications?
+\end{quote}
+
+[TODO: Clarify "unsupported": Here, an artifact type is considered unsupported when it lacks a dedicated operational metadata schema or directly adoptable metadata profile; this does not imply that relevant concepts are absent from existing metadata standards or vocabularies.]
+
+This problem is challenging for two reasons. First, the conceptual metadata space is initially unknown, requiring experts to identify candidate metadata concepts before they can organize or standardize them. Second, the resulting schema must translate this conceptual understanding into a deployment-ready specification that balances semantic expressiveness with practical considerations such as annotation consistency, retrieval utility, and long-term maintainability.
+
+We investigate whether metadata schema engineering can be decomposed into a sequence of complementary knowledge engineering tasks that combine multimodal LLMs with expert review. The proposed methodology assigns multimodal LLMs to structured metadata discovery and conceptual abstraction while reserving ontology engineering, metadata schema engineering, and final conceptual decisions for human experts.
+
+The following section presents the proposed methodology.
+
+\section{Methodology}
+\label{sec:methodology}
+
+This section presents a reusable methodology for engineering an operational metadata schema for multimodal analytical artifacts that lack an established descriptive standard. The methodology is intended to support early-stage schema development by combining multimodal large language models with structured knowledge engineering. Rather than replacing human judgment, it decomposes metadata schema engineering into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts.
+
+A central design principle is the decomposition of the methodology into distinct knowledge engineering stages connected by explicit intermediate knowledge artifacts. This decomposition separates semantic discovery, conceptual modeling, validation, and operational specification into explicit stages, making the engineering process transparent, reviewable, and reproducible. Table~\ref{tab:methodology_summary} summarizes the proposed workflow.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Summary of the proposed methodology. Each workflow stage performs a semantic transformation that produces an explicit intermediate knowledge artifact. Multimodal LLMs and human review contribute complementary capabilities throughout the workflow.}
+    \label{tab:methodology_summary}
+    \renewcommand{\arraystretch}{1.4}
+
+    \newcolumntype{Y}[1]{>{\hsize=#1\hsize\raggedright\arraybackslash}X}
+
+    \begin{tabularx}{\textwidth}{Y{0.8} Y{1.2} Y{1.1} Y{1.1} Y{0.8}}
+    \toprule
+
+    \textbf{Workflow stage} &
+    \textbf{Semantic transformation} &
+    \textbf{Primary LLM contribution} &
+    \textbf{Primary human contribution} &
+    \textbf{Output knowledge artifact} \\
+
+    \midrule
+
+    Metadata discovery &
+    Representative artifacts \newline $\downarrow$ \newline Metadata observations &
+    Broad semantic discovery &
+    Sampling strategy and prompt design &
+    Metadata observations \\
+
+    \midrule
+
+    Field profile aggregation &
+    Metadata observations \newline $\downarrow$ \newline Field profiles &
+    -- &
+    Evidence aggregation and profile construction &
+    Metadata field profiles \\
+
+    \midrule
+
+    Ontology induction &
+    Field profiles \newline $\downarrow$ \newline Candidate ontology &
+    Semantic consolidation and canonicalization &
+    Prompt design &
+    Candidate ontology \\
+
+    \midrule
+
+    Ontology engineering &
+    Candidate ontology \newline $\downarrow$ \newline Refined ontology &
+    Decision support &
+    Merge, split, rename, exclude, define, and refine concepts &
+    Refined ontology \\
+
+    \midrule
+
+    Ontology validation &
+    Refined ontology \newline $\downarrow$ \newline Validation evidence &
+    Constrained classification &
+    Interpretation of validation results &
+    Validation evidence \\
+
+    \midrule
+
+    Schema engineering &
+    Refined ontology \newline $\downarrow$ \newline Metadata schema &
+    Schema design assistance &
+    Operational schema design and deployment decisions &
+    Metadata schema \\
+
+    \bottomrule
+    \end{tabularx}
+\end{table}
+
+[TODO: This table is overwhelming.]
+[TODO: The last column "Output knowledge artifact" can be dropped. It is repeated information from the "Semantic transformation" column.]
+
+The proposed methodology progressively transforms metadata observations into increasingly structured knowledge artifacts, culminating in an operational metadata schema. Each workflow stage transforms one intermediate artifact into the next, enabling the engineering process to be reviewed and refined incrementally. The methodology is presented independently of the case study; implementation-specific details are deferred to Section~\ref{sec:case_study}.
+
+\subsection{Metadata discovery}
+
+The objective of metadata discovery is to externalize candidate metadata concepts that describe representative analytical artifacts. At this stage, the emphasis is intentionally placed on discovery breadth rather than semantic precision. Accordingly, the stage seeks to identify all potentially useful metadata, including concepts that may later prove redundant, ambiguous, or outside the scope of the final schema.
+
+This stage begins with a representative sample of multimodal analytical artifacts drawn from the target domain. The methodology assumes that the sample captures the diversity of artifact types, reporting styles, and semantic content expected in downstream applications.
+
+Each artifact is processed independently using a multimodal LLM, which proposes candidate metadata fields from the visual and textual content of the artifact rather than selecting from a predefined vocabulary. Independent processing serves two complementary purposes. First, it prevents early convergence toward a shared vocabulary, allowing diverse local semantic interpretations to emerge before consolidation. Second, it minimizes bias introduced by previously processed artifacts, allowing each artifact to reveal its own descriptive characteristics. Consistent with the emphasis on discovery breadth, redundancy and semantic overlap are intentional. Candidate metadata fields are therefore expected to include synonymous terminology, differing levels of abstraction, and concepts that may ultimately be excluded from the final schema.
+
+Metadata observations are generated without human curation or filtering to preserve discovery breadth and reduce the risk of prematurely excluding useful concepts. Human involvement is therefore limited to defining the discovery objective, selecting representative artifacts, and designing the prompting strategy. The output of this stage is a collection of metadata observations describing the sampled artifacts. These observations serve as the input to field profile aggregation.
+
+\subsection{Field profile aggregation}
+
+The objective of field profile aggregation is to consolidate the metadata observations produced during metadata discovery into \emph{metadata field profiles}. Rather than reasoning over individual observations, subsequent stages operate on these profiles, reducing the amount of context presented to later stages while establishing metadata field profiles as the primary units of semantic reasoning.
+
+This stage groups metadata observations referring to the same candidate metadata field into a single metadata field profile using deterministic exact-name matching, without semantic normalization or canonicalization (e.g., "geographic location" and "geographic locations" remain separate profiles). Each profile aggregates representative supporting evidence—including frequent values, example descriptions, occurrence statistics, and explanatory reasoning—providing a compact representation for subsequent ontology induction.
+
+The output of this stage is a collection of metadata field profiles that represent the unique candidate metadata fields identified across the representative artifact collection and serve as the input to ontology induction.
+
+\subsection{Ontology induction}
+
+The objective of ontology induction is to transform the metadata field profiles produced during field profile aggregation into a \emph{candidate ontology} comprising canonical metadata concepts. Whereas metadata discovery emphasizes broad semantic exploration, ontology induction emphasizes semantic abstraction by identifying common concepts shared across multiple metadata field profiles.
+
+This stage takes the metadata field profiles from the previous stage as input. Unlike field profile aggregation, which groups observations using exact field names, ontology induction consolidates field profiles representing the same underlying metadata concept into canonical metadata concepts. Distinct concepts, including infrequently occurring ones, are intentionally preserved to reduce semantic redundancy without sacrificing conceptual diversity.
+
+To minimize the risk of incorrect semantic merges, ontology induction intentionally favors under-consolidation over premature consolidation. Concepts that remain separate can still be merged during ontology engineering, whereas concepts merged too aggressively during this stage may be difficult to recover. For example, simple plural variants such as "geographic location" and "geographic locations" would typically be consolidated at this stage, whereas the relationship between concepts such as "data type" and "format" may require human judgment.
+
+The candidate ontology is generated by applying multimodal LLM-based semantic abstraction to the aggregated field profiles. For each canonical metadata concept, the ontology includes a definition, representative examples, and explanatory reasoning supporting the proposed consolidation. The resulting candidate ontology represents the first global conceptual model of the discovered metadata space and serves as the input to ontology engineering.
+
+\subsection{Ontology engineering}
+
+The objective of ontology engineering is to transform the candidate ontology produced during ontology induction into a refined ontology suitable for operational use. Whereas ontology induction emphasizes semantic abstraction, ontology engineering emphasizes conceptual correctness, scope definition, and semantic consistency. It is during this stage that the canonical metadata vocabulary is finalized.
+
+Ontology engineering proceeds through an iterative review process in which candidate metadata concepts are evaluated individually and in relation to the ontology as a whole. Typical refinement activities include merging semantically equivalent concepts, splitting concepts that capture multiple distinct ideas, renaming concepts to improve clarity, excluding concepts that fall outside the intended metadata scope, refining definitions and examples, and clarifying conceptual boundaries between related concepts.
+
+These refinement activities are guided primarily by semantic reasoning rather than empirical frequency. The objective is not to minimize the number of concepts, but to produce an ontology that is conceptually distinct, internally consistent, and appropriate for the intended application. A recurring consideration during ontology engineering is the distinction between descriptive metadata and extraction outputs. Candidate concepts describing values that should be extracted from analytical artifacts, rather than metadata describing the artifacts themselves, are removed from the ontology. This refinement establishes a clear conceptual boundary between metadata schema engineering and downstream metadata extraction.
+
+Ontology engineering is guided primarily by human judgment. Multimodal LLMs may support the process by proposing alternative concept names, identifying overlapping definitions, summarizing similarities and differences between concepts, and suggesting refinements, but final decisions regarding concept merges, exclusions, definitions, and organization remain the responsibility of the human expert. The output of this stage is a refined ontology with clearly defined semantic boundaries that serves as the conceptual foundation for schema engineering.
+
+\subsection{Ontology validation}
+
+The objective of ontology validation is to evaluate the refined ontology produced during ontology engineering and assess whether it provides an appropriate conceptual model of the discovered metadata space. Unlike the preceding workflow stages, ontology validation does not modify the ontology or produce a new conceptual knowledge artifact. Instead, it generates validation evidence that supports subsequent human judgment regarding the adequacy of the engineered ontology.
+
+Ontology validation is performed by assigning each metadata field profile generated during field profile aggregation to one of the predefined ontology concepts using ontology-constrained classification. This classification may be performed using a multimodal LLM or another suitable classification approach, enabling quantitative analyses of ontology behavior across the representative corpus.
+
+The resulting concept assignments support analyses such as concept frequency distributions, corpus coverage, visualization-type coverage, identification of rare concepts, and inspection of concepts receiving unexpectedly high or low empirical support. These analyses provide evidence rather than prescribing ontology modifications. For example, infrequently occurring concepts may remain operationally important if they capture semantically distinct aspects of the artifact domain. Instead, the validation evidence informs human judgment and may motivate additional ontology refinement before proceeding to schema engineering. The output of this stage is a collection of validation evidence, including concept assignments, descriptive statistics, and related analyses characterizing the coverage and behavior of the engineered ontology.
+
+\subsection{Optional extension: Scaling ontology engineering}
+
+Ontology engineering relies primarily on human review. While this is practical for moderately sized ontologies, exhaustive manual inspection becomes increasingly difficult as the number of concepts grows. For larger ontologies, similarity-based analyses can provide optional decision support.
+
+Similarity-based analyses identify relationships between metadata field profiles or ontology concepts using semantic similarity or co-occurrence. These relationships may be explored through techniques such as hierarchical clustering, community detection, or network visualization to identify groups of closely related concepts.
+
+These analyses support human judgment by highlighting candidate concept merges, unexpected conceptual clusters, isolated concepts, or regions of the ontology requiring additional inspection. They provide complementary evidence for ontology engineering but do not replace semantic reasoning or automate ontology design decisions.
+
+Accordingly, similarity-based analyses are treated as optional decision-support mechanisms rather than mandatory workflow stages. Their value increases with ontology size and complexity by helping focus human review on areas most likely to benefit from further inspection.
+
+\subsection{Schema engineering}
+
+The objective of schema engineering is to transform the refined ontology into an operational metadata schema. Whereas ontology engineering establishes a conceptually coherent representation of the metadata space, schema engineering emphasizes practical implementation by defining metadata fields suitable for annotation, storage, retrieval, and downstream metadata extraction.
+
+Schema engineering proceeds through an iterative design process that translates canonical metadata concepts into an operational metadata specification. Typical activities include merging ontology concepts that are conceptually distinct but operationally better represented by a single metadata field, introducing metadata fields required for practical deployment, removing concepts whose implementation cost outweighs their operational value, refining field names and definitions to improve annotation consistency, organizing metadata fields into coherent semantic modules, and developing annotation guidance, examples, and scope notes for each metadata field.
+
+Unlike ontology engineering, which seeks to establish \emph{what metadata concepts exist}, schema engineering determines \emph{how those concepts should be represented within an operational metadata specification}. Consequently, schema engineering balances semantic correctness with practical considerations including annotation consistency, usability, maintainability, and long-term deployment. These decisions often involve trade-offs that cannot be resolved through semantic reasoning alone. For example, conceptually distinct ontology concepts may be represented by a single metadata field to simplify annotation, and infrequently occurring concepts may be retained because they provide operationally important metadata.
+
+Schema engineering is guided primarily by human judgment. Multimodal LLMs may support the process by proposing alternative organizational structures, identifying ambiguities in field definitions, suggesting opportunities for simplification, and assisting with annotation guidance and documentation, but final schema design decisions remain the responsibility of the human expert.
+
+The output of this stage is a metadata schema comprising metadata fields, definitions, organizational structure, annotation guidance, examples, and other documentation required to support consistent metadata creation and downstream applications.
+
+\section{Case study: Developing the Data Snapshot Metadata Schema}
+\label{sec:case_study}
+
+This section demonstrates the proposed methodology through one complete execution of the workflow for a class of multimodal analytical artifacts that lacked an established metadata schema. The resulting metadata schema is presented not as a definitive standard for this artifact type, but as evidence that the proposed methodology can produce a coherent, deployment-ready initial metadata schema where no suitable standard exists.
+
+The case study describes the representative dataset, the execution of the proposed workflow, the implementation of each workflow stage, and the resulting metadata schema. The intermediate knowledge artifacts generated throughout execution also provide the empirical foundation for the analyses presented in the following section.
+
+\subsection{Artifact type}
+
+The case study focuses on \emph{data snapshots}: semantically meaningful analytical artifacts extracted from institutional PDF documents and managed as independent information objects. Data snapshots preserve their analytical meaning outside the context of their source documents and therefore require metadata describing the snapshot itself rather than only its source document.
+
+Typical data snapshots include statistical tables, analytical charts, geospatial maps, monitoring dashboards, financial summaries, composite figures, and other visual analytical objects containing textual, numerical, and spatial information. Additional examples of data snapshots are provided in Appendix~\ref{appendix:datasnapshots}.
+
+As discussed in our previous work, treating data snapshots as independent information objects enables downstream retrieval, indexing, comparison, and metadata extraction workflows that are difficult to support using document-level metadata alone. However, no existing metadata schema adequately captured the descriptive information required for this artifact type, making data snapshots an appropriate case study for evaluating a methodology designed to engineer an initial metadata schema for previously unsupported artifact types.
+
+\subsection{Case study dataset}
+
+Representative data snapshots were sampled from three institutional document corpora spanning humanitarian reporting, academic policy research, and development project operations, previously introduced in \cite{dy2026}. Together, these corpora span substantially different document structures, visualization conventions, and reporting styles, providing a diverse collection of analytical artifacts for metadata discovery.
+
+Within these corpora, data snapshots were extracted from document layout regions classified as either figures or tables. To ensure balanced coverage, sampling was stratified by corpus and artifact category, as summarized in Table~\ref{tab:composition}. Equal representation of figures and tables reduced bias toward the structural characteristics of either visualization type.
+
+Although the dataset is not intended to be statistically representative of institutional documents as a whole, it provides sufficient semantic diversity to evaluate the proposed methodology across multiple reporting domains and visualization types.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Composition of the case study dataset.}
+    \label{tab:composition}
+    \begin{tabular}{lrrr}
+        \toprule
+        \textbf{Corpus} & \textbf{Figures} & \textbf{Tables} & \textbf{Total} \\
+        \midrule
+        UNHCR / ReliefWeb & 35 & 35 & 70 \\
+        Policy Research Working Papers & 35 & 35 & 70 \\
+        Refugee Project Appraisal Documents & 35 & 35 & 70 \\
+        \midrule
+        \textbf{Total} & \textbf{105} & \textbf{105} & \textbf{210} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Workflow execution}
+
+The proposed methodology was executed using the 210 sampled data snapshots described in the previous subsection. Metadata discovery processed each sampled data snapshot independently, after which successive workflow stages transformed the resulting intermediate knowledge artifacts into progressively higher levels of semantic abstraction. Figure~\ref{fig:artifact_evolution} illustrates the sequence of intermediate knowledge artifacts produced as the workflow transformed representative data snapshots into the final metadata schema.
+
+Metadata discovery and ontology induction used GPT-5.5, while ontology validation used GPT-5.4 mini for ontology-constrained classification. Field profile aggregation was implemented deterministically in Python without additional LLM inference, whereas ontology engineering and schema engineering were performed through iterative human review supported by the intermediate knowledge artifacts produced throughout the workflow. Complete prompts, model configurations, and implementation details are provided in Appendices~\ref{appendix:discovery}--\ref{appendix:validation}.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.75\textwidth]{data/case_study_execution.png}
+    \caption{The workflow transforms representative data snapshots into the Data Snapshot Metadata Schema through a sequence of explicit intermediate knowledge artifacts. Colors distinguish LLM-supported, deterministic, and human-guided transformations.}
+    \label{fig:artifact_evolution}
+\end{figure}
+
+\subsection{Resulting metadata schema}
+
+The end stage of the methodology produced the Data Snapshot Metadata Schema, which is comprised of 36 canonical metadata fields organized into nine semantic modules (Table~\ref{tab:schema}). Together, these modules define the operational metadata specification for describing data snapshots as independent information objects. Although informed by the refined ontology, the resulting schema reorganizes the engineered concepts into a metadata specification designed to support consistent annotation and downstream metadata workflows. The complete reference specification is reproduced in Appendix~\ref{appendix:schema}.
+
+A key outcome of the schema engineering was the explicit separation between metadata describing the snapshot itself and information intended to be extracted from the snapshot. This distinction establishes clear boundaries between metadata schema engineering and downstream metadata extraction workflows, ensuring that descriptive metadata remains conceptually independent of the analytical content contained within the artifact.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Semantic organization of the Data Snapshot Metadata Schema, showing the nine metadata modules, representative fields, and the number of fields in each module.}
+    \label{tab:schema}
+    
+    \begin{tabular}{llr}    
+        \toprule
+        \textbf{Semantic module} & \textbf{Representative fields} & \textbf{Fields} \\
+        \midrule
+        Identity \& Discovery & \makecell[l]{\texttt{title} \\ \texttt{subject\_domain} \\ \texttt{subject\_summary}} & 5 \\
+        \midrule
+        Subject \& Semantics & \makecell[l]{\texttt{variable\_name} \\ \texttt{population\_group}} & 4 \\
+        \midrule
+        Temporal Context & \makecell[l]{\texttt{time\_period} \\ \texttt{temporal\_granularity}} & 2 \\
+        \midrule
+        Spatial Context & \makecell[l]{\texttt{geographic\_scope} \\ \texttt{geographic\_entities}} & 5 \\
+        \midrule
+        Measurement Context & \makecell[l]{\texttt{unit\_of\_measure} \\ \texttt{measure\_type}} & 4 \\
+        \midrule
+        Structural Organization & \makecell[l]{\texttt{row\_dimension} \\ \texttt{visualization\_type}} & 3 \\
+        \midrule
+        Provenance \& Attribution & \makecell[l]{\texttt{data\_source} \\ \texttt{language}} & 4 \\
+        \midrule
+        Project \& Operational Context & \makecell[l]{\texttt{project\_name} \\ \texttt{financial\_measure}} & 7 \\
+        \midrule
+        Analytical \& Methodological Context & \makecell[l]{\texttt{analysis\_method} \\ \texttt{data\_collection\_method}} & 2 \\
+        \midrule
+        \textbf{Total} &  & \textbf{36} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The resulting schema constitutes the primary artifact produced by the case study, while the intermediate knowledge artifacts provide a transparent record of the evidence supporting its development. The following section analyzes these intermediate artifacts to examine how the schema emerged through successive stages of semantic abstraction and conceptual refinement.
+
+\section{Analysis of semantic transformations}
+
+The case study produced a sequence of explicit intermediate knowledge artifacts spanning metadata observations, metadata field profiles, candidate ontology, refined ontology, validation evidence, and the final metadata schema. Collectively, these artifacts document how a heterogeneous collection of representative data snapshots was progressively transformed into an operational metadata schema.
+
+Rather than evaluating only the final metadata schema, this section examines the semantic transformation performed by each intermediate knowledge artifact. The objective is to understand how each intermediate representation contributes to the overall engineering process and why these intermediate artifacts provide a useful decomposition of metadata schema engineering. Across the five transformations, semantic complexity is progressively reduced while preserving the evidence required for the subsequent reasoning task.
+
+The analysis is organized around five transformation-focused questions, each examining the contribution of one semantic transformation within the proposed methodology:
+
+\begin{enumerate}
+    \item How did independent metadata discovery characterize the semantic space?
+    \item How did metadata field profile aggregation transform localized observations into reusable semantic evidence?
+    \item How did conceptual abstraction transform semantic evidence into a coherent conceptual vocabulary?
+    \item How did ontology validation strengthen confidence in the conceptual vocabulary?
+    \item How did schema engineering transform a conceptual vocabulary into an operational metadata schema?
+\end{enumerate}
+
+\subsection{Independent semantic discovery}
+
+The first stage of the methodology sought to characterize the semantic space of the target artifact type through independent metadata discovery. Each representative data snapshot was analyzed independently, allowing candidate metadata concepts to emerge without influence from previously processed data snapshots. This design intentionally prioritized semantic exploration before any vocabulary normalization or ontology engineering.
+
+Metadata discovery produced 3,041 metadata observations representing candidate metadata fields across the 210 representative data snapshots (Table~\ref{tab:discovery_productivity}). Consistent with the prompting objective of identifying 10--15 reusable metadata fields per artifact, each snapshot yielded approximately 14--15 candidate metadata fields. The narrow distribution indicates that the multimodal LLM consistently satisfied this objective across diverse visualization types and document collections.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Summary statistics for metadata discovery.}
+    \label{tab:discovery_productivity}
+    \begin{tabular}{lr}
+        Number of snapshots & 210 \\
+        Number of metadata observations & 3,041 \\
+        Mean observations per snapshot & 14.48 \\
+        \quad Median & 15 \\
+        \quad Std dev & 0.89 \\
+        \quad Min & 10 \\
+        \quad Max & 16 \\
+    \end{tabular}
+\end{table}
+
+The 3,041 observations corresponded to 833 unique candidate metadata fields after grouping identical field names, revealing a large candidate vocabulary. The discovered vocabulary exhibited a strongly skewed frequency distribution: approximately half of all observations belonged to only the 20 most frequently proposed metadata fields, while the remaining observations formed a long tail of increasingly specialized or infrequently proposed vocabulary (Figure~\ref{fig:topk_coverage}). Conversely, 581 candidate metadata fields appeared only once across the entire dataset.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.75\linewidth]{data/topk_coverage.png}
+\caption{Cumulative vocabulary coverage as additional discovered metadata fields are included in descending order of frequency. The top 20 most frequently proposed metadata fields cover half of all the observations.}
+\label{fig:topk_coverage}
+\end{figure}
+
+Inspection of these singleton fields revealed that much of the apparent diversity arose from lexical variation rather than fundamentally different semantics. Semantically related concepts frequently appeared under different names, levels of abstraction, or contextual interpretations, including variations in aggregation terminology, administrative boundary descriptions, and indicator naming conventions. Consequently, the long tail reflects both genuine semantic diversity and the absence of early vocabulary normalization.
+
+[TODO: Stability step: If additional snapshots are analyzed, use the current schema as the "seed" then analyze if we should add that field. First phase is this paper--no bias just discover. If there is another batch of samples, that's phase 2. Tell LLM to use the first schema as the seed. If phase 2 finds truly new fields, that will be the indication of saturation/sensitivity test. We need to this. Another 210 samples. This is a validation step that succeeds the "schema engineering" step. Pass the current schema. Then LLM will tell us if may bago talaga na wala pa sa schema.]
+
+[TODO: Saturation curve idea: per snapshot, get vector of field definition and calculate cosine similarity]
+
+The discovered vocabulary also continued to expand throughout the sampled dataset (Figure~\ref{fig:vocabulary_growth}). Even after all 210 representative data snapshots had been analyzed, each additional snapshot introduced an average of approximately four previously unseen candidate metadata fields. Repeated random shuffling of the dataset produced nearly identical accumulation curves, indicating that the continued growth was not an artifact of processing order.
+
+Within the representative sample, the discovered vocabulary continued to expand without evidence of saturation. This suggests that representative artifact collections may require substantial semantic exploration before vocabulary growth begins to stabilize.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.75\linewidth]{data/vocabulary_growth.png}
+\caption{Vocabulary accumulation curve showing the cumulative number of unique candidate metadata fields discovered as additional data snapshots were processed.}
+\label{fig:vocabulary_growth}
+\end{figure}
+
+Taken together, these observations characterize independent metadata discovery as an exploratory stage of metadata schema engineering. Across the representative artifact sample, the discovery process consistently identified candidate metadata while exposing a rich and continually expanding semantic space. Although many discovered metadata fields represented lexical variants of related concepts, preserving this diversity provided a broad semantic basis prior to conceptual abstraction. This provides the subsequent ontology engineering stage with a broad evidential basis for consolidating semantically equivalent concepts into a coherent conceptual structure.
+
+\subsection{Metadata field profiles as reusable semantic evidence}
+
+Metadata discovery intentionally produces localized metadata observations describing individual artifacts, preserving semantic diversity but leaving ontology induction to reason over thousands of individual observations rather than the discovered vocabulary as a whole. To bridge this gap, the methodology introduces metadata field profiles, which aggregate observations sharing the same candidate metadata field into a single evidence-rich semantic representation.
+
+Aggregating the 3,041 metadata observations resulted in 833 metadata field profiles, reducing the number of semantic units requiring subsequent analysis by approximately 73\% (Table~\ref{tab:aggregation_summary}). Importantly, aggregation did not perform any semantic abstraction. Aggregation simply combined repeated occurrences of identical candidate metadata fields while preserving the supporting evidence associated with each field, including representative observed values, descriptive summaries, explanatory reasoning, and occurrence statistics.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Effect of metadata field profile aggregation.}
+    \label{tab:aggregation_summary}
+    \begin{tabular}{lr}
+        Number of metadata observations & 3,041 \\
+        Number of metadata field profiles & 833 \\
+        Reduction & 72.6\% \\
+    \end{tabular}
+\end{table}
+
+The principal effect of aggregation was therefore not compression itself, but a change in the unit of semantic reasoning. During metadata discovery, each observation represents a localized interpretation of a single artifact. Metadata field profiles instead summarize the collective evidence associated with a candidate metadata field across the representative artifact collection. Ontology induction therefore reasons over evidence-rich semantic profiles rather than thousands of isolated metadata observations.
+
+This change substantially enriches the semantic evidence available for conceptual abstraction. Individual metadata observations contain only localized evidence associated with a single artifact. In contrast, metadata field profiles accumulate representative values, descriptive summaries, explanatory rationale, occurrence statistics, and empirical support across many artifacts. Rather than comparing isolated field names, ontology induction can compare candidate metadata fields using their accumulated semantic characteristics.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Illustrative metadata field profile generated through aggregation. Each profile consolidates metadata observations sharing the same candidate metadata field into a reusable semantic evidence unit.}
+    \label{tab:field_profile_example}
+    \renewcommand{\arraystretch}{1.4}
+    \newcolumntype{Y}[1]{>{\hsize=#1\hsize\raggedright\arraybackslash}X}
+    \begin{tabularx}{\textwidth}{Y{0.6} Y{1.4}}
+    \toprule
+    
+    \textbf{Metadata field profile component} & \textbf{Example content} \\
+    \midrule
+    
+    Candidate metadata field & \texttt{geographic\_scope} \\
+    
+    Occurrence count & 192 metadata observations \\
+    
+    Representative values & Lebanon, Djibouti, Uganda, Croatia, World \\
+    
+    Representative descriptions &
+    • Country or geographic area to which the table applies.\newline
+    • Broad geographic region covered by the visualization. \\
+    
+    Representative reasoning &
+    • Enables country-level search, filtering, and comparison.\newline
+    • Provides geographic context for retrieval. \\
+
+    Corpora represented & 3 corpora \\
+    
+    Artifact distribution & 96 figures, 96 tables \\
+
+    \bottomrule
+    \end{tabularx}
+\end{table}
+
+Inspection of representative field profiles (Table~\ref{tab:field_profile_example}) illustrates the value of this richer representation. Frequently occurring metadata fields accumulated diverse values, semantic descriptions, explanatory rationale, occurrence statistics, and provenance across many artifacts, while less common fields likewise retained sufficient contextual evidence for semantic interpretation.
+
+Metadata field profiles therefore do more than reduce the number of semantic units requiring analysis. They transform localized metadata observations into reusable semantic evidence that supports global conceptual reasoning while preserving the diversity discovered during the previous stage. This intermediate representation forms the bridge between independent semantic discovery and ontology engineering. Notably, metadata field profiles emerged during implementation rather than being specified in the original workflow design, highlighting how carefully designed intermediate knowledge artifacts can play a critical role in metadata schema engineering.
+
+\subsection{Progressive conceptual abstraction as an ontology engineering strategy}
+
+Metadata field profiles preserve rich semantic evidence but remain too numerous for direct ontology engineering. To address this, conceptual abstraction transformed the 833 metadata field profiles into a coherent ontology through two complementary stages: conservative multimodal LLM-assisted ontology induction followed by iterative human refinement. Rather than producing a final ontology in a single step, this progressive abstraction strategy separated semantic consolidation from human ontology refinement (Table~\ref{tab:ontology_progression}).
+
+\begin{table}[!ht]
+    \centering
+    \caption{Progressive conceptual abstraction during ontology engineering.}
+    \label{tab:ontology_progression}
+    \begin{tabular}{lr}
+    \toprule
+        \textbf{Stage} & \textbf{Semantic units} \\
+        \midrule
+        Metadata field profiles & 833 \\
+        Candidate ontology & 70 \\
+        Refined ontology & 41 \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+Ontology induction consolidated the discovered semantic space by grouping metadata field profiles that represented the same underlying metadata concept despite differences in terminology, disciplinary perspective, and level of abstraction. Rather than maximizing semantic compression, the multimodal LLM was instructed to perform conservative concept merges, retaining semantically plausible distinctions whenever uncertainty remained. This produced an intermediate candidate ontology containing 70 concepts intended to generalize across multiple reporting domains, reducing the cognitive complexity of ontology engineering while preserving potentially meaningful distinctions for subsequent human review. Human refinement then transformed this candidate ontology into a final conceptual vocabulary comprising 41 concepts through three recurring categories of ontology engineering decisions: concept merges, concept renaming, and concept exclusion (Table~\ref{tab:ontology_decisions}).
+
+\begin{table}[!ht]
+    \centering
+    \caption{Representative ontology engineering decisions.}
+    \label{tab:ontology_decisions}
+    \renewcommand{\arraystretch}{1.4}
+    \newcolumntype{Y}[1]{>{\hsize=#1\hsize\RaggedRight\arraybackslash}X}
+    \renewcommand{\tabularxcolumn}[1]{m{#1}}
+    
+    \begin{tabularx}{\textwidth}{Y{0.4} Y{1.15} Y{1.45}}
+    \toprule
+        \textbf{Decision} & \textbf{Representative examples} & \textbf{Rationale} \\
+        \midrule
+        Concept merge &
+          \texttt{measure\_name} \newline \quad $\rightarrow$ \texttt{indicator\_name} \newline
+          \texttt{axis\_variable} \newline \quad $\rightarrow$ \texttt{indicator\_name} \newline
+          \texttt{outcome\_variable} \newline \quad $\rightarrow$ \texttt{indicator\_name} &
+          These are equivalent analytical variables expressed using different visualization or disciplinary terminology. \\
+        \midrule
+        Concept rename &
+          \texttt{presentation\_type} \newline
+          \quad $\rightarrow$ \texttt{visualization\_type} &
+          This improves conceptual clarity and broader applicability across visualization types. \\
+        \midrule
+        Concept exclusion &
+          \texttt{data\_values} \newline
+          \texttt{legend\_semantics} &
+          These represent extracted content rather than reusable metadata concepts. \\
+    \bottomrule
+    \end{tabularx}
+\end{table}
+
+Progressive abstraction demonstrates the value of separating semantic consolidation from ontology refinement. Conservative LLM-assisted ontology induction reduced the complexity of an evidence-rich semantic space without prematurely discarding potentially meaningful distinctions. Human refinement then resolved the remaining conceptual ambiguities through targeted ontology engineering decisions, producing a coherent conceptual vocabulary without requiring direct inspection of all 833 metadata field profiles. This progressive abstraction strategy reduced cognitive complexity while preserving human control over the final ontology, demonstrating the value of combining conservative LLM-assisted abstraction with human ontology refinement.
+
+\subsection{Empirical ontology validation}
+\label{sec:validation}
+
+Following ontology engineering, the refined ontology was evaluated through quantitative analyses of the labeled metadata field profiles to identify potential structural weaknesses before proceeding to schema engineering. Concept frequencies, corpus coverage, layout coverage, and representative ontology assignments (including \texttt{not\_in\_ontology}) were examined to determine whether the ontology exhibited signs of over-segmentation, unsupported concepts, or inappropriate ontology boundaries that warranted further refinement.
+
+The analyses were intended to identify opportunities for concept merging, removal, or restructuring should such weaknesses be present. Instead, concept frequencies exhibited the expected head-tail distribution (Table~\ref{tab:ontology_frequency}), with a small number of broadly applicable concepts and a longer tail of specialized concepts. Low empirical support alone was insufficient evidence of ontology redundancy.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Ontology concepts with the highest and lowest snapshot support.}
+    \label{tab:ontology_frequency}
+    % Automatically scales the combined tables down to the text width
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{lrr}
+        \toprule
+        \multicolumn{3}{c}{\textbf{Highest support}} \\
+        \midrule
+        \textbf{Concept} & \textbf{Count} & \textbf{Support} \\
+        \midrule
+        \texttt{title} & 195 & 92.9\% \\
+        \texttt{indicator\_name} & 194 & 92.4\% \\
+        \texttt{geographic\_scope} & 194 & 92.4\% \\
+        \texttt{unit\_of\_measure} & 185 & 88.1\% \\
+        \texttt{time\_period} & 156 & 74.3\% \\
+        \bottomrule
+        \end{tabular}
+        \quad
+        \begin{tabular}{lrr}
+        \toprule
+        \multicolumn{3}{c}{\textbf{Lowest support}} \\
+        \midrule
+        \textbf{Concept} & \textbf{Count} & \textbf{Support} \\
+        \midrule
+        \texttt{indicator\_definition} & 11 & 5.2\% \\
+        \texttt{financing\_source} & 10 & 4.8\% \\
+        \texttt{data\_collection\_method} & 9 & 4.3\% \\
+        \texttt{project\_component} & 8 & 3.8\% \\
+        \texttt{financing\_instrument} & 7 & 3.3\% \\
+        \bottomrule
+        \end{tabular}
+    }
+\end{table}
+
+Inspection of the ontology assignments for lower-support concepts confirmed that they represented legitimate domain-specific metadata rather than candidates for consolidation (Table~\ref{tab:ontology_validation}). Likewise, field profiles assigned to \texttt{not\_in\_ontology} predominantly consisted of extracted values and other intentionally excluded content rather than missing ontology concepts, reinforcing the conceptual boundary established during ontology engineering.
+
+\begin{table}[!ht]
+    \caption{Representative validation observations for low-support and excluded concepts.}
+    \label{tab:ontology_validation}
+    \renewcommand{\arraystretch}{1.4}
+    \renewcommand{\arraystretch}{1.4}
+    \newcolumntype{Y}[1]{>{\hsize=#1\hsize\RaggedRight\arraybackslash}X}
+    \renewcommand{\tabularxcolumn}[1]{m{#1}}
+
+    \begin{tabularx}{\textwidth}{Y{0.8} Y{1.1} Y{1.1}}
+    \toprule
+        \textbf{Validation observation} &
+    \textbf{Representative examples} &
+    \textbf{Interpretation} \\
+    
+    \midrule
+    
+    Specialized ontology concepts &
+    \texttt{project\_component} \newline
+    \texttt{financing\_source} \newline
+    \texttt{data\_collection\_method} &
+    These concepts occurred infrequently because they were associated with specialized document collections or analytical contexts rather than representing redundant ontology concepts. \\
+    
+    \midrule
+    
+    \texttt{not\_in\_ontology} assignments &
+    \texttt{sample\_size} \newline
+    \texttt{measure\_values} \newline
+    \texttt{axis\_range} \newline
+    \texttt{summary\_total} &
+    These assignments predominantly represented extracted values and quantitative content intentionally excluded from the metadata ontology, confirming the intended boundary between metadata concepts and extracted content. \\
+    \bottomrule
+    \end{tabularx}
+\end{table}
+
+Overall, these analyses revealed no compelling evidence that the refined ontology required additional conceptual refinement. Rather than prompting further ontology engineering, empirical validation increased confidence in the ontology and established a stable foundation for the subsequent schema engineering phase.
+
+\subsection{Operational schema engineering}
+
+The validated ontology served as the conceptual foundation for schema engineering, which transformed the refined ontology from 41 concepts into the final Data Snapshot Metadata Schema comprising 36 canonical metadata fields. Unlike ontology engineering, which sought to faithfully represent the semantic structure of the metadata, schema engineering optimized the conceptual model for practical deployment. The objective shifted from semantic completeness to operational usability, emphasizing annotation efficiency, retrieval effectiveness, and long-term maintainability.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Representative schema engineering decisions.}
+    \label{tab:schema_decisions}
+    \renewcommand{\arraystretch}{1.4}
+    \newcolumntype{Y}[1]{>{\hsize=#1\hsize\RaggedRight\arraybackslash}X}
+    \renewcommand{\tabularxcolumn}[1]{m{#1}}
+    \begin{tabularx}{\textwidth}{Y{0.4} Y{1.1} Y{1.5}}
+    \toprule
+    
+    \textbf{Decision} &
+    \textbf{Representative example} &
+    \textbf{Operational rationale} \\
+    \midrule
+    
+    Merge &
+    \texttt{series\_labels} \newline \quad $\rightarrow$ \texttt{indicator\_name} 
+    \newline
+    \texttt{calculation\_method} \newline \quad $\rightarrow$ \texttt{analysis\_method}
+    &
+    Unified semantically related concepts within a snapshot without reducing practical expressiveness. \\
+    
+    \midrule
+    
+    Reintroduce &
+    \texttt{panel\_title} &
+    Support annotation of multi-panel figures. \\
+    
+    \midrule
+    
+    Remove &
+    \texttt{indicator\_definition} &
+    Excluded concepts whose operational value did not justify maintaining an independent metadata field. \\
+    
+    \midrule
+    
+    Rename &
+    \texttt{financial\_metric} \newline \quad $\rightarrow$ \texttt{financial\_measure} &
+    Improved terminology clarity and consistency throughout the deployed schema. \\
+    
+    \midrule
+    
+    Refine &
+    \texttt{comparison\_group} \newline
+    \texttt{reference\_date} &
+    Broadened or clarified concept definitions to improve applicability across diverse document collections. \\
+    
+    \bottomrule
+    \end{tabularx}
+\end{table}
+
+Representative decisions are summarized in Table~\ref{tab:schema_decisions}. In contrast to ontology engineering, these decisions were guided primarily by operational considerations rather than semantic distinctiveness. Concepts were merged when maintaining separate metadata fields offered little practical benefit, reintroduced when operational requirements justified restoring previously abstracted distinctions, renamed to improve clarity and consistency, refined to broaden their applicability, or removed when their operational value did not justify additional annotation complexity.
+
+Schema engineering also reintroduced concepts when operational requirements justified restoring distinctions that had previously been abstracted. For example, \texttt{panel\_title} was merged into \texttt{title} during ontology engineering because the distinction was not considered semantically significant at the conceptual level. During schema engineering, however, \texttt{panel\_title} was reinstated as an independent metadata field to support annotation and retrieval of multi-panel figures. The resulting schema therefore preserves the conceptual coverage established during ontology engineering while selectively modifying semantic distinctions according to operational requirements.
+
+Finally, the resulting metadata fields were organized into nine semantic modules representing complementary aspects of data snapshot metadata. These modules improve schema readability, annotation guidance, and future extensibility while serving purely as an organizational structure rather than a hierarchical extension of the ontology.
+
+Schema engineering completed the transition from a validated conceptual ontology to an operational metadata specification suitable for annotation and retrieval. The resulting metadata schema should therefore be viewed not as a direct encoding of the ontology, but as an operational specification that selectively preserves semantic distinctions according to their practical value for annotation, retrieval, and long-term maintenance.
+
+Viewed collectively, the analysis of the five semantic transformations illustrates that metadata schema engineering is not a single inference task but a progressive knowledge engineering process. Each intermediate knowledge artifact reduces semantic complexity while preserving the evidence required for the next stage of reasoning, enabling semantic discovery, conceptual abstraction, ontology validation, and operational schema design to be performed as distinct but complementary activities. This separation allows multimodal LLMs and human experts to contribute complementary strengths throughout the engineering process while maintaining transparency and explicit human oversight.
+
+\section{Discussion}
+
+\subsection{Metadata schema engineering as an emerging knowledge engineering problem}
+
+The methodology suggests that engineering an initial metadata schema for an emerging artifact type constitutes a distinct knowledge engineering problem that is not explicitly addressed by existing work on metadata standards, ontology engineering, or metadata extraction. Within the methodology, ontology engineering and metadata schema engineering are therefore treated as complementary rather than interchangeable activities: ontology engineering establishes a coherent conceptual vocabulary, whereas schema engineering transforms that vocabulary into an operational specification suitable for annotation and deployment.
+
+Metadata standards provide mature descriptive vocabularies that have evolved through long-term community consensus but generally offer limited guidance on how an initial operational schema should be engineered before such a community exists. Conversely, metadata extraction assumes that an appropriate schema has already been defined and focuses on populating its fields from new artifacts. Between these activities lies an earlier engineering problem: discovering the metadata concepts required to describe a previously unsupported artifact type and organizing them into a practical metadata specification.
+
+As illustrated by the case study, separating ontology engineering from schema engineering required additional design decisions concerning annotation practice, retrieval requirements, operational simplicity, and long-term maintainability that extended beyond conceptual modeling. For example, conceptually distinct ontology concepts were sometimes consolidated because maintaining separate metadata fields offered limited operational benefit, whereas other concepts were retained despite relatively low empirical support because they were considered important for annotation and retrieval.
+
+More broadly, the methodology highlights a knowledge engineering problem that has not been explicitly treated as distinct from ontology engineering, metadata standardization, or metadata extraction: producing an initial metadata schema for emerging artifact types before mature standards or community conventions have developed. As new multimodal information objects continue to emerge, systematic methodologies for Version~1 metadata schema engineering are likely to play an increasingly important role alongside existing work on ontology engineering, metadata standardization, and metadata extraction.
+
+[TODO: Refine standards framing: The relevant gap is not the absence of established metadata vocabularies, but the absence of a dedicated operational profile that integrates the concepts required for the target artifact class.]
+
+By preserving explicit intermediate knowledge artifacts throughout the engineering process, the methodology also provides a transparent and auditable record of how the resulting metadata schema was developed. Rather than producing a metadata schema as a single opaque output, each design decision can be traced back through the candidate ontology, metadata field profiles, and original metadata observations that motivated it. This traceability supports review, revision, and future evolution of the metadata schema while preserving the evidence underlying every engineering decision.
+
+\subsection{Human--LLM collaboration in metadata schema engineering}
+
+The case study demonstrates that multimodal LLMs are most effective in metadata schema engineering not as autonomous schema designers, but as collaborators that support different forms of semantic reasoning throughout a structured engineering process. Rather than replacing expert judgment, the methodology deliberately assigns complementary responsibilities to multimodal LLMs and human experts.
+
+Across the workflow, multimodal LLMs proved most valuable in tasks involving semantic exploration, evidence synthesis, and large-scale semantic comparison. These capabilities enabled rapid discovery of candidate metadata concepts, conservative abstraction into candidate ontologies, and ontology-constrained classification for validation, allowing human experts to reason over structured semantic evidence rather than isolated artifacts.
+
+By contrast, the engineering decisions that ultimately determined the deployed metadata schema required reasoning beyond semantic similarity. Defining conceptual boundaries, distinguishing descriptive metadata from extraction outputs, balancing semantic granularity against annotation simplicity, and evaluating deployment trade-offs all depended on intended application and operational requirements rather than semantic relationships alone.
+
+An additional practical observation from the case study is that the methodology enabled the complete schema engineering process to be carried out by a single researcher within a relatively short period of time. By using multimodal LLMs to accelerate semantic exploration, concept organization, and evidence synthesis, the methodology reduced the amount of manual synthesis required throughout the engineering process while preserving expert oversight over deployment decisions.
+
+These observations suggest that the principal role of multimodal LLMs is to accelerate the exploratory and analytical stages of knowledge engineering while leaving conceptual and operational decisions to human experts. Rather than treating metadata schema engineering as a single prompting task, the methodology frames human--LLM collaboration as a structured reasoning process in which each participant contributes complementary forms of intelligence. This division of responsibility enables larger semantic search spaces to be explored efficiently while concentrating expert effort on the conceptual and operational decisions that most directly determine the quality of the deployed metadata schema.
+
+\subsection{Broader implications and future directions}
+
+The proposed methodology illustrates the value of decomposing complex human--AI knowledge engineering tasks into explicit intermediate knowledge artifacts connected through successive semantic transformations. Rather than treating LLM-assisted reasoning as a single opaque inference, the workflow externalizes semantic discovery, conceptual abstraction, validation, and schema design into independently reviewable stages. This decomposition improves transparency, supports iterative refinement, and preserves an explicit record of the reasoning behind schema design decisions. Similar principles may prove valuable for other human--AI knowledge engineering tasks, including taxonomy construction, ontology engineering, scientific knowledge organization, and related forms of structured conceptual modeling.
+
+Although demonstrated through metadata schema engineering for data snapshots, the methodology was intentionally designed to be domain independent. The workflow depends not on any particular document collection or artifact type, but only on representative artifacts from which metadata concepts can be discovered together with sufficient domain expertise to guide ontology and schema engineering. Consequently, the methodology may be applicable to a broad range of emerging multimodal artifact types that lack mature descriptive standards, where the underlying challenge remains the same: discovering the metadata concepts needed to describe a previously unsupported class of artifacts before community conventions have emerged.
+
+The methodology is likewise independent of any particular multimodal language model. Although the case study employed a contemporary multimodal LLM, the workflow relies only on general capabilities for semantic interpretation, abstraction, and structured reasoning. As future models improve, they may enhance individual workflow stages without requiring fundamental changes to the methodology. Likewise, as reporting practices, analytical conventions, and application requirements evolve, new representative artifacts can be incorporated into subsequent iterations to produce revised metadata observations, updated ontologies, and new schema versions while preserving the evidence underlying each design decision.
+
+Future work should evaluate the methodology across substantially different artifact domains, compare it with traditional expert-only and alternative human--AI schema engineering approaches, and investigate collaborative workflows involving multiple domain experts. Additional decision-support techniques, such as similarity-based clustering, community detection, and interactive semantic visualization, may become increasingly valuable as ontology size and conceptual complexity grow.
+
+As multimodal information objects continue to proliferate, the challenge is unlikely to be metadata extraction alone, but the systematic engineering of the metadata schemas that make extraction possible. Viewed in this broader context, the proposed methodology should be understood not simply as a procedure for producing a single metadata schema, but as a reusable knowledge engineering framework for systematically engineering, documenting, and evolving metadata schemas for emerging multimodal artifact types. By making intermediate knowledge artifacts explicit and assigning complementary responsibilities to multimodal LLMs and human experts, the methodology provides a practical framework for addressing this emerging knowledge engineering problem.
+
+\section{Limitations}
+
+Although the methodology is demonstrated through a complete case study, its generality, effectiveness, and scope remain subject to several limitations.
+
+One limitation concerns empirical validation. The methodology was evaluated through the engineering of a metadata schema for data snapshots extracted from institutional documents. Although this artifact type encompasses diverse visualization formats, reporting styles, and document sources, the evidence presented in this paper is derived from a single application domain. Additional case studies involving substantially different multimodal artifact types would provide stronger evidence regarding the generality of the methodology. In addition, because metadata discovery begins from a representative artifact sample, the resulting schema is necessarily influenced by the coverage and representativeness of the artifacts selected for analysis.
+
+Another limitation is that the methodology intentionally adopts a human-in-the-loop design. While multimodal LLMs supported metadata discovery, semantic abstraction, and large-scale classification, the conceptual and operational decisions that determined the final ontology and metadata schema remained expert-driven. Consequently, the quality of the resulting schema depends on the expertise of the human reviewers and their ability to make consistent conceptual and operational judgments. The methodology therefore should not be interpreted as a fully automated approach to metadata schema engineering, but rather as a structured framework for supporting expert knowledge engineering through AI-assisted semantic reasoning.
+
+A further limitation is that this work focuses on demonstrating methodological feasibility rather than comparative evaluation. The case study does not compare the methodology with expert-only workflows, fully automated approaches, or alternative human--AI collaboration strategies. Future comparative studies would help clarify the relative advantages, trade-offs, scalability, and reproducibility of different approaches to metadata schema engineering.
+
+Finally, the principal contribution of this paper is the methodology rather than the specific metadata schema produced by the case study. The Data Snapshot Metadata Schema should therefore be regarded as an initial operational schema that may continue to evolve as additional artifact types, application requirements, and community feedback become available. Successful application of the methodology in other domains will likewise depend on the availability of representative artifacts, appropriate multimodal LLM capabilities, and sustained domain expertise throughout the knowledge engineering process.
+
+\section{Conclusion}
+
+Engineering an initial metadata schema for a previously unsupported artifact type remains a challenging knowledge engineering task. Although mature metadata standards, ontology engineering methodologies, and metadata extraction techniques provide important foundations, comparatively little attention has been devoted to the earlier problem of constructing an operational metadata schema before established vocabularies or community conventions exist.
+
+This paper presented a human-in-the-loop methodology that decomposes metadata schema engineering into a sequence of explicit semantic transformations across metadata discovery, metadata field profile aggregation, ontology induction, ontology engineering, ontology validation, and schema engineering. Rather than treating schema development as a single prompting task or a purely manual activity, the workflow combines the complementary strengths of multimodal LLMs and human experts through explicit intermediate knowledge artifacts that support transparency, reproducibility, and iterative refinement.
+
+The methodology was demonstrated through the development of the Data Snapshot Metadata Schema, an operational metadata schema for semantically meaningful analytical artifacts extracted from institutional documents. Beyond producing an operational metadata schema, the case study showed how heterogeneous metadata observations could be progressively transformed into a coherent conceptual ontology and ultimately into an operational metadata specification. It further demonstrated that multimodal LLMs were most effective in semantic discovery and abstraction, while ontology engineering, conceptual boundary setting, and operational schema design remained expert-driven.
+
+More broadly, this work positions metadata schema engineering as a distinct knowledge engineering problem situated between ontology engineering, metadata standardization, and metadata extraction. As multimodal information objects continue to emerge across scientific, technical, and institutional domains, systematic methodologies for engineering, documenting, and evolving metadata schemas will become increasingly important. We hope this methodology provides a practical foundation for future research on transparent, human-centered approaches to AI-assisted knowledge engineering.
+
+\subsubsection*{Acknowledgments}
+This work is supported by the “Artificial intelligence for understanding data use and enhancing knowledge discovery” project funded by the World Bank-UNHC Joint Data Center on Forced Displacement - RA-P503405-RESE-TF0C7575.
+
+\subsubsection*{Disclaimer and disclosure of AI use} 
+The findings, interpretations, and conclusions expressed in this paper are entirely those of the authors. They do not necessarily represent the views of the International Bank for Reconstruction and Development/World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent.
+
+This work used AI tools at various stages, including open source AI models for layout detection. In addition, NotebookLM and ChatGPT were employed to enhance the manuscript’s readability. We also thank Rafael Sevilla Macalaba for providing technical advice and suggestions to strengthen the implementation and manuscript.
+
+\bibliographystyle{iclr2026_conference}
+\bibliography{references}
+[TODO: Bring the number of references closer to 20.]
+
+\newpage
+
+\appendix
+
+\section{Appendix: Representative data snapshots}
+\label{appendix:datasnapshots}
+
+This appendix presents representative examples of the data snapshots used throughout the case study. The examples illustrate the diversity of analytical artifacts encompassed by the term \emph{data snapshot}, including statistical charts, tables, geospatial visualizations, dashboards, and composite analytical figures extracted from institutional PDF documents.
+
+The examples are grouped by source corpus. Together they demonstrate the range of visualization types, reporting styles, and analytical content encountered during metadata discovery and ontology engineering.
+
+\subsection{UNHCR / ReliefWeb}
+
+Figure~\ref{fig:appendix_unhcr_dashboard} illustrates a representative composite analytical dashboard extracted from the UNHCR / ReliefWeb corpus. The snapshot integrates multiple analytical components—including key performance indicators, bar charts, flow diagrams, a geospatial map, and summary statistics—into a single information object, illustrating the heterogeneous visual and semantic content that the proposed metadata schema is intended to describe.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{data/snapshots/nov_2023_rbsa_population_data_analysis_figure_002.png}
+    \caption{Representative composite analytical dashboard from the UNHCR / ReliefWeb corpus. The snapshot combines multiple visualization types and analytical components within a single data snapshot.}
+    \label{fig:appendix_unhcr_dashboard}
+\end{figure}
+
+Figure~\ref{fig:appendix_unhcr_table} presents a representative statistical table extracted from the same corpus. Together with the preceding example, it illustrates the diversity of analytical artifact types treated as data snapshots in this work.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{data/snapshots/108733-revised-public-wb-unhcr-policy-brief-final_table_000.png}
+    \caption{Representative statistical table from the UNHCR / ReliefWeb corpus illustrating a structured tabular data snapshot.}
+    \label{fig:appendix_unhcr_table}
+\end{figure}
+
+\subsection{Policy Research Working Papers}
+
+Figure~\ref{fig:appendix_prwp_map} presents a representative geospatial analytical visualization extracted from the Policy Research Working Papers corpus. The example illustrates that data snapshots include thematic maps alongside charts, tables, and other forms of analytical visualization.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{data/snapshots/document_13148967_figure_003.png}
+    \caption{Representative geospatial analytical visualization from the Policy Research Working Papers corpus.}
+    \label{fig:appendix_prwp_map}
+\end{figure}
+
+Figure~\ref{fig:appendix_prwp_table} presents a representative statistical table extracted from the Policy Research Working Papers corpus. The example illustrates the structured tabular presentation of variables and quantitative information commonly found in academic policy research.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{data/snapshots/document_7255556_table_001.png}
+    \caption{Representative statistical table from the Policy Research Working Papers corpus.}
+    \label{fig:appendix_prwp_table}
+\end{figure}
+
+\subsection{Refugee Project Appraisal Documents}
+
+Figure~\ref{fig:appendix_pad_chart} presents a representative multi-panel statistical visualization extracted from a Refugee Project Appraisal Document. The example illustrates the use of coordinated line charts to compare related indicators across multiple categories within a single analytical figure.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.75\textwidth]{data/snapshots/005_BOSIB-8191b179-7209-4faa-b5e0-11783bcd492d_figure_001.png}
+    \caption{Representative multi-panel statistical visualization from the Refugee Project Appraisal Documents corpus.}
+    \label{fig:appendix_pad_chart}
+\end{figure}
+
+Figure~\ref{fig:appendix_pad_table} presents a representative project financing table extracted from a Refugee Project Appraisal Document. The example illustrates the structured presentation of financial and operational information commonly found in development project documentation.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{data/snapshots/056_Niger-COVID-19-Emergency-Response-Project_table_003.png}
+    \caption{Representative project financing table from the Refugee Project Appraisal Documents corpus.}
+    \label{fig:appendix_pad_table}
+\end{figure}
+
+\section{Appendix: Metadata discovery implementation}
+\label{appendix:discovery}
+
+This appendix documents the implementation of the metadata discovery stage in the case study. Metadata discovery transforms representative data snapshots into reusable metadata observations that serve as the empirical foundation for the subsequent field profile aggregation and ontology induction stages.
+
+\subsection{Model configuration}
+
+Metadata discovery was performed using GPT-5.5 through the OpenAI Responses API. Table~\ref{tab:metadata_discovery_configuration} summarizes the model configuration used throughout the case study.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Configuration used for metadata discovery.}
+    \label{tab:metadata_discovery_configuration}
+    \begin{tabular}{ll}
+    \toprule
+    \textbf{Setting} & \textbf{Value} \\
+    \midrule
+    Model & GPT-5.5 \\
+    Reasoning effort & Medium \\
+    Maximum output tokens & 5000 \\
+    Temperature & Default API setting \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Implementation}
+
+Representative data snapshots were sampled from the three document corpora described in Section~\ref{sec:case_study}. For each corpus, 35 figures and 35 tables were selected through random sampling, producing a balanced dataset of 210 representative data snapshots.
+
+Each snapshot was processed independently. The snapshot image, together with its associated document-level metadata, was submitted to GPT-5.5 using the system and user prompts reproduced below. Responses were recorded as structured JSON objects and written to disk for subsequent workflow stages.
+
+Processing snapshots independently ensured that metadata discovery for one artifact could not influence the observations produced for any other artifact.
+
+\subsection{Prompt design rationale}
+
+The metadata discovery prompt was designed to elicit reusable metadata concepts rather than perform metadata extraction. Instead of populating a predefined schema, the model was instructed to behave as a metadata architect responsible for proposing candidate metadata fields that could contribute to a future metadata schema.
+
+Several design principles were incorporated into the prompt. First, the model was instructed to distinguish reusable metadata concepts from snapshot-specific values, encouraging abstraction toward canonical metadata fields rather than enumerating observed categories or numerical values. Second, the prompt explicitly distinguished information available from document metadata from information that must be obtained from the snapshot itself, thereby emphasizing metadata that enriches document-level description. Third, the model was instructed to prioritize metadata concepts supporting retrieval, cataloging, provenance, and analytical reuse while de-emphasizing visual formatting and implementation-specific metadata. Finally, hallucination prevention guidelines required observed values to remain grounded in either the snapshot image or the accompanying document metadata, with uncertain values explicitly marked as not identifiable rather than inferred without evidence.
+
+The resulting metadata observations therefore constitute reusable semantic hypotheses about candidate metadata fields rather than extracted metadata records.
+
+\subsection{System prompt}
+
+\begin{lstlisting}
+You are assisting with metadata schema discovery for a document intelligence system.
+
+# Background
+
+The input consists of:
+
+1. A data snapshot image extracted from a PDF document.
+
+   * The snapshot is either a Figure or a Table.
+   * The image may contain titles, captions, footnotes, legends, axes, source citations, notes, labels, and data values.
+
+2. Document-level metadata describing the source PDF.
+
+   * This metadata may already contain information such as:
+
+     * document title
+     * publication date
+     * country
+     * sector
+     * themes
+     * topics
+     * organization
+     * project identifiers
+
+The broader goal of the project is to improve discovery of information contained within figures and tables that is often not fully represented in the surrounding document text.
+
+# Objective
+
+Your goal is NOT to extract metadata into a predefined schema.
+
+Your goal is to discover reusable metadata fields that could become part of a future Figure Metadata Schema or Table Metadata Schema.
+
+Think as a metadata architect, not a data extractor.
+
+# Important Principles
+
+1. Focus on discovering metadata fields, not extracting data.
+
+2. Candidate metadata fields should be reusable across many snapshots.
+
+3. Prefer generic metadata concepts over snapshot-specific concepts.
+
+4. Distinguish between:
+
+   * information already available from document-level metadata
+   * information that must be obtained from the snapshot itself
+
+5. Focus on semantic meaning rather than visual layout characteristics.
+
+6. Consider both explicit information visible in the snapshot and information that can be reasonably inferred from the snapshot.
+
+# Reusable Field Rule
+
+A candidate metadata field should be useful across many figures or tables.
+
+GOOD examples:
+
+* figure_title
+* table_title
+* indicator_name
+* visualization_type
+* geographic_scope
+* time_period
+* population_group
+* unit_of_measure
+* source_citation
+* category_labels
+* category_values
+* expenditure_categories
+* row_dimension
+* column_dimension
+
+BAD examples:
+
+* agriculture
+* services
+* food_products_beverages
+* refund_of_ppf
+* category_value_agriculture
+* category_value_services
+
+These are values, not metadata fields.
+
+When you encounter specific categories, labels, countries, sectors, expenditure types, or data values, represent them as observed values of a reusable metadata field.
+
+Prefer canonical metadata field names when possible.
+
+If multiple names could describe the same concept,
+choose the most general and reusable field name.
+
+# Hallucination Prevention
+
+Observed values must be grounded in evidence from:
+
+* the snapshot image
+* the provided document metadata
+
+Do not invent values.
+
+Do not infer highly specific values unless strongly supported by the evidence.
+
+If a metadata field appears useful but no value can be confidently identified, use:
+
+"Not identifiable from this snapshot"
+
+If a value is inferred rather than explicitly visible, clearly indicate that it is inferred.
+
+# Field Selection Guidance
+
+Only propose metadata fields that would improve one or more of the following:
+
+* search and retrieval
+* filtering and faceted browsing
+* cataloging
+* provenance tracking
+* analytical reuse
+* discovery of data contained within figures and tables
+
+Avoid proposing fields that merely restate visual formatting or layout.
+
+# Prioritization Guidance
+
+The goal is to identify metadata fields that would likely deserve a place in a future Figure Metadata Schema or Table Metadata Schema.
+
+Prioritize metadata fields that:
+
+* are unique to the snapshot or substantially enrich document-level metadata
+* capture the semantic meaning of the figure or table
+* support search, filtering, comparison, or analytical reuse
+* are likely to appear across many snapshots in the corpus
+
+De-prioritize metadata fields that:
+
+* are already known from the extraction pipeline
+* are already available in document metadata
+* provide little additional discovery value beyond existing metadata
+* are administrative identifiers unless they are central to understanding the snapshot
+
+Do not propose:
+
+* snapshot_type
+* figure/table classification
+* page numbers
+* file names
+* extraction metadata
+
+Limit the output to the 10-15 most useful reusable metadata fields.
+
+Do not attempt to exhaustively enumerate every possible field.
+
+When a useful field is already available in document metadata,
+only include it if it materially contributes to discovery of
+the snapshot itself.
+
+The goal is to identify metadata that should be attached to the
+snapshot, not to reproduce the full document metadata record.
+
+# Output Format
+
+Return a JSON object with one top-level key:
+
+* fields
+
+The value of fields must be an array of candidate metadata field objects.
+
+Each candidate metadata field object must contain:
+
+* metadata_field
+* observed_value
+* description
+* source_level
+* discovery_value
+* reasoning
+
+Definitions:
+
+metadata_field:
+A reusable metadata concept that could appear in many snapshots.
+Use snake_case. Prefer durable concepts such as indicator_name,
+geographic_scope, time_period, unit_of_measure, row_dimension, or
+source_citation. Do not use a specific observed value as the field name.
+
+observed_value:
+The value observed in the current snapshot or document metadata.
+
+description:
+A concise description of what the metadata field represents.
+
+source_level:
+One of:
+
+* snapshot
+* document
+* both
+
+discovery_value:
+One of:
+
+* high
+* medium
+* low
+
+reasoning:
+A concise explanation (1 sentence maximum) of why this metadata field would be useful.
+
+Do not include any text outside the JSON object.
+
+Do not include headings.
+
+Do not include observations.
+
+Do not include recommendations.
+
+Return only the fields object.
+
+\end{lstlisting}
+
+\subsection{User prompt}
+
+\begin{lstlisting}
+Analyze the attached data snapshot image together with the provided document metadata.
+
+Document metadata:
+
+{DOCUMENT_METADATA_JSON}
+
+Please perform the metadata schema discovery task described in the system instructions.
+\end{lstlisting}
+
+\section{Appendix: Ontology induction implementation}
+\label{appendix:ontology_induction}
+
+This appendix documents the implementation of the ontology induction stage used in the case study. Ontology induction transforms aggregated metadata field profiles into a candidate ontology comprising canonical metadata concepts that serve as the basis for subsequent ontology engineering.
+
+\subsection{Model configuration}
+
+Ontology induction was performed using GPT-5.5 through the OpenAI Responses API. Table~\ref{tab:ontology_induction_configuration} summarizes the model configuration used throughout the case study.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Configuration used for ontology induction.}
+    \label{tab:ontology_induction_configuration}
+    \begin{tabular}{ll}
+    \toprule
+    \textbf{Setting} & \textbf{Value} \\
+    \midrule
+    Model & GPT-5.5 \\
+    Reasoning effort & High \\
+    Maximum output tokens & 12000 \\
+    Temperature & Default API setting \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Implementation}
+
+The metadata field profiles produced during the field profile aggregation stage were exported as a CSV file and provided to GPT-5.5 together with the system and user prompts reproduced below. Ontology induction was performed in a single inference using the \texttt{client.responses.create} interface.
+
+The resulting response consisted of a markdown table representing a candidate ontology, including canonical metadata concepts, definitions, rationales, and representative discovered metadata fields. This candidate ontology subsequently underwent iterative human review during the ontology engineering stage.
+
+\subsection{Prompt design rationale}
+
+The ontology induction prompt was designed to perform semantic abstraction rather than ontology engineering. Instead of preserving every discovered metadata field, the model was instructed to synthesize a concise set of reusable metadata concepts that could describe data snapshots across multiple application domains.
+
+Several design principles were incorporated into the prompt. First, the model was instructed to synthesize metadata concepts applicable across multiple reporting domains rather than optimizing for a single corpus, encouraging the resulting ontology to generalize across application domains rather than reflect corpus-specific terminology. Second, the model was instructed to distinguish reusable metadata concepts from observed values and extraction artifacts, encouraging abstraction toward canonical metadata concepts rather than retaining dataset-specific terminology. Third, the prompt emphasized metadata concepts that improve discovery, retrieval, provenance, and analytical reuse while discouraging concepts that primarily describe visual formatting or duplicate document-level metadata. Finally, the prompt explicitly instructed the model to favor under-consolidation over aggressive semantic merging. This preserved conceptual diversity and reduced the risk of prematurely combining semantically distinct concepts, leaving final merge decisions to the subsequent ontology engineering stage.
+
+The resulting candidate ontology therefore represents an intermediate conceptual model of the discovered metadata space rather than a finalized ontology or deployment-ready metadata schema.
+
+\subsection{System prompt}
+
+\begin{lstlisting}
+You are an expert metadata architect and ontology engineer.
+
+You are designing a canonical metadata ontology for institutional data snapshots extracted from PDF documents.
+
+A data snapshot is a self-contained figure, table, chart, map, infographic, dashboard, or other visual object containing structured information.
+
+The broader objective of the project is to improve discovery of information embedded inside data snapshots that is often not fully represented in surrounding document text.
+
+
+# Input
+
+You will receive metadata field profiles discovered from a corpus of data snapshots.
+
+Each profile represents a candidate metadata field proposed by a multimodal LLM.
+
+Each profile contains information such as:
+
+- metadata_field
+- count
+- corpora_count
+- figure_count
+- table_count
+- source_snapshot_count
+- source_document_count
+- source_both_count
+- n_unique_observed_values
+- top_observed_values
+- top_description_values
+- top_reasoning_values
+
+
+# Goal
+
+Your task is to propose a canonical ontology for a single Data Snapshot Metadata Schema.
+
+The ontology should consist of reusable metadata concepts that could describe data snapshots from multiple domains, including:
+
+- humanitarian reporting
+- refugee and displacement studies
+- development economics
+- project finance
+- statistical publications
+- policy reports
+
+
+# Ontology Design Principles
+
+A metadata concept should:
+
+- improve search and retrieval
+- support filtering and faceted browsing
+- improve cataloging
+- support provenance tracking
+- support analytical reuse
+- capture semantic information embedded inside figures and tables
+
+
+Prefer generic concepts over modality-specific concepts.
+
+
+GOOD
+
+title
+
+indicator_name
+
+time_period
+
+population_group
+
+unit_of_measure
+
+source_citation
+
+
+BAD
+
+figure_title
+
+table_title
+
+chart_title
+
+country_of_asylum_indicator_name
+
+
+Distinguish between:
+
+- reusable metadata concepts
+
+- observed values
+
+- extraction artifacts
+
+
+GOOD
+
+population_group
+
+
+Observed values
+
+Women
+
+Children
+
+Refugees
+
+Households
+
+
+BAD
+
+women
+
+children
+
+refugees
+
+
+These are values, not metadata concepts.
+
+
+Avoid concepts that primarily describe visual formatting.
+
+
+Document-level metadata should only be included if it materially improves discovery of the snapshot itself.
+
+
+The objective is NOT to preserve every discovered field.
+
+
+The objective is to synthesize a concise and reusable ontology containing approximately 50-70 concepts.
+
+
+When uncertain, prefer keeping concepts separate.
+
+Over-merging concepts is generally worse than under-merging concepts because humans can merge concepts later during review.
+
+
+
+# Output
+
+
+Return a markdown table.
+
+
+Each row should represent one proposed metadata concept.
+
+
+Columns
+
+
+canonical_name
+
+
+definition
+
+
+rationale
+
+
+sample_fields
+
+
+
+Definitions
+
+
+canonical_name
+
+Reusable metadata concept in snake_case.
+
+
+
+definition
+
+Short description of what the metadata concept represents.
+
+
+
+rationale
+
+One or two sentences explaining why the concept deserves inclusion in a Data Snapshot Metadata Schema.
+
+
+
+sample_fields
+
+Representative discovered metadata fields that exemplify the concept.
+
+These are examples only.
+
+Do not attempt to exhaustively enumerate every discovered field.
+
+
+Do not include commentary outside the table.
+\end{lstlisting}
+
+\subsection{User prompt}
+
+\begin{lstlisting}
+The attached CSV file contains metadata field profiles discovered from institutional data snapshots.
+
+Dataset summary
+
+- 210 sampled data snapshots
+
+- 3 corpora
+
+    - UNHCR / ReliefWeb
+
+    - Policy Research Working Papers
+
+    - Refugee Project Appraisal Documents
+
+
+- 3,041 metadata observations generated by a multimodal LLM
+
+
+- 833 unique discovered metadata fields
+
+
+
+Each row in the CSV corresponds to one discovered metadata field and contains:
+
+- frequency statistics
+
+- corpus coverage statistics
+
+- representative observed values
+
+- representative descriptions
+
+- representative reasoning statements
+
+
+
+Your task is to synthesize a canonical metadata ontology for a Data Snapshot Metadata Schema.
+
+
+Requirements
+
+
+Review all metadata field profiles before making consolidation decisions.
+
+
+Prefer reusable concepts.
+
+
+Prefer concepts intrinsic to the snapshot itself.
+
+
+De-prioritize document-level metadata unless they materially improve discovery of the snapshot.
+
+
+Merge obvious synonyms.
+
+
+Avoid over-merging concepts.
+
+
+Do not preserve every discovered field.
+
+
+Aim for approximately 50-70 metadata concepts.
+
+
+
+Produce the ontology now.
+\end{lstlisting}
+
+\section{Appendix: Ontology validation implementation}
+\label{appendix:validation}
+
+This appendix documents the implementation of the ontology validation stage used in the case study. Ontology validation assigns each metadata field profile to one canonical metadata concept from the refined ontology, producing the concept assignments used in the quantitative analyses presented in Section~\ref{sec:validation}.
+
+\subsection{Model configuration}
+
+Ontology validation was performed using GPT-5.4 mini through the OpenAI Responses API. Table~\ref{tab:ontology_validation_configuration} summarizes the model configuration used throughout the case study.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Configuration used for ontology validation.}
+    \label{tab:ontology_validation_configuration}
+    \begin{tabular}{ll}
+    \toprule
+    \textbf{Setting} & \textbf{Value} \\
+    \midrule
+    Model & GPT-5.4 mini \\
+    Reasoning effort & Medium \\
+    Maximum output tokens & Default API setting \\
+    Temperature & Default API setting \\
+    Classification output & Ontology-constrained using a Pydantic enumeration \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Implementation}
+
+Ontology validation was performed by iterating over each metadata field profile produced during field profile aggregation. For each profile, GPT-5.4 mini received the system and user prompts reproduced below together with: (1) the refined ontology represented in markdown format, (2) the metadata field name, and (3) representative descriptions and observed values associated with the field profile.
+
+Classification outputs were constrained using a Pydantic enumeration containing every canonical ontology concept together with an additional \texttt{not\_in\_ontology} category. Consequently, every metadata field profile was assigned to exactly one predefined ontology concept or to \texttt{not\_in\_ontology} when no concept adequately described the field.
+
+The resulting concept assignments formed the validation evidence used in the empirical analyses presented in Section~\ref{sec:validation}.
+
+\subsection{Prompt design rationale}
+
+Unlike the previous workflow stages, ontology validation was designed as a constrained classification task rather than an open-ended reasoning task. The prompt therefore instructed the model to treat the refined ontology as authoritative and to classify each metadata field profile into exactly one existing ontology concept.
+
+Several design principles were incorporated into the prompt. First, the model was instructed to prioritize semantic meaning over lexical similarity by considering the metadata field name together with representative descriptions and observed values. Second, the ontology definitions and representative examples were provided as contextual guidance while emphasizing that examples were illustrative rather than exhaustive. Third, the prompt explicitly prohibited proposing new ontology concepts or modifying the existing ontology, ensuring that validation evaluated the engineered ontology rather than extending it. Finally, the inclusion of the \texttt{not\_in\_ontology} category allowed metadata fields intentionally excluded during ontology engineering to be classified without forcing inappropriate assignments to existing concepts.
+
+The resulting classifications therefore constitute validation evidence describing how well the engineered ontology accounts for the metadata field profiles produced during metadata discovery.
+
+\subsection{System prompt}
+
+\begin{lstlisting}
+You are assisting with metadata schema consolidation.
+
+Your task is to classify discovered metadata fields into a predefined ontology of canonical metadata concepts.
+
+The ontology has already been reviewed by a human expert and should be treated as authoritative.
+
+Your role is to act as a classifier, not an ontology designer.
+
+
+# Instructions
+
+You will receive:
+
+1. A reference ontology containing canonical metadata concepts.
+
+For each concept, the ontology provides:
+
+- canonical_name
+- definition
+- examples
+
+
+2. A discovered metadata field profile containing information collected during schema discovery.
+
+
+Your objective is to select the single best canonical concept from the ontology.
+
+Do not create new concepts.
+
+Do not suggest merges.
+
+Do not suggest modifications to the ontology.
+
+Always return exactly one canonical concept.
+
+"not_in_ontology" is a valid canonical concept and should be used when appropriate.
+
+
+# Classification Guidance
+
+Prefer semantic meaning over wording similarity.
+
+Use all available evidence:
+
+- metadata_field
+- top_description_values
+- top_observed_values
+
+The metadata_field name alone may be misleading.
+
+Examples in the ontology are illustrative and not exhaustive.
+
+If several concepts appear plausible, choose the most general and reusable concept.
+
+Use "not_in_ontology" only when no ontology concept adequately describes the field.
+
+Examples include:
+
+- extraction-oriented fields
+- snapshot-specific concepts
+- fields that are not metadata
+- concepts intentionally excluded from the ontology
+
+
+# Confidence Levels
+
+Use:
+
+high
+
+The field clearly belongs to a single ontology concept.
+
+
+medium
+
+Two or more ontology concepts seem plausible.
+
+
+low
+
+No ontology concept fits well, including assignments to "not_in_ontology".
+\end{lstlisting}
+
+\subsection{User prompt}
+
+\begin{lstlisting}
+# Canonical Metadata Ontology
+
+{{ONTOLOGY_MARKDOWN}}
+---
+
+### not_in_ontology
+
+Definition:
+Fields that were discovered during schema induction but were intentionally excluded from the metadata schema because they primarily represent extracted values, highly snapshot-specific concepts, or non-metadata artifacts.
+
+Examples:
+data_values, indicator_value, measure_values, baseline_value, target_value, significance_notation
+
+Examples in the ontology represent discovered field names that were judged to belong to that canonical concept.
+
+They are illustrative and not exhaustive.
+
+Prefer semantic meaning over exact string matching.
+
+
+# Metadata Field Profile
+
+metadata_field
+
+{{metadata_field}}
+
+top_description_values
+
+{{top_description_values}}
+
+top_observed_values
+
+{{top_observed_values}}
+
+Assign this discovered metadata field to exactly one canonical metadata concept from the ontology.
+\end{lstlisting}
+
+\section{Appendix: Data Snapshot Metadata Schema}
+\label{appendix:schema}
+
+This appendix reproduces the complete Data Snapshot Metadata Schema developed in the case study.
+
+\begin{lstlisting}
+# Data Snapshot Metadata Schema v1.1
+
+## Overview
+
+The Data Snapshot Metadata Schema v1.1 defines a standardized set of metadata fields for describing **data snapshots**--self-contained visual data artifacts extracted from institutional documents, including tables, charts, maps, dashboards, and composite figures.
+
+The schema is intended to support:
+
+- metadata extraction
+- indexing and search
+- retrieval
+- downstream analytics
+
+The schema is intentionally domain-agnostic and is designed to generalize across institutional documents from multiple organizations and subject areas.
+
+The schema was developed through an iterative, human-in-the-loop process combining multimodal large language models, ontology induction, expert review, and quantitative validation.
+
+---
+
+# Scope
+
+The schema describes metadata **about a data snapshot**.
+
+It intentionally excludes:
+
+- extracted numerical values
+- OCR text
+- table cell contents
+- chart data reconstruction
+- other extraction outputs
+
+Metadata should only be populated when explicitly supported by the snapshot or its accompanying document context.
+
+Metadata extractors **must not infer or hallucinate** values that are not evidenced by the source.
+
+---
+
+# Applicability
+
+Each metadata field is optional.
+
+Metadata should only be populated when explicitly supported by evidence contained within:
+
+- the snapshot itself; or
+- the accompanying source document, where explicitly permitted.
+
+The absence of a metadata field should be represented as null rather than inferred.
+
+---
+
+# Schema Modules
+
+## Identity & Discovery
+
+### title
+
+**Definition**
+
+The primary title, caption, or heading that identifies the data snapshot.
+
+**Examples**
+
+- Inflation Rate by Country
+- Annual Government Expenditure
+- Monthly labor income in Afghanistan and remittances from abroad
+- Table 6: Determinants of illegal land reallocation at village level
+
+---
+
+### internal_identifier
+
+**Definition**
+
+A document-assigned identifier used to reference the snapshot within the source document.
+
+**Examples**
+
+- Figure 3
+- Table 4.2
+- Annex B
+- Exhibit 7
+
+---
+
+### subject_domain
+
+**Definition**
+
+The broad thematic, policy, or sectoral domain represented by the snapshot.
+
+**Examples**
+
+- Education
+- Health
+- Macroeconomics
+- Agriculture
+- Forced Displacement
+
+---
+
+### subject_summary
+
+**Definition**
+
+A concise summary describing the primary analytical subject or purpose of the snapshot.
+
+**Examples**
+
+- Trends in primary school enrollment
+- Distribution of humanitarian funding
+- Comparison of poverty rates across regions
+
+---
+
+### panel_title
+
+**Definition**
+
+The title or heading of an individual panel within a multi-panel snapshot.
+
+Populate only when panel titles are explicitly present.
+
+**Examples**
+
+- (A) Poverty Rate
+- (B) Literacy Rate
+- Monthly Returns
+
+---
+
+# Subject & Semantics
+
+### variable_name
+
+**Definition**
+
+The primary variable, indicator, metric, or measured concept represented by the snapshot.
+
+**Examples**
+
+- GDP Growth
+- Inflation
+- Literacy Rate
+- Refugee Population
+
+---
+
+### category_dimension
+
+**Definition**
+
+The conceptual variable or dimension used to organize, group, classify, or compare the represented values.
+
+**Examples**
+
+- Country
+- Year
+- Education Level
+- Industry Sector
+- Scenario
+
+---
+
+### category_labels
+
+**Definition**
+
+The explicit category names or labels associated with a category dimension.
+
+**Examples**
+
+- Male, Female
+- Agriculture, Manufacturing, Services
+- Kenya, Uganda, Tanzania
+- Low, Medium, High
+
+---
+
+### population_group
+
+**Definition**
+
+The human population, beneficiary group, or demographic group that is the primary subject of the represented data. This field describes who the data are about, not how they are categorized or disaggregated.
+
+**Examples**
+
+- Refugees
+- Children under five
+- Female respondents
+- Host communities
+- Technical education graduates
+
+---
+
+# Temporal Context
+
+### time_period
+
+**Definition**
+
+The period or date range represented by the data.
+
+**Examples**
+
+- 2015-2020
+- FY2023
+- January 2024
+
+---
+
+### temporal_granularity
+
+**Definition**
+
+The temporal resolution at which the represented data are reported.
+
+**Examples**
+
+- Annual
+- Monthly
+- Quarterly
+- Daily
+
+---
+
+# Spatial Context
+
+### geographic_scope
+
+**Definition**
+
+The primary geographic area represented by the snapshot.
+
+**Examples**
+
+- Global
+- Kenya
+- Sub-Saharan Africa
+- Latin America
+
+---
+
+### geographic_entities
+
+**Definition**
+
+Named geographic entities explicitly represented within the snapshot.
+
+**Examples**
+
+- Uganda
+- Nairobi
+- West Africa
+- Burkina Faso
+
+---
+
+### geographic_granularity
+
+**Definition**
+
+The administrative or spatial level at which data are reported.
+
+**Examples**
+
+- Country
+- Province
+- District
+- Facility
+
+---
+
+### geographic_role
+
+**Definition**
+
+The semantic role played by geographic entities within the represented data.
+
+**Examples**
+
+- Country of origin
+- Host country
+- Destination
+- Reporting location
+
+---
+
+### location_type
+
+**Definition**
+
+The type of physical location represented.
+
+**Examples**
+
+- Refugee camp
+- Hospital
+- School
+- District
+
+---
+
+# Measurement Context
+
+### unit_of_measure
+
+**Definition**
+
+The unit used to interpret reported quantitative values.
+
+**Examples**
+
+- Percent
+- USD
+- People
+- Kilometers
+
+---
+
+### currency
+
+**Definition**
+
+The currency denomination used for monetary values.
+
+**Examples**
+
+- USD
+- EUR
+- JPY
+
+---
+
+### measure_type
+
+**Definition**
+
+The statistical form in which values are expressed.
+
+**Examples**
+
+- Count
+- Percentage
+- Rate
+- Index
+- Average
+
+---
+
+### comparison_group
+
+**Definition**
+
+The benchmark, comparator, reference group, cohort, scenario, or entity against which the represented data are compared.
+
+Populate only when the snapshot explicitly presents a comparative relationship. This field captures the intended comparison or benchmark represented by the snapshot, not simply the categories used to organize the data.
+
+**Examples**
+
+- Male vs Female
+- Rural vs Urban
+- Baseline vs Endline
+- Treatment vs Control
+- Before vs After
+- Low-income vs Middle-income vs High-income
+- Europe & Central Asia benchmark
+- Sub-Saharan Africa benchmark
+
+---
+
+# Structural Organization
+
+### row_dimension
+
+**Definition**
+
+The conceptual variable represented by table rows.
+
+**Examples**
+
+- Country
+- Indicator
+- Sector
+
+---
+
+### column_dimension
+
+**Definition**
+
+The conceptual variable represented by table columns.
+
+**Examples**
+
+- Year
+- Region
+- Funding Source
+
+---
+
+### visualization_type
+
+**Definition**
+
+The primary visualization used to encode the represented data.
+
+**Examples**
+
+- Bar chart
+- Line chart
+- Table
+- Map
+- Heatmap
+
+---
+
+# Provenance & Attribution
+
+### data_source
+
+**Definition**
+
+The dataset, survey, publication, or other cited source from which the represented data originate.
+
+**Examples**
+
+- World Development Indicators
+- DHS
+- UNHCR Registration Data
+- National Census
+
+---
+
+### source_document_title
+
+**Definition**
+
+The title of the parent document containing the snapshot.
+
+**Examples**
+
+- World Development Report 2024
+- Global Trends Report
+
+---
+
+### language
+
+**Definition**
+
+The language used within the snapshot.
+
+**Examples**
+
+- English
+- French
+- Arabic
+
+---
+
+### interpretive_note
+
+**Definition**
+
+Explanatory notes, caveats, assumptions, footnotes, or methodological remarks explicitly provided within the snapshot to aid interpretation.
+
+Populate only when such notes are explicitly present.
+
+**Examples**
+
+- Values are provisional.
+- Estimates exclude informal employment.
+- Data collected using 2022 census boundaries.
+
+---
+
+# Project & Operational Context
+
+### project_name
+
+**Definition**
+
+The project, program, operation, or initiative associated with the snapshot.
+
+**Examples**
+
+- Niger - COVID-19 Emergency Response Project
+- Jordan Health Sector Reform Project
+- Lebanon - Health Resilience Project
+
+---
+
+### project_identifier
+
+**Definition**
+
+The formal identifier assigned to the associated project or operation.
+
+**Examples**
+
+- P171254
+- P178944
+
+---
+
+### project_component
+
+**Definition**
+
+The project component, workstream, or results area represented by the snapshot.
+
+**Examples**
+
+- Component 3: Project management
+- Results Area 1
+
+---
+
+### intervention_type
+
+**Definition**
+
+The intervention, service, policy, or operational activity represented.
+
+**Examples**
+
+- Cash Transfer
+- Vaccination
+- School Construction
+
+---
+
+### financial_measure
+
+**Definition**
+
+The financial quantity or funding-related measure represented by the snapshot.
+
+**Examples**
+
+- Project Cost
+- Disbursement
+- Financing Gap
+- Budget Allocation
+
+---
+
+### financing_source
+
+**Definition**
+
+The organization or funding source providing financial support.
+
+**Examples**
+
+- IDA
+- IBRD
+- Government
+- European Union
+
+---
+
+### financing_instrument
+
+**Definition**
+
+The financing mechanism associated with the represented activity.
+
+**Examples**
+
+- Grant
+- Loan
+- Credit
+- Trust Fund
+
+---
+
+# Analytical & Methodological Context
+
+### analysis_method
+
+**Definition**
+
+The analytical, statistical, or computational method used to produce the reported results.
+
+Populate only when explicitly stated.
+
+**Examples**
+
+- Difference-in-Differences
+- Regression
+- Tobit model
+- Cost-Benefit Analysis
+
+---
+
+### data_collection_method
+
+**Definition**
+
+The method or instrument used to collect the underlying data.
+
+Populate only when explicitly stated.
+
+**Examples**
+
+- Household Survey
+- Administrative Records
+- Key Informant Interviews
+- Census
+
+---
+
+# Metadata Extraction Guidelines
+
+Metadata extractors should follow these principles:
+
+1. Populate metadata only when supported by explicit evidence.
+
+2. Do not infer, hallucinate, or fabricate metadata.
+
+3. Prefer semantic meaning over literal wording.
+
+4. Multiple values may be assigned where appropriate (for example, multiple geographic entities).
+
+5. Preserve original terminology whenever practical.
+
+6. Record missing metadata as null rather than inferred values.
+
+7. The schema describes the snapshot-not the parent document as a whole.
+
+8. Numerical values, OCR text, and reconstructed table contents belong to extraction outputs and are outside the scope of this metadata schema.
+
+---
+
+Version: **1.1**
+
+Status: Stable
+
+Last Updated: July 2026
+\end{lstlisting}
+
+\end{document}
