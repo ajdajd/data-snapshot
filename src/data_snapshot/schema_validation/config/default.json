@@ -1,0 +1,7 @@
+{
+  "model": "gpt-5.5",
+  "max_output_tokens": 8000,
+  "reasoning": {
+    "effort": "medium"
+  }
+}

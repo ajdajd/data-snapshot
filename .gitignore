@@ -107,3 +107,4 @@ notebooks/schema_discovery/outputs/*.json
 notebooks/metadata_extraction/data/*
 notebooks/metadata_extraction/outputs/*
 notebooks/schema_validation/data/*
+notebooks/schema_validation/outputs/*
