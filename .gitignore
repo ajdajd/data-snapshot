@@ -106,3 +106,4 @@ notebooks/schema_discovery/outputs/*.csv
 notebooks/schema_discovery/outputs/*.json
 notebooks/metadata_extraction/data/*
 notebooks/metadata_extraction/outputs/*
+notebooks/schema_validation/data/*
