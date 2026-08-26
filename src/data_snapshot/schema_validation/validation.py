@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from tqdm.auto import tqdm
 
 
@@ -211,6 +211,7 @@ def run_validation(
         stage = "input"
         started_at: float | None = None
         response: Any | None = None
+        http_response: Any | None = None
         metadata_path: Path | None = None
         try:
             context = _snapshot_context(snapshot_path, snapshot_root)
@@ -227,10 +228,10 @@ def run_validation(
             image_url = _image_data_url(snapshot_path)
             stage = "api"
             started_at = time.perf_counter()
-            response = api_client.responses.parse(
-                model=model,
-                text_format=SchemaValidationResult,
-                input=[
+            request = {
+                "model": model,
+                "text_format": SchemaValidationResult,
+                "input": [
                     {
                         "role": "system",
                         "content": [{"type": "input_text", "text": system_prompt}],
@@ -247,7 +248,14 @@ def run_validation(
                     },
                 ],
                 **config,
-            )
+            }
+            raw_responses = getattr(api_client.responses, "with_raw_response", None)
+            if raw_responses is None:
+                response = api_client.responses.parse(**request)
+            else:
+                http_response = raw_responses.parse(**request)
+                stage = "parse"
+                response = http_response.parse()
             elapsed_seconds = time.perf_counter() - started_at
             stage = "parse"
             parsed = getattr(response, "output_parsed", None)
@@ -275,9 +283,13 @@ def run_validation(
             completed.add(snapshot_path.name)
             succeeded += 1
         except Exception as exc:
+            if isinstance(exc, ValidationError):
+                stage = "parse"
             elapsed_seconds = (
                 time.perf_counter() - started_at if started_at is not None else None
             )
+            raw_response = _read_raw_response(http_response)
+            error_response = response if response is not None else raw_response
             _append_jsonl(
                 errors_path,
                 {
@@ -286,12 +298,13 @@ def run_validation(
                     "metadata_file_name": metadata_path.name if metadata_path else None,
                     "model": model,
                     "request_config": config,
-                    "response_id": getattr(response, "id", None),
-                    "api_status": getattr(response, "status", None),
+                    "response_id": _response_value(error_response, "id"),
+                    "api_status": _response_value(error_response, "status"),
                     "elapsed_seconds": elapsed_seconds,
-                    "usage": _serialize(getattr(response, "usage", None)),
-                    "raw_response": _serialize(response),
-                    "raw_output": getattr(response, "output_text", None),
+                    "usage": _serialize(_response_value(error_response, "usage")),
+                    "raw_response": _serialize(error_response),
+                    "raw_output": getattr(response, "output_text", None)
+                    or _validation_error_input(exc),
                     "error_stage": stage,
                     "error_type": type(exc).__name__,
                     "error": str(exc),
@@ -467,7 +480,7 @@ def _serialize(value: Any) -> dict[str, Any] | None:
     if value is None:
         return None
     if hasattr(value, "model_dump"):
-        return value.model_dump(mode="json")
+        return value.model_dump(mode="json", warnings=False)
     if isinstance(value, dict):
         return value
     return {
@@ -475,6 +488,35 @@ def _serialize(value: Any) -> dict[str, Any] | None:
         for key in ("input_tokens", "output_tokens", "total_tokens")
         if hasattr(value, key)
     }
+
+
+def _read_raw_response(response: Any | None) -> dict[str, Any] | None:
+    """Read a raw SDK response body without raising a secondary error."""
+    if response is None:
+        return None
+    try:
+        value = response.json()
+    except (AttributeError, TypeError, ValueError):
+        return None
+    return value if isinstance(value, dict) else None
+
+
+def _response_value(response: Any | None, name: str) -> Any | None:
+    """Read a named value from an SDK model or raw response dictionary."""
+    if isinstance(response, dict):
+        return response.get(name)
+    return getattr(response, name, None)
+
+
+def _validation_error_input(error: Exception) -> str | None:
+    """Extract the model text retained by a Pydantic validation error."""
+    if not isinstance(error, ValidationError):
+        return None
+    for detail in error.errors(include_input=True):
+        input_value = detail.get("input")
+        if isinstance(input_value, str):
+            return input_value
+    return None
 
 
 def _append_jsonl(path: str | Path, record: dict[str, Any]) -> None:
