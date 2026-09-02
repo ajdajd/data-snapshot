@@ -216,3 +216,44 @@ def test_model_facing_schema_preserves_inventory_without_outcome_cues() -> None:
     assert "held-out validation results" not in model_facing
     assert "Examples reviewed during validation" not in model_facing
     assert "documentation revision following" not in model_facing
+
+
+def test_title_ablation_schema_removes_only_title_field() -> None:
+    """The counterfactual schema removes only the snapshot title field."""
+    model_facing_path = (
+        ROOT / "src/data_snapshot/schema_validation2/schema_v1.1.1_model_facing.md"
+    )
+    ablation_path = (
+        ROOT / "src/data_snapshot/schema_validation2/schema_v1.1.1_title_ablated.md"
+    )
+    model_facing = model_facing_path.read_text(encoding="utf-8")
+    ablated = ablation_path.read_text(encoding="utf-8")
+    field_pattern = re.compile(r"^### ([a-z][a-z0-9_]*)$", re.MULTILINE)
+    expected_fields = field_pattern.findall(model_facing)
+    expected_fields.remove("title")
+
+    assert field_pattern.findall(ablated) == expected_fields
+    assert "### title" not in ablated
+    assert "### panel_title" in ablated
+    assert "### source_document_title" in ablated
+
+
+def test_source_note_ablation_schema_removes_only_target_fields() -> None:
+    """The Calibration3 schema removes only source and note fields."""
+    model_facing_path = (
+        ROOT / "src/data_snapshot/schema_validation2/schema_v1.1.1_model_facing.md"
+    )
+    ablation_path = (
+        ROOT / "src/data_snapshot/schema_validation2/"
+        "schema_v1.1.1_data_source_interpretive_note_ablated.md"
+    )
+    model_facing = model_facing_path.read_text(encoding="utf-8")
+    ablated = ablation_path.read_text(encoding="utf-8")
+    field_pattern = re.compile(r"^### ([a-z][a-z0-9_]*)$", re.MULTILINE)
+    expected_fields = field_pattern.findall(model_facing)
+    expected_fields.remove("data_source")
+    expected_fields.remove("interpretive_note")
+
+    assert field_pattern.findall(ablated) == expected_fields
+    assert "data_source" not in ablated
+    assert "interpretive_note" not in ablated
