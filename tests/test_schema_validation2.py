@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
+from data_snapshot.constants import ROOT
 from data_snapshot.schema_validation2 import SchemaValidationResult, run_validation
 from data_snapshot.schema_validation2.validation import CandidateGap
 
@@ -194,3 +196,23 @@ def test_validation2_output_omits_rationale_and_evidence_source() -> None:
     assert "assessment_status" not in result_properties
     assert "assessment_limitation" not in result_properties
     assert "evidence_source" not in gap_properties
+
+
+def test_model_facing_schema_preserves_inventory_without_outcome_cues() -> None:
+    """The model-facing schema preserves fields while omitting outcome cues."""
+    canonical_path = (
+        ROOT / "src/data_snapshot/metadata_extraction/schema/"
+        "Data Snapshot Metadata Schema v1.1.1.md"
+    )
+    model_facing_path = (
+        ROOT / "src/data_snapshot/schema_validation2/schema_v1.1.1_model_facing.md"
+    )
+    canonical = canonical_path.read_text(encoding="utf-8")
+    model_facing = model_facing_path.read_text(encoding="utf-8")
+    field_pattern = re.compile(r"^### ([a-z][a-z0-9_]*)$", re.MULTILINE)
+
+    assert field_pattern.findall(model_facing) == field_pattern.findall(canonical)
+    assert "Schema Validation Exercise" not in model_facing
+    assert "held-out validation results" not in model_facing
+    assert "Examples reviewed during validation" not in model_facing
+    assert "documentation revision following" not in model_facing
