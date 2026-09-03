@@ -73,82 +73,73 @@ Our broader research investigates one such class of artifacts, which we refer to
 
 Although existing metadata standards provide many concepts applicable to digital resources, they are generally designed for particular resource types or application domains rather than analytical artifacts of this kind~\citep{gilliland2008, metadatainteroperability2006}. In evaluating these standards for our use case, we found that none adequately captured the information required for data snapshots. Consequently, before metadata could be extracted automatically, the metadata schema itself had to be engineered. This revealed a more fundamental challenge: how should an initial metadata schema be systematically engineered for a previously unsupported artifact type? [TODO: Narrow standards claim: Existing metadata standards provide many concepts relevant to data snapshots, but at the outset of this work no dedicated operational metadata schema or directly adoptable metadata profile had been identified for data snapshots as defined here.]
 
-Engineering an initial metadata schema for a previously unsupported artifact type remains a largely expert-driven knowledge engineering task. The process requires discovering candidate metadata concepts from representative artifacts, consolidating semantically related concepts, refining conceptual boundaries, and translating the resulting ontology into an operational metadata schema through iterative expert review.~\citep{uschold&gruninger1996,noy&mcguinness2001}. Existing research has addressed metadata standardization, ontology engineering, and ontology learning as complementary foundations for metadata schema engineering. However, relatively little attention has been devoted to the distinct problem of engineering an initial operational metadata schema for a previously unsupported artifact type before broader community standardization occurs.
+Developing an initial metadata schema for a previously unsupported artifact type remains largely expert-driven. The process requires discovering candidate metadata concepts from representative artifacts, consolidating semantically related concepts, refining conceptual boundaries, and translating the resulting concept inventory into an operational metadata schema through iterative expert review~\citep{greenberg2005,coyle2009applicationprofiles}. Existing research on metadata standardization, schema discovery, ontology engineering, and ontology learning provides complementary foundations for this task. The question addressed here is how those foundations can be adapted when the descriptive requirements must first be discovered from multimodal artifacts and the required endpoint is an operational metadata schema.
 
-[TODO: Clarify what ontology is]
+Recent advances in multimodal large language models (LLMs) provide an opportunity to support the exploratory stages of metadata schema development~\citep{ding2026vrdu,bian2025}. Rather than treating schema development as a single prompting task, we propose a human-in-the-loop methodology that decomposes the process into explicit semantic transformations connected by intermediate knowledge artifacts. These artifacts preserve evidence for expert review while enabling multimodal LLMs and human experts to contribute complementary forms of reasoning throughout the workflow.
 
-Recent advances in multimodal large language models (LLMs) provide an opportunity to support the exploratory stages of metadata schema engineering~\citep{ding2026,bian2025}. Rather than treating schema engineering as a single prompting task, we propose a human-in-the-loop methodology that decomposes the process into explicit semantic transformations connected by intermediate knowledge artifacts. These artifacts preserve evidence for expert review while enabling multimodal LLMs and human experts to contribute complementary forms of reasoning throughout the workflow.
-
-We demonstrate the methodology through the development of the Data Snapshot Metadata Schema for data snapshots. The case study shows how heterogeneous metadata observations can be progressively transformed into an operational metadata schema through explicit intermediate knowledge artifacts that support transparent human–LLM collaboration. Beyond the resulting schema, the paper contributes a repeatable methodology for engineering metadata schemas for previously unsupported classes of multimodal analytical artifacts.
+We demonstrate the methodology through the development of the Data Snapshot Metadata Schema for data snapshots. The case study shows how heterogeneous metadata observations can be progressively transformed into an operational metadata schema through explicit intermediate knowledge artifacts that support transparent human–LLM collaboration. Beyond the resulting schema, the paper contributes a repeatable methodology for developing metadata schemas for previously unsupported classes of multimodal analytical artifacts.
 
 \section{Related work}
 
-The proposed methodology synthesizes ideas from metadata standards, ontology engineering, human--AI knowledge engineering, and multimodal document understanding to address the problem of engineering an initial operational metadata schema for a previously unsupported multimodal analytical artifact type. Rather than introducing a new paradigm, this work integrates established principles from these research areas into a unified methodology. The following review examines the contribution of each research area and motivates their integration into the proposed methodology.
+The proposed methodology adapts established ideas from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. It integrates these strands into a workflow for deriving an operational metadata schema from the multimodal artifacts it is intended to describe. Specifically, the methodology connects independently gathered artifact evidence to a shared concept inventory and, ultimately, an operational metadata schema while preserving traceability to each source artifact.
 
 \subsection{Metadata standards and schema development}
 
-Metadata standards provide standardized descriptive frameworks that enable digital resources to be organized, discovered, exchanged, and preserved across communities~\citep{gilliland2008}. Widely adopted metadata standards, including Dublin Core, DataCite, Schema.org, and SDMX, typically emerge through iterative expert collaboration and successive refinement over time~\citep{caplan2003, greenberg2005}.
+Metadata standards provide descriptive frameworks through which digital resources can be organized, discovered, exchanged, and preserved~\citep{gilliland2008}. Application-profile guidance further distinguishes the characterization of the resources being described, the selection and definition of metadata terms, the design of metadata records and constraints, and the documentation of usage rules~\citep{coyle2009applicationprofiles}. These activities provide a useful foundation for operational metadata schema development.
 
-These standards primarily define mature metadata vocabularies together with the governance mechanisms and community practices that support their long-term evolution~\citep{greenberg2005}. Accordingly, much of the metadata standards literature emphasizes mature descriptive vocabularies and their long-term governance, while devoting comparatively less attention to the earlier knowledge engineering process of engineering an initial operational schema~\citep{uschold&gruninger1996}.
+Existing metadata vocabularies nevertheless do not remove the need for application-specific design. A target artifact class may require terms drawn from several sources, locally defined terms, constraints, and usage guidance assembled into a coherent operational specification~\citep{greenberg2005,coyle2009applicationprofiles}. The problem addressed here is therefore not the absence of relevant metadata concepts, but the absence, at the outset of the work, of a directly adoptable metadata schema for data snapshots as defined in this study.
 
-The proposed methodology addresses this complementary stage of the metadata lifecycle. Rather than focusing on long-term governance or community consensus, it investigates how an initial operational metadata schema can be systematically engineered for previously unsupported analytical artifact types.
+The resulting Data Snapshot Metadata Schema is presented as a dedicated operational specification for this artifact class rather than as a community standard. Standards alignment, community governance, and formal standardization are separate, longer-term processes beyond the artifact-driven development studied here.
 
-[TODO: Insert somewhere (maybe not in this section) This is the first attempt to make a metadata schema for Data Snapshots. This may evolve as future work on Data Snapshots matures.]
+\subsection{LLM-assisted schema discovery and ontology learning}
 
-[TODO: Clarify relationship to standards: The proposed methodology does not assume that relevant metadata vocabularies are absent; rather, it addresses the earlier task of constructing a dedicated operational profile for an artifact class when no directly adoptable schema has yet been established.]
+LLMs4SchemaDiscovery presents an iterative human-in-the-loop workflow for deriving scientific schemas from text through seed-schema construction, expert feedback, corpus expansion, and ontology grounding~\citep{sadruddin2025schemadiscovery}. Our setting differs in both input modality and workflow organization: schema evidence is derived from multimodal analytical artifacts, observations are generated independently for each snapshot, and deterministic field profiles aggregate local evidence before concepts are consolidated.
 
-\subsection{Ontology engineering and ontology induction}
+LLM-assisted ontology learning provides a second methodological foundation. LLMs4OL decomposes ontology learning into tasks such as term typing, taxonomy discovery, and non-taxonomic relation extraction~\citep{giglou2023llms4ol}. NeOn-GPT embeds LLM prompting within a staged ontology-development methodology and produces formal ontologies from domain descriptions and competency questions~\citep{fathallah2025neongpt}; its extended version adds ontology reuse together with automated verification and repair~\citep{fathallah2026extended}. OntoGenix similarly provides a structured dataset-to-ontology workflow that includes ontology planning and construction as well as mappings and RDF generation~\citep{valcalvo2025ontogenix}.
 
-Ontology engineering provides well-established methodologies for constructing conceptual models through the identification, organization, refinement, and validation of domain concepts~\citep{uschold&gruninger1996}. Existing methodologies emphasize systematic knowledge acquisition, expert review, competency-driven design, and iterative refinement of conceptual vocabularies~\citep{noy&mcguinness2001}.
+Together, these studies show how LLMs can support progressively more formal knowledge-representation tasks, from term typing and taxonomy construction to ontology reuse, verification, and repair.
 
-Closely related research in ontology learning investigates automated and semi-automated techniques for constructing or inducing ontologies from textual and other information sources.~\citep{giglou2023}. More recent work has extended these approaches through the use of large language models for ontology induction and taxonomy construction~\citep{bian2025}.
+Stage-wise evidence suggests that expert involvement becomes increasingly important as ontology work progresses from term extraction toward hierarchy and relation specification~\cite{ding2026ontology}. A systematic review similarly identifies broad use of LLMs across ontology-engineering activities alongside limited human evaluation and inconsistent validation practices~\cite{li2026ontologyreview}. These findings support assigning exploratory discovery and abstraction to the LLM while retaining human responsibility for conceptual boundaries, consolidation decisions, and operational schema design.
 
-Ontology engineering and metadata schema engineering address related but distinct knowledge engineering problems. Ontologies primarily capture conceptual relationships within a domain, whereas metadata schemas must additionally specify the metadata fields, constraints, and operational structure required for annotation and information management~\citep{noy&mcguinness2001,greenberg2005}. Accordingly, ontology induction serves as an intermediate step toward metadata schema engineering rather than the final outcome.
+\subsection{Open schema induction and knowledge graph construction}
 
-\subsection{Human--AI knowledge engineering}
-
-Large language models are increasingly used to support knowledge engineering activities including taxonomy generation, ontology construction, knowledge graph development, schema documentation, and structured reasoning~\citep{li2025,bian2025}. Rather than viewing LLMs as fully autonomous knowledge engineers, recent research increasingly emphasizes human--AI collaboration in which language models generate candidate knowledge structures while domain experts retain responsibility for conceptual validation, refinement, and governance~\citep{li2025}. [TODO: Check if these two have a methodology already. Including Giglou2023. Cause if they do, we need to change the paper's positioning to an application or adaption of their methodology. Emphasize distinction as necessary.]
-
-This human-in-the-loop perspective positions LLMs as collaborators that support semantic discovery and knowledge organization while relying on expert oversight for conceptual validation and governance~\citep{bian2025}. The proposed methodology adopts this division of responsibility by assigning multimodal LLMs to semantic discovery, abstraction, and organization, while human experts retain responsibility for conceptual scope, ontology refinement, and final schema engineering.
+Open knowledge graph construction offers related patterns for discovery, definition, and canonicalization. The Extract--Define--Canonicalize framework extracts relations from text, defines candidate relations, and canonicalizes them against an existing or induced schema~\citep{zhang2024edc}. Broader surveys place these operations within LLM-supported ontology engineering, information extraction, schema induction, and knowledge integration~\citep{bian2025}. These approaches support open discovery and semantic consolidation, but primarily target relational schemas and knowledge graphs rather than an operational metadata specification for describing multimodal artifacts.
 
 \subsection{Multimodal document understanding}
 
-Recent advances in multimodal document understanding have substantially improved the automatic understanding of tables, charts, maps, diagrams, dashboards, and other visual analytical artifacts. Existing work has explored structured representations such as chart specifications, scene graphs, visualization ontologies, dashboard models, and other domain-specific representations for representing and reasoning about individual artifact types~\citep{wang2025}.
-
-These approaches typically build upon predefined descriptive representations, whether metadata schemas, ontologies, chart specifications, or scene graphs. The primary objective is therefore structured extraction, information retrieval, or downstream reasoning rather than engineering the descriptive representation itself~\citep{bian2025}.
-
-These approaches generally assume that an appropriate descriptive representation already exists~\citep{bian2025}. In contrast, this work investigates how such a representation can be engineered for a previously unsupported class of multimodal analytical artifacts using complementary contributions from multimodal LLMs and human experts.
+Multimodal document-understanding research provides the capabilities required to interpret combinations of text, tables, charts, layout, and other visual evidence in visually rich documents~\citep{wang2025,ding2026vrdu}. Its usual objective is to understand or extract information from documents, often with a predefined target representation. In this work, multimodal interpretation is instead used upstream to discover which metadata concepts are needed: the visual artifacts are evidence from which the descriptive representation is derived.
 
 \subsection{Positioning of this work}
 
-Collectively, these research areas provide the conceptual foundations for the proposed methodology. Rather than proposing an entirely new paradigm, this work integrates established ideas from metadata standards, ontology engineering, human--AI knowledge engineering, and multimodal document understanding into a unified workflow for engineering initial metadata schemas.
+Taken together, the reviewed literature provides human-in-the-loop schema discovery, staged ontology construction, task decomposition, open schema induction and canonicalization, and multimodal artifact interpretation. This paper adapts these strands into an artifact-driven architecture for metadata schema development. The architecture analyzes snapshots independently before introducing a shared vocabulary; retains local observations rather than immediately absorbing them into an evolving schema; aggregates evidence in deterministic field profiles; separates canonical concept synthesis, expert refinement, and concept coverage assessment; and subsequently translates the refined concept inventory into an operational metadata schema. Each transformation remains traceable to the visual artifacts that motivated it.
 
-Unlike existing approaches that typically conclude with an ontology, descriptive representation, or metadata extraction pipeline, the proposed methodology explicitly distinguishes metadata discovery, ontology induction, ontology engineering, and schema engineering as separate knowledge engineering activities connected through explicit intermediate knowledge artifacts. Table~\ref{tab:positioning} summarizes this positioning relative to representative research directions.
+Table~\ref{tab:positioning} summarizes the methodological contributions adopted from each literature group and the corresponding differences in this work.
 
 \begin{table}[!ht]
     \centering
-    \caption{Comparison with representative research directions contributing to the proposed methodology.}
+    \caption{Comparison of the proposed artifact-driven methodology with representative prior work.}
     \label{tab:positioning}
     \renewcommand{\arraystretch}{1.4}
     \newcolumntype{Y}[1]{>{\hsize=#1\hsize\raggedright\arraybackslash}X}
-    \begin{tabularx}{\textwidth}{Y{0.8} Y{1.1} Y{1.1}}
+    \small
+    \begin{tabularx}{\textwidth}{Y{0.95} Y{1.025} Y{1.025}}
     \toprule
-        \textbf{Research direction} & \textbf{Primary focus} & \textbf{What this work adds} \\
+        \textbf{Literature group} & \textbf{Relevant contribution} & \textbf{Distinction from this work} \\
         \midrule
-        Metadata standards & Mature metadata vocabularies and community standards & Focus on initial deployment-ready schema engineering \\ 
-        Ontology engineering and induction & Conceptual models and candidate ontologies & Continues through expert ontology refinement and metadata schema engineering \\ 
-        Human--AI knowledge engineering & Human-assisted semantic discovery and knowledge engineering workflows & Structured human–AI workflow for metadata schema engineering \\ 
-        Multimodal document understanding & Metadata extraction and reasoning using predefined representations & Engineering the metadata representation itself \\ 
-        \textbf{Proposed methodology} & \textbf{Deployment-ready metadata schema} & \textbf{—} \\ 
+        LLMs4SchemaDiscovery & Human-in-the-loop schema discovery and refinement & Scientific text input and direct mutation of an evolving schema \\
+        Ding et al. ontology study & Increasing expert responsibility during formalization & Evaluation of classical ontology stages in a healthcare case \\
+        NeOn-GPT and Extended NeOn-GPT & Staged construction, reuse, verification, and repair & Formal ontology as the endpoint \\
+        OntoGenix & Structured, multi-stage dataset-to-ontology workflow & Structured dataset input and ontology, mappings, and knowledge graph outputs \\
+        EDC and the KG-construction survey & Open discovery, definition, canonicalization, and schema induction & Primary orientation toward knowledge graph construction \\
+        LLMs4OL & Decomposition of ontology-learning tasks & Task decomposition rather than an end-to-end operational metadata-schema workflow \\
+        VRDU survey & Multimodal interpretation of visual, textual, and layout information & Schema development is not the primary objective \\
     \bottomrule
     \end{tabularx}
 \end{table}
 
-[TODO: Need to redesign the table. At first glance, the last row which is "Proposed methodology" seems to say "this work adds nothing".]
-
 \section{Conceptual framework}
 
-This paper addresses the problem of engineering metadata schemas for multimodal analytical artifact types that lack an established metadata standard. Before presenting the proposed methodology, we establish the conceptual framework that underpins the remainder of the paper. In particular, we distinguish between \emph{metadata}, \emph{ontology}, and \emph{metadata schema}—terms that are often used differently across knowledge engineering, information science, and database research. We then define the scope of the proposed methodology and formulate the metadata schema engineering problem addressed in this work.
+This paper addresses the problem of developing metadata schemas for multimodal analytical artifact types that lack a dedicated operational metadata specification. Before presenting the proposed methodology, we establish the conceptual framework that underpins the remainder of the paper. In particular, we distinguish among \emph{metadata}, \emph{metadata concept inventory}, and \emph{metadata schema}. We then define how \emph{metadata schema development} is used in this paper and formulate the problem addressed by the methodology.
 
 \subsection{Data snapshots as independent information objects}
 
@@ -158,26 +149,26 @@ Conventional document-level metadata such as title, author, publication date, or
 
 \subsection{Conceptual distinctions}
 
-Building on the definition of a data snapshot, we distinguish three closely related concepts that play distinct roles in the proposed metadata schema engineering workflow.
+Building on the definition of a data snapshot, we distinguish three closely related concepts that play distinct roles in the proposed workflow.
 
 \paragraph{Metadata}
 
 Metadata is descriptive information about a data snapshot. It consists of properties that help identify, interpret, organize, retrieve, or manage a snapshot~\citep{gilliland2008}. Examples include the analytical indicator represented, geographic coverage, temporal coverage, visualization type, source organization, and other descriptive attributes. Metadata primarily answers the question: "What does this snapshot represent?"
 
-\paragraph{Ontology}
+\paragraph{Metadata concept inventory}
 
-An ontology is a conceptual model that defines canonical metadata concepts together with their semantic relationships and meanings~\citep{noy&mcguinness2001}. Rather than specifying implementation details, an ontology establishes shared conceptual definitions that distinguish one metadata concept from another. In the proposed methodology, the ontology serves as the conceptual model from which the operational metadata schema is subsequently engineered.
+A metadata concept inventory is the intermediate conceptual artifact used in this methodology. It records canonical metadata concepts together with definitions, rationales, representative discovered fields, and expert decisions to retain, merge, or exclude concepts. It supports conceptual consolidation and review before the concepts are translated into operational metadata fields. The inventory differs from an ontology in that it does not assert a class hierarchy, formal semantic relations, axioms, or instances~\citep{uschold&gruninger1996,noy&mcguinness2001}.
 
 \paragraph{Metadata schema}
 
-A metadata schema is an operational specification describing which metadata fields should be captured for a data snapshot together with their definitions, intended use, and annotation guidance. Whereas the ontology defines the conceptual vocabulary, the metadata schema defines the operational specification used by subsequent metadata annotation, storage, retrieval, and extraction systems.
+A metadata schema is an operational specification describing which metadata fields should be captured for a data snapshot together with their definitions, intended use, and annotation guidance~\citep{greenberg2005,coyle2009applicationprofiles}. It translates the refined metadata concept inventory into a record structure that can guide subsequent annotation, storage, retrieval, and extraction. In this paper, \emph{metadata schema development} denotes the full evidence-driven process of discovering, consolidating, specifying, and assessing these metadata fields.
 
 Figure~\ref{fig:conceptual_relationship} summarizes the relationships among these concepts.
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.35\linewidth]{data/conceptual_hierarchy.png}
-    \caption{Relationship between data snapshots, metadata, ontology, and metadata schema. Data snapshots are described by metadata, metadata concepts are defined within an ontology, and the ontology is operationalized as a metadata schema. Metadata extraction and downstream applications are shown separately because they assume that an operational metadata schema already exists and therefore lie outside the scope of the proposed methodology.}
+    \caption{Relationship between data snapshots, metadata, the intermediate concept inventory, and the metadata schema. Metadata extraction and downstream applications are shown separately because they assume that an operational metadata schema already exists. [TODO: Update the diagram labels and relationships to replace the ontology with the metadata concept inventory.]}
     \label{fig:conceptual_relationship}
 \end{figure}
 
