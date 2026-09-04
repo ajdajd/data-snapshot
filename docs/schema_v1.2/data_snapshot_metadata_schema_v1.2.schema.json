@@ -1,0 +1,2033 @@
+{
+  "$defs": {
+    "AnalyticalRole": {
+      "description": "Identify an explicitly stated analytical or axis role.",
+      "enum": [
+        "outcome",
+        "predictor",
+        "instrumental",
+        "control",
+        "x_axis",
+        "y_axis"
+      ],
+      "title": "AnalyticalRole",
+      "type": "string"
+    },
+    "Attribution": {
+      "additionalProperties": false,
+      "description": "Represent a named agent and its explicit attribution role.\n\nParameters\n----------\nname : str\n    Source-visible credited-agent name.\nidentifiers : list[Identifier] | None\n    Assigned identifiers for the agent.\nrole : ControlledTerm\n    Open, source-grounded attribution role.",
+      "properties": {
+        "name": {
+          "description": "Source-visible entity name.",
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Identifier"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Assigned entity identifiers.",
+          "title": "Identifiers"
+        },
+        "role": {
+          "$ref": "#/$defs/ControlledTerm",
+          "description": "Explicit source-grounded agent role."
+        }
+      },
+      "required": [
+        "name",
+        "role"
+      ],
+      "title": "Attribution",
+      "type": "object"
+    },
+    "CategoryGroup": {
+      "additionalProperties": false,
+      "description": "Represent one explicit nonrecursive category grouping.\n\nParameters\n----------\nname : str\n    Explicit group heading.\ncategories : list[ControlledTerm]\n    Categories directly contained by the group.",
+      "properties": {
+        "name": {
+          "description": "Explicit category-group heading.",
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "categories": {
+          "description": "Categories directly contained by the group.",
+          "items": {
+            "$ref": "#/$defs/ControlledTerm"
+          },
+          "minItems": 1,
+          "title": "Categories",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "categories"
+      ],
+      "title": "CategoryGroup",
+      "type": "object"
+    },
+    "ControlledTerm": {
+      "additionalProperties": false,
+      "description": "Represent a source-grounded term with optional normalization.\n\nParameters\n----------\nsource_text : str | None\n    Faithful source-visible expression.\nnormalized_value : str | None\n    Preferred application or vocabulary value.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Faithful source-visible expression.",
+          "title": "Source Text"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Preferred application or vocabulary value.",
+          "title": "Normalized Value"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code in the named scheme.",
+          "title": "Code"
+        },
+        "scheme": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code-list or vocabulary identifier.",
+          "title": "Scheme"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Authoritative URI for the represented concept.",
+          "title": "Uri"
+        }
+      },
+      "title": "ControlledTerm",
+      "type": "object"
+    },
+    "Currency": {
+      "additionalProperties": false,
+      "description": "Represent a displayed currency and optional ISO 4217 code.\n\nParameters\n----------\nsource_text : str\n    Displayed currency expression.\ncode : str | None\n    Uppercase ISO 4217 alphabetic code.",
+      "properties": {
+        "source_text": {
+          "description": "Displayed currency expression.",
+          "minLength": 1,
+          "title": "Source Text",
+          "type": "string"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Uppercase ISO 4217 alphabetic code.",
+          "title": "Code",
+          "x-code-list": {
+            "authority": "ISO",
+            "identifier": "ISO 4217",
+            "uri": "https://www.iso.org/iso-4217-currency-codes.html"
+          }
+        }
+      },
+      "required": [
+        "source_text"
+      ],
+      "title": "Currency",
+      "type": "object"
+    },
+    "Dimension": {
+      "additionalProperties": false,
+      "description": "Represent a classificatory dimension and its visible organization.\n\nParameters\n----------\nname : str\n    Dimension name.\ncategories : list[ControlledTerm] | None\n    Ordered ungrouped categories.\ncategory_groups : list[CategoryGroup] | None\n    One level of explicit category groups.\npresentation_roles : list[PresentationRole] | None\n    Explicit row and/or column roles.",
+      "properties": {
+        "name": {
+          "description": "Classificatory dimension name.",
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "categories": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/ControlledTerm"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Ordered ungrouped categories.",
+          "title": "Categories"
+        },
+        "category_groups": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/CategoryGroup"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "One level of explicit category groups.",
+          "title": "Category Groups"
+        },
+        "presentation_roles": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PresentationRole"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit table-presentation roles.",
+          "title": "Presentation Roles"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Dimension",
+      "type": "object"
+    },
+    "EntityReference": {
+      "additionalProperties": false,
+      "description": "Represent a named project, organization, source, or component.\n\nParameters\n----------\nname : str\n    Source-visible entity name.\nidentifiers : list[Identifier] | None\n    Assigned identifiers for the entity.",
+      "properties": {
+        "name": {
+          "description": "Source-visible entity name.",
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Identifier"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Assigned entity identifiers.",
+          "title": "Identifiers"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "EntityReference",
+      "type": "object"
+    },
+    "Financing": {
+      "additionalProperties": false,
+      "description": "Group project-financing measures, funders, and instruments.\n\nParameters\n----------\nmeasures : list[ControlledTerm] | None\n    Financial quantities or funding-related measures.\nfunders : list[EntityReference] | None\n    Named funding sources.\ninstruments : list[ControlledTerm] | None\n    Financing mechanisms.",
+      "properties": {
+        "measures": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/ControlledTerm"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Project-financing measures.",
+          "title": "Measures"
+        },
+        "funders": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EntityReference"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Named funding sources.",
+          "title": "Funders"
+        },
+        "instruments": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/ControlledTerm"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Financing mechanisms.",
+          "title": "Instruments"
+        }
+      },
+      "title": "Financing",
+      "type": "object"
+    },
+    "GeographicCoverage": {
+      "additionalProperties": false,
+      "description": "Group overall geographic scope, locations, and reporting level.\n\nParameters\n----------\nscope : Place | None\n    Overall geographic coverage or focus.\nlocations : list[GeographicLocation] | None\n    Additional named locations.\nlevel : GeographicLevelTerm | None\n    Administrative, geographic, or reporting level.",
+      "properties": {
+        "scope": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Place"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Overall geographic coverage or focus."
+        },
+        "locations": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/GeographicLocation"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Additional named locations.",
+          "title": "Locations"
+        },
+        "level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeographicLevelTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Geographic or reporting level."
+        }
+      },
+      "title": "GeographicCoverage",
+      "type": "object"
+    },
+    "GeographicLevelTerm": {
+      "additionalProperties": false,
+      "description": "Represent a known or source-only geographic reporting level.\n\nParameters\n----------\nsource_text : str | None\n    Faithful source-visible expression.\nnormalized_value : GeographicLevelValue | None\n    Approved normalized geographic level.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Faithful source-visible expression.",
+          "title": "Source Text"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeographicLevelValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Approved normalized geographic level."
+        },
+        "code": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code in the named scheme.",
+          "title": "Code"
+        },
+        "scheme": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code-list or vocabulary identifier.",
+          "title": "Scheme"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Authoritative URI for the represented concept.",
+          "title": "Uri"
+        }
+      },
+      "title": "GeographicLevelTerm",
+      "type": "object"
+    },
+    "GeographicLevelValue": {
+      "description": "Enumerate approved normalized geographic levels.",
+      "enum": [
+        "global",
+        "world_region",
+        "country",
+        "administrative_area_1",
+        "administrative_area_2",
+        "administrative_area_3",
+        "locality",
+        "site"
+      ],
+      "title": "GeographicLevelValue",
+      "type": "string"
+    },
+    "GeographicLocation": {
+      "additionalProperties": false,
+      "description": "Represent an additional named location and its optional role and type.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\ncountry_code : str | None\n    ISO 3166-1 alpha-2 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.\nrole : ControlledTerm | None\n    Explicit source-grounded geographic role.\ntype : ControlledTerm | None\n    Physical or administrative location type.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Displayed place expression.",
+          "title": "Source Text"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Preferred place name.",
+          "title": "Name"
+        },
+        "country_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 3166-1 alpha-2 country code.",
+          "title": "Country Code",
+          "x-code-list": {
+            "authority": "ISO",
+            "identifier": "ISO 3166-1",
+            "uri": "https://www.iso.org/iso-3166-country-codes.html"
+          }
+        },
+        "subdivision_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{2}-[A-Z0-9]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 3166-2 subdivision code.",
+          "title": "Subdivision Code",
+          "x-code-list": {
+            "authority": "ISO",
+            "identifier": "ISO 3166-2",
+            "uri": "https://www.iso.org/iso-3166-country-codes.html"
+          }
+        },
+        "m49_code": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "UN M49 statistical-area code.",
+          "title": "M49 Code",
+          "x-code-list": {
+            "authority": "United Nations",
+            "identifier": "M49",
+            "uri": "https://unstats.un.org/unsd/methodology/m49/"
+          }
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Identifier"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Other authoritative identifiers.",
+          "title": "Identifiers"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ControlledTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit source-grounded geographic role."
+        },
+        "type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ControlledTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Physical or administrative location type."
+        }
+      },
+      "title": "GeographicLocation",
+      "type": "object"
+    },
+    "Identifier": {
+      "additionalProperties": false,
+      "description": "Represent an assigned identifier and its optional authority context.\n\nParameters\n----------\nvalue : str\n    Identifier exactly as assigned.\nscheme : str | None\n    Identifier scheme, when known.\nissuer : str | None\n    Issuing agent, when known.\nuri : AnyUrl | None\n    Authoritative absolute URI for the identifier.",
+      "properties": {
+        "value": {
+          "description": "Identifier exactly as assigned.",
+          "minLength": 1,
+          "title": "Value",
+          "type": "string"
+        },
+        "scheme": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Identifier scheme, when known.",
+          "title": "Scheme"
+        },
+        "issuer": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Issuing agent, when known.",
+          "title": "Issuer"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Authoritative absolute URI for the identifier.",
+          "title": "Uri"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Identifier",
+      "type": "object"
+    },
+    "Language": {
+      "additionalProperties": false,
+      "description": "Represent a snapshot language using source text and/or BCP 47.\n\nParameters\n----------\nsource_text : str | None\n    Displayed language label, when present.\ntag : str | None\n    Canonical BCP 47 language tag.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Displayed language label, when present.",
+          "title": "Source Text"
+        },
+        "tag": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Canonical BCP 47 language tag.",
+          "title": "Tag",
+          "x-code-list": {
+            "authority": "IETF/IANA",
+            "identifier": "BCP 47",
+            "uri": "https://www.iana.org/assignments/language-subtag-registry/"
+          }
+        }
+      },
+      "title": "Language",
+      "type": "object"
+    },
+    "Place": {
+      "additionalProperties": false,
+      "description": "Represent a source-grounded place with optional standard identifiers.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\ncountry_code : str | None\n    ISO 3166-1 alpha-2 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Displayed place expression.",
+          "title": "Source Text"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Preferred place name.",
+          "title": "Name"
+        },
+        "country_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 3166-1 alpha-2 country code.",
+          "title": "Country Code",
+          "x-code-list": {
+            "authority": "ISO",
+            "identifier": "ISO 3166-1",
+            "uri": "https://www.iso.org/iso-3166-country-codes.html"
+          }
+        },
+        "subdivision_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{2}-[A-Z0-9]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 3166-2 subdivision code.",
+          "title": "Subdivision Code",
+          "x-code-list": {
+            "authority": "ISO",
+            "identifier": "ISO 3166-2",
+            "uri": "https://www.iso.org/iso-3166-country-codes.html"
+          }
+        },
+        "m49_code": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "UN M49 statistical-area code.",
+          "title": "M49 Code",
+          "x-code-list": {
+            "authority": "United Nations",
+            "identifier": "M49",
+            "uri": "https://unstats.un.org/unsd/methodology/m49/"
+          }
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Identifier"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Other authoritative identifiers.",
+          "title": "Identifiers"
+        }
+      },
+      "title": "Place",
+      "type": "object"
+    },
+    "PresentationRole": {
+      "description": "Identify a dimension's explicit table-presentation role.",
+      "enum": [
+        "row",
+        "column"
+      ],
+      "title": "PresentationRole",
+      "type": "string"
+    },
+    "Project": {
+      "additionalProperties": false,
+      "description": "Represent project, program, operation, or initiative context.\n\nParameters\n----------\nname : str | None\n    Associated project-context name.\nidentifiers : list[Identifier] | None\n    Formal project or operation identifiers.\ncomponents : list[EntityReference] | None\n    Explicitly identified subordinate components.",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Associated project-context name.",
+          "title": "Name"
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Identifier"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Formal project identifiers.",
+          "title": "Identifiers"
+        },
+        "components": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EntityReference"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Named project components.",
+          "title": "Components"
+        }
+      },
+      "title": "Project",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Separate derivation sources from credited agents.\n\nParameters\n----------\nsources : list[EntityReference] | None\n    Entities from which represented data derive.\nattributions : list[Attribution] | None\n    Agents explicitly credited for the snapshot artifact.",
+      "properties": {
+        "sources": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EntityReference"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Represented-data derivation sources.",
+          "title": "Sources"
+        },
+        "attributions": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Attribution"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Role-bearing credited agents.",
+          "title": "Attributions"
+        }
+      },
+      "title": "Provenance",
+      "type": "object"
+    },
+    "StatisticalFormTerm": {
+      "additionalProperties": false,
+      "description": "Represent a known or source-only statistical form.\n\nParameters\n----------\nsource_text : str | None\n    Faithful source-visible expression.\nnormalized_value : StatisticalFormValue | None\n    Approved normalized statistical form.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Faithful source-visible expression.",
+          "title": "Source Text"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StatisticalFormValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Approved normalized statistical form."
+        },
+        "code": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code in the named scheme.",
+          "title": "Code"
+        },
+        "scheme": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code-list or vocabulary identifier.",
+          "title": "Scheme"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Authoritative URI for the represented concept.",
+          "title": "Uri"
+        }
+      },
+      "title": "StatisticalFormTerm",
+      "type": "object"
+    },
+    "StatisticalFormValue": {
+      "description": "Enumerate approved normalized statistical forms.",
+      "enum": [
+        "observed_value",
+        "count",
+        "arithmetic_mean",
+        "geometric_mean",
+        "weighted_mean",
+        "weighted_value",
+        "median",
+        "sum",
+        "weighted_sum",
+        "minimum",
+        "maximum",
+        "range",
+        "interquartile_range",
+        "variance",
+        "standard_deviation",
+        "standard_error",
+        "mean_absolute_deviation",
+        "median_absolute_deviation",
+        "skewness",
+        "kurtosis",
+        "lower_bound",
+        "upper_bound",
+        "score",
+        "rank",
+        "index",
+        "rate",
+        "harmonic_mean",
+        "trimmed_mean",
+        "mode",
+        "coefficient_of_variation",
+        "valid_cases",
+        "invalid_cases",
+        "percentage_of_valid_cases",
+        "percentage_of_invalid_cases",
+        "quartile",
+        "quintile",
+        "decile",
+        "percentile",
+        "ratio",
+        "proportion",
+        "percentage",
+        "confidence_interval",
+        "coefficient",
+        "p_value",
+        "change"
+      ],
+      "title": "StatisticalFormValue",
+      "type": "string"
+    },
+    "TemporalCoverage": {
+      "additionalProperties": false,
+      "description": "Group represented-data time and granularity.\n\nParameters\n----------\nperiod : TemporalExpression | None\n    Represented-data temporal expression.\ngranularity : TemporalGranularityTerm | None\n    Reporting interval or temporal resolution.",
+      "properties": {
+        "period": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TemporalExpression"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Represented-data temporal expression."
+        },
+        "granularity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TemporalGranularityTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reporting interval or temporal resolution."
+        }
+      },
+      "title": "TemporalCoverage",
+      "type": "object"
+    },
+    "TemporalExpression": {
+      "additionalProperties": false,
+      "description": "Represent source-visible time with optional normalized bounds.\n\nParameters\n----------\nsource_text : str\n    Complete source expression.\nstart : str | None\n    Normalized starting value.\nend : str | None\n    Normalized ending value.\nrelation : TemporalRelation | None\n    Relationship between the normalized bounds.\nprecision : TemporalPrecision | None\n    Precision shared by the normalized bounds.",
+      "properties": {
+        "source_text": {
+          "description": "Complete source time expression.",
+          "minLength": 1,
+          "title": "Source Text",
+          "type": "string"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Normalized start.",
+          "title": "Start"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Normalized end.",
+          "title": "End"
+        },
+        "relation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TemporalRelation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Relationship between normalized bounds."
+        },
+        "precision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TemporalPrecision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Precision of normalized bounds."
+        }
+      },
+      "required": [
+        "source_text"
+      ],
+      "title": "TemporalExpression",
+      "type": "object"
+    },
+    "TemporalGranularityTerm": {
+      "additionalProperties": false,
+      "description": "Represent a known or source-only temporal granularity.\n\nParameters\n----------\nsource_text : str | None\n    Faithful source-visible expression.\nnormalized_value : TemporalGranularityValue | None\n    Approved normalized temporal granularity.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Faithful source-visible expression.",
+          "title": "Source Text"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TemporalGranularityValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Approved normalized temporal granularity."
+        },
+        "code": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code in the named scheme.",
+          "title": "Code"
+        },
+        "scheme": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code-list or vocabulary identifier.",
+          "title": "Scheme"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Authoritative URI for the represented concept.",
+          "title": "Uri"
+        }
+      },
+      "title": "TemporalGranularityTerm",
+      "type": "object"
+    },
+    "TemporalGranularityValue": {
+      "description": "Enumerate approved normalized temporal granularities.",
+      "enum": [
+        "hourly",
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "semiannual",
+        "annual",
+        "instantaneous",
+        "event_based",
+        "multi_year",
+        "irregular"
+      ],
+      "title": "TemporalGranularityValue",
+      "type": "string"
+    },
+    "TemporalPrecision": {
+      "description": "Describe the precision of normalized temporal bounds.",
+      "enum": [
+        "year",
+        "month",
+        "day",
+        "datetime"
+      ],
+      "title": "TemporalPrecision",
+      "type": "string"
+    },
+    "TemporalRelation": {
+      "description": "Describe how normalized temporal bounds form an expression.",
+      "enum": [
+        "point",
+        "interval",
+        "open_interval",
+        "as_of"
+      ],
+      "title": "TemporalRelation",
+      "type": "string"
+    },
+    "Unit": {
+      "additionalProperties": false,
+      "description": "Represent a displayed unit and its optional normalized qualifiers.\n\nParameters\n----------\nsource_text : str\n    Displayed unit expression.\ncode : str | None\n    Exact UN/CEFACT Recommendation 20 code.\nmultiplier_exponent : int | None\n    SDMX unit-multiplier exponent.",
+      "properties": {
+        "source_text": {
+          "description": "Displayed unit expression.",
+          "minLength": 1,
+          "title": "Source Text",
+          "type": "string"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z0-9]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact UN/CEFACT Recommendation 20 common code.",
+          "title": "Code",
+          "x-code-list": {
+            "authority": "UNECE",
+            "identifier": "Recommendation 20",
+            "uri": "https://unece.org/trade/uncefact/cl-recommendations"
+          }
+        },
+        "multiplier_exponent": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Base-10 SDMX unit-multiplier exponent.",
+          "title": "Multiplier Exponent",
+          "x-code-list": {
+            "authority": "SDMX",
+            "identifier": "CL_UNIT_MULT",
+            "release": "1.1",
+            "uri": "https://registry.sdmx.org/items/codelist.html"
+          }
+        }
+      },
+      "required": [
+        "source_text"
+      ],
+      "title": "Unit",
+      "type": "object"
+    },
+    "Variable": {
+      "additionalProperties": false,
+      "description": "Represent a measured variable and its applicable qualifiers.\n\nParameters\n----------\nname : str\n    Explicitly named variable, indicator, metric, or measured concept.\nunit : Unit | None\n    Applicable unit.\ncurrency : Currency | None\n    Applicable currency.\nanalytical_roles : list[AnalyticalRole] | None\n    Explicit analytical or axis roles.\nstatistical_forms : list[StatisticalFormTerm] | None\n    Applicable statistical forms.",
+      "properties": {
+        "name": {
+          "description": "Explicitly named measured concept.",
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Unit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Applicable unit."
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Currency"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Applicable currency."
+        },
+        "analytical_roles": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AnalyticalRole"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit analytical or axis roles.",
+          "title": "Analytical Roles"
+        },
+        "statistical_forms": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/StatisticalFormTerm"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Applicable statistical forms.",
+          "title": "Statistical Forms"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Variable",
+      "type": "object"
+    },
+    "VisualizationTypeTerm": {
+      "additionalProperties": false,
+      "description": "Represent a known or source-only visualization type.\n\nParameters\n----------\nsource_text : str | None\n    Faithful source-visible expression.\nnormalized_value : VisualizationTypeValue | None\n    Approved normalized visualization type.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Faithful source-visible expression.",
+          "title": "Source Text"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VisualizationTypeValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Approved normalized visualization type."
+        },
+        "code": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code in the named scheme.",
+          "title": "Code"
+        },
+        "scheme": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code-list or vocabulary identifier.",
+          "title": "Scheme"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Authoritative URI for the represented concept.",
+          "title": "Uri"
+        }
+      },
+      "title": "VisualizationTypeTerm",
+      "type": "object"
+    },
+    "VisualizationTypeValue": {
+      "description": "Enumerate approved normalized visualization types.",
+      "enum": [
+        "table",
+        "bar_chart",
+        "line_chart",
+        "area_chart",
+        "pie_chart",
+        "donut_chart",
+        "scatter_plot",
+        "bubble_chart",
+        "dot_plot",
+        "histogram",
+        "density_plot",
+        "heatmap",
+        "box_plot",
+        "violin_plot",
+        "error_bar",
+        "error_band",
+        "radar_chart",
+        "treemap",
+        "map",
+        "choropleth_map",
+        "symbol_map",
+        "network_diagram",
+        "flow_diagram",
+        "timeline",
+        "diagram",
+        "infographic",
+        "dashboard",
+        "composite_figure"
+      ],
+      "title": "VisualizationTypeValue",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Represent canonical semantic metadata for one data snapshot.\n\nParameters\n----------\ntitle : str | None\n    Primary title, caption, or heading.\ndocument_label : str | None\n    Label assigned within the parent source document.\nsubject_domains : list[ControlledTerm] | None\n    Broad thematic, policy, or sectoral domains.\nsubject_summary : str | None\n    Concise analytical summary.\npanel_titles : list[str] | None\n    Ordered explicit panel titles.\nvariables : list[Variable] | None\n    Measured concepts and their qualifiers.\ndimensions : list[Dimension] | None\n    Classificatory dimensions and visible organization.\npopulation_group : ControlledTerm | None\n    Human population represented by the data.\nvisualization_types : list[VisualizationTypeTerm] | None\n    Visible visualization forms.\ntemporal_coverage : TemporalCoverage | None\n    Represented-data time and granularity.\ngeographic_coverage : GeographicCoverage | None\n    Geographic scope, locations, and level.\ncomparisons : list[str] | None\n    Explicit comparisons or named comparators.\nprovenance : Provenance | None\n    Derivation sources and artifact attributions.\nlanguages : list[Language] | None\n    Languages used within the snapshot.\ninterpretive_notes : list[str] | None\n    Complete source-visible interpretive statements.\nproject : Project | None\n    Associated project or operational context.\nintervention_types : list[ControlledTerm] | None\n    Represented interventions or activities.\nfinancing : Financing | None\n    Project-financing context.\nanalysis_methods : list[ControlledTerm] | None\n    Explicit analytical methods.\ndata_collection_methods : list[ControlledTerm] | None\n    Explicit data-collection methods.",
+  "properties": {
+    "title": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Primary title, caption, or heading identifying the snapshot.",
+      "title": "Title",
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "http://purl.org/dc/terms/title"
+        },
+        {
+          "relationship": "exact",
+          "term": "https://schema.org/name"
+        }
+      ]
+    },
+    "document_label": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Label assigned within the parent source document.",
+      "title": "Document Label",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/label.html"
+        },
+        {
+          "relationship": "standard_broader",
+          "term": "https://schema.org/identifier"
+        }
+      ]
+    },
+    "subject_domains": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ControlledTerm"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Broad thematic, policy, or sectoral domains.",
+      "title": "Subject Domains",
+      "x-standards": [
+        {
+          "relationship": "standard_broader",
+          "term": "http://purl.org/dc/terms/subject"
+        },
+        {
+          "relationship": "standard_broader",
+          "term": "https://schema.org/about"
+        }
+      ]
+    },
+    "subject_summary": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Concise summary of the primary analytical subject or purpose.",
+      "title": "Subject Summary",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://schema.org/abstract"
+        },
+        {
+          "relationship": "standard_broader",
+          "term": "http://purl.org/dc/terms/description"
+        }
+      ]
+    },
+    "panel_titles": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Ordered titles explicitly shown for individual panels.",
+      "title": "Panel Titles",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/fig-group.html"
+        },
+        {
+          "relationship": "related_structural",
+          "term": "https://schema.org/hasPart"
+        }
+      ]
+    },
+    "variables": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Variable"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Explicitly named measured concepts and their qualifiers.",
+      "title": "Variables",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://schema.org/variableMeasured"
+        },
+        {
+          "relationship": "close",
+          "term": "https://ddialliance.org/Specification/DDI-Lifecycle/3.3/"
+        }
+      ]
+    },
+    "dimensions": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Dimension"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Classificatory dimensions and their visible organization.",
+      "title": "Dimensions",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://sdmx.org/"
+        },
+        {
+          "relationship": "close",
+          "term": "https://ddialliance.org/Specification/DDI-Lifecycle/3.3/"
+        }
+      ]
+    },
+    "population_group": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ControlledTerm"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Human population or beneficiary group represented by the data.",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html"
+        },
+        {
+          "relationship": "close",
+          "term": "https://schema.org/populationType"
+        }
+      ]
+    },
+    "visualization_types": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/VisualizationTypeTerm"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Explicitly visible visualization forms used by the snapshot.",
+      "title": "Visualization Types",
+      "x-standards": [
+        {
+          "relationship": "standard_broader",
+          "term": "http://purl.org/dc/terms/type"
+        },
+        {
+          "relationship": "standard_broader",
+          "term": "https://schema.org/additionalType"
+        }
+      ]
+    },
+    "temporal_coverage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TemporalCoverage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "When the represented data apply and their granularity.",
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "https://schema.org/temporalCoverage"
+        },
+        {
+          "relationship": "close",
+          "term": "http://purl.org/dc/terms/temporal"
+        }
+      ]
+    },
+    "geographic_coverage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GeographicCoverage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Overall geographic scope, additional locations, and level.",
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "https://schema.org/spatialCoverage"
+        },
+        {
+          "relationship": "exact",
+          "term": "http://purl.org/dc/terms/spatial"
+        }
+      ]
+    },
+    "comparisons": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Explicit comparative expressions or named comparators.",
+      "title": "Comparisons"
+    },
+    "provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Provenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Represented-data sources and artifact attributions.",
+      "x-standards": [
+        {
+          "relationship": "related_structural",
+          "term": "http://www.w3.org/ns/prov#wasDerivedFrom"
+        },
+        {
+          "relationship": "related_structural",
+          "term": "http://www.w3.org/ns/prov#wasAttributedTo"
+        }
+      ]
+    },
+    "languages": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Language"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Languages explicitly used within the snapshot.",
+      "title": "Languages",
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "https://schema.org/inLanguage"
+        },
+        {
+          "relationship": "exact",
+          "term": "http://purl.org/dc/terms/language"
+        }
+      ]
+    },
+    "interpretive_notes": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Complete explanatory, methodological, uncertainty, sample-size, or provenance statements.",
+      "title": "Interpretive Notes",
+      "x-standards": [
+        {
+          "relationship": "standard_broader",
+          "term": "http://purl.org/dc/terms/description"
+        },
+        {
+          "relationship": "standard_broader",
+          "term": "https://schema.org/description"
+        }
+      ]
+    },
+    "project": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Project"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Associated project, program, operation, or initiative.",
+      "x-standards": [
+        {
+          "relationship": "standard_narrower",
+          "term": "https://schema.org/Project"
+        },
+        {
+          "relationship": "close",
+          "term": "https://iatistandard.org/en/iati-standard/203/activity-standard/"
+        }
+      ]
+    },
+    "intervention_types": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ControlledTerm"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Explicit interventions, services, policies, or operational activities.",
+      "title": "Intervention Types"
+    },
+    "financing": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Financing"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Project-financing measures, funders, and instruments.",
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "https://schema.org/funder"
+        },
+        {
+          "relationship": "close",
+          "term": "https://reference.codeforiati.org/codelists/FinanceType/"
+        }
+      ]
+    },
+    "analysis_methods": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ControlledTerm"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Explicit analytical, statistical, or computational methods.",
+      "title": "Analysis Methods",
+      "x-standards": [
+        {
+          "relationship": "related_structural",
+          "term": "https://schema.org/measurementTechnique"
+        },
+        {
+          "relationship": "related_structural",
+          "term": "http://www.w3.org/ns/prov#Activity"
+        }
+      ]
+    },
+    "data_collection_methods": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ControlledTerm"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Explicit methods or instruments used to collect underlying data.",
+      "title": "Data Collection Methods",
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/"
+        },
+        {
+          "relationship": "close",
+          "term": "https://schema.org/measurementMethod"
+        }
+      ]
+    }
+  },
+  "title": "Data Snapshot Metadata Schema v1.2",
+  "type": "object",
+  "x-schema-version": "1.2",
+  "x-status": "implementation"
+}
