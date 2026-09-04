@@ -1,6 +1,6 @@
 # Data Snapshot Metadata Schema v1.2: Fresh Standards Crosswalk
 
-Status: Research draft for review  
+Status: Crosswalk review complete; semantic baseline approved
 Date: 2026-09-04
 
 ## Purpose and scope
@@ -76,7 +76,8 @@ for units of measure.
 
 ## Relationship labels
 
-These labels are preliminary and are intended for the next review step.
+These labels record the reviewed semantic relationship between each v1.1.1
+concept and its best current standards alignment.
 
 - **Exact**: the standard term has the same essential meaning and intended use.
 - **Close**: the meanings substantially overlap, with a bounded difference in
@@ -96,7 +97,7 @@ These labels are preliminary and are intended for the next review step.
 The alignment definitions below are concise paraphrases of the linked
 authoritative sources, limited to the meaning relevant to this comparison.
 
-| # | v1.1.1 concept | v1.1.1 Definition | Best current alignment | Alignment definition (abridged) | Preliminary relationship | Other useful references | Research interpretation for v1.2 |
+| # | v1.1.1 concept | v1.1.1 Definition | Best current alignment | Alignment definition (abridged) | Reviewed relationship | Other useful references | Research interpretation for v1.2 |
 |---:|---|---|---|---|---|---|---|
 | 1 | `title` | The primary title, caption, or heading that identifies the data snapshot. | [`dcterms:title`](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#http://purl.org/dc/terms/title) | A name given to a resource. | Exact | [`schema:name`](https://schema.org/name); SDMX `TITLE` | Retain the snapshot title concept. A v1.2 name may follow the local API's clarity needs while publishing an interoperability alias. |
 | 2 | `internal_identifier` | A document-assigned identifier used to reference the snapshot within the source document. | [`schema:identifier`](https://schema.org/identifier) / `dcterms:identifier` | Any reference that unambiguously identifies a resource or thing within a given context. | Standard broader | JATS [`label`](https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/label.html) | Keep the qualifier that this is the document-assigned snapshot label, such as “Figure 3,” rather than any identifier. A structured identifier could record its scheme or local context later. |
@@ -113,9 +114,9 @@ authoritative sources, limited to the meaning relevant to this comparison.
 | 13 | `geographic_entities` | Named geographic entities explicitly represented within the snapshot. | [`schema:spatialCoverage`](https://schema.org/spatialCoverage) with repeated `Place` values | One or more places that the content describes or geographically covers. | Close | DDI `GeographicLocation`; SEMIC Core Location Vocabulary | Preserve the distinct list of explicitly represented places. In v1.2, each entity can carry its displayed name and, when deterministic, a standard code or URI. |
 | 14 | `geographic_granularity` | The administrative or spatial level at which data are reported. | DDI `GeographicLevel` | A level in a geographic hierarchy used to organize or classify geographic locations. | Close | ISO 3166-2 for coded principal subdivisions; local level vocabulary | Administrative or reporting level is not DCAT `spatialResolutionInMeters`; that term measures minimum spatial separation. Keep a separate level concept and define a small controlled vocabulary. |
 | 15 | `geographic_role` | The semantic role played by geographic entities within the represented data. | No direct cross-domain match | No reviewed term generally distinguishes roles such as origin, host, destination, and reporting location. | No direct match | DDI geography structures; IATI recipient country/region and location roles (domain-specific); SKOS value scheme | Keep a local role vocabulary such as origin, host, destination, or reporting location. Attach the role to each geographic entity so the relationship is not lost. |
-| 16 | `location_type` | The type of physical location represented. | No direct cross-domain match | No reviewed term supplies a general classification covering facilities, settlements, and administrative areas. | No direct match | Schema.org `additionalType` or `DefinedTerm`; DDI geography concepts; SKOS value scheme | Keep the semantic distinction between a place and its type (camp, hospital, school, district). Use a typed term object that can carry a local or external scheme rather than pretending the carrier is the vocabulary. |
-| 17 | `unit_of_measure` | The unit used to interpret reported quantitative values. | SDMX `UNIT_MEASURE` | The unit in which associated observation values are measured or expressed. | Close | [`schema:unitCode`](https://schema.org/unitCode); UN/CEFACT Recommendation 20 | Separate the displayed unit label from an optional normalized code. Schema.org specifically recommends UN/CEFACT Common Codes for `unitCode`, but not every project unit (for example, “people”) will map cleanly without policy decisions. |
-| 18 | `currency` | The currency denomination used for monetary values. | [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html) | Standard alphabetic and numeric codes used to represent currencies, funds, and certain precious metals. | Exact value standard | [`schema:currency`](https://schema.org/currency); SDMX `CL_CURRENCY` | Use the three-letter ISO 4217 code when the currency is explicit or can be normalized deterministically. Keep currency separate from the broader unit concept in the application model. |
+| 16 | `location_type` | The type of physical location represented. | No direct cross-domain match | No reviewed cross-domain property defines this concept; IATI provides a domain-specific feature-designation codelist. | No direct match | IATI [`LocationType`](https://reference.codeforiati.org/codelists/LocationType/); Schema.org `additionalType` or `DefinedTerm`; SKOS value scheme | Keep the semantic distinction between a place and its type (camp, hospital, school, district). Use a typed term object that can carry a local or external scheme. IATI location-type codes can be supported when applicable, but they do not define the domain-agnostic concept. |
+| 17 | `unit_of_measure` | The unit used to interpret reported quantitative values. | SDMX `UNIT_MEASURE` | The unit in which associated observation values are measured or expressed. | Exact | [`schema:unitCode`](https://schema.org/unitCode); UN/CEFACT Recommendation 20 | The semantic mapping is exact even though value normalization may be partial. Separate the displayed unit label from an optional normalized code; not every project unit (for example, “people”) will map cleanly without policy decisions. |
+| 18 | `currency` | The currency denomination used for monetary values. | [`schema:currency`](https://schema.org/currency) | The currency in which a monetary amount is expressed. | Exact | [ISO 4217](https://www.iso.org/iso-4217-currency-codes.html); SDMX `CL_CURRENCY` | Keep the semantic property separate from its value standard. Use the three-letter ISO 4217 code when the currency is explicit or can be normalized deterministically, and keep currency separate from the broader unit concept. |
 | 19 | `measure_type` | The statistical form in which values are expressed. | [`schema:statType`](https://schema.org/statType) | The kind of statistic represented by a statistical variable, such as a mean or count. | Close | SDMX measure/unit concepts; local controlled vocabulary | `statType` covers kinds of statistic such as mean and count, but v1.1.1 also includes rate, percentage, and index. Retain a local controlled vocabulary and cross-map individual values where defensible. |
 | 20 | `comparison_group` | The benchmark, comparator, reference group, cohort, scenario, or entity against which the represented data are compared.<br><br>Populate only when the snapshot explicitly presents a comparative relationship. This field captures the intended comparison or benchmark represented by the snapshot, not simply the categories used to organize the data. | No direct cross-domain match | No reviewed term generally represents the explicit benchmark or comparator role used here. | No direct match | DDI comparison/group structures; Schema.org `measurementQualifier` (narrow/related) | Preserve as an explicit comparison relation rather than collapsing it into ordinary category labels. Later design must decide how comparator and reference roles attach to variables or observations. |
 | 21 | `row_dimension` | The conceptual variable represented by table rows. | SDMX `Dimension` | An identifying or classificatory statistical component; SDMX does not assign it a table-row role. | Standard broader | DDI variable/dimension structures | “Row” is a presentation role, not a statistical concept in SDMX. Represent the underlying dimension with a local layout role so semantics survive independently of rendering. |
@@ -124,9 +125,9 @@ authoritative sources, limited to the meaning relevant to this comparison.
 | 24 | `data_source` | The named dataset, survey, publication, organization, or credited agent from which the represented data originate or which is explicitly credited with producing the snapshot artifact.<br><br>In v1.1.1, `data_source` may retain multiple names but does not structurally distinguish roles such as data source, data producer, map maker, preparer, or contributor. A role-bearing representation is deferred to v1.2. Do not copy the parent document's authors or publisher into this field solely because they are associated with the document; the source or attribution must be explicitly relevant to the snapshot or its represented data. | [`prov:wasDerivedFrom`](https://www.w3.org/TR/prov-o/#wasDerivedFrom) and [`prov:wasAttributedTo`](https://www.w3.org/TR/prov-o/#wasAttributedTo) | Links an entity to a source entity from which it was derived, or to an agent credited with it. | Related/structural | `dcterms:source`; Schema.org `creator`, `provider`, `creditText`; PROV qualified relations | Replace the overloaded flat list with role-bearing provenance entries. A represented-data source is an entity involved in derivation; a map maker or producer is an attributed agent. Parent-document metadata remains outside this snapshot structure. |
 | 25 | `language` | The language used within the snapshot. | [`schema:inLanguage`](https://schema.org/inLanguage) / `dcterms:language` | The language of a creative work or resource, commonly represented with a standard language tag. | Exact | [IETF BCP 47](https://www.rfc-editor.org/info/bcp47) | Preserve displayed language labels if useful and normalize to BCP 47 tags when deterministically identifiable. Support multiple languages. |
 | 26 | `interpretive_note` | Explanatory, methodological, uncertainty, or provenance statements explicitly provided within the snapshot that aid interpretation or traceability.<br><br>This field may preserve complete notes containing sample-size statements, explanations of confidence intervals, standard errors or uncertainty bands, and footer statements that include an artifact date or production credit. It retains the statement as text; it does not create separate structured fields for sample size, uncertainty representation, or artifact publication date.<br><br>Populate only when such notes are explicitly present. | `dcterms:description` / `schema:description` | A general textual account or description of a resource. | Standard broader | SDMX data attributes and annotations (related) | Keep a local note concept for explicit methodological, uncertainty, sample-size, and provenance statements. A generic description property can expose it interoperably but should not dictate its internal semantics. |
-| 27 | `project_name` | The project, program, operation, or initiative associated with the snapshot. | [`schema:Project`](https://schema.org/Project) + `schema:name` | The name of an enterprise planned to achieve a particular aim. | Exact | IATI activity `title` | A project object provides the natural home for name and identifier. IATI is a strong secondary mapping when the source is a development-cooperation activity. |
+| 27 | `project_name` | The project, program, operation, or initiative associated with the snapshot. | [`schema:Project`](https://schema.org/Project) + `schema:name` | The name of an enterprise planned to achieve a particular aim. | Standard narrower | IATI activity `title` | `schema:Project` is a strong fit for projects but does not explicitly cover every program, operation, or initiative allowed locally. Retain the broader application concept and map project-shaped cases directly. |
 | 28 | `project_identifier` | The formal identifier assigned to the associated project or operation. | `schema:Project` + [`schema:identifier`](https://schema.org/identifier) | An identifier assigned to a project, represented as text, a URL, or a structured property value. | Exact | IATI [`iati-identifier`](https://reference.iatistandard.org/en/iati-standard/203/activity-standard/iati-activities/iati-activity/iati-identifier/) (standard narrower) | Represent the value with an optional identifier scheme or issuing organization. Do not assume all project identifiers are IATI identifiers. |
-| 29 | `project_component` | The project component, workstream, or results area represented by the snapshot. | `schema:Project` + `schema:subOrganization`/`parentOrganization` | A relationship for expressing organizational substructures within a project modeled as an organization. | Close | `schema:hasPart`; IATI results and activity hierarchy (related) | Schema.org models projects as organizations and explicitly permits project substructures. Because components and results areas are not always organizations, retain a general local component object and map only compatible cases. |
+| 29 | `project_component` | The project component, workstream, or results area represented by the snapshot. | `schema:Project` + `schema:subOrganization`/`parentOrganization` | A relationship for expressing organizational substructures within a project modeled as an organization. | Standard narrower | `schema:hasPart`; IATI [`related-activity`](https://reference.codeforiati.org/activity-standard/iati-activities/iati-activity/related-activity/) parent/child relations | Schema.org covers only components modeled as project organizations, while IATI covers components reported as related activities. Retain a general local component object and map only compatible cases. |
 | 30 | `intervention_type` | The intervention, service, policy, or operational activity represented. | No direct cross-domain match | No reviewed term generally classifies interventions, services, policies, and operational activities together. | No direct match | IATI activity/aid/sector classifications (narrow); Schema.org `DefinedTerm`; SKOS | Preserve a local controlled concept for intervention, service, policy, or operational activity. Attach a vocabulary identifier when the source uses IATI or another recognized scheme. |
 | 31 | `financial_measure` | The financial quantity or funding-related measure represented by the snapshot. | IATI transaction types and budget elements | Transaction classifications distinguish kinds of financial flows, while budget elements describe planned financial resources. | Standard narrower | SDMX measure concepts; Schema.org `MonetaryAmount` (value structure, not measure type) | The local concept spans project cost, disbursement, gap, and allocation. Use a local measure concept, with targeted mappings for values that match IATI transaction or budget semantics. |
 | 32 | `financing_source` | The organization or funding source providing financial support. | [`schema:funder`](https://schema.org/funder) | A person or organization that supports something through a financial contribution. | Exact | IATI [`participating-org` with funding role](https://reference.iatistandard.org/en/iati-standard/203/codelists/organisationrole/) | Model the funder as an organization or agent with an explicit funding role. IATI supplies a precise domain-specific role code where applicable. |
@@ -134,7 +135,7 @@ authoritative sources, limited to the meaning relevant to this comparison.
 | 34 | `analysis_method` | The analytical, statistical, or computational method used to produce the reported results.<br><br>Populate only when explicitly stated. | No direct cross-domain match | No reviewed term generally represents analytical, statistical, and computational methods used to produce results. | No direct match | Schema.org `measurementTechnique` (related, often narrower in purpose); PROV `Activity` structure | Do not equate regression or difference-in-differences with data-collection or measurement technique. Preserve a local analytical-method term and allow an external URI or scheme when available. |
 | 35 | `data_collection_method` | The method or instrument used to collect the underlying data.<br><br>Populate only when explicitly stated. | DDI [`ModeOfCollection`](https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/datacollection_xsd/complexTypes/ModeOfCollectionType.html) | The mode used to collect data, such as a questionnaire, observation, interview, or automated harvesting. | Exact | [`schema:measurementMethod`](https://schema.org/measurementMethod); SDMX collection-method concepts | DDI supplies the closest definition and controlled vocabulary pattern. Schema.org offers a useful broader publishing property but does not distinguish collection from analysis by itself. |
 
-## Preliminary findings
+## Reviewed findings
 
 1. **The 35-concept baseline is confirmed, but a 35-field flat model is not.**
    The crosswalk already points toward typed objects for variables, dimensions,
@@ -171,25 +172,67 @@ authoritative sources, limited to the meaning relevant to this comparison.
    normalized values while the source label is retained. Exact normalization
    rules remain a later task.
 
-## Items for crosswalk review
+## Crosswalk review outcome
 
-The next step should review each preliminary relationship rather than
-immediately designing Pydantic models. In particular:
+The mapping and classification review is complete. The resulting semantic
+baseline was approved by the project owner on 2026-09-04.
 
-- decide whether `subject_summary` should publish as `schema:abstract`, generic
-  `description`, or both;
-- decide whether the application should expose `time_period` and
-  `geographic_scope` directly through the Schema.org properties that already
-  declare equivalence to Dublin Core;
-- review whether `measure_type` should remain one concept or split statistical
-  function from presentation form/unit semantics;
-- define the boundary between data derivation and artifact attribution before
-  replacing `data_source`;
-- decide which geography levels and roles need controlled local values;
-- decide how far IATI-specific project and finance codes should be supported
-  without making the domain-agnostic core dependent on IATI; and
-- confirm that `panel_title` remains an ordered list until a broader composite
-  representation is justified by relationships among other fields.
+Here, **semantic baseline** means the agreed concept-level contract: the
+information distinctions that v1.2 must preserve and their relationships to
+external standards. It does not freeze the v1.1.1 field names, exact definition
+wording, or flat representation.
+
+### Questionable matches resolved
+
+| Concept | Draft classification | Reviewed classification | Resolution |
+|---|---|---|---|
+| `unit_of_measure` | Close | Exact | SDMX `UNIT_MEASURE` has the same essential meaning. Incomplete code-list coverage is a normalization issue, not a semantic mismatch. |
+| `currency` | Exact value standard | Exact | `schema:currency` supplies the semantic property; ISO 4217 and SDMX `CL_CURRENCY` normalize its values. This removes the draft's mixed classification. |
+| `project_name` | Exact | Standard narrower | `schema:Project` directly covers projects but does not explicitly cover every program, operation, or initiative permitted by v1.1.1. |
+| `project_component` | Close | Standard narrower | Schema.org covers project substructures modeled as organizations, and IATI covers separately reported related activities. Neither covers every workstream or results area. |
+| `location_type` | No direct match | No direct match | IATI supplies a useful feature-designation codelist, but no reviewed cross-domain property defines the broader local concept. |
+| `geographic_granularity` | Close | Close | DDI `GeographicLevel` confirms the hierarchy-level semantics, while the local concept also permits non-administrative reporting levels. |
+| `panel_title` | Close | Close | JATS supports titled figures within figure groups. The mapping does not require normalized panel objects, so the current ordered-title representation remains valid. |
+
+### Approved semantic baseline
+
+1. Preserve the information coverage of all **35 concepts**. Standards review
+   does not justify adding or removing another concept at this stage.
+2. Treat v1.2 as a **multi-standard application profile**. Reuse the best term,
+   structural pattern, or value vocabulary for each concept rather than making
+   Schema.org—or any other single standard—the governing schema.
+3. Keep semantic mappings separate from value normalization. ISO, IETF, UN,
+   SDMX, and IATI code lists constrain values only where they fit; they do not
+   replace the application concepts carried by those values.
+4. Retain clearly named local concepts when no general equivalent exists. A
+   standard carrier such as `DefinedTerm`, a SKOS scheme, or a PROV relation is
+   not itself evidence of semantic equivalence.
+5. Fold the five geographic concepts into one coherent future structure while
+   preserving coverage, entity, granularity, role, and location type as
+   distinct facets.
+6. Replace the overloaded future representation of `data_source` with
+   role-bearing provenance: derivation sources are entities, while credited
+   producers or makers are attributed agents. Parent-document metadata remains
+   outside the snapshot metadata.
+7. Keep `panel_title` as an ordered list in the semantic baseline. Broader
+   composite-figure modeling is deferred until relationships among panels and
+   other fields are designed.
+
+### Decisions deferred beyond the semantic baseline
+
+This baseline does not decide:
+
+- final v1.2 field names or external aliases such as `schema:abstract`,
+  `schema:temporalCoverage`, or `schema:spatialCoverage`;
+- Pydantic nesting, cardinality, unions, identifiers, or validators;
+- the exact controlled values and normalization policies for geography,
+  measures, finance, language, time, or units;
+- whether `measure_type` eventually separates statistical function from any
+  presentation- or unit-related facets;
+- how far optional IATI support extends without making the domain-agnostic core
+  dependent on IATI; or
+- whether evidence in representative composite snapshots later justifies a
+  richer panel model.
 
 ## Authoritative sources consulted
 
