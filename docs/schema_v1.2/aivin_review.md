@@ -1,0 +1,102 @@
+# Data Snapshot Metadata Schema v1.2: Questions for Aivin
+
+Status: Evolving review list
+Date: 2026-09-04
+
+## Purpose
+
+This document collects unresolved concept-design questions for discussion with
+Aivin. It is a meeting aid rather than the schema specification or decision
+record. Working decisions remain documented in
+[`concept_design.md`](concept_design.md), and this list should be updated as
+questions are resolved or new ones arise.
+
+## 1. Composite panel representation
+
+### Question
+
+How much structure should v1.2 use for explicitly titled panels within one data
+snapshot without treating each panel as an independent snapshot or making it
+inherit the entire metadata schema?
+
+### Snapshot evidence
+
+The Validation 2 `panel_metadata_mapping` candidate came from this composite
+UNHCR figure:
+
+- [`protection_trends_paper_no_7_jan-mar_2016_final_figure_004.png`](../../notebooks/schema_validation1/data/snapshots/unhcr/figure/protection_trends_paper_no_7_jan-mar_2016_final_figure_004.png)
+
+It contains four explicitly titled components with different visualization
+types and temporal scopes: a map of known hazardous areas, a donut chart of
+hazard types, a donut chart of Mine Risk Education audiences, and a bar/line
+time series of hazardous areas. Flat lists preserve the values but not their
+panel-specific associations.
+
+A related candidate arose from this Validation 2 calibration snapshot:
+
+- [`161_28046_figure_000.png`](../../notebooks/schema_validation1/data/calibration0/refugee/figure/161_28046_figure_000.png)
+
+The Guinea country profile combines several titled tables and charts with
+different subjects, variables, periods, units, and comparison groups. It shows
+why a fully general component model could expand toward reproducing much of the
+snapshot schema inside every panel.
+
+The adjudicated findings are documented in the
+[Validation 2 report](../../notebooks/schema_validation2/3.0-schema_validation2_report.md)
+and the earlier discussion of composite components appears in the
+[Validation 1 report](../../notebooks/schema_validation1/4.0-schema_validation1_report.md).
+
+### Current working decision
+
+Keep the snapshot as the only unit of analysis. For now:
+
+- rename `panel_title` to the ordered `panel_titles` collection;
+- retain `visualization_types` at snapshot level;
+- populate panel titles only when they are explicitly visible; and
+- do not introduce panel objects, infer untitled panels, or reproduce the
+  broader schema for each panel.
+
+### Options for review
+
+1. **Retain the working flat representation.** Keep ordered `panel_titles` and
+   snapshot-level `visualization_types`, accepting that title-to-type
+   relationships are not encoded.
+2. **Introduce a minimal panel descriptor.** Use a `panels` collection whose
+   entries contain only an explicit `title` and a `visualization_type`. Do not
+   allow subjects, variables, periods, measures, or other snapshot fields in a
+   panel entry.
+3. **Adopt richer panel-specific metadata later.** Defer any broader scoping of
+   subjects, variables, periods, or measures until evidence from the future
+   Schema v1.2 validation exercise justifies it.
+
+### Input requested from Aivin
+
+- Is the lost association between a panel title and its visualization type
+  important enough to justify the minimal descriptor in Option 2?
+- Would Option 2 still preserve the intended boundary that a panel is not an
+  independent data snapshot?
+- If neither is clear, is the flat working representation in Option 1 an
+  acceptable v1.2 default pending validation?
+
+## 2. Application-facing field names
+
+### Question
+
+Should v1.2 keep the proposed application-facing names while documenting
+standards mappings separately, and are the current candidate names clear to
+downstream users?
+
+The complete set of proposed dispositions and names is in the
+[concept disposition matrix](concept_design.md#concept-disposition-matrix).
+Two names currently need particular review:
+
+| v1.1.1 name | Candidate v1.2 name | Reason for the candidate | Input requested |
+|---|---|---|---|
+| `internal_identifier` | `document_label` | The value is a document-local label such as “Figure 3,” not a globally unique identifier. | Does `document_label` express this role clearly, or is another name preferable? |
+| `measure_type` | `variables[].statistical_forms` | The values describe forms such as count, mean, standard deviation, rate, percentage, or index; `measure_type` can be mistaken for the measured concept itself. The approved variable-centric structure permits multiple forms for one variable. | Is `statistical_forms` clear and appropriately broad? |
+
+### Current working decision
+
+Use clear project-facing names in the canonical model and document mappings to
+external vocabularies rather than adopting vocabulary-specific property names
+solely for compliance. Final names remain open pending this review.
