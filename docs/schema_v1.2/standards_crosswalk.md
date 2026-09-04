@@ -1,4 +1,4 @@
-# Data Snapshot Metadata Schema v1.2: Fresh Standards Crosswalk
+# Data Snapshot Metadata Schema v1.2: Standards Crosswalk
 
 Status: Crosswalk review complete; semantic baseline approved
 Date: 2026-09-04
@@ -92,7 +92,7 @@ concept and its best current standards alignment.
   local concept may still be represented using standard carriers and local
   controlled values.
 
-## Fresh concept crosswalk
+## Concept crosswalk
 
 The alignment definitions below are concise paraphrases of the linked
 authoritative sources, limited to the meaning relevant to this comparison.
@@ -135,104 +135,48 @@ authoritative sources, limited to the meaning relevant to this comparison.
 | 34 | `analysis_method` | The analytical, statistical, or computational method used to produce the reported results.<br><br>Populate only when explicitly stated. | No direct cross-domain match | No reviewed term generally represents analytical, statistical, and computational methods used to produce results. | No direct match | Schema.org `measurementTechnique` (related, often narrower in purpose); PROV `Activity` structure | Do not equate regression or difference-in-differences with data-collection or measurement technique. Preserve a local analytical-method term and allow an external URI or scheme when available. |
 | 35 | `data_collection_method` | The method or instrument used to collect the underlying data.<br><br>Populate only when explicitly stated. | DDI [`ModeOfCollection`](https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/datacollection_xsd/complexTypes/ModeOfCollectionType.html) | The mode used to collect data, such as a questionnaire, observation, interview, or automated harvesting. | Exact | [`schema:measurementMethod`](https://schema.org/measurementMethod); SDMX collection-method concepts | DDI supplies the closest definition and controlled vocabulary pattern. Schema.org offers a useful broader publishing property but does not distinguish collection from analysis by itself. |
 
-## Reviewed findings
+## Crosswalk conclusions
 
-1. **The 35-concept baseline is confirmed, but a 35-field flat model is not.**
-   The crosswalk already points toward typed objects for variables, dimensions,
-   geographic entities, provenance entries, projects, and controlled terms.
+The reviewed crosswalk establishes the concept-level baseline for v1.2: the
+information distinctions to preserve and their relationships to external
+standards. It supports the following conclusions:
 
-2. **No single standard covers the application.** DCMI, Schema.org, and DCAT
-   cover general discovery; SDMX and DDI cover statistical semantics; PROV-O
-   covers provenance; IATI covers a subset of development-project and finance
-   concepts. The defensible outcome is therefore a small application profile
-   that reuses terms and patterns from several standards.
+1. **Preserve the coverage of all 35 concepts, but do not assume a flat
+   35-field model.** Typed or nested structures may better preserve
+   relationships among variables, dimensions, geography, provenance, projects,
+   and controlled terms.
+2. **Use a multi-standard application profile.** DCMI, Schema.org, and DCAT
+   support general discovery; SDMX and DDI support statistical semantics;
+   PROV-O supports provenance; and IATI supports selected development-project
+   and finance concepts. No single standard governs the complete application.
+3. **Keep application naming independent of standards naming.** Standard terms
+   may inform definitions and interoperability aliases without becoming the
+   Python field names when a clearer application-facing name is available.
+4. **Keep semantic alignment separate from value normalization.** ISO 8601,
+   ISO 3166, UN M49, ISO 4217, BCP 47, UN/CEFACT Recommendation 20, and selected
+   SDMX or IATI code lists may normalize values without replacing the metadata
+   concepts that carry them. Source-visible labels should be retained where
+   useful.
+5. **Retain justified local concepts.** `geographic_role`, `location_type`,
+   `comparison_group`, `visualization_type`, `intervention_type`,
+   `financial_measure`, `interpretive_note`, and `analysis_method` do not have
+   clean general equivalents and should not be forced into loosely related
+   standard terms.
+6. **Fold geography into a coherent structure while preserving its distinct
+   facets.** Coverage, named entities, granularity, role, and location type
+   remain separate meanings even when represented together.
+7. **Represent provenance with explicit roles.** Derivation sources are
+   entities from which represented data originate, while credited producers or
+   makers are attributed agents. Parent-document metadata remains outside the
+   snapshot metadata.
+8. **Continue to preserve panel titles without requiring panel objects.** A
+   richer composite representation is justified only if later design work
+   shows that another validated concept loses its relationship or meaning.
 
-3. **The geographic area should be folded into one coherent structure.**
-   `geographic_scope`, `geographic_entities`, `geographic_granularity`,
-   `geographic_role`, and `location_type` describe different facets of related
-   places. Schema.org/DCAT provide coverage semantics, DDI provides location and
-   level concepts, and ISO 3166/UN M49 provide selected codes. None alone
-   represents all five distinctions.
-
-4. **Standards alignment does not mean adopting every standard term as a field
-   name.** Some standards are deliberately broad, some are dataset-level rather
-   than snapshot-level, and some offer value codes rather than metadata
-   properties. Pydantic can preserve clear application names while recording
-   interoperability mappings and generating deterministic derivative formats.
-
-5. **Several local concepts remain justified.** `geographic_role`,
-   `location_type`, `comparison_group`, `visualization_type`,
-   `intervention_type`, `financial_measure`, `interpretive_note`, and
-   `analysis_method` do not have clean, general equivalents in the reviewed
-   standards. They should not be renamed to loosely related terms merely to
-   claim compliance.
-
-6. **Normalization is separable from semantic alignment.** ISO 8601, ISO 3166,
-   UN M49, ISO 4217, BCP 47, and UN/CEFACT Recommendation 20 can constrain
-   normalized values while the source label is retained. Exact normalization
-   rules remain a later task.
-
-## Crosswalk review outcome
-
-The mapping and classification review is complete. The resulting semantic
-baseline was approved by the project owner on 2026-09-04.
-
-Here, **semantic baseline** means the agreed concept-level contract: the
-information distinctions that v1.2 must preserve and their relationships to
-external standards. It does not freeze the v1.1.1 field names, exact definition
-wording, or flat representation.
-
-### Questionable matches resolved
-
-| Concept | Draft classification | Reviewed classification | Resolution |
-|---|---|---|---|
-| `unit_of_measure` | Close | Exact | SDMX `UNIT_MEASURE` has the same essential meaning. Incomplete code-list coverage is a normalization issue, not a semantic mismatch. |
-| `currency` | Exact value standard | Exact | `schema:currency` supplies the semantic property; ISO 4217 and SDMX `CL_CURRENCY` normalize its values. This removes the draft's mixed classification. |
-| `project_name` | Exact | Standard narrower | `schema:Project` directly covers projects but does not explicitly cover every program, operation, or initiative permitted by v1.1.1. |
-| `project_component` | Close | Standard narrower | Schema.org covers project substructures modeled as organizations, and IATI covers separately reported related activities. Neither covers every workstream or results area. |
-| `location_type` | No direct match | No direct match | IATI supplies a useful feature-designation codelist, but no reviewed cross-domain property defines the broader local concept. |
-| `geographic_granularity` | Close | Close | DDI `GeographicLevel` confirms the hierarchy-level semantics, while the local concept also permits non-administrative reporting levels. |
-| `panel_title` | Close | Close | JATS supports titled figures within figure groups. The mapping does not require normalized panel objects, so the current ordered-title representation remains valid. |
-
-### Approved semantic baseline
-
-1. Preserve the information coverage of all **35 concepts**. Standards review
-   does not justify adding or removing another concept at this stage.
-2. Treat v1.2 as a **multi-standard application profile**. Reuse the best term,
-   structural pattern, or value vocabulary for each concept rather than making
-   Schema.org—or any other single standard—the governing schema.
-3. Keep semantic mappings separate from value normalization. ISO, IETF, UN,
-   SDMX, and IATI code lists constrain values only where they fit; they do not
-   replace the application concepts carried by those values.
-4. Retain clearly named local concepts when no general equivalent exists. A
-   standard carrier such as `DefinedTerm`, a SKOS scheme, or a PROV relation is
-   not itself evidence of semantic equivalence.
-5. Fold the five geographic concepts into one coherent future structure while
-   preserving coverage, entity, granularity, role, and location type as
-   distinct facets.
-6. Replace the overloaded future representation of `data_source` with
-   role-bearing provenance: derivation sources are entities, while credited
-   producers or makers are attributed agents. Parent-document metadata remains
-   outside the snapshot metadata.
-7. Keep `panel_title` as an ordered list in the semantic baseline. Broader
-   composite-figure modeling is deferred until relationships among panels and
-   other fields are designed.
-
-### Decisions deferred beyond the semantic baseline
-
-This baseline does not decide:
-
-- final v1.2 field names or external aliases such as `schema:abstract`,
-  `schema:temporalCoverage`, or `schema:spatialCoverage`;
-- Pydantic nesting, cardinality, unions, identifiers, or validators;
-- the exact controlled values and normalization policies for geography,
-  measures, finance, language, time, or units;
-- whether `measure_type` eventually separates statistical function from any
-  presentation- or unit-related facets;
-- how far optional IATI support extends without making the domain-agnostic core
-  dependent on IATI; or
-- whether evidence in representative composite snapshots later justifies a
-  richer panel model.
+The crosswalk does not determine final v1.2 names, definitions, nesting,
+cardinalities, validators, controlled values, or serialization aliases. Those
+decisions are taken forward in the
+[`concept_design.md`](concept_design.md) disposition and design matrix.
 
 ## Authoritative sources consulted
 
