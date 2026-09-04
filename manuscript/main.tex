@@ -174,31 +174,23 @@ Figure~\ref{fig:conceptual_relationship} summarizes the relationships among thes
 
 \subsection{Scope}
 
-The proposed methodology addresses the engineering [TODO: Change to "creation"] of an operational metadata schema for previously unsupported multimodal analytical artifacts [TODO: for artifacts that have yet to be associated with a structured schema -- as long as you have a means to analyze it with LLMs]. It does not seek to define a community metadata standard or prescribe long-term governance processes. [TODO: Why not just say "Leverage LLMs in creating ... with human in the loop as part of validation"?] Instead, it focuses on the earlier knowledge engineering activities required to develop an operational metadata schema. Within this scope, ontology engineering serves as an intermediate conceptual activity, while metadata schema engineering additionally addresses deployment concerns such as annotation consistency, usability, and implementation.
+The proposed methodology addresses the development of an operational metadata schema for a class of multimodal analytical artifacts that lacks a dedicated operational schema or directly adoptable metadata profile. Existing standards and vocabularies may still provide applicable terms. The task is to identify, consolidate, define, and operationalize descriptive requirements grounded in representative artifacts.
 
-The proposed methodology also excludes metadata extraction. Metadata extraction assumes that an operational metadata schema already exists and seeks to populate its fields from previously unseen data snapshots. In contrast, this work addresses the earlier problem of engineering an operational metadata schema. As illustrated in Figure~\ref{fig:conceptual_relationship}, the proposed methodology concludes with the metadata schema. Metadata extraction and downstream applications therefore fall outside the scope of this work.
+As illustrated in Figure~\ref{fig:conceptual_relationship}, the proposed methodology concludes with an operational metadata schema evaluated against held-out artifacts. Metadata extraction and downstream applications therefore fall outside the scope of this work. Subsequent activities that adapt the schema to specific technical or interoperability requirements are also outside the paper's boundary.
 
 \subsection{Problem definition}
 
-Engineering [TODO: Reduce "engineering" to "developing" or "creating"] metadata schemas for mature domains [TODO: Reword "mature domains"] often benefits from established metadata standards, community conventions, and extensive domain knowledge. Emerging types of multimodal analytical artifacts, however, often lack dedicated metadata schemas despite becoming increasingly important units of analysis across institutional documents.
-
-[TODO: Framing: Coming from an engineering and AI background, how would you streamline the different processes?]
-
-[TODO: We should argue: We are trying to discover what data snapshots are. Unlike the "usual" stuff like documents, pictures, etc. whose properties are already defined and clear, in contrast, data snapshots are novel objects that we have yet to understand the extent of its characteristics. We want to mine its properties and this is the solution. This is the driving case for the paper.]
-
-[TODO: Mental model: we have an objective to create a schema. One approach is to sit down and define it. But how about the long-tail that we won't be able to think of that are equally important?]
+Schema development for established resource types can draw on mature standards, shared conventions, and accumulated domain knowledge. When an artifact class is not yet adequately characterized, its descriptive requirements cannot be assumed in advance. Defining fields solely from expert expectations or a small number of salient examples may omit less frequent properties that remain important for interpretation or discovery. The schema must therefore be grounded in evidence from representative artifacts before a shared vocabulary is fixed.
 
 We therefore consider the following problem:
 
 \begin{quote}
-Given a representative collection of multimodal analytical artifacts for which no dedicated metadata schema exists, how can human experts engineer an operational metadata schema suitable for metadata annotation and downstream applications?
+Given a representative collection of multimodal analytical artifacts for which no dedicated operational metadata schema exists, how can an operational metadata schema be systematically developed from artifact-level evidence?
 \end{quote}
 
-[TODO: Clarify "unsupported": Here, an artifact type is considered unsupported when it lacks a dedicated operational metadata schema or directly adoptable metadata profile; this does not imply that relevant concepts are absent from existing metadata standards or vocabularies.]
+This problem presents four challenges. First, the relevant metadata space is initially unknown. Second, artifact-level observations are heterogeneous and local; they must be aggregated and consolidated while retaining traceability to their source artifacts. Third, the resulting concept inventory must be translated into fields, definitions, and guidance suitable for consistent use. Finally, the completed schema must be evaluated on held-out artifacts without treating every rare semantic distinction as evidence for a new field.
 
-This problem is challenging for two reasons. First, the conceptual metadata space is initially unknown, requiring experts to identify candidate metadata concepts before they can organize or standardize them. Second, the resulting schema must translate this conceptual understanding into a deployment-ready specification that balances semantic expressiveness with practical considerations such as annotation consistency, retrieval utility, and long-term maintainability.
-
-We investigate whether metadata schema engineering can be decomposed into a sequence of complementary knowledge engineering tasks that combine multimodal LLMs with expert review. The proposed methodology assigns multimodal LLMs to structured metadata discovery and conceptual abstraction while reserving ontology engineering, metadata schema engineering, and final conceptual decisions for human experts.
+We address these challenges by decomposing metadata schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support artifact interpretation, broad metadata discovery, semantic consolidation, and structured gap analysis. Human experts retain responsibility for scope, conceptual boundaries, operational schema design, and the adjudication of validation evidence.
 
 The following section presents the proposed methodology.
 
