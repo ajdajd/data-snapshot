@@ -8,17 +8,23 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+import data_snapshot.metadata_schema.generation as schema_generation
 from data_snapshot.metadata_schema import (
     ControlledTerm,
+    Currency,
     DataSnapshotMetadata,
     Dimension,
+    Language,
+    Place,
     StatisticalFormTerm,
     TemporalExpression,
+    Unit,
     Variable,
 )
 from data_snapshot.metadata_schema.generation import (
     render_json_schema,
     render_markdown_reference,
+    serialize_metadata_schema,
     write_schema_artifacts,
 )
 
@@ -162,6 +168,14 @@ def test_standard_formats_and_cross_field_constraints_are_enforced() -> None:
         DataSnapshotMetadata(
             geographic_coverage={"scope": {"name": "Philippines", "country_code": "ph"}}
         )
+    with pytest.raises(ValidationError, match="String should match pattern"):
+        Currency(source_text="peso", code="php")
+    with pytest.raises(ValidationError, match="String should match pattern"):
+        Unit(source_text="kilograms", code="TOOLONG")
+    with pytest.raises(ValidationError, match="String should match pattern"):
+        Place(name="Africa", m49_code="00X")
+    with pytest.raises(ValidationError, match="canonical BCP 47 casing"):
+        Language(tag="EN-us")
     with pytest.raises(ValidationError, match="requires a scheme"):
         ControlledTerm(source_text="Mean", code="MEAN")
     with pytest.raises(ValidationError, match="interval requires start and end"):
@@ -177,6 +191,13 @@ def test_standard_formats_and_cross_field_constraints_are_enforced() -> None:
             start="2020-02-31",
             relation="point",
             precision="day",
+        )
+    with pytest.raises(ValidationError, match="does not match datetime"):
+        TemporalExpression(
+            source_text="1 January 2020 at noon UTC",
+            start="2020-01-01 12:00:00+00:00",
+            relation="point",
+            precision="datetime",
         )
 
 
@@ -252,12 +273,35 @@ def test_generation_is_deterministic_and_matches_written_files(tmp_path: Path) -
     first_markdown = render_markdown_reference()
     assert first_json == render_json_schema()
     assert first_markdown == render_markdown_reference()
-    assert json.loads(first_json)["x-schema-version"] == "1.2"
+    schema = json.loads(first_json)
+    assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
+    assert schema["x-schema-version"] == "1.2"
+    assert len(schema["properties"]) == 20
+    assert schema["properties"]["title"]["x-standards"]
     assert "source_document_title" not in first_json
     assert "<!-- Generated from DataSnapshotMetadata." in first_markdown
+    assert "Parameters\n----------" not in first_markdown
 
     json_path = tmp_path / "schema.json"
     markdown_path = tmp_path / "reference.md"
     write_schema_artifacts(json_path, markdown_path)
     assert json_path.read_text(encoding="utf-8") == first_json
     assert markdown_path.read_text(encoding="utf-8") == first_markdown
+
+
+def test_serialized_schema_is_cached_for_repeated_use() -> None:
+    """Schema serialization is computed once and reused within a process."""
+    schema_generation._metadata_schema.cache_clear()
+    serialize_metadata_schema.cache_clear()
+
+    first = serialize_metadata_schema()
+    second = serialize_metadata_schema()
+    render_json_schema()
+    render_markdown_reference()
+
+    assert first is second
+    assert serialize_metadata_schema.cache_info().misses == 1
+    assert serialize_metadata_schema.cache_info().hits == 1
+    assert schema_generation._metadata_schema.cache_info().misses == 1
+    assert schema_generation._metadata_schema.cache_info().hits == 2
+    assert json.loads(first)["x-schema-version"] == "1.2"

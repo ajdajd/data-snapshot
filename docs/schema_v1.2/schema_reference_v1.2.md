@@ -4,49 +4,6 @@
 
 Represent canonical semantic metadata for one data snapshot.
 
-Parameters
-----------
-title : str | None
-    Primary title, caption, or heading.
-document_label : str | None
-    Label assigned within the parent source document.
-subject_domains : list[ControlledTerm] | None
-    Broad thematic, policy, or sectoral domains.
-subject_summary : str | None
-    Concise analytical summary.
-panel_titles : list[str] | None
-    Ordered explicit panel titles.
-variables : list[Variable] | None
-    Measured concepts and their qualifiers.
-dimensions : list[Dimension] | None
-    Classificatory dimensions and visible organization.
-population_group : ControlledTerm | None
-    Human population represented by the data.
-visualization_types : list[VisualizationTypeTerm] | None
-    Visible visualization forms.
-temporal_coverage : TemporalCoverage | None
-    Represented-data time and granularity.
-geographic_coverage : GeographicCoverage | None
-    Geographic scope, locations, and level.
-comparisons : list[str] | None
-    Explicit comparisons or named comparators.
-provenance : Provenance | None
-    Derivation sources and artifact attributions.
-languages : list[Language] | None
-    Languages used within the snapshot.
-interpretive_notes : list[str] | None
-    Complete source-visible interpretive statements.
-project : Project | None
-    Associated project or operational context.
-intervention_types : list[ControlledTerm] | None
-    Represented interventions or activities.
-financing : Financing | None
-    Project-financing context.
-analysis_methods : list[ControlledTerm] | None
-    Explicit analytical methods.
-data_collection_methods : list[ControlledTerm] | None
-    Explicit data-collection methods.
-
 Schema version: `1.2`
 
 ## Snapshot fields
@@ -84,15 +41,6 @@ Identify an explicitly stated analytical or axis role.
 
 Represent a named agent and its explicit attribution role.
 
-Parameters
-----------
-name : str
-    Source-visible credited-agent name.
-identifiers : list[Identifier] | None
-    Assigned identifiers for the agent.
-role : ControlledTerm
-    Open, source-grounded attribution role.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `name` | `string` | yes | — | Source-visible entity name. |  |
@@ -103,13 +51,6 @@ role : ControlledTerm
 
 Represent one explicit nonrecursive category grouping.
 
-Parameters
-----------
-name : str
-    Explicit group heading.
-categories : list[ControlledTerm]
-    Categories directly contained by the group.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `name` | `string` | yes | — | Explicit category-group heading. |  |
@@ -118,19 +59,6 @@ categories : list[ControlledTerm]
 ## ControlledTerm
 
 Represent a source-grounded term with optional normalization.
-
-Parameters
-----------
-source_text : str | None
-    Faithful source-visible expression.
-normalized_value : str | None
-    Preferred application or vocabulary value.
-code : str | None
-    Code in the named scheme.
-scheme : str | None
-    Code-list or vocabulary identifier.
-uri : AnyUrl | None
-    Authoritative URI for the represented concept.
 
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
@@ -144,13 +72,6 @@ uri : AnyUrl | None
 
 Represent a displayed currency and optional ISO 4217 code.
 
-Parameters
-----------
-source_text : str
-    Displayed currency expression.
-code : str | None
-    Uppercase ISO 4217 alphabetic code.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `source_text` | `string` | yes | — | Displayed currency expression. |  |
@@ -159,17 +80,6 @@ code : str | None
 ## Dimension
 
 Represent a classificatory dimension and its visible organization.
-
-Parameters
-----------
-name : str
-    Dimension name.
-categories : list[ControlledTerm] | None
-    Ordered ungrouped categories.
-category_groups : list[CategoryGroup] | None
-    One level of explicit category groups.
-presentation_roles : list[PresentationRole] | None
-    Explicit row and/or column roles.
 
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
@@ -182,13 +92,6 @@ presentation_roles : list[PresentationRole] | None
 
 Represent a named project, organization, source, or component.
 
-Parameters
-----------
-name : str
-    Source-visible entity name.
-identifiers : list[Identifier] | None
-    Assigned identifiers for the entity.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `name` | `string` | yes | — | Source-visible entity name. |  |
@@ -197,15 +100,6 @@ identifiers : list[Identifier] | None
 ## Financing
 
 Group project-financing measures, funders, and instruments.
-
-Parameters
-----------
-measures : list[ControlledTerm] | None
-    Financial quantities or funding-related measures.
-funders : list[EntityReference] | None
-    Named funding sources.
-instruments : list[ControlledTerm] | None
-    Financing mechanisms.
 
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
@@ -217,15 +111,6 @@ instruments : list[ControlledTerm] | None
 
 Group overall geographic scope, locations, and reporting level.
 
-Parameters
-----------
-scope : Place | None
-    Overall geographic coverage or focus.
-locations : list[GeographicLocation] | None
-    Additional named locations.
-level : GeographicLevelTerm | None
-    Administrative, geographic, or reporting level.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `scope` | `Place \| null` | no | `null` | Overall geographic coverage or focus. |  |
@@ -235,19 +120,6 @@ level : GeographicLevelTerm | None
 ## GeographicLevelTerm
 
 Represent a known or source-only geographic reporting level.
-
-Parameters
-----------
-source_text : str | None
-    Faithful source-visible expression.
-normalized_value : GeographicLevelValue | None
-    Approved normalized geographic level.
-code : str | None
-    Code in the named scheme.
-scheme : str | None
-    Code-list or vocabulary identifier.
-uri : AnyUrl | None
-    Authoritative URI for the represented concept.
 
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
@@ -267,25 +139,6 @@ Enumerate approved normalized geographic levels.
 
 Represent an additional named location and its optional role and type.
 
-Parameters
-----------
-source_text : str | None
-    Displayed place expression.
-name : str | None
-    Preferred place name.
-country_code : str | None
-    ISO 3166-1 alpha-2 country code.
-subdivision_code : str | None
-    ISO 3166-2 subdivision code.
-m49_code : str | None
-    UN M49 statistical-area code.
-identifiers : list[Identifier] | None
-    Other authoritative identifiers.
-role : ControlledTerm | None
-    Explicit source-grounded geographic role.
-type : ControlledTerm | None
-    Physical or administrative location type.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `source_text` | `string \| null` | no | `null` | Displayed place expression. |  |
@@ -301,17 +154,6 @@ type : ControlledTerm | None
 
 Represent an assigned identifier and its optional authority context.
 
-Parameters
-----------
-value : str
-    Identifier exactly as assigned.
-scheme : str | None
-    Identifier scheme, when known.
-issuer : str | None
-    Issuing agent, when known.
-uri : AnyUrl | None
-    Authoritative absolute URI for the identifier.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `value` | `string` | yes | — | Identifier exactly as assigned. |  |
@@ -323,13 +165,6 @@ uri : AnyUrl | None
 
 Represent a snapshot language using source text and/or BCP 47.
 
-Parameters
-----------
-source_text : str | None
-    Displayed language label, when present.
-tag : str | None
-    Canonical BCP 47 language tag.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `source_text` | `string \| null` | no | `null` | Displayed language label, when present. |  |
@@ -338,21 +173,6 @@ tag : str | None
 ## Place
 
 Represent a source-grounded place with optional standard identifiers.
-
-Parameters
-----------
-source_text : str | None
-    Displayed place expression.
-name : str | None
-    Preferred place name.
-country_code : str | None
-    ISO 3166-1 alpha-2 country code.
-subdivision_code : str | None
-    ISO 3166-2 subdivision code.
-m49_code : str | None
-    UN M49 statistical-area code.
-identifiers : list[Identifier] | None
-    Other authoritative identifiers.
 
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
@@ -373,15 +193,6 @@ Identify a dimension's explicit table-presentation role.
 
 Represent project, program, operation, or initiative context.
 
-Parameters
-----------
-name : str | None
-    Associated project-context name.
-identifiers : list[Identifier] | None
-    Formal project or operation identifiers.
-components : list[EntityReference] | None
-    Explicitly identified subordinate components.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `name` | `string \| null` | no | `null` | Associated project-context name. |  |
@@ -392,13 +203,6 @@ components : list[EntityReference] | None
 
 Separate derivation sources from credited agents.
 
-Parameters
-----------
-sources : list[EntityReference] | None
-    Entities from which represented data derive.
-attributions : list[Attribution] | None
-    Agents explicitly credited for the snapshot artifact.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `sources` | `array[EntityReference] \| null` | no | `null` | Represented-data derivation sources. |  |
@@ -407,19 +211,6 @@ attributions : list[Attribution] | None
 ## StatisticalFormTerm
 
 Represent a known or source-only statistical form.
-
-Parameters
-----------
-source_text : str | None
-    Faithful source-visible expression.
-normalized_value : StatisticalFormValue | None
-    Approved normalized statistical form.
-code : str | None
-    Code in the named scheme.
-scheme : str | None
-    Code-list or vocabulary identifier.
-uri : AnyUrl | None
-    Authoritative URI for the represented concept.
 
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
@@ -439,13 +230,6 @@ Enumerate approved normalized statistical forms.
 
 Group represented-data time and granularity.
 
-Parameters
-----------
-period : TemporalExpression | None
-    Represented-data temporal expression.
-granularity : TemporalGranularityTerm | None
-    Reporting interval or temporal resolution.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `period` | `TemporalExpression \| null` | no | `null` | Represented-data temporal expression. |  |
@@ -454,19 +238,6 @@ granularity : TemporalGranularityTerm | None
 ## TemporalExpression
 
 Represent source-visible time with optional normalized bounds.
-
-Parameters
-----------
-source_text : str
-    Complete source expression.
-start : str | None
-    Normalized starting value.
-end : str | None
-    Normalized ending value.
-relation : TemporalRelation | None
-    Relationship between the normalized bounds.
-precision : TemporalPrecision | None
-    Precision shared by the normalized bounds.
 
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
@@ -479,19 +250,6 @@ precision : TemporalPrecision | None
 ## TemporalGranularityTerm
 
 Represent a known or source-only temporal granularity.
-
-Parameters
-----------
-source_text : str | None
-    Faithful source-visible expression.
-normalized_value : TemporalGranularityValue | None
-    Approved normalized temporal granularity.
-code : str | None
-    Code in the named scheme.
-scheme : str | None
-    Code-list or vocabulary identifier.
-uri : AnyUrl | None
-    Authoritative URI for the represented concept.
 
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
@@ -523,15 +281,6 @@ Describe how normalized temporal bounds form an expression.
 
 Represent a displayed unit and its optional normalized qualifiers.
 
-Parameters
-----------
-source_text : str
-    Displayed unit expression.
-code : str | None
-    Exact UN/CEFACT Recommendation 20 code.
-multiplier_exponent : int | None
-    SDMX unit-multiplier exponent.
-
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
 | `source_text` | `string` | yes | — | Displayed unit expression. |  |
@@ -541,19 +290,6 @@ multiplier_exponent : int | None
 ## Variable
 
 Represent a measured variable and its applicable qualifiers.
-
-Parameters
-----------
-name : str
-    Explicitly named variable, indicator, metric, or measured concept.
-unit : Unit | None
-    Applicable unit.
-currency : Currency | None
-    Applicable currency.
-analytical_roles : list[AnalyticalRole] | None
-    Explicit analytical or axis roles.
-statistical_forms : list[StatisticalFormTerm] | None
-    Applicable statistical forms.
 
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|
@@ -566,19 +302,6 @@ statistical_forms : list[StatisticalFormTerm] | None
 ## VisualizationTypeTerm
 
 Represent a known or source-only visualization type.
-
-Parameters
-----------
-source_text : str | None
-    Faithful source-visible expression.
-normalized_value : VisualizationTypeValue | None
-    Approved normalized visualization type.
-code : str | None
-    Code in the named scheme.
-scheme : str | None
-    Code-list or vocabulary identifier.
-uri : AnyUrl | None
-    Authoritative URI for the represented concept.
 
 | Field | Type | Required | Default | Description | Standards |
 |---|---|---:|---|---|---|

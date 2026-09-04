@@ -35,9 +35,14 @@ NonEmptyText = Annotated[
 _BCP47_PATTERN = re.compile(
     r"^(?:[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*|x(?:-[A-Za-z0-9]{1,8})+)$"
 )
-_YEAR_PATTERN = re.compile(r"^\d{4}$")
-_MONTH_PATTERN = re.compile(r"^\d{4}-(?:0[1-9]|1[0-2])$")
-_DAY_PATTERN = re.compile(r"^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$")
+_YEAR_PATTERN = re.compile(r"^[0-9]{4}$")
+_MONTH_PATTERN = re.compile(r"^[0-9]{4}-(?:0[1-9]|1[0-2])$")
+_DAY_PATTERN = re.compile(r"^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$")
+_DATETIME_PATTERN = re.compile(
+    r"^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])"
+    r"T(?:[01][0-9]|2[0-3]):[0-5][0-9]"
+    r"(?::[0-5][0-9](?:[.,][0-9]+)?)?(?:Z|[+-][0-9]{2}:[0-5][0-9])$"
+)
 
 
 def _standards(*mappings: tuple[str, str]) -> dict[str, object]:
@@ -680,7 +685,7 @@ def _validate_temporal_value(value: str, precision: TemporalPrecision) -> None:
     if precision is TemporalPrecision.DAY and _DAY_PATTERN.fullmatch(value):
         date.fromisoformat(value)
         return
-    if precision is TemporalPrecision.DATETIME:
+    if precision is TemporalPrecision.DATETIME and _DATETIME_PATTERN.fullmatch(value):
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
         if parsed.tzinfo is not None:
             return
@@ -763,7 +768,7 @@ class Place(_SchemaModel):
         ),
     )
     m49_code: (
-        Annotated[str, StringConstraints(strict=True, pattern=r"^\d{3}$")] | None
+        Annotated[str, StringConstraints(strict=True, pattern=r"^[0-9]{3}$")] | None
     ) = Field(
         default=None,
         description="UN M49 statistical-area code.",
@@ -981,6 +986,7 @@ class DataSnapshotMetadata(_SchemaModel):
         extra="forbid",
         title="Data Snapshot Metadata Schema v1.2",
         json_schema_extra={
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
             "x-schema-version": "1.2",
             "x-status": "implementation",
         },

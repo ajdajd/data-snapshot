@@ -569,7 +569,7 @@
         "m49_code": {
           "anyOf": [
             {
-              "pattern": "^\\d{3}$",
+              "pattern": "^[0-9]{3}$",
               "type": "string"
             },
             {
@@ -804,7 +804,7 @@
         "m49_code": {
           "anyOf": [
             {
-              "pattern": "^\\d{3}$",
+              "pattern": "^[0-9]{3}$",
               "type": "string"
             },
             {
@@ -1538,6 +1538,7 @@
       "type": "string"
     }
   },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Represent canonical semantic metadata for one data snapshot.\n\nParameters\n----------\ntitle : str | None\n    Primary title, caption, or heading.\ndocument_label : str | None\n    Label assigned within the parent source document.\nsubject_domains : list[ControlledTerm] | None\n    Broad thematic, policy, or sectoral domains.\nsubject_summary : str | None\n    Concise analytical summary.\npanel_titles : list[str] | None\n    Ordered explicit panel titles.\nvariables : list[Variable] | None\n    Measured concepts and their qualifiers.\ndimensions : list[Dimension] | None\n    Classificatory dimensions and visible organization.\npopulation_group : ControlledTerm | None\n    Human population represented by the data.\nvisualization_types : list[VisualizationTypeTerm] | None\n    Visible visualization forms.\ntemporal_coverage : TemporalCoverage | None\n    Represented-data time and granularity.\ngeographic_coverage : GeographicCoverage | None\n    Geographic scope, locations, and level.\ncomparisons : list[str] | None\n    Explicit comparisons or named comparators.\nprovenance : Provenance | None\n    Derivation sources and artifact attributions.\nlanguages : list[Language] | None\n    Languages used within the snapshot.\ninterpretive_notes : list[str] | None\n    Complete source-visible interpretive statements.\nproject : Project | None\n    Associated project or operational context.\nintervention_types : list[ControlledTerm] | None\n    Represented interventions or activities.\nfinancing : Financing | None\n    Project-financing context.\nanalysis_methods : list[ControlledTerm] | None\n    Explicit analytical methods.\ndata_collection_methods : list[ControlledTerm] | None\n    Explicit data-collection methods.",
   "properties": {

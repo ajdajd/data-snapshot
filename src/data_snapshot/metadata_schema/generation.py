@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +18,23 @@ _DEFAULT_JSON_PATH = (
 _DEFAULT_MARKDOWN_PATH = _ROOT / "docs/schema_v1.2/schema_reference_v1.2.md"
 
 
+@cache
+def _metadata_schema() -> dict[str, Any]:
+    return DataSnapshotMetadata.model_json_schema(mode="validation")
+
+
+@cache
+def serialize_metadata_schema() -> str:
+    """Serialize the canonical metadata schema once per process.
+
+    Returns
+    -------
+    str
+        Compact JSON suitable for repeated use as model input context.
+    """
+    return json.dumps(_metadata_schema(), ensure_ascii=False, separators=(",", ":"))
+
+
 def render_json_schema() -> str:
     """Render the canonical model's JSON Schema deterministically.
 
@@ -25,7 +43,7 @@ def render_json_schema() -> str:
     str
         Pretty-printed JSON Schema with one trailing newline.
     """
-    schema = DataSnapshotMetadata.model_json_schema(mode="validation")
+    schema = _metadata_schema()
     return json.dumps(schema, ensure_ascii=False, indent=2) + "\n"
 
 
@@ -37,13 +55,15 @@ def render_markdown_reference() -> str:
     str
         Markdown reference with one trailing newline.
     """
-    schema = DataSnapshotMetadata.model_json_schema(mode="validation")
+    schema = _metadata_schema()
     lines = [
         "# Data Snapshot Metadata Schema v1.2 Reference",
         "",
         "<!-- Generated from DataSnapshotMetadata. Do not edit manually. -->",
         "",
-        schema.get("description", "Canonical metadata for one data snapshot."),
+        _summary(
+            schema.get("description", "Canonical metadata for one data snapshot.")
+        ),
         "",
         f"Schema version: `{schema['x-schema-version']}`",
         "",
@@ -55,7 +75,7 @@ def render_markdown_reference() -> str:
         lines.extend(["", f"## {name}", ""])
         description = definition.get("description")
         if description:
-            lines.extend([description.strip(), ""])
+            lines.extend([_summary(description), ""])
         if "enum" in definition:
             lines.append(", ".join(f"`{value}`" for value in definition["enum"]))
         elif definition.get("type") == "object":
@@ -138,6 +158,10 @@ def _type_label(schema: dict[str, Any]) -> str:
 
 def _cell(value: str) -> str:
     return " ".join(value.split()).replace("|", "\\|")
+
+
+def _summary(value: str) -> str:
+    return value.strip().split("\n\n", 1)[0]
 
 
 def main() -> None:
