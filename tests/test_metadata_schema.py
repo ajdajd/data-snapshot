@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator, FormatChecker
 from pydantic import ValidationError
 
 import data_snapshot.metadata_schema.generation as schema_generation
@@ -15,6 +16,7 @@ from data_snapshot.metadata_schema import (
     DataSnapshotMetadata,
     Dimension,
     Language,
+    Identifier,
     Place,
     StatisticalFormTerm,
     TemporalExpression,
@@ -305,3 +307,231 @@ def test_serialized_schema_is_cached_for_repeated_use() -> None:
     assert schema_generation._metadata_schema.cache_info().misses == 1
     assert schema_generation._metadata_schema.cache_info().hits == 2
     assert json.loads(first)["x-schema-version"] == "1.2"
+
+
+@pytest.mark.parametrize(
+    "tag",
+    [
+        "en-a",
+        "en-US-US",
+        "de-DE-1901-1901",
+        "en-a-foo-a-bar",
+        "en-Latn-Latn",
+        "en-x",
+        "en-u-x-foo",
+    ],
+)
+def test_malformed_language_tags_are_rejected(tag: str) -> None:
+    """Reject broken grammar and repeated variants or extension singletons.
+
+    Parameters
+    ----------
+    tag : str
+        Malformed language tag.
+    """
+    with pytest.raises(ValidationError):
+        Language(tag=tag)
+
+
+@pytest.mark.parametrize(
+    "tag",
+    [
+        "en",
+        "zh-Hant-TW",
+        "de-CH-1901",
+        "en-u-ca-gregory",
+        "en-a-foo-b-bar",
+        "x-private-private",
+        "en-x-a-a",
+        "i-default",
+        "sgn-BE-FR",
+    ],
+)
+def test_valid_language_tag_shapes_are_preserved(tag: str) -> None:
+    """Accept ordinary, extended, private-use, and grandfathered tag shapes.
+
+    Parameters
+    ----------
+    tag : str
+        Well-formed tag in the expected casing.
+    """
+    assert Language(tag=tag).tag == tag
+
+
+@pytest.mark.parametrize(
+    "uri",
+    [
+        "https://example.org/%ZZ",
+        "https://example.org/a\nb",
+        "https://example.org/a b",
+        " https://example.org",
+        "https://example.org/%",
+        "https://example.org/[x]",
+        "https://example.org/a#b#c",
+        "https://example.org/a\\b",
+    ],
+)
+def test_invalid_uri_spelling_is_rejected_before_normalization(uri: str) -> None:
+    """Apply the original-input URI guard to both public URI-bearing models.
+
+    Parameters
+    ----------
+    uri : str
+        Invalid URI spelling that must not be silently repaired.
+    """
+    for model, data in [
+        (ControlledTerm, {"uri": uri}),
+        (Identifier, {"value": "id", "uri": uri}),
+    ]:
+        with pytest.raises(ValidationError):
+            model.model_validate(data)
+
+
+@pytest.mark.parametrize(
+    "uri",
+    [
+        "https://example.org/a%20b",
+        "urn:isbn:9780141036144",
+        "https://[2001:db8::1]/a?b=c#d",
+        "mailto:person@example.org",
+    ],
+)
+def test_valid_absolute_uris_remain_usable(uri: str) -> None:
+    """Retain ordinary absolute identifiers including non-HTTP schemes.
+
+    Parameters
+    ----------
+    uri : str
+        Valid absolute URI.
+    """
+    assert str(ControlledTerm(uri=uri).uri) == uri
+
+
+@pytest.mark.parametrize("fraction", [".1", ".12", ".123", ".1234", ".1234567", ",123"])
+def test_fractional_timestamps_preserve_source_precision(fraction: str) -> None:
+    """Accept supported fractions on Python 3.10 without changing their text.
+
+    Parameters
+    ----------
+    fraction : str
+        Fractional-second suffix.
+    """
+    start = f"2020-01-01T12:00:00{fraction}Z"
+    record = TemporalExpression(
+        source_text=start, start=start, relation="point", precision="datetime"
+    )
+    assert record.start == start
+
+
+def test_fractional_interval_ordering_is_exact_across_offsets() -> None:
+    """Compare sub-microsecond fractions and timezone offsets without rounding."""
+    values = dict(source_text="interval", relation="interval", precision="datetime")
+    TemporalExpression(
+        **values,
+        start="2020-01-01T08:00:00.12345671+08:00",
+        end="2020-01-01T00:00:00.12345672Z",
+    )
+    with pytest.raises(ValidationError, match="after end"):
+        TemporalExpression(
+            **values,
+            start="2020-01-01T08:00:00.12345672+08:00",
+            end="2020-01-01T00:00:00.12345671Z",
+        )
+
+
+@pytest.mark.parametrize(
+    "record, valid",
+    [
+        ({}, True),
+        ({"title": None}, True),
+        ({"title": "   "}, False),
+        ({"project": {}}, False),
+        ({"project": {"name": None}}, False),
+        ({"project": {"name": "Project"}}, True),
+        ({"subject_domains": [{"code": "X"}]}, False),
+        ({"subject_domains": [{"code": "X", "scheme": None}]}, False),
+        ({"subject_domains": [{"code": "X", "scheme": "local"}]}, True),
+        ({"subject_domains": [{"source_text": "Domain", "code": None}]}, True),
+        ({"geographic_coverage": {"scope": {"country_code": "PH"}}}, False),
+        ({"languages": [{"source_text": None, "tag": None}]}, False),
+        ({"languages": [{"tag": "en-a"}]}, False),
+    ],
+)
+def test_exported_structural_constraints_match_python(
+    record: dict[str, object], valid: bool
+) -> None:
+    """Check exported rules using an independent Draft 2020-12 validator.
+
+    Parameters
+    ----------
+    record : dict[str, object]
+        Metadata record exercising a conditional constraint.
+    valid : bool
+        Expected acceptance by both validators.
+    """
+    schema = DataSnapshotMetadata.model_json_schema()
+    Draft202012Validator.check_schema(schema)
+    assert (
+        Draft202012Validator(schema, format_checker=FormatChecker()).is_valid(record)
+        is valid
+    )
+    if valid:
+        DataSnapshotMetadata.model_validate(record)
+    else:
+        with pytest.raises(ValidationError):
+            DataSnapshotMetadata.model_validate(record)
+
+
+def test_exported_temporal_constraints_match_python() -> None:
+    """Exercise null, omission, relation, and precision combinations independently."""
+    validator = Draft202012Validator(TemporalExpression.model_json_schema())
+    for relation in [None, "point", "as_of", "interval", "open_interval"]:
+        for precision in [None, "year", "day"]:
+            for start in [None, "2020"]:
+                for end in [None, "2021"]:
+                    data = dict(
+                        source_text="time",
+                        start=start,
+                        end=end,
+                        relation=relation,
+                        precision=precision,
+                    )
+                    try:
+                        TemporalExpression.model_validate(data)
+                        valid = True
+                    except ValidationError:
+                        valid = False
+                    assert validator.is_valid(data) is valid, data
+                    assert (
+                        validator.is_valid(
+                            {k: v for k, v in data.items() if v is not None}
+                        )
+                        is valid
+                    ), data
+
+
+def test_reference_explains_constraints_and_mapping_locations() -> None:
+    """Expose schema limits and preserve standards mappings on their actual fields."""
+    reference = render_markdown_reference()
+    for text in [
+        "minItems: 1",
+        "code requires a non-null scheme",
+        "exclude_none=True",
+        "calendar dates",
+        "not pinned; syntax only",
+        "CL_UNIT_MULT",
+    ]:
+        assert text in reference
+    schema = DataSnapshotMetadata.model_json_schema()
+    assert "x-standards" not in schema["properties"]["financing"]
+    definitions = schema["$defs"]
+    assert definitions["Financing"]["properties"]["funders"]["x-standards"] == [
+        {"term": "https://schema.org/funder", "relationship": "exact"}
+    ]
+    for name, field in [
+        ("Variable", "statistical_forms"),
+        ("Variable", "unit"),
+        ("Provenance", "sources"),
+        ("Provenance", "attributions"),
+    ]:
+        assert definitions[name]["properties"][field]["x-standards"]

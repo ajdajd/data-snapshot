@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from datetime import date, datetime
+from decimal import Decimal
 from enum import Enum
 from typing import Annotated, Any
 
@@ -15,6 +16,7 @@ from pydantic import (
     ConfigDict,
     Field,
     StringConstraints,
+    WithJsonSchema,
     field_validator,
     model_validator,
 )
@@ -28,12 +30,47 @@ def _normalize_text(value: Any) -> Any:
 
 NonEmptyText = Annotated[
     str,
+    StringConstraints(strict=True, min_length=1, pattern=r"\S"),
     BeforeValidator(_normalize_text),
-    StringConstraints(strict=True, min_length=1),
 ]
 
+# RFC 5646 section 2.1; registry membership remains a separate concern.
+_GRANDFATHERED_TAGS = (
+    "en-GB-oed",
+    "i-ami",
+    "i-bnn",
+    "i-default",
+    "i-enochian",
+    "i-hak",
+    "i-klingon",
+    "i-lux",
+    "i-mingo",
+    "i-navajo",
+    "i-pwn",
+    "i-tao",
+    "i-tay",
+    "i-tsu",
+    "sgn-BE-FR",
+    "sgn-BE-NL",
+    "sgn-CH-DE",
+    "art-lojban",
+    "cel-gaulish",
+    "no-bok",
+    "no-nyn",
+    "zh-guoyu",
+    "zh-hakka",
+    "zh-min",
+    "zh-min-nan",
+    "zh-xiang",
+)
 _BCP47_PATTERN = re.compile(
-    r"^(?:[A-Za-z]{2,8}(?:-[A-Za-z0-9]{1,8})*|x(?:-[A-Za-z0-9]{1,8})+)$"
+    r"^(?:(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}){0,3}|[A-Za-z]{4}|[A-Za-z]{5,8})"
+    r"(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|[0-9]{3}))?"
+    r"(?:-(?:[A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*"
+    r"(?:-[0-9A-WY-Za-wy-z](?:-[A-Za-z0-9]{2,8})+)*"
+    r"(?:-[xX](?:-[A-Za-z0-9]{1,8})+)?|[xX](?:-[A-Za-z0-9]{1,8})+|"
+    + "|".join(_GRANDFATHERED_TAGS)
+    + r")$"
 )
 _YEAR_PATTERN = re.compile(r"^[0-9]{4}$")
 _MONTH_PATTERN = re.compile(r"^[0-9]{4}-(?:0[1-9]|1[0-2])$")
@@ -43,6 +80,116 @@ _DATETIME_PATTERN = re.compile(
     r"T(?:[01][0-9]|2[0-3]):[0-5][0-9]"
     r"(?::[0-5][0-9](?:[.,][0-9]+)?)?(?:Z|[+-][0-9]{2}:[0-5][0-9])$"
 )
+
+
+# RFC 3986 Appendix A. AnyUrl checks IP literals after this lexical check.
+_URI_ATOM = r"(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})"
+_URI_PCHAR = rf"(?:{_URI_ATOM}|[:@])"
+_URI_AUTHORITY = rf"(?:{_URI_ATOM}|:)*@"
+_URI_PATTERN = re.compile(
+    rf"^[A-Za-z][A-Za-z0-9+.-]*:"
+    rf"(?://(?:{_URI_AUTHORITY})?(?:{_URI_ATOM}*|\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\])"
+    rf"(?::[0-9]*)?(?:/{_URI_PCHAR}*)*"
+    rf"|/(?:{_URI_PCHAR}+(?:/{_URI_PCHAR}*)*)?"
+    rf"|{_URI_PCHAR}+(?:/{_URI_PCHAR}*)*|)"
+    rf"(?:\?(?:{_URI_PCHAR}|[/?])*)?(?:#(?:{_URI_PCHAR}|[/?])*)?$"
+)
+
+
+def _validate_uri(value: Any) -> Any:
+    # Check the original spelling before AnyUrl can strip controls or escape spaces.
+    if not isinstance(value, (str, AnyUrl)):
+        raise ValueError("URI must be a string or a validated URL.")
+    if isinstance(value, str) and not _URI_PATTERN.fullmatch(value):
+        raise ValueError("URI must use absolute RFC 3986 syntax and valid escapes.")
+    return value
+
+
+AbsoluteURI = Annotated[
+    AnyUrl,
+    BeforeValidator(_validate_uri),
+    Field(json_schema_extra={"pattern": _URI_PATTERN.pattern}),
+]
+
+
+def _populated(*names: str) -> dict[str, Any]:
+    return {
+        "required": list(names),
+        "properties": {name: {"not": {"type": "null"}} for name in names},
+    }
+
+
+def _content_schema(*names: str) -> dict[str, Any]:
+    return {
+        "anyOf": [_populated(name) for name in names],
+        "x-validation-rules": [
+            "At least one non-null value is required: " + ", ".join(names) + "."
+        ],
+    }
+
+
+def _temporal_schema(schema: dict[str, Any]) -> None:
+    schema["allOf"] = [
+        {
+            "if": {"anyOf": [_populated("start"), _populated("end")]},
+            "then": _populated("relation", "precision"),
+            "else": {
+                "properties": {
+                    name: {"type": "null"} for name in ("relation", "precision")
+                }
+            },
+        }
+    ]
+    for relation, alternatives in {
+        "point": [("start",)],
+        "as_of": [("start",)],
+        "interval": [("start", "end")],
+        "open_interval": [("start",), ("end",)],
+    }.items():
+        branches = []
+        for names in alternatives:
+            branch = _populated(*names)
+            branch["properties"].update(
+                {
+                    name: {"type": "null"}
+                    for name in ("start", "end")
+                    if name not in names
+                }
+            )
+            branches.append(branch)
+        schema["allOf"].append(
+            {
+                "if": {
+                    "required": ["relation"],
+                    "properties": {"relation": {"const": relation}},
+                },
+                "then": {"anyOf": branches},
+            }
+        )
+    for precision, pattern in {
+        "year": _YEAR_PATTERN,
+        "month": _MONTH_PATTERN,
+        "day": _DAY_PATTERN,
+        "datetime": _DATETIME_PATTERN,
+    }.items():
+        schema["allOf"].append(
+            {
+                "if": {
+                    "required": ["precision"],
+                    "properties": {"precision": {"const": precision}},
+                },
+                "then": {
+                    "properties": {
+                        name: {"pattern": pattern.pattern} for name in ("start", "end")
+                    }
+                },
+            }
+        )
+    schema["x-validation-rules"] = [
+        "Normalized bounds require relation and precision; source-only expressions omit both.",
+        "point and as_of require start only; interval requires both bounds; open_interval requires exactly one bound.",
+        "Bounds must match the declared precision. Python additionally validates calendar dates and chronological ordering.",
+    ]
 
 
 def _standards(*mappings: tuple[str, str]) -> dict[str, object]:
@@ -252,7 +399,7 @@ class Identifier(_SchemaModel):
     issuer: NonEmptyText | None = Field(
         default=None, description="Issuing agent, when known."
     )
-    uri: AnyUrl | None = Field(
+    uri: AbsoluteURI | None = Field(
         default=None, description="Authoritative absolute URI for the identifier."
     )
 
@@ -274,6 +421,17 @@ class ControlledTerm(_SchemaModel):
         Authoritative URI for the represented concept.
     """
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            **_content_schema("source_text", "normalized_value", "code", "uri"),
+            "allOf": [{"if": _populated("code"), "then": _populated("scheme")}],
+            "x-validation-rules": [
+                "At least one of source_text, normalized_value, code, or uri must be non-null.",
+                "A non-null code requires a non-null scheme.",
+            ],
+        }
+    )
+
     source_text: NonEmptyText | None = Field(
         default=None, description="Faithful source-visible expression."
     )
@@ -286,7 +444,7 @@ class ControlledTerm(_SchemaModel):
     scheme: NonEmptyText | None = Field(
         default=None, description="Code-list or vocabulary identifier."
     )
-    uri: AnyUrl | None = Field(
+    uri: AbsoluteURI | None = Field(
         default=None, description="Authoritative URI for the represented concept."
     )
 
@@ -492,10 +650,20 @@ class Language(_SchemaModel):
         Canonical BCP 47 language tag.
     """
 
+    model_config = ConfigDict(json_schema_extra=_content_schema("source_text", "tag"))
+
     source_text: NonEmptyText | None = Field(
         default=None, description="Displayed language label, when present."
     )
-    tag: NonEmptyText | None = Field(
+    tag: (
+        Annotated[
+            NonEmptyText,
+            WithJsonSchema(
+                {"type": "string", "minLength": 1, "pattern": _BCP47_PATTERN.pattern}
+            ),
+        ]
+        | None
+    ) = Field(
         default=None,
         description="Canonical BCP 47 language tag.",
         json_schema_extra=_code_list(
@@ -512,7 +680,29 @@ class Language(_SchemaModel):
             return None
         if not _BCP47_PATTERN.fullmatch(value):
             raise ValueError("Language tag must use BCP 47 syntax.")
+        if value in _GRANDFATHERED_TAGS:
+            return value
         parts = value.split("-")
+        variants: set[str] = set()
+        singletons: set[str] = set()
+        in_extension = False
+        for part in [] if parts[0].lower() == "x" else parts[1:]:
+            lower = part.lower()
+            if lower == "x":
+                break
+            if len(part) == 1:
+                if lower in singletons:
+                    raise ValueError(
+                        "Language tag cannot repeat an extension singleton."
+                    )
+                singletons.add(lower)
+                in_extension = True
+            elif not in_extension and (
+                len(part) >= 5 or (len(part) == 4 and part[0].isdigit())
+            ):
+                if lower in variants:
+                    raise ValueError("Language tag cannot repeat a variant.")
+                variants.add(lower)
         if parts[0].lower() == "x":
             canonical = [part.lower() for part in parts]
             if value != "-".join(canonical):
@@ -562,14 +752,30 @@ class Variable(_SchemaModel):
         Applicable statistical forms.
     """
 
-    name: NonEmptyText = Field(description="Explicitly named measured concept.")
-    unit: Unit | None = Field(default=None, description="Applicable unit.")
-    currency: Currency | None = Field(default=None, description="Applicable currency.")
+    name: NonEmptyText = Field(
+        description="Explicitly named measured concept.",
+        json_schema_extra=_standards(("https://schema.org/variableMeasured", "close")),
+    )
+    unit: Unit | None = Field(
+        default=None,
+        description="Applicable unit.",
+        json_schema_extra=_standards(
+            ("https://schema.org/unitCode", "related_structural")
+        ),
+    )
+    currency: Currency | None = Field(
+        default=None,
+        description="Applicable currency.",
+        json_schema_extra=_standards(("https://schema.org/currency", "close")),
+    )
     analytical_roles: list[AnalyticalRole] | None = Field(
         default=None, min_length=1, description="Explicit analytical or axis roles."
     )
     statistical_forms: list[StatisticalFormTerm] | None = Field(
-        default=None, min_length=1, description="Applicable statistical forms."
+        default=None,
+        min_length=1,
+        description="Applicable statistical forms.",
+        json_schema_extra=_standards(("https://schema.org/statType", "close")),
     )
 
 
@@ -607,12 +813,20 @@ class Dimension(_SchemaModel):
 
     name: NonEmptyText = Field(description="Classificatory dimension name.")
     categories: list[ControlledTerm] | None = Field(
-        default=None, min_length=1, description="Ordered ungrouped categories."
+        default=None,
+        min_length=1,
+        description="Ordered ungrouped categories.",
+        json_schema_extra=_standards(
+            ("http://www.w3.org/2004/02/skos/core#Concept", "related_structural")
+        ),
     )
     category_groups: list[CategoryGroup] | None = Field(
         default=None,
         min_length=1,
         description="One level of explicit category groups.",
+        json_schema_extra=_standards(
+            ("http://www.w3.org/2004/02/skos/core#broader", "related_structural")
+        ),
     )
     presentation_roles: list[PresentationRole] | None = Field(
         default=None,
@@ -637,6 +851,8 @@ class TemporalExpression(_SchemaModel):
     precision : TemporalPrecision | None
         Precision shared by the normalized bounds.
     """
+
+    model_config = ConfigDict(json_schema_extra=_temporal_schema)
 
     source_text: NonEmptyText = Field(description="Complete source time expression.")
     start: NonEmptyText | None = Field(default=None, description="Normalized start.")
@@ -686,15 +902,28 @@ def _validate_temporal_value(value: str, precision: TemporalPrecision) -> None:
         date.fromisoformat(value)
         return
     if precision is TemporalPrecision.DATETIME and _DATETIME_PATTERN.fullmatch(value):
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed, _ = _parse_datetime(value)
         if parsed.tzinfo is not None:
             return
     raise ValueError(f"Temporal value {value!r} does not match {precision.value}.")
 
 
-def _temporal_sort_value(value: str, precision: TemporalPrecision) -> str | datetime:
+def _parse_datetime(value: str) -> tuple[datetime, Decimal]:
+    # Parse whole seconds on Python 3.10; compare the original fraction exactly.
+    fraction = re.search(r"[.,]([0-9]+)(?=Z|[+-][0-9]{2}:[0-9]{2}$)", value)
+    if fraction:
+        seconds = Decimal("0." + fraction.group(1))
+        value = value[: fraction.start()] + value[fraction.end() :]
+    else:
+        seconds = Decimal(0)
+    return datetime.fromisoformat(value.replace("Z", "+00:00")), seconds
+
+
+def _temporal_sort_value(
+    value: str, precision: TemporalPrecision
+) -> str | tuple[datetime, Decimal]:
     if precision is TemporalPrecision.DATETIME:
-        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return _parse_datetime(value)
     return value
 
 
@@ -709,8 +938,17 @@ class TemporalCoverage(_SchemaModel):
         Reporting interval or temporal resolution.
     """
 
+    model_config = ConfigDict(
+        json_schema_extra=_content_schema("period", "granularity")
+    )
+
     period: TemporalExpression | None = Field(
-        default=None, description="Represented-data temporal expression."
+        default=None,
+        description="Represented-data temporal expression.",
+        json_schema_extra=_standards(
+            ("https://schema.org/temporalCoverage", "exact"),
+            ("http://purl.org/dc/terms/temporal", "close"),
+        ),
     )
     granularity: TemporalGranularityTerm | None = Field(
         default=None, description="Reporting interval or temporal resolution."
@@ -741,6 +979,8 @@ class Place(_SchemaModel):
     identifiers : list[Identifier] | None
         Other authoritative identifiers.
     """
+
+    model_config = ConfigDict(json_schema_extra=_content_schema("source_text", "name"))
 
     source_text: NonEmptyText | None = Field(
         default=None, description="Displayed place expression."
@@ -833,11 +1073,22 @@ class GeographicCoverage(_SchemaModel):
         Administrative, geographic, or reporting level.
     """
 
+    model_config = ConfigDict(
+        json_schema_extra=_content_schema("scope", "locations", "level")
+    )
+
     scope: Place | None = Field(
-        default=None, description="Overall geographic coverage or focus."
+        default=None,
+        description="Overall geographic coverage or focus.",
+        json_schema_extra=_standards(("https://schema.org/spatialCoverage", "exact")),
     )
     locations: list[GeographicLocation] | None = Field(
-        default=None, min_length=1, description="Additional named locations."
+        default=None,
+        min_length=1,
+        description="Additional named locations.",
+        json_schema_extra=_standards(
+            ("https://schema.org/spatialCoverage", "related_structural")
+        ),
     )
     level: GeographicLevelTerm | None = Field(
         default=None, description="Geographic or reporting level."
@@ -861,11 +1112,26 @@ class Provenance(_SchemaModel):
         Agents explicitly credited for the snapshot artifact.
     """
 
+    model_config = ConfigDict(
+        json_schema_extra=_content_schema("sources", "attributions")
+    )
+
     sources: list[EntityReference] | None = Field(
-        default=None, min_length=1, description="Represented-data derivation sources."
+        default=None,
+        min_length=1,
+        description="Represented-data derivation sources.",
+        json_schema_extra=_standards(
+            ("http://www.w3.org/ns/prov#wasDerivedFrom", "related_structural"),
+            ("http://purl.org/dc/terms/source", "close"),
+        ),
     )
     attributions: list[Attribution] | None = Field(
-        default=None, min_length=1, description="Role-bearing credited agents."
+        default=None,
+        min_length=1,
+        description="Role-bearing credited agents.",
+        json_schema_extra=_standards(
+            ("http://www.w3.org/ns/prov#wasAttributedTo", "related_structural")
+        ),
     )
 
     @model_validator(mode="after")
@@ -888,14 +1154,30 @@ class Project(_SchemaModel):
         Explicitly identified subordinate components.
     """
 
+    model_config = ConfigDict(
+        json_schema_extra=_content_schema("name", "identifiers", "components")
+    )
+
     name: NonEmptyText | None = Field(
-        default=None, description="Associated project-context name."
+        default=None,
+        description="Associated project-context name.",
+        json_schema_extra=_standards(("https://schema.org/name", "exact")),
     )
     identifiers: list[Identifier] | None = Field(
-        default=None, min_length=1, description="Formal project identifiers."
+        default=None,
+        min_length=1,
+        description="Formal project identifiers.",
+        json_schema_extra=_standards(
+            ("https://schema.org/identifier", "standard_broader")
+        ),
     )
     components: list[EntityReference] | None = Field(
-        default=None, min_length=1, description="Named project components."
+        default=None,
+        min_length=1,
+        description="Named project components.",
+        json_schema_extra=_standards(
+            ("https://schema.org/hasPart", "related_structural")
+        ),
     )
 
     @model_validator(mode="after")
@@ -918,14 +1200,29 @@ class Financing(_SchemaModel):
         Financing mechanisms.
     """
 
+    model_config = ConfigDict(
+        json_schema_extra=_content_schema("measures", "funders", "instruments")
+    )
+
     measures: list[ControlledTerm] | None = Field(
         default=None, min_length=1, description="Project-financing measures."
     )
     funders: list[EntityReference] | None = Field(
-        default=None, min_length=1, description="Named funding sources."
+        default=None,
+        min_length=1,
+        description="Named funding sources.",
+        json_schema_extra=_standards(("https://schema.org/funder", "exact")),
     )
     instruments: list[ControlledTerm] | None = Field(
-        default=None, min_length=1, description="Financing mechanisms."
+        default=None,
+        min_length=1,
+        description="Financing mechanisms.",
+        json_schema_extra=_standards(
+            (
+                "https://reference.iatistandard.org/en/iati-standard/203/codelists/financetype/",
+                "close",
+            )
+        ),
     )
 
     @model_validator(mode="after")
@@ -989,6 +1286,13 @@ class DataSnapshotMetadata(_SchemaModel):
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "x-schema-version": "1.2",
             "x-status": "implementation",
+            "x-validation-rules": [
+                "Python is the canonical validator. JSON Schema enforces exported structural rules; format assertions require a format-aware validator.",
+                "Python additionally applies NFC normalization, outer whitespace trimming, and stable exact deduplication.",
+                "Python additionally checks URI syntax before URL normalization, language-tag casing and uniqueness, calendar dates, and chronological ordering.",
+                "Missing and null values are equivalent. Serialize records with exclude_none=True to omit unavailable values.",
+                "External registry membership, source-grounding, and semantic correctness are not validated. Unpinned code-list metadata identifies a syntax authority only.",
+            ],
         },
     )
 
@@ -1102,10 +1406,6 @@ class DataSnapshotMetadata(_SchemaModel):
     provenance: Provenance | None = Field(
         default=None,
         description="Represented-data sources and artifact attributions.",
-        json_schema_extra=_standards(
-            ("http://www.w3.org/ns/prov#wasDerivedFrom", "related_structural"),
-            ("http://www.w3.org/ns/prov#wasAttributedTo", "related_structural"),
-        ),
     )
     languages: list[Language] | None = Field(
         default=None,
@@ -1144,10 +1444,6 @@ class DataSnapshotMetadata(_SchemaModel):
     financing: Financing | None = Field(
         default=None,
         description="Project-financing measures, funders, and instruments.",
-        json_schema_extra=_standards(
-            ("https://schema.org/funder", "exact"),
-            ("https://reference.codeforiati.org/codelists/FinanceType/", "close"),
-        ),
     )
     analysis_methods: list[ControlledTerm] | None = Field(
         default=None,

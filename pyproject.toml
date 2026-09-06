@@ -48,6 +48,7 @@ viz = [
 dev = [
     "data-snapshot[tfid,doclayout_yolo,viz,yolo11,yolo26]",
     "pytest==9.0.2",
+    "jsonschema>=4,<5",
     "black==25.1.0",
 ]
 

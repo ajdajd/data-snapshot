@@ -67,6 +67,10 @@ def render_markdown_reference() -> str:
         "",
         f"Schema version: `{schema['x-schema-version']}`",
         "",
+        "## Validation and serialization",
+        "",
+        *[f"- {rule}" for rule in schema.get("x-validation-rules", [])],
+        "",
         "## Snapshot fields",
         "",
     ]
@@ -76,6 +80,8 @@ def render_markdown_reference() -> str:
         description = definition.get("description")
         if description:
             lines.extend([_summary(description), ""])
+        for rule in definition.get("x-validation-rules", []):
+            lines.extend([f"- {rule}", ""])
         if "enum" in definition:
             lines.append(", ".join(f"`{value}`" for value in definition["enum"]))
         elif definition.get("type") == "object":
@@ -109,14 +115,33 @@ def write_schema_artifacts(
 def _object_table(schema: dict[str, Any]) -> list[str]:
     required = set(schema.get("required", []))
     lines = [
-        "| Field | Type | Required | Default | Description | Standards |",
-        "|---|---|---:|---|---|---|",
+        "| Field | Type | Required | Default | Description | Constraints | Standards / code list |",
+        "|---|---|---:|---|---|---|---|",
     ]
     for name, field_schema in schema.get("properties", {}).items():
         standards = ", ".join(
             f"[{mapping['term']}]({mapping['term']}) ({mapping['relationship']})"
             for mapping in field_schema.get("x-standards", [])
         )
+        code_list = field_schema.get("x-code-list")
+        if code_list:
+            release = code_list.get("release", "not pinned; syntax only")
+            standards += ("; " if standards else "") + (
+                f"[{code_list['authority']} {code_list['identifier']}]"
+                f"({code_list['uri']}); release: {release}"
+            )
+        constraints = []
+        for option in [field_schema, *field_schema.get("anyOf", [])]:
+            for key in (
+                "minItems",
+                "maxItems",
+                "minLength",
+                "maxLength",
+                "pattern",
+                "format",
+            ):
+                if key in option:
+                    constraints.append(f"{key}: {option[key]}")
         default = (
             f"`{json.dumps(field_schema['default'], ensure_ascii=False)}`"
             if "default" in field_schema
@@ -131,6 +156,7 @@ def _object_table(schema: dict[str, Any]) -> list[str]:
                     "yes" if name in required else "no",
                     default,
                     _cell(field_schema.get("description", "")),
+                    _cell("; ".join(constraints)),
                     standards,
                 )
             )

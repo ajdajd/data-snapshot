@@ -20,6 +20,7 @@
         "name": {
           "description": "Source-visible entity name.",
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Name",
           "type": "string"
         },
@@ -59,6 +60,7 @@
         "name": {
           "description": "Explicit category-group heading.",
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Name",
           "type": "string"
         },
@@ -81,12 +83,91 @@
     },
     "ControlledTerm": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scheme": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "scheme"
+            ]
+          }
+        }
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "normalized_value": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "normalized_value"
+          ]
+        },
+        {
+          "properties": {
+            "code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        {
+          "properties": {
+            "uri": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "uri"
+          ]
+        }
+      ],
       "description": "Represent a source-grounded term with optional normalization.\n\nParameters\n----------\nsource_text : str | None\n    Faithful source-visible expression.\nnormalized_value : str | None\n    Preferred application or vocabulary value.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
       "properties": {
         "source_text": {
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -101,6 +182,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -115,6 +197,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -129,6 +212,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -144,6 +228,7 @@
             {
               "format": "uri",
               "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:(?://(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|:)*@)?(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*|\\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\\])(?::[0-9]*)?(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|/(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*)?|(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|)(?:\\?(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?(?:#(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?$",
               "type": "string"
             },
             {
@@ -156,7 +241,11 @@
         }
       },
       "title": "ControlledTerm",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one of source_text, normalized_value, code, or uri must be non-null.",
+        "A non-null code requires a non-null scheme."
+      ]
     },
     "Currency": {
       "additionalProperties": false,
@@ -165,6 +254,7 @@
         "source_text": {
           "description": "Displayed currency expression.",
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Source Text",
           "type": "string"
         },
@@ -201,6 +291,7 @@
         "name": {
           "description": "Classificatory dimension name.",
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Name",
           "type": "string"
         },
@@ -219,7 +310,13 @@
           ],
           "default": null,
           "description": "Ordered ungrouped categories.",
-          "title": "Categories"
+          "title": "Categories",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "http://www.w3.org/2004/02/skos/core#Concept"
+            }
+          ]
         },
         "category_groups": {
           "anyOf": [
@@ -236,7 +333,13 @@
           ],
           "default": null,
           "description": "One level of explicit category groups.",
-          "title": "Category Groups"
+          "title": "Category Groups",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "http://www.w3.org/2004/02/skos/core#broader"
+            }
+          ]
         },
         "presentation_roles": {
           "anyOf": [
@@ -269,6 +372,7 @@
         "name": {
           "description": "Source-visible entity name.",
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Name",
           "type": "string"
         },
@@ -298,6 +402,44 @@
     },
     "Financing": {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "measures": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "measures"
+          ]
+        },
+        {
+          "properties": {
+            "funders": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "funders"
+          ]
+        },
+        {
+          "properties": {
+            "instruments": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "instruments"
+          ]
+        }
+      ],
       "description": "Group project-financing measures, funders, and instruments.\n\nParameters\n----------\nmeasures : list[ControlledTerm] | None\n    Financial quantities or funding-related measures.\nfunders : list[EntityReference] | None\n    Named funding sources.\ninstruments : list[ControlledTerm] | None\n    Financing mechanisms.",
       "properties": {
         "measures": {
@@ -332,7 +474,13 @@
           ],
           "default": null,
           "description": "Named funding sources.",
-          "title": "Funders"
+          "title": "Funders",
+          "x-standards": [
+            {
+              "relationship": "exact",
+              "term": "https://schema.org/funder"
+            }
+          ]
         },
         "instruments": {
           "anyOf": [
@@ -349,14 +497,61 @@
           ],
           "default": null,
           "description": "Financing mechanisms.",
-          "title": "Instruments"
+          "title": "Instruments",
+          "x-standards": [
+            {
+              "relationship": "close",
+              "term": "https://reference.iatistandard.org/en/iati-standard/203/codelists/financetype/"
+            }
+          ]
         }
       },
       "title": "Financing",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: measures, funders, instruments."
+      ]
     },
     "GeographicCoverage": {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "scope": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "scope"
+          ]
+        },
+        {
+          "properties": {
+            "locations": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "locations"
+          ]
+        },
+        {
+          "properties": {
+            "level": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "level"
+          ]
+        }
+      ],
       "description": "Group overall geographic scope, locations, and reporting level.\n\nParameters\n----------\nscope : Place | None\n    Overall geographic coverage or focus.\nlocations : list[GeographicLocation] | None\n    Additional named locations.\nlevel : GeographicLevelTerm | None\n    Administrative, geographic, or reporting level.",
       "properties": {
         "scope": {
@@ -369,7 +564,13 @@
             }
           ],
           "default": null,
-          "description": "Overall geographic coverage or focus."
+          "description": "Overall geographic coverage or focus.",
+          "x-standards": [
+            {
+              "relationship": "exact",
+              "term": "https://schema.org/spatialCoverage"
+            }
+          ]
         },
         "locations": {
           "anyOf": [
@@ -386,7 +587,13 @@
           ],
           "default": null,
           "description": "Additional named locations.",
-          "title": "Locations"
+          "title": "Locations",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "https://schema.org/spatialCoverage"
+            }
+          ]
         },
         "level": {
           "anyOf": [
@@ -402,16 +609,98 @@
         }
       },
       "title": "GeographicCoverage",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: scope, locations, level."
+      ]
     },
     "GeographicLevelTerm": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scheme": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "scheme"
+            ]
+          }
+        }
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "normalized_value": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "normalized_value"
+          ]
+        },
+        {
+          "properties": {
+            "code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        {
+          "properties": {
+            "uri": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "uri"
+          ]
+        }
+      ],
       "description": "Represent a known or source-only geographic reporting level.\n\nParameters\n----------\nsource_text : str | None\n    Faithful source-visible expression.\nnormalized_value : GeographicLevelValue | None\n    Approved normalized geographic level.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
       "properties": {
         "source_text": {
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -438,6 +727,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -452,6 +742,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -467,6 +758,7 @@
             {
               "format": "uri",
               "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:(?://(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|:)*@)?(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*|\\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\\])(?::[0-9]*)?(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|/(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*)?|(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|)(?:\\?(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?(?:#(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?$",
               "type": "string"
             },
             {
@@ -479,7 +771,11 @@
         }
       },
       "title": "GeographicLevelTerm",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one of source_text, normalized_value, code, or uri must be non-null.",
+        "A non-null code requires a non-null scheme."
+      ]
     },
     "GeographicLevelValue": {
       "description": "Enumerate approved normalized geographic levels.",
@@ -498,12 +794,39 @@
     },
     "GeographicLocation": {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      ],
       "description": "Represent an additional named location and its optional role and type.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\ncountry_code : str | None\n    ISO 3166-1 alpha-2 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.\nrole : ControlledTerm | None\n    Explicit source-grounded geographic role.\ntype : ControlledTerm | None\n    Physical or administrative location type.",
       "properties": {
         "source_text": {
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -518,6 +841,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -628,7 +952,10 @@
         }
       },
       "title": "GeographicLocation",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, name."
+      ]
     },
     "Identifier": {
       "additionalProperties": false,
@@ -637,6 +964,7 @@
         "value": {
           "description": "Identifier exactly as assigned.",
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Value",
           "type": "string"
         },
@@ -644,6 +972,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -658,6 +987,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -673,6 +1003,7 @@
             {
               "format": "uri",
               "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:(?://(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|:)*@)?(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*|\\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\\])(?::[0-9]*)?(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|/(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*)?|(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|)(?:\\?(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?(?:#(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?$",
               "type": "string"
             },
             {
@@ -692,12 +1023,39 @@
     },
     "Language": {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "tag": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "tag"
+          ]
+        }
+      ],
       "description": "Represent a snapshot language using source text and/or BCP 47.\n\nParameters\n----------\nsource_text : str | None\n    Displayed language label, when present.\ntag : str | None\n    Canonical BCP 47 language tag.",
       "properties": {
         "source_text": {
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -712,6 +1070,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "^(?:(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}){0,3}|[A-Za-z]{4}|[A-Za-z]{5,8})(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|[0-9]{3}))?(?:-(?:[A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*(?:-[0-9A-WY-Za-wy-z](?:-[A-Za-z0-9]{2,8})+)*(?:-[xX](?:-[A-Za-z0-9]{1,8})+)?|[xX](?:-[A-Za-z0-9]{1,8})+|en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE|art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang)$",
               "type": "string"
             },
             {
@@ -729,16 +1088,46 @@
         }
       },
       "title": "Language",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, tag."
+      ]
     },
     "Place": {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        }
+      ],
       "description": "Represent a source-grounded place with optional standard identifiers.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\ncountry_code : str | None\n    ISO 3166-1 alpha-2 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.",
       "properties": {
         "source_text": {
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -753,6 +1142,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -839,7 +1229,10 @@
         }
       },
       "title": "Place",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, name."
+      ]
     },
     "PresentationRole": {
       "description": "Identify a dimension's explicit table-presentation role.",
@@ -852,12 +1245,51 @@
     },
     "Project": {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "properties": {
+            "identifiers": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "identifiers"
+          ]
+        },
+        {
+          "properties": {
+            "components": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "components"
+          ]
+        }
+      ],
       "description": "Represent project, program, operation, or initiative context.\n\nParameters\n----------\nname : str | None\n    Associated project-context name.\nidentifiers : list[Identifier] | None\n    Formal project or operation identifiers.\ncomponents : list[EntityReference] | None\n    Explicitly identified subordinate components.",
       "properties": {
         "name": {
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -866,7 +1298,13 @@
           ],
           "default": null,
           "description": "Associated project-context name.",
-          "title": "Name"
+          "title": "Name",
+          "x-standards": [
+            {
+              "relationship": "exact",
+              "term": "https://schema.org/name"
+            }
+          ]
         },
         "identifiers": {
           "anyOf": [
@@ -883,7 +1321,13 @@
           ],
           "default": null,
           "description": "Formal project identifiers.",
-          "title": "Identifiers"
+          "title": "Identifiers",
+          "x-standards": [
+            {
+              "relationship": "standard_broader",
+              "term": "https://schema.org/identifier"
+            }
+          ]
         },
         "components": {
           "anyOf": [
@@ -900,14 +1344,49 @@
           ],
           "default": null,
           "description": "Named project components.",
-          "title": "Components"
+          "title": "Components",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "https://schema.org/hasPart"
+            }
+          ]
         }
       },
       "title": "Project",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: name, identifiers, components."
+      ]
     },
     "Provenance": {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "sources": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "sources"
+          ]
+        },
+        {
+          "properties": {
+            "attributions": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "attributions"
+          ]
+        }
+      ],
       "description": "Separate derivation sources from credited agents.\n\nParameters\n----------\nsources : list[EntityReference] | None\n    Entities from which represented data derive.\nattributions : list[Attribution] | None\n    Agents explicitly credited for the snapshot artifact.",
       "properties": {
         "sources": {
@@ -925,7 +1404,17 @@
           ],
           "default": null,
           "description": "Represented-data derivation sources.",
-          "title": "Sources"
+          "title": "Sources",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "http://www.w3.org/ns/prov#wasDerivedFrom"
+            },
+            {
+              "relationship": "close",
+              "term": "http://purl.org/dc/terms/source"
+            }
+          ]
         },
         "attributions": {
           "anyOf": [
@@ -942,20 +1431,108 @@
           ],
           "default": null,
           "description": "Role-bearing credited agents.",
-          "title": "Attributions"
+          "title": "Attributions",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "http://www.w3.org/ns/prov#wasAttributedTo"
+            }
+          ]
         }
       },
       "title": "Provenance",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: sources, attributions."
+      ]
     },
     "StatisticalFormTerm": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scheme": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "scheme"
+            ]
+          }
+        }
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "normalized_value": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "normalized_value"
+          ]
+        },
+        {
+          "properties": {
+            "code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        {
+          "properties": {
+            "uri": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "uri"
+          ]
+        }
+      ],
       "description": "Represent a known or source-only statistical form.\n\nParameters\n----------\nsource_text : str | None\n    Faithful source-visible expression.\nnormalized_value : StatisticalFormValue | None\n    Approved normalized statistical form.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
       "properties": {
         "source_text": {
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -982,6 +1559,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -996,6 +1574,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -1011,6 +1590,7 @@
             {
               "format": "uri",
               "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:(?://(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|:)*@)?(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*|\\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\\])(?::[0-9]*)?(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|/(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*)?|(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|)(?:\\?(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?(?:#(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?$",
               "type": "string"
             },
             {
@@ -1023,7 +1603,11 @@
         }
       },
       "title": "StatisticalFormTerm",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one of source_text, normalized_value, code, or uri must be non-null.",
+        "A non-null code requires a non-null scheme."
+      ]
     },
     "StatisticalFormValue": {
       "description": "Enumerate approved normalized statistical forms.",
@@ -1079,6 +1663,32 @@
     },
     "TemporalCoverage": {
       "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "period": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "period"
+          ]
+        },
+        {
+          "properties": {
+            "granularity": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "granularity"
+          ]
+        }
+      ],
       "description": "Group represented-data time and granularity.\n\nParameters\n----------\nperiod : TemporalExpression | None\n    Represented-data temporal expression.\ngranularity : TemporalGranularityTerm | None\n    Reporting interval or temporal resolution.",
       "properties": {
         "period": {
@@ -1091,7 +1701,17 @@
             }
           ],
           "default": null,
-          "description": "Represented-data temporal expression."
+          "description": "Represented-data temporal expression.",
+          "x-standards": [
+            {
+              "relationship": "exact",
+              "term": "https://schema.org/temporalCoverage"
+            },
+            {
+              "relationship": "close",
+              "term": "http://purl.org/dc/terms/temporal"
+            }
+          ]
         },
         "granularity": {
           "anyOf": [
@@ -1107,15 +1727,309 @@
         }
       },
       "title": "TemporalCoverage",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: period, granularity."
+      ]
     },
     "TemporalExpression": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "relation": {
+                "type": "null"
+              },
+              "precision": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "start": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "start"
+                ]
+              },
+              {
+                "properties": {
+                  "end": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "end"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "relation": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "precision": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "relation",
+              "precision"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "relation": {
+                "const": "point"
+              }
+            },
+            "required": [
+              "relation"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "start": {
+                    "not": {
+                      "type": "null"
+                    }
+                  },
+                  "end": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "start"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "relation": {
+                "const": "as_of"
+              }
+            },
+            "required": [
+              "relation"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "start": {
+                    "not": {
+                      "type": "null"
+                    }
+                  },
+                  "end": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "start"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "relation": {
+                "const": "interval"
+              }
+            },
+            "required": [
+              "relation"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "start": {
+                    "not": {
+                      "type": "null"
+                    }
+                  },
+                  "end": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "start",
+                  "end"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "relation": {
+                "const": "open_interval"
+              }
+            },
+            "required": [
+              "relation"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "start": {
+                    "not": {
+                      "type": "null"
+                    }
+                  },
+                  "end": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "start"
+                ]
+              },
+              {
+                "properties": {
+                  "end": {
+                    "not": {
+                      "type": "null"
+                    }
+                  },
+                  "start": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "end"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "precision": {
+                "const": "year"
+              }
+            },
+            "required": [
+              "precision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "start": {
+                "pattern": "^[0-9]{4}$"
+              },
+              "end": {
+                "pattern": "^[0-9]{4}$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "precision": {
+                "const": "month"
+              }
+            },
+            "required": [
+              "precision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "start": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])$"
+              },
+              "end": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "precision": {
+                "const": "day"
+              }
+            },
+            "required": [
+              "precision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "start": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$"
+              },
+              "end": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "precision": {
+                "const": "datetime"
+              }
+            },
+            "required": [
+              "precision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "start": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9](?:[.,][0-9]+)?)?(?:Z|[+-][0-9]{2}:[0-5][0-9])$"
+              },
+              "end": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9](?:[.,][0-9]+)?)?(?:Z|[+-][0-9]{2}:[0-5][0-9])$"
+              }
+            }
+          }
+        }
+      ],
       "description": "Represent source-visible time with optional normalized bounds.\n\nParameters\n----------\nsource_text : str\n    Complete source expression.\nstart : str | None\n    Normalized starting value.\nend : str | None\n    Normalized ending value.\nrelation : TemporalRelation | None\n    Relationship between the normalized bounds.\nprecision : TemporalPrecision | None\n    Precision shared by the normalized bounds.",
       "properties": {
         "source_text": {
           "description": "Complete source time expression.",
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Source Text",
           "type": "string"
         },
@@ -1123,6 +2037,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -1137,6 +2052,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -1176,16 +2092,100 @@
         "source_text"
       ],
       "title": "TemporalExpression",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "Normalized bounds require relation and precision; source-only expressions omit both.",
+        "point and as_of require start only; interval requires both bounds; open_interval requires exactly one bound.",
+        "Bounds must match the declared precision. Python additionally validates calendar dates and chronological ordering."
+      ]
     },
     "TemporalGranularityTerm": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scheme": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "scheme"
+            ]
+          }
+        }
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "normalized_value": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "normalized_value"
+          ]
+        },
+        {
+          "properties": {
+            "code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        {
+          "properties": {
+            "uri": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "uri"
+          ]
+        }
+      ],
       "description": "Represent a known or source-only temporal granularity.\n\nParameters\n----------\nsource_text : str | None\n    Faithful source-visible expression.\nnormalized_value : TemporalGranularityValue | None\n    Approved normalized temporal granularity.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
       "properties": {
         "source_text": {
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -1212,6 +2212,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -1226,6 +2227,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -1241,6 +2243,7 @@
             {
               "format": "uri",
               "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:(?://(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|:)*@)?(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*|\\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\\])(?::[0-9]*)?(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|/(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*)?|(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|)(?:\\?(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?(?:#(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?$",
               "type": "string"
             },
             {
@@ -1253,7 +2256,11 @@
         }
       },
       "title": "TemporalGranularityTerm",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one of source_text, normalized_value, code, or uri must be non-null.",
+        "A non-null code requires a non-null scheme."
+      ]
     },
     "TemporalGranularityValue": {
       "description": "Enumerate approved normalized temporal granularities.",
@@ -1302,6 +2309,7 @@
         "source_text": {
           "description": "Displayed unit expression.",
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Source Text",
           "type": "string"
         },
@@ -1357,8 +2365,15 @@
         "name": {
           "description": "Explicitly named measured concept.",
           "minLength": 1,
+          "pattern": "\\S",
           "title": "Name",
-          "type": "string"
+          "type": "string",
+          "x-standards": [
+            {
+              "relationship": "close",
+              "term": "https://schema.org/variableMeasured"
+            }
+          ]
         },
         "unit": {
           "anyOf": [
@@ -1370,7 +2385,13 @@
             }
           ],
           "default": null,
-          "description": "Applicable unit."
+          "description": "Applicable unit.",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "https://schema.org/unitCode"
+            }
+          ]
         },
         "currency": {
           "anyOf": [
@@ -1382,7 +2403,13 @@
             }
           ],
           "default": null,
-          "description": "Applicable currency."
+          "description": "Applicable currency.",
+          "x-standards": [
+            {
+              "relationship": "close",
+              "term": "https://schema.org/currency"
+            }
+          ]
         },
         "analytical_roles": {
           "anyOf": [
@@ -1416,7 +2443,13 @@
           ],
           "default": null,
           "description": "Applicable statistical forms.",
-          "title": "Statistical Forms"
+          "title": "Statistical Forms",
+          "x-standards": [
+            {
+              "relationship": "close",
+              "term": "https://schema.org/statType"
+            }
+          ]
         }
       },
       "required": [
@@ -1427,12 +2460,91 @@
     },
     "VisualizationTypeTerm": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scheme": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "scheme"
+            ]
+          }
+        }
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "normalized_value": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "normalized_value"
+          ]
+        },
+        {
+          "properties": {
+            "code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        {
+          "properties": {
+            "uri": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "uri"
+          ]
+        }
+      ],
       "description": "Represent a known or source-only visualization type.\n\nParameters\n----------\nsource_text : str | None\n    Faithful source-visible expression.\nnormalized_value : VisualizationTypeValue | None\n    Approved normalized visualization type.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
       "properties": {
         "source_text": {
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -1459,6 +2571,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -1473,6 +2586,7 @@
           "anyOf": [
             {
               "minLength": 1,
+              "pattern": "\\S",
               "type": "string"
             },
             {
@@ -1488,6 +2602,7 @@
             {
               "format": "uri",
               "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:(?://(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|:)*@)?(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*|\\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\\])(?::[0-9]*)?(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|/(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*)?|(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|)(?:\\?(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?(?:#(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?$",
               "type": "string"
             },
             {
@@ -1500,7 +2615,11 @@
         }
       },
       "title": "VisualizationTypeTerm",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one of source_text, normalized_value, code, or uri must be non-null.",
+        "A non-null code requires a non-null scheme."
+      ]
     },
     "VisualizationTypeValue": {
       "description": "Enumerate approved normalized visualization types.",
@@ -1546,6 +2665,7 @@
       "anyOf": [
         {
           "minLength": 1,
+          "pattern": "\\S",
           "type": "string"
         },
         {
@@ -1570,6 +2690,7 @@
       "anyOf": [
         {
           "minLength": 1,
+          "pattern": "\\S",
           "type": "string"
         },
         {
@@ -1621,6 +2742,7 @@
       "anyOf": [
         {
           "minLength": 1,
+          "pattern": "\\S",
           "type": "string"
         },
         {
@@ -1646,6 +2768,7 @@
         {
           "items": {
             "minLength": 1,
+            "pattern": "\\S",
             "type": "string"
           },
           "minItems": 1,
@@ -1821,6 +2944,7 @@
         {
           "items": {
             "minLength": 1,
+            "pattern": "\\S",
             "type": "string"
           },
           "minItems": 1,
@@ -1844,17 +2968,7 @@
         }
       ],
       "default": null,
-      "description": "Represented-data sources and artifact attributions.",
-      "x-standards": [
-        {
-          "relationship": "related_structural",
-          "term": "http://www.w3.org/ns/prov#wasDerivedFrom"
-        },
-        {
-          "relationship": "related_structural",
-          "term": "http://www.w3.org/ns/prov#wasAttributedTo"
-        }
-      ]
+      "description": "Represented-data sources and artifact attributions."
     },
     "languages": {
       "anyOf": [
@@ -1888,6 +3002,7 @@
         {
           "items": {
             "minLength": 1,
+            "pattern": "\\S",
             "type": "string"
           },
           "minItems": 1,
@@ -1960,17 +3075,7 @@
         }
       ],
       "default": null,
-      "description": "Project-financing measures, funders, and instruments.",
-      "x-standards": [
-        {
-          "relationship": "exact",
-          "term": "https://schema.org/funder"
-        },
-        {
-          "relationship": "close",
-          "term": "https://reference.codeforiati.org/codelists/FinanceType/"
-        }
-      ]
+      "description": "Project-financing measures, funders, and instruments."
     },
     "analysis_methods": {
       "anyOf": [
@@ -2030,5 +3135,12 @@
   "title": "Data Snapshot Metadata Schema v1.2",
   "type": "object",
   "x-schema-version": "1.2",
-  "x-status": "implementation"
+  "x-status": "implementation",
+  "x-validation-rules": [
+    "Python is the canonical validator. JSON Schema enforces exported structural rules; format assertions require a format-aware validator.",
+    "Python additionally applies NFC normalization, outer whitespace trimming, and stable exact deduplication.",
+    "Python additionally checks URI syntax before URL normalization, language-tag casing and uniqueness, calendar dates, and chronological ordering.",
+    "Missing and null values are equivalent. Serialize records with exclude_none=True to omit unavailable values.",
+    "External registry membership, source-grounding, and semantic correctness are not validated. Unpinned code-list metadata identifies a syntax authority only."
+  ]
 }
