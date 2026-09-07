@@ -111,3 +111,5 @@ notebooks/schema_validation1/data/*
 notebooks/schema_validation1/outputs/*
 notebooks/schema_validation2/data/*
 notebooks/schema_validation2/outputs/*
+notebooks/schema_validation3/data/*
+notebooks/schema_validation3/outputs/*
