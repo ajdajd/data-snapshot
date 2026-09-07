@@ -257,7 +257,10 @@ def test_schema_context_contains_expected_nested_paths() -> None:
     """Generated path inventory covers nested objects and array items."""
     _, paths = _schema_context()
 
+    assert "variables[]" in paths
     assert "variables[].unit" in paths
     assert "variables[].unit.source_text" in paths
     assert "dimensions[].category_groups[].categories" in paths
+    assert "dimensions[].category_groups[].categories[]" in paths
+    assert "interpretive_notes[]" in paths
     assert "provenance.sources[].name" in paths

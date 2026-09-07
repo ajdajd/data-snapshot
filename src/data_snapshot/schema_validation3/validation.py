@@ -354,7 +354,9 @@ def _schema_field_paths(schema: dict[str, Any]) -> set[str]:
                     walk(option, prefix, seen)
         items = node.get("items")
         if isinstance(items, dict):
-            walk(items, prefix + "[]", seen)
+            item_path = prefix + "[]"
+            paths.add(item_path)
+            walk(items, item_path, seen)
         for name, child in node.get("properties", {}).items():
             path = f"{prefix}.{name}" if prefix else name
             paths.add(path)
