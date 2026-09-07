@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator, FormatChecker
-from pydantic import ValidationError
+from pydantic import BaseModel, TypeAdapter, ValidationError
 
 import data_snapshot.metadata_schema.generation as schema_generation
+import data_snapshot.metadata_schema as metadata_models
 from data_snapshot.metadata_schema import (
     ControlledTerm,
     Currency,
@@ -36,6 +38,196 @@ def test_minimal_record_is_empty_and_forbids_unknown_fields() -> None:
     assert DataSnapshotMetadata().model_dump(exclude_none=True) == {}
     with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
         DataSnapshotMetadata.model_validate({"source_document_title": "Removed"})
+
+
+def test_field_examples_validate_and_are_exported() -> None:
+    """Keep examples valid for every public model field and in generated JSON."""
+    for name in metadata_models.__all__:
+        model = getattr(metadata_models, name)
+        if not issubclass(model, BaseModel):
+            continue
+        properties = model.model_json_schema()["properties"]
+        for field_name, field in model.model_fields.items():
+            assert field.examples, f"{name}.{field_name} has no examples"
+            assert properties[field_name]["examples"] == field.examples
+            adapter = TypeAdapter(field.rebuild_annotation())
+            for example in field.examples:
+                adapter.validate_python(example)
+                if model is DataSnapshotMetadata:
+                    model.model_validate({field_name: example})
+
+
+def test_markdown_renders_every_example_as_a_json_value() -> None:
+    """Preserve nested arrays, Unicode, and all field examples in the reference."""
+    schema = DataSnapshotMetadata.model_json_schema()
+    reference = render_markdown_reference()
+    for definition in [schema, *schema["$defs"].values()]:
+        for name, field in definition.get("properties", {}).items():
+            assert f"#### `{name}`" in reference
+            assert "**Definition**\n\n" + field["description"] + "\n" in reference
+            for example in field["examples"]:
+                block = (
+                    "```json\n"
+                    + json.dumps(example, ensure_ascii=False, indent=2)
+                    + "\n```"
+                )
+                assert block in reference
+    assert "do not constrain accepted values" in reference
+
+
+def _v111_fields() -> dict[str, tuple[str, list[str]]]:
+    """Read historical definitions and example text for fidelity checks."""
+    path = Path(__file__).resolve().parents[1] / (
+        "src/data_snapshot/metadata_extraction/schema/"
+        "Data Snapshot Metadata Schema v1.1.1.md"
+    )
+    fields = {}
+    for name, section in re.findall(
+        r"^### (\w+)\n(.*?)(?=^### |\Z)", path.read_text(encoding="utf-8"), re.M | re.S
+    ):
+        definition, examples = section.split("**Definition**", 1)[1].split(
+            "**Examples**", 1
+        )
+        fields[name] = (
+            definition.strip(),
+            re.findall(r"^- (.*)$", examples.split("\n---", 1)[0], re.M),
+        )
+    return fields
+
+
+def test_uncontested_descriptions_match_v111_verbatim() -> None:
+    """Prevent shortening historical definitions that fit the approved design."""
+    destinations = {
+        "title": ("DataSnapshotMetadata", "title"),
+        "internal_identifier": ("DataSnapshotMetadata", "document_label"),
+        "subject_domain": ("DataSnapshotMetadata", "subject_domains"),
+        "subject_summary": ("DataSnapshotMetadata", "subject_summary"),
+        "panel_title": ("DataSnapshotMetadata", "panel_titles"),
+        "category_dimension": ("Dimension", "name"),
+        "category_labels": ("Dimension", "categories"),
+        "population_group": ("DataSnapshotMetadata", "population_group"),
+        "temporal_granularity": ("TemporalCoverage", "granularity"),
+        "geographic_scope": ("GeographicCoverage", "scope"),
+        "geographic_granularity": ("GeographicCoverage", "level"),
+        "geographic_role": ("GeographicLocation", "role"),
+        "location_type": ("GeographicLocation", "type"),
+        "unit_of_measure": ("Variable", "unit"),
+        "currency": ("Variable", "currency"),
+        "measure_type": ("Variable", "statistical_forms"),
+        "comparison_group": ("DataSnapshotMetadata", "comparisons"),
+        "language": ("DataSnapshotMetadata", "languages"),
+        "project_name": ("Project", "name"),
+        "project_identifier": ("Project", "identifiers"),
+        "project_component": ("Project", "components"),
+        "intervention_type": ("DataSnapshotMetadata", "intervention_types"),
+        "financial_measure": ("Financing", "measures"),
+        "financing_source": ("Financing", "funders"),
+        "financing_instrument": ("Financing", "instruments"),
+        "analysis_method": ("DataSnapshotMetadata", "analysis_methods"),
+        "data_collection_method": ("DataSnapshotMetadata", "data_collection_methods"),
+    }
+    legacy = _v111_fields()
+    assert DataSnapshotMetadata.model_fields["interpretive_notes"].description == (
+        legacy["interpretive_note"][0]
+    )
+    for name, (model_name, field_name) in destinations.items():
+        model = getattr(metadata_models, model_name)
+        assert model.model_fields[field_name].description == legacy[name][0], name
+
+
+def test_uncontested_examples_preserve_all_v111_text_in_order() -> None:
+    """Compare every original example at its v1.2 destination without sampling."""
+    # Grouped labels and provenance use the approved structural adaptations below.
+    destinations = {
+        "title": ("DataSnapshotMetadata", "title", ()),
+        "internal_identifier": ("DataSnapshotMetadata", "document_label", ()),
+        "subject_domain": (
+            "DataSnapshotMetadata",
+            "subject_domains",
+            (0, "source_text"),
+        ),
+        "subject_summary": ("DataSnapshotMetadata", "subject_summary", ()),
+        "panel_title": ("DataSnapshotMetadata", "panel_titles", (0,)),
+        "variable_name": ("Variable", "name", ()),
+        "category_dimension": ("Dimension", "name", ()),
+        "population_group": (
+            "DataSnapshotMetadata",
+            "population_group",
+            ("source_text",),
+        ),
+        "time_period": ("TemporalCoverage", "period", ("source_text",)),
+        "temporal_granularity": ("TemporalCoverage", "granularity", ("source_text",)),
+        "geographic_scope": ("GeographicCoverage", "scope", ("source_text",)),
+        "geographic_entities": ("GeographicCoverage", "locations", (0, "name")),
+        "geographic_granularity": ("GeographicCoverage", "level", ("source_text",)),
+        "geographic_role": ("GeographicLocation", "role", ("source_text",)),
+        "location_type": ("GeographicLocation", "type", ("source_text",)),
+        "unit_of_measure": ("Variable", "unit", ("source_text",)),
+        "currency": ("Variable", "currency", ("source_text",)),
+        "measure_type": ("Variable", "statistical_forms", (0, "source_text")),
+        "comparison_group": ("DataSnapshotMetadata", "comparisons", (0,)),
+        "visualization_type": (
+            "DataSnapshotMetadata",
+            "visualization_types",
+            (0, "source_text"),
+        ),
+        "language": ("DataSnapshotMetadata", "languages", (0, "source_text")),
+        "interpretive_note": ("DataSnapshotMetadata", "interpretive_notes", (0,)),
+        "project_name": ("Project", "name", ()),
+        "project_identifier": ("Project", "identifiers", (0, "value")),
+        "project_component": ("Project", "components", (0, "name")),
+        "intervention_type": (
+            "DataSnapshotMetadata",
+            "intervention_types",
+            (0, "source_text"),
+        ),
+        "financial_measure": ("Financing", "measures", (0, "source_text")),
+        "financing_source": ("Financing", "funders", (0, "name")),
+        "financing_instrument": ("Financing", "instruments", (0, "source_text")),
+        "analysis_method": (
+            "DataSnapshotMetadata",
+            "analysis_methods",
+            (0, "source_text"),
+        ),
+        "data_collection_method": (
+            "DataSnapshotMetadata",
+            "data_collection_methods",
+            (0, "source_text"),
+        ),
+    }
+    legacy = _v111_fields()
+    for name, (model_name, field_name, path) in destinations.items():
+        values = []
+        for example in (
+            getattr(metadata_models, model_name).model_fields[field_name].examples
+        ):
+            for key in path:
+                example = example[key]
+            values.append(example)
+        assert values == legacy[name][1], name
+    assert [
+        ", ".join(category["source_text"] for category in example)
+        for example in metadata_models.Dimension.model_fields["categories"].examples
+    ] == legacy["category_labels"][1]
+    provenance = DataSnapshotMetadata.model_fields["provenance"].examples
+    assert [
+        entity["name"]
+        for example in provenance
+        for entities in example.values()
+        for entity in entities
+    ] == legacy["data_source"][1]
+    assert [
+        example[0]["name"]
+        for field in ("sources", "attributions")
+        for example in metadata_models.Provenance.model_fields[field].examples
+    ] == legacy["data_source"][1]
+    dimensions = DataSnapshotMetadata.model_fields["dimensions"].examples
+    for name, role in [("row_dimension", "row"), ("column_dimension", "column")]:
+        assert [
+            example[0]["name"]
+            for example in dimensions
+            if example[0].get("presentation_roles") == [role]
+        ] == legacy[name][1]
 
 
 def test_representative_record_preserves_nested_relationships() -> None:

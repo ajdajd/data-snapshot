@@ -392,15 +392,21 @@ class Identifier(_SchemaModel):
         Authoritative absolute URI for the identifier.
     """
 
-    value: NonEmptyText = Field(description="Identifier exactly as assigned.")
+    value: NonEmptyText = Field(
+        examples=["P171254", "P178944"], description="Identifier exactly as assigned."
+    )
     scheme: NonEmptyText | None = Field(
-        default=None, description="Identifier scheme, when known."
+        examples=["World Bank project ID"],
+        default=None,
+        description="Identifier scheme, when known.",
     )
     issuer: NonEmptyText | None = Field(
-        default=None, description="Issuing agent, when known."
+        examples=["World Bank"], default=None, description="Issuing agent, when known."
     )
     uri: AbsoluteURI | None = Field(
-        default=None, description="Authoritative absolute URI for the identifier."
+        examples=["https://example.org/projects/P171254"],
+        default=None,
+        description="Authoritative absolute URI for the identifier.",
     )
 
 
@@ -433,19 +439,27 @@ class ControlledTerm(_SchemaModel):
     )
 
     source_text: NonEmptyText | None = Field(
-        default=None, description="Faithful source-visible expression."
+        examples=["Health", "Education"],
+        default=None,
+        description="Faithful source-visible expression.",
     )
     normalized_value: NonEmptyText | None = Field(
-        default=None, description="Preferred application or vocabulary value."
+        examples=["health", "education"],
+        default=None,
+        description="Preferred application or vocabulary value.",
     )
     code: NonEmptyText | None = Field(
-        default=None, description="Code in the named scheme."
+        examples=["TERM-001"], default=None, description="Code in the named scheme."
     )
     scheme: NonEmptyText | None = Field(
-        default=None, description="Code-list or vocabulary identifier."
+        examples=["https://example.org/concepts"],
+        default=None,
+        description="Code-list or vocabulary identifier.",
     )
     uri: AbsoluteURI | None = Field(
-        default=None, description="Authoritative URI for the represented concept."
+        examples=["https://example.org/concepts/TERM-001"],
+        default=None,
+        description="Authoritative URI for the represented concept.",
     )
 
     @model_validator(mode="after")
@@ -474,8 +488,15 @@ class StatisticalFormTerm(ControlledTerm):
         Authoritative URI for the represented concept.
     """
 
+    source_text: NonEmptyText | None = Field(
+        default=None,
+        description="Faithful source-visible expression.",
+        examples=["Count", "Percentage", "Rate", "Index", "Average"],
+    )
     normalized_value: StatisticalFormValue | None = Field(
-        default=None, description="Approved normalized statistical form."
+        examples=["count", "percentage", "arithmetic_mean"],
+        default=None,
+        description="Approved normalized statistical form.",
     )
 
 
@@ -496,8 +517,22 @@ class VisualizationTypeTerm(ControlledTerm):
         Authoritative URI for the represented concept.
     """
 
+    source_text: NonEmptyText | None = Field(
+        default=None,
+        description="Faithful source-visible expression.",
+        examples=[
+            "Bar chart",
+            "Line chart",
+            "Table",
+            "Map",
+            "Heatmap",
+            "Composite figure: line charts and map",
+        ],
+    )
     normalized_value: VisualizationTypeValue | None = Field(
-        default=None, description="Approved normalized visualization type."
+        examples=["bar_chart", "table", "composite_figure"],
+        default=None,
+        description="Approved normalized visualization type.",
     )
 
 
@@ -518,8 +553,15 @@ class TemporalGranularityTerm(ControlledTerm):
         Authoritative URI for the represented concept.
     """
 
+    source_text: NonEmptyText | None = Field(
+        default=None,
+        description="Faithful source-visible expression.",
+        examples=["Annual", "Monthly", "Quarterly", "Daily"],
+    )
     normalized_value: TemporalGranularityValue | None = Field(
-        default=None, description="Approved normalized temporal granularity."
+        examples=["annual", "monthly", "quarterly"],
+        default=None,
+        description="Approved normalized temporal granularity.",
     )
 
 
@@ -540,8 +582,15 @@ class GeographicLevelTerm(ControlledTerm):
         Authoritative URI for the represented concept.
     """
 
+    source_text: NonEmptyText | None = Field(
+        default=None,
+        description="Faithful source-visible expression.",
+        examples=["Country", "Province", "District", "Facility"],
+    )
     normalized_value: GeographicLevelValue | None = Field(
-        default=None, description="Approved normalized geographic level."
+        examples=["country", "administrative_area_1", "site"],
+        default=None,
+        description="Approved normalized geographic level.",
     )
 
 
@@ -556,9 +605,21 @@ class EntityReference(_SchemaModel):
         Assigned identifiers for the entity.
     """
 
-    name: NonEmptyText = Field(description="Source-visible entity name.")
+    name: NonEmptyText = Field(
+        examples=[
+            "World Development Indicators",
+            "DHS",
+            "UNHCR Registration Data",
+            "National Census",
+            "Map Design Unit",
+        ],
+        description="Source-visible entity name.",
+    )
     identifiers: list[Identifier] | None = Field(
-        default=None, min_length=1, description="Assigned entity identifiers."
+        examples=[[{"value": "ENTITY-001", "scheme": "https://example.org/entities"}]],
+        default=None,
+        min_length=1,
+        description="Assigned entity identifiers.",
     )
 
 
@@ -575,7 +636,14 @@ class Attribution(EntityReference):
         Open, source-grounded attribution role.
     """
 
-    role: ControlledTerm = Field(description="Explicit source-grounded agent role.")
+    name: NonEmptyText = Field(
+        description="Source-visible entity name.",
+        examples=["Map Design Unit", "National Statistics Office"],
+    )
+    role: ControlledTerm = Field(
+        examples=[{"source_text": "Map maker"}, {"source_text": "Producer"}],
+        description="Explicit source-grounded agent role.",
+    )
 
 
 class Unit(_SchemaModel):
@@ -591,11 +659,15 @@ class Unit(_SchemaModel):
         SDMX unit-multiplier exponent.
     """
 
-    source_text: NonEmptyText = Field(description="Displayed unit expression.")
+    source_text: NonEmptyText = Field(
+        examples=["Percent", "USD", "People", "Kilometers"],
+        description="Displayed unit expression.",
+    )
     code: (
         Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z0-9]{1,3}$")]
         | None
     ) = Field(
+        examples=["P1", "KMT"],
         default=None,
         description="Exact UN/CEFACT Recommendation 20 common code.",
         json_schema_extra=_code_list(
@@ -605,6 +677,7 @@ class Unit(_SchemaModel):
         ),
     )
     multiplier_exponent: Annotated[int, Field(strict=True)] | None = Field(
+        examples=[3, 6, 9],
         default=None,
         description="Base-10 SDMX unit-multiplier exponent.",
         json_schema_extra=_code_list(
@@ -627,10 +700,13 @@ class Currency(_SchemaModel):
         Uppercase ISO 4217 alphabetic code.
     """
 
-    source_text: NonEmptyText = Field(description="Displayed currency expression.")
+    source_text: NonEmptyText = Field(
+        examples=["USD", "EUR", "JPY"], description="Displayed currency expression."
+    )
     code: (
         Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z]{3}$")] | None
     ) = Field(
+        examples=["USD", "EUR", "JPY"],
         default=None,
         description="Uppercase ISO 4217 alphabetic code.",
         json_schema_extra=_code_list(
@@ -653,7 +729,9 @@ class Language(_SchemaModel):
     model_config = ConfigDict(json_schema_extra=_content_schema("source_text", "tag"))
 
     source_text: NonEmptyText | None = Field(
-        default=None, description="Displayed language label, when present."
+        examples=["English", "French", "Arabic"],
+        default=None,
+        description="Displayed language label, when present.",
     )
     tag: (
         Annotated[
@@ -664,6 +742,7 @@ class Language(_SchemaModel):
         ]
         | None
     ) = Field(
+        examples=["en", "fr", "ar"],
         default=None,
         description="Canonical BCP 47 language tag.",
         json_schema_extra=_code_list(
@@ -753,28 +832,50 @@ class Variable(_SchemaModel):
     """
 
     name: NonEmptyText = Field(
-        description="Explicitly named measured concept.",
+        examples=["GDP Growth", "Inflation", "Literacy Rate", "Refugee Population"],
+        description="The primary variable, indicator, metric, or measured concept represented by the snapshot.\n\nThis field records the variable's name or measured concept, not a normalized analytical role. Use `dimensions[].name`, `dimensions[].categories`, and `dimensions[].presentation_roles` where those structural roles apply. Analytical roles and axis assignments belong in `variables[].analytical_roles`.",
         json_schema_extra=_standards(("https://schema.org/variableMeasured", "close")),
     )
     unit: Unit | None = Field(
+        examples=[
+            {"source_text": "Percent"},
+            {"source_text": "USD"},
+            {"source_text": "People"},
+            {"source_text": "Kilometers"},
+        ],
         default=None,
-        description="Applicable unit.",
+        description="The unit used to interpret reported quantitative values.",
         json_schema_extra=_standards(
             ("https://schema.org/unitCode", "related_structural")
         ),
     )
     currency: Currency | None = Field(
+        examples=[
+            {"source_text": "USD"},
+            {"source_text": "EUR"},
+            {"source_text": "JPY"},
+        ],
         default=None,
-        description="Applicable currency.",
+        description="The currency denomination used for monetary values.",
         json_schema_extra=_standards(("https://schema.org/currency", "close")),
     )
     analytical_roles: list[AnalyticalRole] | None = Field(
-        default=None, min_length=1, description="Explicit analytical or axis roles."
-    )
-    statistical_forms: list[StatisticalFormTerm] | None = Field(
+        examples=[["outcome"], ["predictor"], ["x_axis"]],
         default=None,
         min_length=1,
-        description="Applicable statistical forms.",
+        description="Explicit analytical or axis roles.",
+    )
+    statistical_forms: list[StatisticalFormTerm] | None = Field(
+        examples=[
+            [{"source_text": "Count"}],
+            [{"source_text": "Percentage"}],
+            [{"source_text": "Rate"}],
+            [{"source_text": "Index"}],
+            [{"source_text": "Average"}],
+        ],
+        default=None,
+        min_length=1,
+        description="The statistical form in which values are expressed.",
         json_schema_extra=_standards(("https://schema.org/statType", "close")),
     )
 
@@ -790,9 +891,19 @@ class CategoryGroup(_SchemaModel):
         Categories directly contained by the group.
     """
 
-    name: NonEmptyText = Field(description="Explicit category-group heading.")
+    name: NonEmptyText = Field(
+        examples=["Violation du droit à la liberté"],
+        description="Explicit category-group heading.",
+    )
     categories: list[ControlledTerm] = Field(
-        min_length=1, description="Categories directly contained by the group."
+        examples=[
+            [
+                {"source_text": "Arrestations arbitraires"},
+                {"source_text": "Enlèvements"},
+            ]
+        ],
+        min_length=1,
+        description="Categories directly contained by the group.",
     )
 
 
@@ -811,16 +922,48 @@ class Dimension(_SchemaModel):
         Explicit row and/or column roles.
     """
 
-    name: NonEmptyText = Field(description="Classificatory dimension name.")
+    name: NonEmptyText = Field(
+        examples=["Country", "Year", "Education Level", "Industry Sector", "Scenario"],
+        description="The conceptual variable or dimension used to organize, group, classify, or compare the represented values.",
+    )
     categories: list[ControlledTerm] | None = Field(
+        examples=[
+            [{"source_text": "Male"}, {"source_text": "Female"}],
+            [
+                {"source_text": "Agriculture"},
+                {"source_text": "Manufacturing"},
+                {"source_text": "Services"},
+            ],
+            [
+                {"source_text": "Kenya"},
+                {"source_text": "Uganda"},
+                {"source_text": "Tanzania"},
+            ],
+            [
+                {"source_text": "Low"},
+                {"source_text": "Medium"},
+                {"source_text": "High"},
+            ],
+        ],
         default=None,
         min_length=1,
-        description="Ordered ungrouped categories.",
+        description="The explicit category names or labels associated with a category dimension.",
         json_schema_extra=_standards(
             ("http://www.w3.org/2004/02/skos/core#Concept", "related_structural")
         ),
     )
     category_groups: list[CategoryGroup] | None = Field(
+        examples=[
+            [
+                {
+                    "name": "Violation du droit à la liberté",
+                    "categories": [
+                        {"source_text": "Arrestations arbitraires"},
+                        {"source_text": "Enlèvements"},
+                    ],
+                }
+            ]
+        ],
         default=None,
         min_length=1,
         description="One level of explicit category groups.",
@@ -829,9 +972,10 @@ class Dimension(_SchemaModel):
         ),
     )
     presentation_roles: list[PresentationRole] | None = Field(
+        examples=[["row"], ["column"]],
         default=None,
         min_length=1,
-        description="Explicit table-presentation roles.",
+        description="Explicit table-presentation roles.\n\n`row`: The conceptual variable represented by table rows.\n\n`column`: The conceptual variable represented by table columns.",
     )
 
 
@@ -854,14 +998,27 @@ class TemporalExpression(_SchemaModel):
 
     model_config = ConfigDict(json_schema_extra=_temporal_schema)
 
-    source_text: NonEmptyText = Field(description="Complete source time expression.")
-    start: NonEmptyText | None = Field(default=None, description="Normalized start.")
-    end: NonEmptyText | None = Field(default=None, description="Normalized end.")
+    source_text: NonEmptyText = Field(
+        examples=["2015–2020", "FY2023", "January 2024"],
+        description="Complete source time expression.",
+    )
+    start: NonEmptyText | None = Field(
+        examples=["2015", "2024-01", "2024-01-01T12:00:00.1Z"],
+        default=None,
+        description="Normalized start.",
+    )
+    end: NonEmptyText | None = Field(
+        examples=["2020", "2024-03"], default=None, description="Normalized end."
+    )
     relation: TemporalRelation | None = Field(
-        default=None, description="Relationship between normalized bounds."
+        examples=["interval", "point", "as_of", "open_interval"],
+        default=None,
+        description="Relationship between normalized bounds.",
     )
     precision: TemporalPrecision | None = Field(
-        default=None, description="Precision of normalized bounds."
+        examples=["year", "month", "day", "datetime"],
+        default=None,
+        description="Precision of normalized bounds.",
     )
 
     @model_validator(mode="after")
@@ -943,15 +1100,27 @@ class TemporalCoverage(_SchemaModel):
     )
 
     period: TemporalExpression | None = Field(
+        examples=[
+            {"source_text": "2015–2020"},
+            {"source_text": "FY2023"},
+            {"source_text": "January 2024"},
+        ],
         default=None,
-        description="Represented-data temporal expression.",
+        description="The period or date range represented by the data.\n\nThis field describes **when the represented data apply**. It does not describe when the snapshot artifact or parent document was created, prepared, issued, published, revised, or retrieved. When an explicit artifact date appears only as part of a footer or provenance statement, preserve the complete statement in `interpretive_notes` rather than treating the date as `temporal_coverage.period`.",
         json_schema_extra=_standards(
             ("https://schema.org/temporalCoverage", "exact"),
             ("http://purl.org/dc/terms/temporal", "close"),
         ),
     )
     granularity: TemporalGranularityTerm | None = Field(
-        default=None, description="Reporting interval or temporal resolution."
+        examples=[
+            {"source_text": "Annual"},
+            {"source_text": "Monthly"},
+            {"source_text": "Quarterly"},
+            {"source_text": "Daily"},
+        ],
+        default=None,
+        description="The temporal resolution at which the represented data are reported.",
     )
 
     @model_validator(mode="after")
@@ -983,12 +1152,19 @@ class Place(_SchemaModel):
     model_config = ConfigDict(json_schema_extra=_content_schema("source_text", "name"))
 
     source_text: NonEmptyText | None = Field(
-        default=None, description="Displayed place expression."
+        examples=["Global", "Kenya", "Sub-Saharan Africa", "Latin America"],
+        default=None,
+        description="Displayed place expression.",
     )
-    name: NonEmptyText | None = Field(default=None, description="Preferred place name.")
+    name: NonEmptyText | None = Field(
+        examples=["Kenya", "Sub-Saharan Africa", "Philippines"],
+        default=None,
+        description="Preferred place name.",
+    )
     country_code: (
         Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z]{2}$")] | None
     ) = Field(
+        examples=["KE", "PH"],
         default=None,
         description="ISO 3166-1 alpha-2 country code.",
         json_schema_extra=_code_list(
@@ -1001,6 +1177,7 @@ class Place(_SchemaModel):
         ]
         | None
     ) = Field(
+        examples=["US-CA"],
         default=None,
         description="ISO 3166-2 subdivision code.",
         json_schema_extra=_code_list(
@@ -1010,6 +1187,7 @@ class Place(_SchemaModel):
     m49_code: (
         Annotated[str, StringConstraints(strict=True, pattern=r"^[0-9]{3}$")] | None
     ) = Field(
+        examples=["002", "202"],
         default=None,
         description="UN M49 statistical-area code.",
         json_schema_extra=_code_list(
@@ -1019,7 +1197,10 @@ class Place(_SchemaModel):
         ),
     )
     identifiers: list[Identifier] | None = Field(
-        default=None, min_length=1, description="Other authoritative identifiers."
+        examples=[[{"value": "KE", "scheme": "ISO 3166-1 alpha-2"}]],
+        default=None,
+        min_length=1,
+        description="Other authoritative identifiers.",
     )
 
     @model_validator(mode="after")
@@ -1053,10 +1234,24 @@ class GeographicLocation(Place):
     """
 
     role: ControlledTerm | None = Field(
-        default=None, description="Explicit source-grounded geographic role."
+        examples=[
+            {"source_text": "Country of origin"},
+            {"source_text": "Host country"},
+            {"source_text": "Destination"},
+            {"source_text": "Reporting location"},
+        ],
+        default=None,
+        description="The semantic role played by geographic entities within the represented data.",
     )
     type: ControlledTerm | None = Field(
-        default=None, description="Physical or administrative location type."
+        examples=[
+            {"source_text": "Refugee camp"},
+            {"source_text": "Hospital"},
+            {"source_text": "School"},
+            {"source_text": "District"},
+        ],
+        default=None,
+        description="The type of physical location represented.",
     )
 
 
@@ -1078,20 +1273,39 @@ class GeographicCoverage(_SchemaModel):
     )
 
     scope: Place | None = Field(
+        examples=[
+            {"source_text": "Global"},
+            {"source_text": "Kenya"},
+            {"source_text": "Sub-Saharan Africa"},
+            {"source_text": "Latin America"},
+        ],
         default=None,
-        description="Overall geographic coverage or focus.",
+        description="The primary geographic area represented by the snapshot.",
         json_schema_extra=_standards(("https://schema.org/spatialCoverage", "exact")),
     )
     locations: list[GeographicLocation] | None = Field(
+        examples=[
+            [{"name": "Uganda"}],
+            [{"name": "Nairobi"}],
+            [{"name": "West Africa"}],
+            [{"name": "Burkina Faso"}],
+        ],
         default=None,
         min_length=1,
-        description="Additional named locations.",
+        description="Named geographic entities explicitly represented within the snapshot.\n\nUse this collection for additional named locations; record the overall coverage in `geographic_coverage.scope`.",
         json_schema_extra=_standards(
             ("https://schema.org/spatialCoverage", "related_structural")
         ),
     )
     level: GeographicLevelTerm | None = Field(
-        default=None, description="Geographic or reporting level."
+        examples=[
+            {"source_text": "Country"},
+            {"source_text": "Province"},
+            {"source_text": "District"},
+            {"source_text": "Facility"},
+        ],
+        default=None,
+        description="The administrative or spatial level at which data are reported.",
     )
 
     @model_validator(mode="after")
@@ -1117,6 +1331,12 @@ class Provenance(_SchemaModel):
     )
 
     sources: list[EntityReference] | None = Field(
+        examples=[
+            [{"name": "World Development Indicators"}],
+            [{"name": "DHS"}],
+            [{"name": "UNHCR Registration Data"}],
+            [{"name": "National Census"}],
+        ],
         default=None,
         min_length=1,
         description="Represented-data derivation sources.",
@@ -1126,6 +1346,7 @@ class Provenance(_SchemaModel):
         ),
     )
     attributions: list[Attribution] | None = Field(
+        examples=[[{"name": "Map Design Unit", "role": {"source_text": "Map maker"}}]],
         default=None,
         min_length=1,
         description="Role-bearing credited agents.",
@@ -1159,22 +1380,32 @@ class Project(_SchemaModel):
     )
 
     name: NonEmptyText | None = Field(
+        examples=[
+            "Niger - COVID-19 Emergency Response Project",
+            "Jordan Health Sector Reform Project",
+            "Lebanon - Health Resilience Project",
+        ],
         default=None,
-        description="Associated project-context name.",
+        description="The project, program, operation, or initiative associated with the snapshot.",
         json_schema_extra=_standards(("https://schema.org/name", "exact")),
     )
     identifiers: list[Identifier] | None = Field(
+        examples=[[{"value": "P171254"}], [{"value": "P178944"}]],
         default=None,
         min_length=1,
-        description="Formal project identifiers.",
+        description="The formal identifier assigned to the associated project or operation.",
         json_schema_extra=_standards(
             ("https://schema.org/identifier", "standard_broader")
         ),
     )
     components: list[EntityReference] | None = Field(
+        examples=[
+            [{"name": "Component 3: Project management"}],
+            [{"name": "Results Area 1"}],
+        ],
         default=None,
         min_length=1,
-        description="Named project components.",
+        description="The project component, workstream, or results area represented by the snapshot.",
         json_schema_extra=_standards(
             ("https://schema.org/hasPart", "related_structural")
         ),
@@ -1205,18 +1436,38 @@ class Financing(_SchemaModel):
     )
 
     measures: list[ControlledTerm] | None = Field(
-        default=None, min_length=1, description="Project-financing measures."
-    )
-    funders: list[EntityReference] | None = Field(
+        examples=[
+            [{"source_text": "Project Cost"}],
+            [{"source_text": "Disbursement"}],
+            [{"source_text": "Financing Gap"}],
+            [{"source_text": "Budget Allocation"}],
+        ],
         default=None,
         min_length=1,
-        description="Named funding sources.",
+        description="The financial quantity or funding-related measure represented by the snapshot.",
+    )
+    funders: list[EntityReference] | None = Field(
+        examples=[
+            [{"name": "IDA"}],
+            [{"name": "IBRD"}],
+            [{"name": "Government"}],
+            [{"name": "European Union"}],
+        ],
+        default=None,
+        min_length=1,
+        description="The organization or funding source providing financial support.",
         json_schema_extra=_standards(("https://schema.org/funder", "exact")),
     )
     instruments: list[ControlledTerm] | None = Field(
+        examples=[
+            [{"source_text": "Grant"}],
+            [{"source_text": "Loan"}],
+            [{"source_text": "Credit"}],
+            [{"source_text": "Trust Fund"}],
+        ],
         default=None,
         min_length=1,
-        description="Financing mechanisms.",
+        description="The financing mechanism associated with the represented activity.",
         json_schema_extra=_standards(
             (
                 "https://reference.iatistandard.org/en/iati-standard/203/codelists/financetype/",
@@ -1297,16 +1548,23 @@ class DataSnapshotMetadata(_SchemaModel):
     )
 
     title: NonEmptyText | None = Field(
+        examples=[
+            "Inflation Rate by Country",
+            "Annual Government Expenditure",
+            "Monthly labor income in Afghanistan and remittances from abroad",
+            "Table 6: Determinants of illegal land reallocation at village level",
+        ],
         default=None,
-        description="Primary title, caption, or heading identifying the snapshot.",
+        description="The primary title, caption, or heading that identifies the data snapshot.",
         json_schema_extra=_standards(
             ("http://purl.org/dc/terms/title", "exact"),
             ("https://schema.org/name", "exact"),
         ),
     )
     document_label: NonEmptyText | None = Field(
+        examples=["Figure 3", "Table 4.2", "Annex B", "Exhibit 7"],
         default=None,
-        description="Label assigned within the parent source document.",
+        description="A document-assigned identifier used to reference the snapshot within the source document.",
         json_schema_extra=_standards(
             (
                 "https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/label.html",
@@ -1316,26 +1574,39 @@ class DataSnapshotMetadata(_SchemaModel):
         ),
     )
     subject_domains: list[ControlledTerm] | None = Field(
+        examples=[
+            [{"source_text": "Education"}],
+            [{"source_text": "Health"}],
+            [{"source_text": "Macroeconomics"}],
+            [{"source_text": "Agriculture"}],
+            [{"source_text": "Forced Displacement"}],
+        ],
         default=None,
         min_length=1,
-        description="Broad thematic, policy, or sectoral domains.",
+        description="The broad thematic, policy, or sectoral domain represented by the snapshot.",
         json_schema_extra=_standards(
             ("http://purl.org/dc/terms/subject", "standard_broader"),
             ("https://schema.org/about", "standard_broader"),
         ),
     )
     subject_summary: NonEmptyText | None = Field(
+        examples=[
+            "Trends in primary school enrollment",
+            "Distribution of humanitarian funding",
+            "Comparison of poverty rates across regions",
+        ],
         default=None,
-        description="Concise summary of the primary analytical subject or purpose.",
+        description="A concise summary describing the primary analytical subject or purpose of the snapshot.",
         json_schema_extra=_standards(
             ("https://schema.org/abstract", "close"),
             ("http://purl.org/dc/terms/description", "standard_broader"),
         ),
     )
     panel_titles: list[NonEmptyText] | None = Field(
+        examples=[["(A) Poverty Rate"], ["(B) Literacy Rate"], ["Monthly Returns"]],
         default=None,
         min_length=1,
-        description="Ordered titles explicitly shown for individual panels.",
+        description="The title or heading of an individual panel within a multi-panel snapshot.\n\nPopulate only when panel titles are explicitly present.",
         json_schema_extra=_standards(
             (
                 "https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/fig-group.html",
@@ -1345,6 +1616,12 @@ class DataSnapshotMetadata(_SchemaModel):
         ),
     )
     variables: list[Variable] | None = Field(
+        examples=[
+            [{"name": "GDP Growth"}],
+            [{"name": "Inflation"}],
+            [{"name": "Literacy Rate"}],
+            [{"name": "Refugee Population"}],
+        ],
         default=None,
         min_length=1,
         description="Explicitly named measured concepts and their qualifiers.",
@@ -1354,6 +1631,19 @@ class DataSnapshotMetadata(_SchemaModel):
         ),
     )
     dimensions: list[Dimension] | None = Field(
+        examples=[
+            [{"name": "Country"}],
+            [{"name": "Year"}],
+            [{"name": "Education Level"}],
+            [{"name": "Industry Sector"}],
+            [{"name": "Scenario"}],
+            [{"name": "Country", "presentation_roles": ["row"]}],
+            [{"name": "Indicator", "presentation_roles": ["row"]}],
+            [{"name": "Sector", "presentation_roles": ["row"]}],
+            [{"name": "Year", "presentation_roles": ["column"]}],
+            [{"name": "Region", "presentation_roles": ["column"]}],
+            [{"name": "Funding Source", "presentation_roles": ["column"]}],
+        ],
         default=None,
         min_length=1,
         description="Classificatory dimensions and their visible organization.",
@@ -1363,8 +1653,15 @@ class DataSnapshotMetadata(_SchemaModel):
         ),
     )
     population_group: ControlledTerm | None = Field(
+        examples=[
+            {"source_text": "Refugees"},
+            {"source_text": "Children under five"},
+            {"source_text": "Female respondents"},
+            {"source_text": "Host communities"},
+            {"source_text": "Technical education graduates"},
+        ],
         default=None,
-        description="Human population or beneficiary group represented by the data.",
+        description="The human population, beneficiary group, or demographic group that is the primary subject of the represented data. This field describes who the data are about, not how they are categorized or disaggregated.",
         json_schema_extra=_standards(
             (
                 "https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html",
@@ -1374,15 +1671,32 @@ class DataSnapshotMetadata(_SchemaModel):
         ),
     )
     visualization_types: list[VisualizationTypeTerm] | None = Field(
+        examples=[
+            [{"source_text": "Bar chart"}],
+            [{"source_text": "Line chart"}],
+            [{"source_text": "Table"}],
+            [{"source_text": "Map"}],
+            [{"source_text": "Heatmap"}],
+            [{"source_text": "Composite figure: line charts and map"}],
+        ],
         default=None,
         min_length=1,
-        description="Explicitly visible visualization forms used by the snapshot.",
+        description="The primary visualization used to encode the represented data.\n\nFor a composite or multi-panel snapshot, record a concise description of the overall visualization type or visible combination when no single type adequately describes the artifact. Use `panel_titles` for explicit panel headings.",
         json_schema_extra=_standards(
             ("http://purl.org/dc/terms/type", "standard_broader"),
             ("https://schema.org/additionalType", "standard_broader"),
         ),
     )
     temporal_coverage: TemporalCoverage | None = Field(
+        examples=[
+            {"period": {"source_text": "2015–2020"}},
+            {"period": {"source_text": "FY2023"}},
+            {"period": {"source_text": "January 2024"}},
+            {"granularity": {"source_text": "Annual"}},
+            {"granularity": {"source_text": "Monthly"}},
+            {"granularity": {"source_text": "Quarterly"}},
+            {"granularity": {"source_text": "Daily"}},
+        ],
         default=None,
         description="When the represented data apply and their granularity.",
         json_schema_extra=_standards(
@@ -1391,6 +1705,20 @@ class DataSnapshotMetadata(_SchemaModel):
         ),
     )
     geographic_coverage: GeographicCoverage | None = Field(
+        examples=[
+            {"scope": {"source_text": "Global"}},
+            {"scope": {"source_text": "Kenya"}},
+            {"scope": {"source_text": "Sub-Saharan Africa"}},
+            {"scope": {"source_text": "Latin America"}},
+            {"locations": [{"name": "Uganda"}]},
+            {"locations": [{"name": "Nairobi"}]},
+            {"locations": [{"name": "West Africa"}]},
+            {"locations": [{"name": "Burkina Faso"}]},
+            {"level": {"source_text": "Country"}},
+            {"level": {"source_text": "Province"}},
+            {"level": {"source_text": "District"}},
+            {"level": {"source_text": "Facility"}},
+        ],
         default=None,
         description="Overall geographic scope, additional locations, and level.",
         json_schema_extra=_standards(
@@ -1399,33 +1727,72 @@ class DataSnapshotMetadata(_SchemaModel):
         ),
     )
     comparisons: list[NonEmptyText] | None = Field(
+        examples=[
+            ["Male vs Female"],
+            ["Rural vs Urban"],
+            ["Baseline vs Endline"],
+            ["Treatment vs Control"],
+            ["Before vs After"],
+            ["Low-income vs Middle-income vs High-income"],
+            ["Europe & Central Asia benchmark"],
+            ["Sub-Saharan Africa benchmark"],
+        ],
         default=None,
         min_length=1,
-        description="Explicit comparative expressions or named comparators.",
+        description="The benchmark, comparator, reference group, cohort, scenario, or entity against which the represented data are compared.\n\nPopulate only when the snapshot explicitly presents a comparative relationship. This field captures the intended comparison or benchmark represented by the snapshot, not simply the categories used to organize the data.",
     )
     provenance: Provenance | None = Field(
+        examples=[
+            {"sources": [{"name": "World Development Indicators"}]},
+            {"sources": [{"name": "DHS"}]},
+            {"sources": [{"name": "UNHCR Registration Data"}]},
+            {"sources": [{"name": "National Census"}]},
+            {
+                "attributions": [
+                    {"name": "Map Design Unit", "role": {"source_text": "Map maker"}}
+                ],
+            },
+        ],
         default=None,
-        description="Represented-data sources and artifact attributions.",
+        description="The named dataset, survey, publication, organization, or credited agent from which the represented data originate or which is explicitly credited with producing the snapshot artifact.\n\nUse `sources` for represented-data derivation sources and `attributions` for credited agents with explicit roles. Do not copy the parent document's authors or publisher into this field solely because they are associated with the document; the source or attribution must be explicitly relevant to the snapshot or its represented data.",
     )
     languages: list[Language] | None = Field(
+        examples=[
+            [{"source_text": "English"}],
+            [{"source_text": "French"}],
+            [{"source_text": "Arabic"}],
+        ],
         default=None,
         min_length=1,
-        description="Languages explicitly used within the snapshot.",
+        description="The language used within the snapshot.",
         json_schema_extra=_standards(
             ("https://schema.org/inLanguage", "exact"),
             ("http://purl.org/dc/terms/language", "exact"),
         ),
     )
     interpretive_notes: list[NonEmptyText] | None = Field(
+        examples=[
+            ["Values are provisional."],
+            ["Estimates exclude informal employment."],
+            ["Data collected using 2022 census boundaries."],
+            ["Sample: 1,204 respondents."],
+            ["Shaded areas show 95% confidence intervals."],
+            ["Prepared by the Map Design Unit, March 2024."],
+        ],
         default=None,
         min_length=1,
-        description="Complete explanatory, methodological, uncertainty, sample-size, or provenance statements.",
+        description="Explanatory, methodological, uncertainty, or provenance statements explicitly provided within the snapshot that aid interpretation or traceability.\n\nThis field may preserve complete notes containing sample-size statements, explanations of confidence intervals, standard errors or uncertainty bands, and footer statements that include an artifact date or production credit. It retains the statement as text; it does not create separate structured fields for sample size, uncertainty representation, or artifact publication date.\n\nPopulate only when such notes are explicitly present.",
         json_schema_extra=_standards(
             ("http://purl.org/dc/terms/description", "standard_broader"),
             ("https://schema.org/description", "standard_broader"),
         ),
     )
     project: Project | None = Field(
+        examples=[
+            {"name": "Niger - COVID-19 Emergency Response Project"},
+            {"name": "Jordan Health Sector Reform Project"},
+            {"name": "Lebanon - Health Resilience Project"},
+        ],
         default=None,
         description="Associated project, program, operation, or initiative.",
         json_schema_extra=_standards(
@@ -1437,27 +1804,58 @@ class DataSnapshotMetadata(_SchemaModel):
         ),
     )
     intervention_types: list[ControlledTerm] | None = Field(
+        examples=[
+            [{"source_text": "Cash Transfer"}],
+            [{"source_text": "Vaccination"}],
+            [{"source_text": "School Construction"}],
+        ],
         default=None,
         min_length=1,
-        description="Explicit interventions, services, policies, or operational activities.",
+        description="The intervention, service, policy, or operational activity represented.",
     )
     financing: Financing | None = Field(
+        examples=[
+            {"measures": [{"source_text": "Project Cost"}]},
+            {"measures": [{"source_text": "Disbursement"}]},
+            {"measures": [{"source_text": "Financing Gap"}]},
+            {"measures": [{"source_text": "Budget Allocation"}]},
+            {"funders": [{"name": "IDA"}]},
+            {"funders": [{"name": "IBRD"}]},
+            {"funders": [{"name": "Government"}]},
+            {"funders": [{"name": "European Union"}]},
+            {"instruments": [{"source_text": "Grant"}]},
+            {"instruments": [{"source_text": "Loan"}]},
+            {"instruments": [{"source_text": "Credit"}]},
+            {"instruments": [{"source_text": "Trust Fund"}]},
+        ],
         default=None,
         description="Project-financing measures, funders, and instruments.",
     )
     analysis_methods: list[ControlledTerm] | None = Field(
+        examples=[
+            [{"source_text": "Difference-in-Differences"}],
+            [{"source_text": "Regression"}],
+            [{"source_text": "Tobit model"}],
+            [{"source_text": "Cost-Benefit Analysis"}],
+        ],
         default=None,
         min_length=1,
-        description="Explicit analytical, statistical, or computational methods.",
+        description="The analytical, statistical, or computational method used to produce the reported results.\n\nPopulate only when explicitly stated.",
         json_schema_extra=_standards(
             ("https://schema.org/measurementTechnique", "related_structural"),
             ("http://www.w3.org/ns/prov#Activity", "related_structural"),
         ),
     )
     data_collection_methods: list[ControlledTerm] | None = Field(
+        examples=[
+            [{"source_text": "Household Survey"}],
+            [{"source_text": "Administrative Records"}],
+            [{"source_text": "Key Informant Interviews"}],
+            [{"source_text": "Census"}],
+        ],
         default=None,
         min_length=1,
-        description="Explicit methods or instruments used to collect underlying data.",
+        description="The method or instrument used to collect the underlying data.\n\nPopulate only when explicitly stated.",
         json_schema_extra=_standards(
             (
                 "https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/",

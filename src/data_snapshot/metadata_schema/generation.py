@@ -115,8 +115,8 @@ def write_schema_artifacts(
 def _object_table(schema: dict[str, Any]) -> list[str]:
     required = set(schema.get("required", []))
     lines = [
-        "| Field | Type | Required | Default | Description | Constraints | Standards / code list |",
-        "|---|---|---:|---|---|---|---|",
+        "| Field | Type | Required | Default | Constraints | Standards / code list |",
+        "|---|---|---:|---|---|---|",
     ]
     for name, field_schema in schema.get("properties", {}).items():
         standards = ", ".join(
@@ -155,13 +155,40 @@ def _object_table(schema: dict[str, Any]) -> list[str]:
                     _cell(f"`{_type_label(field_schema)}`"),
                     "yes" if name in required else "no",
                     default,
-                    _cell(field_schema.get("description", "")),
                     _cell("; ".join(constraints)),
                     standards,
                 )
             )
             + " |"
         )
+    fields = schema.get("properties", {})
+    if fields:
+        lines.extend(
+            [
+                "",
+                "### Field definitions and examples",
+                "",
+                "Each block is one possible field value. Examples for different fields "
+                "are independent and should not be combined into a record automatically. "
+                "They illustrate the schema and do not constrain accepted values. "
+                "URIs under example.org are illustrative placeholders.",
+            ]
+        )
+        for name, field_schema in fields.items():
+            lines.extend(["", f"#### `{name}`", ""])
+            if field_schema.get("description"):
+                lines.extend(["**Definition**", "", field_schema["description"], ""])
+            if field_schema.get("examples"):
+                lines.extend(["**Examples**", ""])
+            for example in field_schema.get("examples", []):
+                lines.extend(
+                    [
+                        "```json",
+                        json.dumps(example, ensure_ascii=False, indent=2),
+                        "```",
+                        "",
+                    ]
+                )
     return lines
 
 

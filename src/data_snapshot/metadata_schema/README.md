@@ -8,6 +8,10 @@ the approved 35 metadata concepts through 20 optional top-level fields and
 nested value models. JSON Schema and the human-readable field reference are
 generated from these models.
 
+Field examples are stored in Pydantic `Field(examples=...)` metadata and included
+in both generated representations. They illustrate individual values and nested
+structures; they are neither defaults nor restrictions on accepted values.
+
 ## Package structure
 
 ```text
@@ -68,6 +72,11 @@ remain an ordered flat collection, with visualization types at snapshot level.
 
 Parent-document metadata is managed separately; `source_document_title` is not
 a v1.2 field. The models represent metadata, not extracted numerical observations.
+
+## Developer notes
+
+- `visualization_types`: v1.2 does not separately encode component-to-type
+  relationships or panel count.
 
 ## Validating input
 
