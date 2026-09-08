@@ -354,9 +354,7 @@ The output of this stage is a body of validation evidence, a record of human adj
 \section{Case study: Developing the Data Snapshot Metadata Schema}
 \label{sec:case_study}
 
-This section demonstrates the proposed methodology through one complete execution of the workflow for a class of multimodal analytical artifacts that lacked an established metadata schema. The resulting metadata schema is presented not as a definitive standard for this artifact type, but as evidence that the proposed methodology can produce a coherent, deployment-ready initial metadata schema where no suitable standard exists.
-
-The case study describes the representative dataset, the execution of the proposed workflow, the implementation of each workflow stage, and the resulting metadata schema. The intermediate knowledge artifacts generated throughout execution also provide the empirical foundation for the analyses presented in the following section.
+This section applies the proposed methodology to the development of the Data Snapshot Metadata Schema. It describes the artifact class, the case study dataset, the execution of the workflow, the resulting operational schema, and two complementary schema-validation exercises. The intermediate knowledge artifacts and validation evidence provide the empirical basis for the analyses in the following section.
 
 \subsection{Artifact type}
 
@@ -364,7 +362,7 @@ The case study focuses on \emph{data snapshots}: semantically meaningful analyti
 
 Typical data snapshots include statistical tables, analytical charts, geospatial maps, monitoring dashboards, financial summaries, composite figures, and other visual analytical objects containing textual, numerical, and spatial information. Additional examples of data snapshots are provided in Appendix~\ref{appendix:datasnapshots}.
 
-As discussed in our previous work, treating data snapshots as independent information objects enables downstream retrieval, indexing, comparison, and metadata extraction workflows that are difficult to support using document-level metadata alone. However, no existing metadata schema adequately captured the descriptive information required for this artifact type, making data snapshots an appropriate case study for evaluating a methodology designed to engineer an initial metadata schema for previously unsupported artifact types.
+Prior work treats data snapshots as independent information objects to support retrieval, indexing, comparison, and metadata extraction at the level of the analytical artifact~\citep{dy2026}. At the outset of this study, no directly adoptable metadata schema had been identified for data snapshots as defined here. This made them an appropriate case for artifact-driven metadata schema development.
 
 \subsection{Case study dataset}
 
@@ -372,7 +370,7 @@ Representative data snapshots were sampled from three institutional document cor
 
 Within these corpora, data snapshots were extracted from document layout regions classified as either figures or tables. To ensure balanced coverage, sampling was stratified by corpus and artifact category, as summarized in Table~\ref{tab:composition}. Equal representation of figures and tables reduced bias toward the structural characteristics of either visualization type.
 
-Although the dataset is not intended to be statistically representative of institutional documents as a whole, it provides sufficient semantic diversity to evaluate the proposed methodology across multiple reporting domains and visualization types.
+Although the dataset is not intended to be statistically representative of institutional documents as a whole, it provides semantic diversity across multiple reporting domains and visualization types for one execution of the proposed methodology.
 
 \begin{table}[!ht]
     \centering
@@ -393,22 +391,22 @@ Although the dataset is not intended to be statistically representative of insti
 
 \subsection{Workflow execution}
 
-The proposed methodology was executed using the 210 sampled data snapshots described in the previous subsection. Metadata discovery processed each sampled data snapshot independently, after which successive workflow stages transformed the resulting intermediate knowledge artifacts into progressively higher levels of semantic abstraction. Figure~\ref{fig:artifact_evolution} illustrates the sequence of intermediate knowledge artifacts produced as the workflow transformed representative data snapshots into the final metadata schema.
+The development stages were executed using the 210-snapshot case study dataset. Metadata discovery processed each snapshot independently. Subsequent stages aggregated the observations, synthesized and refined a shared concept inventory, assessed concept coverage, and translated the refined inventory into an operational metadata schema. Figure~\ref{fig:artifact_evolution} illustrates the intermediate knowledge artifacts produced during this process.
 
-Metadata discovery and ontology induction used GPT-5.5, while ontology validation used GPT-5.4 mini for ontology-constrained classification. Field profile aggregation was implemented deterministically in Python without additional LLM inference, whereas ontology engineering and schema engineering were performed through iterative human review supported by the intermediate knowledge artifacts produced throughout the workflow. Complete prompts, model configurations, and implementation details are provided in Appendices~\ref{appendix:discovery}--\ref{appendix:validation}.
+Metadata discovery and canonical concept synthesis used GPT-5.5, while concept coverage assessment used GPT-5.4 mini for constrained classification. Field profile aggregation was implemented deterministically in Python and required no LLM inference. Expert concept refinement and metadata schema design were performed through iterative human review of the intermediate knowledge artifacts. Complete prompts, model configurations, and implementation details for the LLM-supported development stages are provided in Appendices~\ref{appendix:discovery}--\ref{appendix:validation}.
 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.75\textwidth]{data/case_study_execution.png}
-    \caption{The workflow transforms representative data snapshots into the Data Snapshot Metadata Schema through a sequence of explicit intermediate knowledge artifacts. Colors distinguish LLM-supported, deterministic, and human-guided transformations.}
+    \caption{The development workflow transforms the 210 development snapshots into the Data Snapshot Metadata Schema through explicit intermediate knowledge artifacts. Colors distinguish LLM-supported, deterministic, and human-guided transformations. [TODO: Update the stage and artifact labels to use the metadata-concept-inventory terminology.]}
     \label{fig:artifact_evolution}
 \end{figure}
 
 \subsection{Resulting metadata schema}
 
-The end stage of the methodology produced the Data Snapshot Metadata Schema, which is comprised of 36 canonical metadata fields organized into nine semantic modules (Table~\ref{tab:schema}). Together, these modules define the operational metadata specification for describing data snapshots as independent information objects. Although informed by the refined ontology, the resulting schema reorganizes the engineered concepts into a metadata specification designed to support consistent annotation and downstream metadata workflows. The complete reference specification is reproduced in Appendix~\ref{appendix:schema}.
+Metadata schema design produced Data Snapshot Metadata Schema, comprising 36 metadata fields organized into nine semantic modules (Table~\ref{tab:schema}). Together, these modules define an operational specification for describing data snapshots as independent information objects. The schema translates the refined metadata concept inventory into fields, definitions, and annotation guidance for subsequent metadata workflows. The complete reference specification is reproduced in Appendix~\ref{appendix:schema}.
 
-A key outcome of the schema engineering was the explicit separation between metadata describing the snapshot itself and information intended to be extracted from the snapshot. This distinction establishes clear boundaries between metadata schema engineering and downstream metadata extraction workflows, ensuring that descriptive metadata remains conceptually independent of the analytical content contained within the artifact.
+A central design decision was the separation of metadata describing the snapshot from analytical content to be extracted from it. This boundary keeps the metadata record focused on the identity, interpretation, organization, and management of the snapshot rather than reproducing all values contained in the artifact.
 
 \begin{table}[!ht]
     \centering
@@ -442,29 +440,79 @@ A key outcome of the schema engineering was the explicit separation between meta
     \end{tabular}
 \end{table}
 
-The resulting schema constitutes the primary artifact produced by the case study, while the intermediate knowledge artifacts provide a transparent record of the evidence supporting its development. The following section analyzes these intermediate artifacts to examine how the schema emerged through successive stages of semantic abstraction and conceptual refinement.
+\subsection{Schema validation}
+\label{sec:schema_validation_case_study}
+
+A separate collection of 202 snapshots was held out from metadata discovery, concept refinement, and schema design. It contained up to 35 figures and 35 tables from each corpus; only 27 eligible figures remained in the Refugee Project Appraisal Document corpus after the 210 case study snapshots were excluded (Table~\ref{tab:validation_composition}). Both validation exercises used this same held-out collection and addressed different questions using the same evidence.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Held-out collection used in both schema-validation exercises.}
+    \label{tab:validation_composition}
+    \begin{tabular}{lrrr}
+        \toprule
+        \textbf{Corpus} & \textbf{Figures} & \textbf{Tables} & \textbf{Total} \\
+        \midrule
+        UNHCR / ReliefWeb & 35 & 35 & 70 \\
+        Policy Research Working Papers & 35 & 35 & 70 \\
+        Refugee Project Appraisal Documents & 27 & 35 & 62 \\
+        \midrule
+        \textbf{Total} & \textbf{97} & \textbf{105} & \textbf{202} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Validation 1 used open residual discovery to test the frozen Data Snapshot Metadata Schema. It produced 2,876 evidence-bearing metadata observations, of which 2,275 (79.1\%) were classified as covered by an existing field. Weak-fit and no-fit observations produced 578 candidate-field proposals. Human review consolidated related names, inspected the supporting evidence, and accepted no candidate as a new field. The review instead identified documentation ambiguities and limitations in how the flat schema represented several existing concepts. The resulting documentation revision clarified definitions and scope without changing the 36-field inventory.
+
+Validation 2 used a confirmatory assessment to test whether the documentation-revised Data Snapshot Metadata Schema omitted metadata that was critical to interpreting or discovering each held-out snapshot. The model assessed 197 snapshots (97.5\%) as having no critical gap, five (2.5\%) as having a possible gap, and none as having a critical gap. The five positive snapshots produced six possible-gap records. Human review accepted no new field: four candidates were rejected or excluded, while two exposed representation limitations involving panel-level metadata and nested table-column structure.
+
+Table~\ref{tab:schema_validation_results} summarizes the two exercises.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Summary of the two schema-validation exercises. Both used the same 202 snapshots held out from schema development.}
+    \label{tab:schema_validation_results}
+    \renewcommand{\arraystretch}{1.3}
+    \small
+    \begin{tabularx}{\textwidth}{>{\RaggedRight\arraybackslash}p{0.26\textwidth} >{\RaggedRight\arraybackslash}X >{\RaggedRight\arraybackslash}X}
+        \toprule
+        \textbf{Measure} & \textbf{Validation 1} & \textbf{Validation 2} \\
+        \midrule
+        Assessment mode & Open residual discovery & Confirmatory critical-gap assessment \\
+        Primary unit of assessment & Metadata observation & Data snapshot \\
+        Held-out snapshots & 202 & 202 \\
+        Main model output & 2,876 observations; 578 candidate-field proposals & 197 snapshots with no critical gap; 5 possible-gap snapshots; 6 possible-gap records \\
+        Accepted new fields after human review & 0 & 0 \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+Because both exercises used the same held-out collection, they provide complementary evidence rather than independent replications. Validation 1 tested whether broad residual discovery would reveal additional field candidates; Validation 2 tested whether any remaining omission materially affected interpretation or discovery. After human adjudication, neither exercise identified a candidate that would have changed the accepted 36-field inventory. This result supports the adequacy of the inventory for the intended schema scope and tested collections, but does not establish universal coverage of all future data snapshots.
+
+The resulting schema, intermediate knowledge artifacts, and held-out validation evidence document one complete execution of the methodology. The following section analyzes how the successive semantic transformations contributed to that result.
 
 \section{Analysis of semantic transformations}
 
-The case study produced a sequence of explicit intermediate knowledge artifacts spanning metadata observations, metadata field profiles, candidate ontology, refined ontology, validation evidence, and the final metadata schema. Collectively, these artifacts document how a heterogeneous collection of representative data snapshots was progressively transformed into an operational metadata schema.
+The case study produced a sequence of explicit artifacts spanning metadata observations, metadata field profiles, candidate and refined metadata concept inventories, concept coverage evidence, the operational metadata schema, and held-out validation evidence. Together, these artifacts document how the development collection was transformed into a metadata schema and how that schema was subsequently evaluated.
 
-Rather than evaluating only the final metadata schema, this section examines the semantic transformation performed by each intermediate knowledge artifact. The objective is to understand how each intermediate representation contributes to the overall engineering process and why these intermediate artifacts provide a useful decomposition of metadata schema engineering. Across the five transformations, semantic complexity is progressively reduced while preserving the evidence required for the subsequent reasoning task.
+This section examines what each semantic transformation contributed to the development process. The analysis focuses on how the intermediate representations reduced semantic complexity, preserved supporting evidence, and structured the contributions of the LLM and human expert. It then considers what the held-out validation evidence supports about the resulting field inventory.
 
-The analysis is organized around five transformation-focused questions, each examining the contribution of one semantic transformation within the proposed methodology:
+The analysis is organized around six questions:
 
 \begin{enumerate}
     \item How did independent metadata discovery characterize the semantic space?
     \item How did metadata field profile aggregation transform localized observations into reusable semantic evidence?
-    \item How did conceptual abstraction transform semantic evidence into a coherent conceptual vocabulary?
-    \item How did ontology validation strengthen confidence in the conceptual vocabulary?
-    \item How did schema engineering transform a conceptual vocabulary into an operational metadata schema?
+    \item How did concept synthesis and expert refinement transform semantic evidence into a coherent concept inventory?
+    \item How did concept coverage assessment characterize the refined inventory?
+    \item How did metadata schema design transform the concept inventory into an operational specification?
+    \item What did held-out schema validation show about the accepted field inventory?
 \end{enumerate}
 
 \subsection{Independent semantic discovery}
 
-The first stage of the methodology sought to characterize the semantic space of the target artifact type through independent metadata discovery. Each representative data snapshot was analyzed independently, allowing candidate metadata concepts to emerge without influence from previously processed data snapshots. This design intentionally prioritized semantic exploration before any vocabulary normalization or ontology engineering.
+The first stage sought to characterize the semantic space of the target artifact type through independent metadata discovery. Each development snapshot was analyzed independently, allowing candidate metadata concepts to emerge without influence from previously processed snapshots. This design prioritized semantic exploration before vocabulary normalization or concept consolidation.
 
-Metadata discovery produced 3,041 metadata observations representing candidate metadata fields across the 210 representative data snapshots (Table~\ref{tab:discovery_productivity}). Consistent with the prompting objective of identifying 10--15 reusable metadata fields per artifact, each snapshot yielded approximately 14--15 candidate metadata fields. The narrow distribution indicates that the multimodal LLM consistently satisfied this objective across diverse visualization types and document collections.
+Metadata discovery produced 3,041 metadata observations representing candidate metadata fields across the 210 development snapshots (Table~\ref{tab:discovery_productivity}). Consistent with the prompting objective of identifying 10--15 reusable metadata fields per artifact, each snapshot yielded approximately 14--15 candidate metadata fields. The narrow distribution indicates that the multimodal LLM consistently satisfied this objective across diverse visualization types and document collections.
 
 \begin{table}[!ht]
     \centering
@@ -492,11 +540,7 @@ The 3,041 observations corresponded to 833 unique candidate metadata fields afte
 
 Inspection of these singleton fields revealed that much of the apparent diversity arose from lexical variation rather than fundamentally different semantics. Semantically related concepts frequently appeared under different names, levels of abstraction, or contextual interpretations, including variations in aggregation terminology, administrative boundary descriptions, and indicator naming conventions. Consequently, the long tail reflects both genuine semantic diversity and the absence of early vocabulary normalization.
 
-[TODO: Stability step: If additional snapshots are analyzed, use the current schema as the "seed" then analyze if we should add that field. First phase is this paper--no bias just discover. If there is another batch of samples, that's phase 2. Tell LLM to use the first schema as the seed. If phase 2 finds truly new fields, that will be the indication of saturation/sensitivity test. We need to this. Another 210 samples. This is a validation step that succeeds the "schema engineering" step. Pass the current schema. Then LLM will tell us if may bago talaga na wala pa sa schema.]
-
-[TODO: Saturation curve idea: per snapshot, get vector of field definition and calculate cosine similarity]
-
-The discovered vocabulary also continued to expand throughout the sampled dataset (Figure~\ref{fig:vocabulary_growth}). Even after all 210 representative data snapshots had been analyzed, each additional snapshot introduced an average of approximately four previously unseen candidate metadata fields. Repeated random shuffling of the dataset produced nearly identical accumulation curves, indicating that the continued growth was not an artifact of processing order.
+The discovered vocabulary also continued to expand throughout the development collection (Figure~\ref{fig:vocabulary_growth}). Even after all 210 development snapshots had been analyzed, each additional snapshot introduced an average of approximately four previously unseen candidate metadata fields. Repeated random shuffling of the dataset produced nearly identical accumulation curves, indicating that the continued growth was not an artifact of processing order.
 
 Within the representative sample, the discovered vocabulary continued to expand without evidence of saturation. This suggests that representative artifact collections may require substantial semantic exploration before vocabulary growth begins to stabilize.
 
@@ -507,11 +551,11 @@ Within the representative sample, the discovered vocabulary continued to expand 
 \label{fig:vocabulary_growth}
 \end{figure}
 
-Taken together, these observations characterize independent metadata discovery as an exploratory stage of metadata schema engineering. Across the representative artifact sample, the discovery process consistently identified candidate metadata while exposing a rich and continually expanding semantic space. Although many discovered metadata fields represented lexical variants of related concepts, preserving this diversity provided a broad semantic basis prior to conceptual abstraction. This provides the subsequent ontology engineering stage with a broad evidential basis for consolidating semantically equivalent concepts into a coherent conceptual structure.
+Taken together, these observations characterize independent metadata discovery as an exploratory stage of metadata schema development. Across the development collection, the process consistently identified candidate metadata while exposing a large and continually expanding vocabulary. Many discovered fields were lexical variants of related concepts, but retaining this diversity provided a broad evidential basis for subsequent concept synthesis.
 
 \subsection{Metadata field profiles as reusable semantic evidence}
 
-Metadata discovery intentionally produces localized metadata observations describing individual artifacts, preserving semantic diversity but leaving ontology induction to reason over thousands of individual observations rather than the discovered vocabulary as a whole. To bridge this gap, the methodology introduces metadata field profiles, which aggregate observations sharing the same candidate metadata field into a single evidence-rich semantic representation.
+Metadata discovery produces localized observations that preserve semantic diversity but are too numerous for direct concept synthesis. Metadata field profiles bridge this gap by aggregating observations that share the same candidate field into a single evidence-bearing representation.
 
 Aggregating the 3,041 metadata observations resulted in 833 metadata field profiles, reducing the number of semantic units requiring subsequent analysis by approximately 73\% (Table~\ref{tab:aggregation_summary}). Importantly, aggregation did not perform any semantic abstraction. Aggregation simply combined repeated occurrences of identical candidate metadata fields while preserving the supporting evidence associated with each field, including representative observed values, descriptive summaries, explanatory reasoning, and occurrence statistics.
 
@@ -526,9 +570,9 @@ Aggregating the 3,041 metadata observations resulted in 833 metadata field profi
     \end{tabular}
 \end{table}
 
-The principal effect of aggregation was therefore not compression itself, but a change in the unit of semantic reasoning. During metadata discovery, each observation represents a localized interpretation of a single artifact. Metadata field profiles instead summarize the collective evidence associated with a candidate metadata field across the representative artifact collection. Ontology induction therefore reasons over evidence-rich semantic profiles rather than thousands of isolated metadata observations.
+The principal effect of aggregation was not compression alone, but a change in the unit of semantic reasoning. Each metadata observation represents a localized interpretation of one artifact. A metadata field profile instead summarizes the collective evidence associated with a candidate field across the development collection. Concept synthesis therefore operates on evidence-bearing profiles rather than thousands of isolated observations.
 
-This change substantially enriches the semantic evidence available for conceptual abstraction. Individual metadata observations contain only localized evidence associated with a single artifact. In contrast, metadata field profiles accumulate representative values, descriptive summaries, explanatory rationale, occurrence statistics, and empirical support across many artifacts. Rather than comparing isolated field names, ontology induction can compare candidate metadata fields using their accumulated semantic characteristics.
+This change enriches the evidence available for conceptual abstraction. Individual observations contain evidence from one artifact. Metadata field profiles accumulate representative values, descriptive summaries, rationales, occurrence statistics, and empirical support across multiple artifacts. Concept synthesis can therefore compare candidate fields using their accumulated semantic characteristics rather than their names alone.
 
 \begin{table}[!ht]
     \centering
@@ -566,32 +610,32 @@ This change substantially enriches the semantic evidence available for conceptua
 
 Inspection of representative field profiles (Table~\ref{tab:field_profile_example}) illustrates the value of this richer representation. Frequently occurring metadata fields accumulated diverse values, semantic descriptions, explanatory rationale, occurrence statistics, and provenance across many artifacts, while less common fields likewise retained sufficient contextual evidence for semantic interpretation.
 
-Metadata field profiles therefore do more than reduce the number of semantic units requiring analysis. They transform localized metadata observations into reusable semantic evidence that supports global conceptual reasoning while preserving the diversity discovered during the previous stage. This intermediate representation forms the bridge between independent semantic discovery and ontology engineering. Notably, metadata field profiles emerged during implementation rather than being specified in the original workflow design, highlighting how carefully designed intermediate knowledge artifacts can play a critical role in metadata schema engineering.
+Metadata field profiles therefore do more than reduce the number of semantic units requiring analysis. They transform localized observations into reusable semantic evidence while preserving the diversity discovered during the previous stage. This intermediate representation connects independent discovery to shared concept synthesis. Metadata field profiles emerged during implementation rather than being specified in the initial workflow design, illustrating how intermediate knowledge artifacts can clarify the reasoning required between stages.
 
-\subsection{Progressive conceptual abstraction as an ontology engineering strategy}
+\subsection{Progressive concept synthesis and expert refinement}
 
-Metadata field profiles preserve rich semantic evidence but remain too numerous for direct ontology engineering. To address this, conceptual abstraction transformed the 833 metadata field profiles into a coherent ontology through two complementary stages: conservative multimodal LLM-assisted ontology induction followed by iterative human refinement. Rather than producing a final ontology in a single step, this progressive abstraction strategy separated semantic consolidation from human ontology refinement (Table~\ref{tab:ontology_progression}).
+Metadata field profiles preserve rich semantic evidence but remain too numerous for direct expert review. Two complementary stages transformed the 833 profiles into a coherent metadata concept inventory: conservative LLM-assisted concept synthesis followed by iterative expert refinement. This separation assigned semantic consolidation and final conceptual decisions to distinct stages (Table~\ref{tab:ontology_progression}).
 
 \begin{table}[!ht]
     \centering
-    \caption{Progressive conceptual abstraction during ontology engineering.}
+    \caption{Progressive reduction in semantic units during concept synthesis and expert refinement.}
     \label{tab:ontology_progression}
     \begin{tabular}{lr}
     \toprule
         \textbf{Stage} & \textbf{Semantic units} \\
         \midrule
         Metadata field profiles & 833 \\
-        Candidate ontology & 70 \\
-        Refined ontology & 41 \\
+        Candidate metadata concept inventory & 70 \\
+        Refined metadata concept inventory & 41 \\
     \bottomrule
     \end{tabular}
 \end{table}
 
-Ontology induction consolidated the discovered semantic space by grouping metadata field profiles that represented the same underlying metadata concept despite differences in terminology, disciplinary perspective, and level of abstraction. Rather than maximizing semantic compression, the multimodal LLM was instructed to perform conservative concept merges, retaining semantically plausible distinctions whenever uncertainty remained. This produced an intermediate candidate ontology containing 70 concepts intended to generalize across multiple reporting domains, reducing the cognitive complexity of ontology engineering while preserving potentially meaningful distinctions for subsequent human review. Human refinement then transformed this candidate ontology into a final conceptual vocabulary comprising 41 concepts through three recurring categories of ontology engineering decisions: concept merges, concept renaming, and concept exclusion (Table~\ref{tab:ontology_decisions}).
+Canonical metadata concept synthesis consolidated the discovered semantic space by grouping metadata field profiles that represented the same underlying concept despite differences in terminology, disciplinary perspective, or level of abstraction. Rather than maximizing semantic compression, the multimodal LLM was instructed to merge conservatively and retain plausible distinctions when uncertainty remained. This reduced 833 field profiles to a candidate inventory of 70 concepts intended to apply across the reporting domains represented in the case study. The reduction made the evidence more tractable for expert review while preserving distinctions that required human adjudication. Expert refinement then transformed the candidate inventory into a refined inventory of 41 concepts through recurring decisions to merge, rename, or exclude concepts (Table~\ref{tab:ontology_decisions}).
 
 \begin{table}[!ht]
     \centering
-    \caption{Representative ontology engineering decisions.}
+    \caption{Representative expert concept-refinement decisions.}
     \label{tab:ontology_decisions}
     \renewcommand{\arraystretch}{1.4}
     \newcolumntype{Y}[1]{>{\hsize=#1\hsize\RaggedRight\arraybackslash}X}
@@ -620,18 +664,18 @@ Ontology induction consolidated the discovered semantic space by grouping metada
     \end{tabularx}
 \end{table}
 
-Progressive abstraction demonstrates the value of separating semantic consolidation from ontology refinement. Conservative LLM-assisted ontology induction reduced the complexity of an evidence-rich semantic space without prematurely discarding potentially meaningful distinctions. Human refinement then resolved the remaining conceptual ambiguities through targeted ontology engineering decisions, producing a coherent conceptual vocabulary without requiring direct inspection of all 833 metadata field profiles. This progressive abstraction strategy reduced cognitive complexity while preserving human control over the final ontology, demonstrating the value of combining conservative LLM-assisted abstraction with human ontology refinement.
+Separating concept synthesis from expert refinement reduced the complexity of the discovered semantic space without assigning final conceptual decisions to the LLM. Conservative synthesis retained uncertain distinctions for review. Expert refinement then resolved the remaining ambiguities without requiring direct comparison of all 833 metadata field profiles. The resulting process reduced the review space while preserving human control over the refined concept inventory.
 
-\subsection{Empirical ontology validation}
+\subsection{Empirical concept coverage assessment}
 \label{sec:validation}
 
-Following ontology engineering, the refined ontology was evaluated through quantitative analyses of the labeled metadata field profiles to identify potential structural weaknesses before proceeding to schema engineering. Concept frequencies, corpus coverage, layout coverage, and representative ontology assignments (including \texttt{not\_in\_ontology}) were examined to determine whether the ontology exhibited signs of over-segmentation, unsupported concepts, or inappropriate ontology boundaries that warranted further refinement.
+Following expert refinement, each metadata field profile was assigned to a concept in the refined inventory. Quantitative analyses examined concept frequency, corpus coverage, artifact-type coverage, and representative assignments, including the historical \texttt{not\_in\_ontology} output label. These analyses assessed whether the inventory contained unsupported distinctions, inappropriate boundaries, or omissions that warranted further refinement.
 
-The analyses were intended to identify opportunities for concept merging, removal, or restructuring should such weaknesses be present. Instead, concept frequencies exhibited the expected head-tail distribution (Table~\ref{tab:ontology_frequency}), with a small number of broadly applicable concepts and a longer tail of specialized concepts. Low empirical support alone was insufficient evidence of ontology redundancy.
+Concept frequencies exhibited a head--tail distribution (Table~\ref{tab:ontology_frequency}), with a small number of broadly applicable concepts and a longer tail of specialized concepts. Low empirical support alone was insufficient evidence that a concept should be merged or removed.
 
 \begin{table}[!ht]
     \centering
-    \caption{Ontology concepts with the highest and lowest snapshot support.}
+    \caption{Metadata concepts with the highest and lowest snapshot support.}
     \label{tab:ontology_frequency}
     % Automatically scales the combined tables down to the text width
     \resizebox{\textwidth}{!}{
@@ -665,10 +709,10 @@ The analyses were intended to identify opportunities for concept merging, remova
     }
 \end{table}
 
-Inspection of the ontology assignments for lower-support concepts confirmed that they represented legitimate domain-specific metadata rather than candidates for consolidation (Table~\ref{tab:ontology_validation}). Likewise, field profiles assigned to \texttt{not\_in\_ontology} predominantly consisted of extracted values and other intentionally excluded content rather than missing ontology concepts, reinforcing the conceptual boundary established during ontology engineering.
+Inspection of assignments to lower-support concepts showed that they represented legitimate domain-specific metadata rather than redundant concepts (Table~\ref{tab:ontology_validation}). Field profiles assigned to \texttt{not\_in\_ontology} predominantly contained analytical values and other intentionally excluded content rather than missing metadata concepts. The historical label is retained here because it appears in the case-study output.
 
 \begin{table}[!ht]
-    \caption{Representative validation observations for low-support and excluded concepts.}
+    \caption{Representative concept coverage observations for low-support and excluded concepts.}
     \label{tab:ontology_validation}
     \renewcommand{\arraystretch}{1.4}
     \renewcommand{\arraystretch}{1.4}
@@ -683,11 +727,11 @@ Inspection of the ontology assignments for lower-support concepts confirmed that
     
     \midrule
     
-    Specialized ontology concepts &
+    Specialized metadata concepts &
     \texttt{project\_component} \newline
     \texttt{financing\_source} \newline
     \texttt{data\_collection\_method} &
-    These concepts occurred infrequently because they were associated with specialized document collections or analytical contexts rather than representing redundant ontology concepts. \\
+    These concepts occurred infrequently because they were associated with specialized document collections or analytical contexts rather than representing redundant concepts. \\
     
     \midrule
     
@@ -696,20 +740,20 @@ Inspection of the ontology assignments for lower-support concepts confirmed that
     \texttt{measure\_values} \newline
     \texttt{axis\_range} \newline
     \texttt{summary\_total} &
-    These assignments predominantly represented extracted values and quantitative content intentionally excluded from the metadata ontology, confirming the intended boundary between metadata concepts and extracted content. \\
+    These assignments predominantly represented analytical values and quantitative content intentionally excluded from the metadata concept inventory, confirming the intended boundary between metadata and extracted content. \\
     \bottomrule
     \end{tabularx}
 \end{table}
 
-Overall, these analyses revealed no compelling evidence that the refined ontology required additional conceptual refinement. Rather than prompting further ontology engineering, empirical validation increased confidence in the ontology and established a stable foundation for the subsequent schema engineering phase.
+Overall, the assessment found no compelling evidence that the refined inventory required further conceptual revision before schema design. It provided an empirical characterization of the inventory and a basis for reviewing low-support and excluded concepts.
 
-\subsection{Operational schema engineering}
+\subsection{Operational metadata schema design}
 
-The validated ontology served as the conceptual foundation for schema engineering, which transformed the refined ontology from 41 concepts into the final Data Snapshot Metadata Schema comprising 36 canonical metadata fields. Unlike ontology engineering, which sought to faithfully represent the semantic structure of the metadata, schema engineering optimized the conceptual model for practical deployment. The objective shifted from semantic completeness to operational usability, emphasizing annotation efficiency, retrieval effectiveness, and long-term maintainability.
+The refined inventory provided the conceptual foundation for metadata schema design, which transformed 41 concepts into the Data Snapshot Metadata Schema with 36 fields. The objective shifted from establishing conceptual distinctions to representing those distinctions for consistent annotation and retrieval.
 
 \begin{table}[!ht]
     \centering
-    \caption{Representative schema engineering decisions.}
+    \caption{Representative metadata schema design decisions.}
     \label{tab:schema_decisions}
     \renewcommand{\arraystretch}{1.4}
     \newcolumntype{Y}[1]{>{\hsize=#1\hsize\RaggedRight\arraybackslash}X}
@@ -758,15 +802,25 @@ The validated ontology served as the conceptual foundation for schema engineerin
     \end{tabularx}
 \end{table}
 
-Representative decisions are summarized in Table~\ref{tab:schema_decisions}. In contrast to ontology engineering, these decisions were guided primarily by operational considerations rather than semantic distinctiveness. Concepts were merged when maintaining separate metadata fields offered little practical benefit, reintroduced when operational requirements justified restoring previously abstracted distinctions, renamed to improve clarity and consistency, refined to broaden their applicability, or removed when their operational value did not justify additional annotation complexity.
+Representative decisions are summarized in Table~\ref{tab:schema_decisions}. These decisions were guided by operational considerations in addition to semantic distinctiveness. Concepts were merged when separate fields offered little practical benefit, reintroduced when operational requirements justified restoring a distinction, renamed or refined to improve clarity and applicability, or removed when their value did not justify additional annotation complexity.
 
-Schema engineering also reintroduced concepts when operational requirements justified restoring distinctions that had previously been abstracted. For example, \texttt{panel\_title} was merged into \texttt{title} during ontology engineering because the distinction was not considered semantically significant at the conceptual level. During schema engineering, however, \texttt{panel\_title} was reinstated as an independent metadata field to support annotation and retrieval of multi-panel figures. The resulting schema therefore preserves the conceptual coverage established during ontology engineering while selectively modifying semantic distinctions according to operational requirements.
+Schema design also reintroduced concepts when operational requirements justified restoring distinctions removed during concept refinement. For example, \texttt{panel\_title} had been merged into \texttt{title} because the distinction was not considered necessary in the concept inventory. It was reinstated as an independent field to support annotation and retrieval of multi-panel figures. The operational schema therefore does not reproduce the refined inventory one-to-one.
 
-Finally, the resulting metadata fields were organized into nine semantic modules representing complementary aspects of data snapshot metadata. These modules improve schema readability, annotation guidance, and future extensibility while serving purely as an organizational structure rather than a hierarchical extension of the ontology.
+The resulting fields were organized into nine semantic modules representing complementary aspects of data snapshot metadata. These modules support readability and annotation guidance; they organize the specification without asserting a conceptual hierarchy.
 
-Schema engineering completed the transition from a validated conceptual ontology to an operational metadata specification suitable for annotation and retrieval. The resulting metadata schema should therefore be viewed not as a direct encoding of the ontology, but as an operational specification that selectively preserves semantic distinctions according to their practical value for annotation, retrieval, and long-term maintenance.
+Metadata schema design completed the transition from a refined concept inventory to an operational specification. The reduction from 41 concepts to 36 fields reflects operational representation decisions rather than a loss of traceability to the underlying concept evidence.
 
-Viewed collectively, the analysis of the five semantic transformations illustrates that metadata schema engineering is not a single inference task but a progressive knowledge engineering process. Each intermediate knowledge artifact reduces semantic complexity while preserving the evidence required for the next stage of reasoning, enabling semantic discovery, conceptual abstraction, ontology validation, and operational schema design to be performed as distinct but complementary activities. This separation allows multimodal LLMs and human experts to contribute complementary strengths throughout the engineering process while maintaining transparency and explicit human oversight.
+\subsection{Held-out schema validation}
+
+The two validation exercises examined whether the operational schema remained adequate when applied beyond the 210-snapshot development collection (Table~\ref{tab:schema_validation_results}). Validation 1 retained an open discovery mode and produced 578 candidate-field proposals. Human adjudication showed that semantic difference alone did not justify a field: many proposals described parent documents, analytical values, specialized details, or structural relationships rather than missing top-level snapshot metadata.
+
+The documentation-only revision following Validation 1 records an additional function of validation. Evaluation may reveal ambiguity in field definitions or scope even when it does not justify changing the field inventory. Schema validation can therefore produce documentation changes, representation requirements, or confirmed exclusions in addition to new fields.
+
+Validation 2 narrowed the assessment to omissions with material consequences for interpretation or discovery. This reduced the positive review set to six possible gaps across five snapshots. Human adjudication again accepted no new field and classified two candidates as representation limitations. The result distinguishes vocabulary coverage from representational adequacy: an existing concept may be present while a flat schema remains unable to preserve relationships among panels, variables, or hierarchical table structures.
+
+Together, the exercises provide evidence that the 36-field inventory was stable with respect to the tested held-out collection and intended application. This conclusion concerns the accepted inventory after human review. It does not imply that candidate generation had saturated or that the schema will cover every future artifact without ambiguity.
+
+Viewed collectively, the six transformations show that metadata schema development is not a single inference task. Each intermediate knowledge artifact reduces or reorganizes semantic complexity while preserving evidence for the next stage. Held-out validation then tests the operational result and returns candidate gaps to human review. This structure assigns artifact interpretation and large-scale semantic comparison to LLM-supported stages while preserving human responsibility for conceptual boundaries, operational design, and schema revision.
 
 \section{Discussion}
 
