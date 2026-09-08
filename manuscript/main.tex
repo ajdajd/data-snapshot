@@ -57,7 +57,7 @@ Recent advances in document understanding and multimodal information systems hav
 
 Our broader research investigates one such class of artifacts, which we refer to as \emph{data snapshots}: semantically meaningful analytical artifacts extracted from institutional documents and managed as independent information objects~\citep{dy2026}. Developing a metadata extraction and retrieval pipeline for these artifacts required a metadata schema capable of describing the snapshots themselves rather than only their source documents.
 
-Although existing metadata standards provide many concepts applicable to digital resources, they are generally designed for particular resource types or application domains rather than analytical artifacts of this kind~\citep{gilliland2008, metadatainteroperability2006}. In evaluating these standards for our use case, we found that none adequately captured the information required for data snapshots. Consequently, before metadata could be extracted automatically, the metadata schema itself had to be engineered. This revealed a more fundamental challenge: how should an initial metadata schema be systematically engineered for a previously unsupported artifact type? [TODO: Narrow standards claim: Existing metadata standards provide many concepts relevant to data snapshots, but at the outset of this work no dedicated operational metadata schema or directly adoptable metadata profile had been identified for data snapshots as defined here.]
+Existing metadata standards provide many concepts relevant to digital resources, but at the outset of this work no dedicated operational metadata schema or directly adoptable metadata profile had been identified for data snapshots as defined here~\citep{gilliland2008,metadatainteroperability2006}. Before metadata could be extracted systematically, relevant concepts therefore had to be selected, supplemented, and organized into an artifact-specific specification. This raised a more fundamental question: how can an initial operational metadata schema be systematically developed when the descriptive requirements of the artifact class have not yet been consolidated?
 
 Developing an initial metadata schema for a previously unsupported artifact type remains largely expert-driven. The process requires discovering candidate metadata concepts from representative artifacts, consolidating semantically related concepts, refining conceptual boundaries, and translating the resulting concept inventory into an operational metadata schema through iterative expert review~\citep{greenberg2005,coyle2009applicationprofiles}. Existing research on metadata standardization, schema discovery, ontology engineering, and ontology learning provides complementary foundations for this task. The question addressed here is how those foundations can be adapted when the descriptive requirements must first be discovered from multimodal artifacts and the required endpoint is an operational metadata schema.
 
@@ -154,7 +154,7 @@ Figure~\ref{fig:conceptual_relationship} summarizes the relationships among thes
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.35\linewidth]{data/conceptual_hierarchy.png}
-    \caption{Relationship between data snapshots, metadata, the intermediate concept inventory, and the metadata schema. Metadata extraction and downstream applications are shown separately because they assume that an operational metadata schema already exists. [TODO: Update the diagram labels and relationships to replace the ontology with the metadata concept inventory.]}
+    \caption{Relationship between data snapshots, metadata, the intermediate concept inventory, and the metadata schema. Metadata extraction and downstream applications are shown separately because they assume that an operational metadata schema already exists. [TODO: Replace the ontology node with the metadata concept inventory and show the metadata schema as its operationalization.]}
     \label{fig:conceptual_relationship}
 \end{figure}
 
@@ -162,7 +162,7 @@ Figure~\ref{fig:conceptual_relationship} summarizes the relationships among thes
 
 The proposed methodology addresses the development of an operational metadata schema for a class of multimodal analytical artifacts that lacks a dedicated operational schema or directly adoptable metadata profile. Existing standards and vocabularies may still provide applicable terms. The task is to identify, consolidate, define, and operationalize descriptive requirements grounded in representative artifacts.
 
-As illustrated in Figure~\ref{fig:conceptual_relationship}, the proposed methodology concludes with an operational metadata schema evaluated against held-out artifacts. Metadata extraction and downstream applications therefore fall outside the scope of this work. Subsequent activities that adapt the schema to specific technical or interoperability requirements are also outside the paper's boundary.
+As illustrated in Figure~\ref{fig:conceptual_relationship}, the operational metadata schema is the final descriptive representation produced by the methodology. Its coverage is then evaluated against held-out artifacts. Metadata extraction and downstream applications fall outside the scope of this work, as do subsequent activities that adapt the schema to specific technical or interoperability requirements.
 
 \subsection{Problem definition}
 
@@ -384,7 +384,7 @@ Metadata discovery and canonical concept synthesis used GPT-5.5, while concept c
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.75\textwidth]{data/case_study_execution.png}
-    \caption{The development workflow transforms the 210 development snapshots into the Data Snapshot Metadata Schema through explicit intermediate knowledge artifacts. Colors distinguish LLM-supported, deterministic, and human-guided transformations. [TODO: Update the stage and artifact labels to use the metadata-concept-inventory terminology.]}
+    \caption{The development workflow transforms the 210 development snapshots into the Data Snapshot Metadata Schema through explicit intermediate knowledge artifacts and evaluates the schema against held-out snapshots. Colors distinguish LLM-supported, deterministic, and human-guided transformations. [TODO: Rename the ontology stages and artifacts using the metadata-concept-inventory terminology, and add schema validation after metadata schema design and specification.]}
     \label{fig:artifact_evolution}
 \end{figure}
 
@@ -520,7 +520,7 @@ The 3,041 observations corresponded to 833 unique candidate metadata fields afte
 \begin{figure}[!ht]
 \centering
 \includegraphics[width=0.75\linewidth]{data/topk_coverage.png}
-\caption{Cumulative vocabulary coverage as additional discovered metadata fields are included in descending order of frequency. The top 20 most frequently proposed metadata fields cover half of all the observations.}
+\caption{Cumulative observation coverage as additional discovered metadata fields are included in descending order of frequency. The top 20 most frequently proposed metadata fields cover half of all observations. [TODO: Change the embedded title, y-axis, and callout from ``vocabulary coverage'' to ``observation coverage.'']}
 \label{fig:topk_coverage}
 \end{figure}
 
@@ -876,7 +876,6 @@ This work used AI tools at various stages, including open source AI models for l
 
 \bibliographystyle{iclr2026_conference}
 \bibliography{references}
-[TODO: Bring the number of references closer to 20.]
 
 \newpage
 
@@ -887,7 +886,7 @@ This work used AI tools at various stages, including open source AI models for l
 
 This appendix presents representative examples of the data snapshots used throughout the case study. The examples illustrate the diversity of analytical artifacts encompassed by the term \emph{data snapshot}, including statistical charts, tables, geospatial visualizations, dashboards, and composite analytical figures extracted from institutional PDF documents.
 
-The examples are grouped by source corpus. Together they demonstrate the range of visualization types, reporting styles, and analytical content encountered during metadata discovery and ontology engineering.
+The examples are grouped by source corpus. Together they illustrate the range of visualization types, reporting styles, and analytical content encountered during metadata discovery and concept refinement.
 
 \subsection{UNHCR / ReliefWeb}
 
@@ -952,7 +951,7 @@ Figure~\ref{fig:appendix_pad_table} presents a representative project financing 
 \section{Appendix: Metadata discovery implementation}
 \label{appendix:discovery}
 
-This appendix documents the implementation of the metadata discovery stage in the case study. Metadata discovery transforms representative data snapshots into reusable metadata observations that serve as the empirical foundation for the subsequent field profile aggregation and ontology induction stages.
+This appendix documents the implementation of the metadata discovery stage in the case study. Metadata discovery transforms representative data snapshots into reusable metadata observations that serve as the empirical foundation for field profile aggregation and canonical metadata concept synthesis.
 
 \subsection{Model configuration}
 
@@ -1222,18 +1221,18 @@ Document metadata:
 Please perform the metadata schema discovery task described in the system instructions.
 \end{lstlisting}
 
-\section{Appendix: Ontology induction implementation}
+\section{Appendix: Canonical metadata concept synthesis implementation}
 \label{appendix:ontology_induction}
 
-This appendix documents the implementation of the ontology induction stage used in the case study. Ontology induction transforms aggregated metadata field profiles into a candidate ontology comprising canonical metadata concepts that serve as the basis for subsequent ontology engineering.
+This appendix documents the implementation of canonical metadata concept synthesis in the case study. The original implementation and prompts called this stage \emph{ontology induction}; that historical terminology is retained in the reproduced prompts. As characterized in this paper, the stage transforms aggregated metadata field profiles into a candidate metadata concept inventory for subsequent expert refinement.
 
 \subsection{Model configuration}
 
-Ontology induction was performed using GPT-5.5 through the OpenAI Responses API. Table~\ref{tab:ontology_induction_configuration} summarizes the model configuration used throughout the case study.
+Canonical metadata concept synthesis was performed using GPT-5.5 through the OpenAI Responses API. Table~\ref{tab:ontology_induction_configuration} summarizes the model configuration used in the case study.
 
 \begin{table}[!ht]
     \centering
-    \caption{Configuration used for ontology induction.}
+    \caption{Configuration used for canonical metadata concept synthesis.}
     \label{tab:ontology_induction_configuration}
     \begin{tabular}{ll}
     \toprule
@@ -1249,17 +1248,17 @@ Ontology induction was performed using GPT-5.5 through the OpenAI Responses API.
 
 \subsection{Implementation}
 
-The metadata field profiles produced during the field profile aggregation stage were exported as a CSV file and provided to GPT-5.5 together with the system and user prompts reproduced below. Ontology induction was performed in a single inference using the \texttt{client.responses.create} interface.
+The metadata field profiles produced during field profile aggregation were exported as a CSV file and provided to GPT-5.5 together with the system and user prompts reproduced below. Concept synthesis was performed in a single inference using the \texttt{client.responses.create} interface.
 
-The resulting response consisted of a markdown table representing a candidate ontology, including canonical metadata concepts, definitions, rationales, and representative discovered metadata fields. This candidate ontology subsequently underwent iterative human review during the ontology engineering stage.
+The response consisted of a markdown table containing canonical metadata concepts, definitions, rationales, and representative discovered metadata fields. This candidate metadata concept inventory subsequently underwent iterative expert refinement.
 
 \subsection{Prompt design rationale}
 
-The ontology induction prompt was designed to perform semantic abstraction rather than ontology engineering. Instead of preserving every discovered metadata field, the model was instructed to synthesize a concise set of reusable metadata concepts that could describe data snapshots across multiple application domains.
+The prompt was designed to perform semantic consolidation rather than construct a formal ontology. Instead of preserving every discovered metadata field, the model was instructed to synthesize a concise set of reusable metadata concepts that could describe data snapshots across multiple application domains.
 
-Several design principles were incorporated into the prompt. First, the model was instructed to synthesize metadata concepts applicable across multiple reporting domains rather than optimizing for a single corpus, encouraging the resulting ontology to generalize across application domains rather than reflect corpus-specific terminology. Second, the model was instructed to distinguish reusable metadata concepts from observed values and extraction artifacts, encouraging abstraction toward canonical metadata concepts rather than retaining dataset-specific terminology. Third, the prompt emphasized metadata concepts that improve discovery, retrieval, provenance, and analytical reuse while discouraging concepts that primarily describe visual formatting or duplicate document-level metadata. Finally, the prompt explicitly instructed the model to favor under-consolidation over aggressive semantic merging. This preserved conceptual diversity and reduced the risk of prematurely combining semantically distinct concepts, leaving final merge decisions to the subsequent ontology engineering stage.
+Several design principles were incorporated into the prompt. First, the model was instructed to synthesize concepts applicable across multiple reporting domains rather than optimize for a single corpus. Second, it distinguished reusable metadata concepts from observed values and extraction artifacts. Third, the prompt emphasized concepts that support discovery, retrieval, provenance, and analytical reuse while discouraging visual-formatting concepts and duplication of document-level metadata. Finally, it favored under-consolidation over aggressive merging. This preserved plausible distinctions for expert review.
 
-The resulting candidate ontology therefore represents an intermediate conceptual model of the discovered metadata space rather than a finalized ontology or deployment-ready metadata schema.
+The resulting candidate metadata concept inventory is an intermediate representation of the discovered metadata space rather than a formal ontology or operational metadata schema.
 
 \subsection{System prompt}
 
@@ -1536,18 +1535,18 @@ Aim for approximately 50-70 metadata concepts.
 Produce the ontology now.
 \end{lstlisting}
 
-\section{Appendix: Ontology validation implementation}
+\section{Appendix: Concept coverage assessment implementation}
 \label{appendix:validation}
 
-This appendix documents the implementation of the ontology validation stage used in the case study. Ontology validation assigns each metadata field profile to one canonical metadata concept from the refined ontology, producing the concept assignments used in the quantitative analyses presented in Section~\ref{sec:validation}.
+This appendix documents the implementation of concept coverage assessment in the case study. The original implementation and prompts called this stage \emph{ontology validation}; that historical terminology, including \texttt{not\_in\_ontology}, is retained in the reproduced prompts and outputs. As characterized in this paper, the stage assigns each metadata field profile to one concept in the refined metadata concept inventory, producing the assignments analyzed in Section~\ref{sec:validation}.
 
 \subsection{Model configuration}
 
-Ontology validation was performed using GPT-5.4 mini through the OpenAI Responses API. Table~\ref{tab:ontology_validation_configuration} summarizes the model configuration used throughout the case study.
+Concept coverage assessment was performed using GPT-5.4 mini through the OpenAI Responses API. Table~\ref{tab:ontology_validation_configuration} summarizes the model configuration used in the case study.
 
 \begin{table}[!ht]
     \centering
-    \caption{Configuration used for ontology validation.}
+    \caption{Configuration used for concept coverage assessment.}
     \label{tab:ontology_validation_configuration}
     \begin{tabular}{ll}
     \toprule
@@ -1557,26 +1556,26 @@ Ontology validation was performed using GPT-5.4 mini through the OpenAI Response
     Reasoning effort & Medium \\
     Maximum output tokens & Default API setting \\
     Temperature & Default API setting \\
-    Classification output & Ontology-constrained using a Pydantic enumeration \\
+    Classification output & Concept-inventory-constrained using a Pydantic enumeration \\
     \bottomrule
     \end{tabular}
 \end{table}
 
 \subsection{Implementation}
 
-Ontology validation was performed by iterating over each metadata field profile produced during field profile aggregation. For each profile, GPT-5.4 mini received the system and user prompts reproduced below together with: (1) the refined ontology represented in markdown format, (2) the metadata field name, and (3) representative descriptions and observed values associated with the field profile.
+Concept coverage assessment iterated over each metadata field profile produced during field profile aggregation. For each profile, GPT-5.4 mini received the system and user prompts reproduced below together with: (1) the refined metadata concept inventory represented in markdown, (2) the metadata field name, and (3) representative descriptions and observed values associated with the field profile.
 
-Classification outputs were constrained using a Pydantic enumeration containing every canonical ontology concept together with an additional \texttt{not\_in\_ontology} category. Consequently, every metadata field profile was assigned to exactly one predefined ontology concept or to \texttt{not\_in\_ontology} when no concept adequately described the field.
+Classification outputs were constrained using a Pydantic enumeration containing every canonical concept together with the historical \texttt{not\_in\_ontology} category. Consequently, every metadata field profile was assigned to exactly one concept or to \texttt{not\_in\_ontology} when no concept adequately described the field.
 
 The resulting concept assignments formed the validation evidence used in the empirical analyses presented in Section~\ref{sec:validation}.
 
 \subsection{Prompt design rationale}
 
-Unlike the previous workflow stages, ontology validation was designed as a constrained classification task rather than an open-ended reasoning task. The prompt therefore instructed the model to treat the refined ontology as authoritative and to classify each metadata field profile into exactly one existing ontology concept.
+Unlike the previous workflow stages, concept coverage assessment was designed as a constrained classification task rather than an open-ended reasoning task. The prompt instructed the model to treat the refined concept inventory as authoritative and assign each metadata field profile to exactly one existing concept.
 
-Several design principles were incorporated into the prompt. First, the model was instructed to prioritize semantic meaning over lexical similarity by considering the metadata field name together with representative descriptions and observed values. Second, the ontology definitions and representative examples were provided as contextual guidance while emphasizing that examples were illustrative rather than exhaustive. Third, the prompt explicitly prohibited proposing new ontology concepts or modifying the existing ontology, ensuring that validation evaluated the engineered ontology rather than extending it. Finally, the inclusion of the \texttt{not\_in\_ontology} category allowed metadata fields intentionally excluded during ontology engineering to be classified without forcing inappropriate assignments to existing concepts.
+Several design principles were incorporated into the prompt. First, the model prioritized semantic meaning over lexical similarity by considering the field name together with representative descriptions and observed values. Second, concept definitions and examples provided contextual guidance but were treated as illustrative rather than exhaustive. Third, the prompt prohibited proposing or modifying concepts so that the assessment characterized the refined inventory rather than extending it. Finally, \texttt{not\_in\_ontology} allowed intentionally excluded fields to be classified without forcing inappropriate assignments.
 
-The resulting classifications therefore constitute validation evidence describing how well the engineered ontology accounts for the metadata field profiles produced during metadata discovery.
+The resulting classifications constitute concept coverage evidence describing how well the refined inventory accounts for the metadata field profiles produced during discovery.
 
 \subsection{System prompt}
 
@@ -1707,14 +1706,14 @@ Assign this discovered metadata field to exactly one canonical metadata concept 
 \section{Appendix: Data Snapshot Metadata Schema}
 \label{appendix:schema}
 
-This appendix reproduces the complete Data Snapshot Metadata Schema developed in the case study.
+This appendix reproduces the complete Data Snapshot Metadata Schema after the documentation revisions resulting from schema validation. Version identifiers are retained within the reproduced artifact.
 
 \begin{lstlisting}
-# Data Snapshot Metadata Schema v1.1
+# Data Snapshot Metadata Schema v1.1.1
 
 ## Overview
 
-The Data Snapshot Metadata Schema v1.1 defines a standardized set of metadata fields for describing **data snapshots**--self-contained visual data artifacts extracted from institutional documents, including tables, charts, maps, dashboards, and composite figures.
+The Data Snapshot Metadata Schema v1.1.1 defines a standardized set of metadata fields for describing **data snapshots**--self-contained visual data artifacts extracted from institutional documents, including tables, charts, maps, dashboards, and composite figures.
 
 The schema is intended to support:
 
@@ -1725,7 +1724,20 @@ The schema is intended to support:
 
 The schema is intentionally domain-agnostic and is designed to generalize across institutional documents from multiple organizations and subject areas.
 
-The schema was developed through an iterative, human-in-the-loop process combining multimodal large language models, ontology induction, expert review, and quantitative validation.
+The schema was developed through an iterative, human-in-the-loop process combining multimodal large language models, canonical metadata concept synthesis, expert refinement, concept coverage assessment, and schema validation.
+
+---
+
+## Revision Notes for v1.1.1
+
+Version 1.1.1 is a documentation-only revision informed by Schema Validation Exercise 1. Human review of the held-out validation results found no missing metadata field that warranted changing the field inventory.
+
+Accordingly, v1.1.1:
+
+- preserves every field;
+- adds no new metadata fields;
+- removes or renames no metadata fields; and
+- clarifies the scope and intended use of existing fields.
 
 ---
 
@@ -1745,6 +1757,10 @@ Metadata should only be populated when explicitly supported by the snapshot or i
 
 Metadata extractors **must not infer or hallucinate** values that are not evidenced by the source.
 
+The schema does not duplicate the administrative metadata of the parent document. Parent-document URLs or locators, identifiers, document types, publication dates, and authorship or attribution belong to the linked source-document record in the downstream application. The existing `source_document_title` field provides a human-readable reference to the parent document but does not extend this schema to the parent document as a whole.
+
+The schema also does not introduce dedicated fields for specialized or low-value concepts when they do not materially support the project's cataloging, discovery, or knowledge-graph use cases. Examples reviewed during validation include cartographic scale and coordinates, classification-system details, variable transformations, and panel count.
+
 ---
 
 # Applicability
@@ -1754,7 +1770,9 @@ Each metadata field is optional.
 Metadata should only be populated when explicitly supported by evidence contained within:
 
 - the snapshot itself; or
-- the accompanying source document, where explicitly permitted.
+- the accompanying source document, where explicitly permitted as supporting context for the snapshot.
+
+Snapshot evidence is primary. Source-document context may clarify the meaning or provenance of the snapshot, but it must not be used to copy unrelated parent-document administrative metadata into the snapshot record.
 
 The absence of a metadata field should be represented as null rather than inferred.
 
@@ -1848,6 +1866,8 @@ Populate only when panel titles are explicitly present.
 
 The primary variable, indicator, metric, or measured concept represented by the snapshot.
 
+This field records the variable's name or measured concept, not a normalized analytical role. Use `category_dimension`, `category_labels`, `row_dimension`, and `column_dimension` where those structural roles apply. Dedicated outcome, predictor, control, or axis-assignment fields are not part of this schema.
+
 **Examples**
 
 - GDP Growth
@@ -1911,6 +1931,8 @@ The human population, beneficiary group, or demographic group that is the primar
 **Definition**
 
 The period or date range represented by the data.
+
+This field describes **when the represented data apply**. It does not describe when the snapshot artifact or parent document was created, prepared, issued, published, revised, or retrieved. When an explicit artifact date appears only as part of a footer or provenance statement, preserve the complete statement in `interpretive_note` rather than treating the date as `time_period`.
 
 **Examples**
 
@@ -2116,6 +2138,8 @@ The conceptual variable represented by table columns.
 
 The primary visualization used to encode the represented data.
 
+For a composite or multi-panel snapshot, record a concise description of the overall visualization type or visible combination when no single type adequately describes the artifact. Use `panel_title` for explicit panel headings. The schema does not separately encode component-to-type relationships or `panel_count`.
+
 **Examples**
 
 - Bar chart
@@ -2123,6 +2147,7 @@ The primary visualization used to encode the represented data.
 - Table
 - Map
 - Heatmap
+- Composite figure: line charts and map
 
 ---
 
@@ -2132,7 +2157,9 @@ The primary visualization used to encode the represented data.
 
 **Definition**
 
-The dataset, survey, publication, or other cited source from which the represented data originate.
+The named dataset, survey, publication, organization, or credited agent from which the represented data originate or which is explicitly credited with producing the snapshot artifact.
+
+`data_source` may retain multiple names but does not structurally distinguish roles such as data source, data producer, map maker, preparer, or contributor. Do not copy the parent document's authors or publisher into this field solely because they are associated with the document; the source or attribution must be explicitly relevant to the snapshot or its represented data.
 
 **Examples**
 
@@ -2140,6 +2167,7 @@ The dataset, survey, publication, or other cited source from which the represent
 - DHS
 - UNHCR Registration Data
 - National Census
+- Map Design Unit
 
 ---
 
@@ -2148,6 +2176,8 @@ The dataset, survey, publication, or other cited source from which the represent
 **Definition**
 
 The title of the parent document containing the snapshot.
+
+This field is a human-readable reference to the linked parent document. Other parent-document administrative metadata--including its URL, identifier, document type, publication date, authors, and publisher--remain on the source-document record and are not duplicated in this schema.
 
 **Examples**
 
@@ -2174,7 +2204,9 @@ The language used within the snapshot.
 
 **Definition**
 
-Explanatory notes, caveats, assumptions, footnotes, or methodological remarks explicitly provided within the snapshot to aid interpretation.
+Explanatory, methodological, uncertainty, or provenance statements explicitly provided within the snapshot that aid interpretation or traceability.
+
+This field may preserve complete notes containing sample-size statements, explanations of confidence intervals, standard errors or uncertainty bands, and footer statements that include an artifact date or production credit. It retains the statement as text; it does not create separate structured fields for sample size, uncertainty representation, or artifact publication date.
 
 Populate only when such notes are explicitly present.
 
@@ -2183,6 +2215,9 @@ Populate only when such notes are explicitly present.
 - Values are provisional.
 - Estimates exclude informal employment.
 - Data collected using 2022 census boundaries.
+- Sample: 1,204 respondents.
+- Shaded areas show 95% confidence intervals.
+- Prepared by the Map Design Unit, March 2024.
 
 ---
 
@@ -2339,17 +2374,23 @@ Metadata extractors should follow these principles:
 
 6. Record missing metadata as null rather than inferred values.
 
-7. The schema describes the snapshot-not the parent document as a whole.
+7. The schema describes the snapshot--not the parent document as a whole. Use source-document context only to support interpretation of the snapshot or populate an explicitly permitted field.
 
-8. Numerical values, OCR text, and reconstructed table contents belong to extraction outputs and are outside the scope of this metadata schema.
+8. Numerical observations, OCR text, reconstructed table contents, and operational cell values belong to extraction outputs and are outside the scope of this metadata schema. An explicit methodological or provenance note that contains a number, such as a sample-size statement, may still be preserved in `interpretive_note`.
+
+9. Use the existing variable and dimension fields for names and structural organization. Do not create ad hoc fields for analytical roles or axis assignments.
+
+10. Represent the core type of a composite snapshot in `visualization_type` and its explicit panel headings in `panel_title`. Do not add a separately authored `panel_count`.
+
+11. Do not create unlisted fields for parent-document administration, specialized classification semantics, cartographic properties, or other concepts excluded by the intended application.
 
 ---
 
-Version: **1.1**
+Version: **1.1.1**
 
-Status: Stable
+Status: Stable -- documentation revision following Schema Validation Exercise 1
 
-Last Updated: July 2026
+Last Updated: September 2026
 \end{lstlisting}
 
 \end{document}
