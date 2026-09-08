@@ -21,21 +21,7 @@
     captionpos=b
 }
 
-\title{Engineering the Data Snapshot Metadata Schema: A Human-in-the-Loop Methodology with Multimodal LLMs}
-% Alternatives:
-% 1. (Original working title) Leveraging LLM for Schema Mining in Data Snapshots
-% 2. A Human-in-the-Loop Methodology for Metadata Schema Engineering with Multimodal LLMs
-% 3. A Human-in-the-Loop Methodology for Engineering Metadata Schemas for Emerging Multimodal Analytical Artifacts
-% 4. Multimodal LLM-Assisted Metadata Schema Engineering: A Human-in-the-Loop Methodology for Emerging Multimodal Analytical Artifacts
-
-% Note: Emerging = "novel" artifacts. We can drop the word "emerging". But saying "...for Multimodal Analytical Artifacts Without Established Metadata Standards" is too long haha.
-
-% Title key components:
-% - Metadata Schema Engineering
-% - Methodology
-% - Data Snapshots/Multimodal Analytical Artifacts
-% - Human-in-the-loop
-% - Multimodal LLM
+\title{Artifact-Driven Metadata Schema Development: A Human-in-the-Loop Methodology with Multimodal LLMs}
 
 \author{AJ Carl P. Dy$^{\dagger}$ \& Aivin V. Solatorio$^{*}$ \\
 Development Data Group \\
@@ -59,7 +45,7 @@ District of Columbia, USA \\
 
 \begin{abstract}
 
-Engineering an initial metadata schema for a previously unsupported artifact type remains a largely manual knowledge engineering task despite recent advances in multimodal large language models (LLMs). Existing metadata standards describe mature vocabularies, while metadata extraction methods typically assume that an appropriate schema already exists. We present a human-in-the-loop methodology for metadata schema engineering that decomposes the process into a sequence of explicit semantic transformations connected by intermediate knowledge artifacts, enabling transparent reasoning, iterative expert review, and reproducible schema development while assigning complementary roles to multimodal LLMs and human experts. The methodology is demonstrated through the development of the Data Snapshot Metadata Schema using a representative collection of 210 data snapshots extracted from institutional documents. Beyond the resulting schema, this work contributes a repeatable methodology for engineering initial metadata schemas and argues that metadata schema engineering constitutes a distinct stage of knowledge engineering that benefits from explicit intermediate knowledge artifacts and complementary human--AI reasoning.
+Developing an operational metadata schema for a multimodal artifact class requires identifying its descriptive requirements before metadata extraction can begin. We present an artifact-driven, human-in-the-loop methodology that adapts principles from metadata profile development, schema discovery, ontology learning, and multimodal document understanding. The methodology decomposes schema development into explicit, evidence-preserving semantic transformations connected by intermediate knowledge artifacts. Multimodal large language models support artifact interpretation, concept synthesis, and constrained semantic comparison, while human experts determine conceptual boundaries, operational fields, and schema revisions. We apply the methodology to 210 data snapshots extracted from institutional documents, producing the 36-field Data Snapshot Metadata Schema, which is subsequently evaluated against a separate collection of 202 snapshots. The contribution is a structured adaptation of established methods to the input and output conditions of this problem: multimodal artifacts as evidence and an operational metadata schema as the endpoint.
 
 \end{abstract}
 
