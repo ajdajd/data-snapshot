@@ -197,87 +197,84 @@ The following section presents the proposed methodology.
 \section{Methodology}
 \label{sec:methodology}
 
-This section presents a reusable methodology for engineering an operational metadata schema for multimodal analytical artifacts that lack an established descriptive standard. The methodology is intended to support early-stage schema development by combining multimodal large language models with structured knowledge engineering. Rather than replacing human judgment, it decomposes metadata schema engineering into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts.
+This section presents a reusable methodology for developing an operational metadata schema for multimodal analytical artifacts that lack an established descriptive standard. The methodology decomposes schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support selected discovery, consolidation, and assessment tasks, while human experts retain responsibility for conceptual and operational decisions.
 
-A central design principle is the decomposition of the methodology into distinct knowledge engineering stages connected by explicit intermediate knowledge artifacts. This decomposition separates semantic discovery, conceptual modeling, validation, and operational specification into explicit stages, making the engineering process transparent, reviewable, and reproducible. Table~\ref{tab:methodology_summary} summarizes the proposed workflow.
+The stages separate artifact-level discovery, evidence aggregation, concept synthesis, expert refinement, concept coverage assessment, metadata schema design and specification, and schema validation. This decomposition makes each transformation independently reviewable and preserves traceability from the operational schema to the artifacts that motivated it. Table~\ref{tab:methodology_summary} summarizes the workflow.
 
 \begin{table}[!ht]
     \centering
-    \caption{Summary of the proposed methodology. Each workflow stage performs a semantic transformation that produces an explicit intermediate knowledge artifact. Multimodal LLMs and human review contribute complementary capabilities throughout the workflow.}
+    \caption{Summary of the proposed methodology. Each stage transforms an explicit input artifact into an output that can be reviewed before the next stage.}
     \label{tab:methodology_summary}
     \renewcommand{\arraystretch}{1.4}
 
     \newcolumntype{Y}[1]{>{\hsize=#1\hsize\raggedright\arraybackslash}X}
 
-    \begin{tabularx}{\textwidth}{Y{0.8} Y{1.2} Y{1.1} Y{1.1} Y{0.8}}
+    \begin{tabularx}{\textwidth}{Y{0.9} Y{1.25} Y{0.9} Y{0.95}}
     \toprule
 
     \textbf{Workflow stage} &
     \textbf{Semantic transformation} &
     \textbf{Primary LLM contribution} &
-    \textbf{Primary human contribution} &
-    \textbf{Output knowledge artifact} \\
+    \textbf{Primary human contribution} \\
 
     \midrule
 
     Metadata discovery &
     Representative artifacts \newline $\downarrow$ \newline Metadata observations &
-    Broad semantic discovery &
-    Sampling strategy and prompt design &
-    Metadata observations \\
+    Artifact interpretation and broad discovery &
+    Sampling and discovery criteria \\
 
     \midrule
 
     Field profile aggregation &
-    Metadata observations \newline $\downarrow$ \newline Field profiles &
+    Metadata observations \newline $\downarrow$ \newline Metadata field profiles &
     -- &
-    Evidence aggregation and profile construction &
-    Metadata field profiles \\
+    Aggregation design and quality review \\
 
     \midrule
 
-    Ontology induction &
-    Field profiles \newline $\downarrow$ \newline Candidate ontology &
+    Canonical metadata concept synthesis &
+    Metadata field profiles \newline $\downarrow$ \newline Candidate metadata concept inventory &
     Semantic consolidation and canonicalization &
-    Prompt design &
-    Candidate ontology \\
+    Synthesis criteria and prompt design \\
 
     \midrule
 
-    Ontology engineering &
-    Candidate ontology \newline $\downarrow$ \newline Refined ontology &
+    Expert concept refinement &
+    Candidate metadata concept inventory \newline $\downarrow$ \newline Refined metadata concept inventory &
     Decision support &
-    Merge, split, rename, exclude, define, and refine concepts &
-    Refined ontology \\
+    Conceptual boundary and refinement decisions \\
 
     \midrule
 
-    Ontology validation &
-    Refined ontology \newline $\downarrow$ \newline Validation evidence &
+    Concept coverage assessment &
+    Refined metadata concept inventory and field profiles \newline $\downarrow$ \newline Concept coverage evidence &
     Constrained classification &
-    Interpretation of validation results &
-    Validation evidence \\
+    Interpretation and further refinement \\
 
     \midrule
 
-    Schema engineering &
-    Refined ontology \newline $\downarrow$ \newline Metadata schema &
-    Schema design assistance &
-    Operational schema design and deployment decisions &
-    Metadata schema \\
+    Metadata schema design and specification &
+    Refined metadata concept inventory \newline $\downarrow$ \newline Operational metadata schema &
+    Design and documentation assistance &
+    Operational representation decisions \\
+
+    \midrule
+
+    Schema validation &
+    Operational metadata schema and held-out artifacts \newline $\downarrow$ \newline Validation evidence and justified revisions &
+    Open gap discovery and confirmatory assessment &
+    Gap adjudication and revision decisions \\
 
     \bottomrule
     \end{tabularx}
 \end{table}
 
-[TODO: This table is overwhelming.]
-[TODO: The last column "Output knowledge artifact" can be dropped. It is repeated information from the "Semantic transformation" column.]
-
-The proposed methodology progressively transforms metadata observations into increasingly structured knowledge artifacts, culminating in an operational metadata schema. Each workflow stage transforms one intermediate artifact into the next, enabling the engineering process to be reviewed and refined incrementally. The methodology is presented independently of the case study; implementation-specific details are deferred to Section~\ref{sec:case_study}.
+The methodology progressively transforms artifact-level observations into a shared concept inventory and then into an operational metadata schema. The final stage evaluates that schema against held-out artifacts and records any justified revisions. The methodology is presented independently of the case study; implementation-specific details are deferred to Section~\ref{sec:case_study}.
 
 \subsection{Metadata discovery}
 
-The objective of metadata discovery is to externalize candidate metadata concepts that describe representative analytical artifacts. At this stage, the emphasis is intentionally placed on discovery breadth rather than semantic precision. Accordingly, the stage seeks to identify all potentially useful metadata, including concepts that may later prove redundant, ambiguous, or outside the scope of the final schema.
+The objective of metadata discovery is to identify candidate descriptive properties evidenced in representative analytical artifacts. At this stage, the emphasis is placed on discovery breadth rather than semantic precision. The stage therefore retains potentially useful metadata observations even when they may later prove redundant, ambiguous, or outside the scope of the final schema.
 
 This stage begins with a representative sample of multimodal analytical artifacts drawn from the target domain. The methodology assumes that the sample captures the diversity of artifact types, reporting styles, and semantic content expected in downstream applications.
 
@@ -287,61 +284,72 @@ Metadata observations are generated without human curation or filtering to prese
 
 \subsection{Field profile aggregation}
 
-The objective of field profile aggregation is to consolidate the metadata observations produced during metadata discovery into \emph{metadata field profiles}. Rather than reasoning over individual observations, subsequent stages operate on these profiles, reducing the amount of context presented to later stages while establishing metadata field profiles as the primary units of semantic reasoning.
+The objective of field profile aggregation is to consolidate the metadata observations produced during metadata discovery into \emph{metadata field profiles}. Rather than reasoning over individual observations, subsequent stages operate on these profiles. This reduces the amount of context presented to later stages and establishes metadata field profiles as the primary units of semantic reasoning.
 
-This stage groups metadata observations referring to the same candidate metadata field into a single metadata field profile using deterministic exact-name matching, without semantic normalization or canonicalization (e.g., "geographic location" and "geographic locations" remain separate profiles). Each profile aggregates representative supporting evidence—including frequent values, example descriptions, occurrence statistics, and explanatory reasoning—providing a compact representation for subsequent ontology induction.
+This stage groups metadata observations referring to the same candidate metadata field into a single metadata field profile using deterministic exact-name matching, without semantic normalization or canonicalization (e.g., "geographic location" and "geographic locations" remain separate profiles). Each profile aggregates representative supporting evidence—including frequent values, example descriptions, occurrence statistics, and explanatory reasoning—and provides a compact representation for subsequent concept synthesis.
 
-The output of this stage is a collection of metadata field profiles that represent the unique candidate metadata fields identified across the representative artifact collection and serve as the input to ontology induction.
+The output of this stage is a collection of metadata field profiles that represent the unique candidate metadata fields identified across the representative artifact collection and serve as the input to canonical metadata concept synthesis.
 
-\subsection{Ontology induction}
+\subsection{Canonical metadata concept synthesis}
 
-The objective of ontology induction is to transform the metadata field profiles produced during field profile aggregation into a \emph{candidate ontology} comprising canonical metadata concepts. Whereas metadata discovery emphasizes broad semantic exploration, ontology induction emphasizes semantic abstraction by identifying common concepts shared across multiple metadata field profiles.
+The objective of canonical metadata concept synthesis is to transform the metadata field profiles into a \emph{candidate metadata concept inventory}. Whereas metadata discovery emphasizes broad semantic exploration, concept synthesis identifies shared concepts across multiple field profiles and reduces terminological redundancy.
 
-This stage takes the metadata field profiles from the previous stage as input. Unlike field profile aggregation, which groups observations using exact field names, ontology induction consolidates field profiles representing the same underlying metadata concept into canonical metadata concepts. Distinct concepts, including infrequently occurring ones, are intentionally preserved to reduce semantic redundancy without sacrificing conceptual diversity.
+Unlike field profile aggregation, which groups observations using exact field names, this stage consolidates profiles that represent the same underlying metadata concept. Distinct concepts, including infrequently occurring ones, are retained so that consolidation does not remove potentially important descriptive requirements.
 
-To minimize the risk of incorrect semantic merges, ontology induction intentionally favors under-consolidation over premature consolidation. Concepts that remain separate can still be merged during ontology engineering, whereas concepts merged too aggressively during this stage may be difficult to recover. For example, simple plural variants such as "geographic location" and "geographic locations" would typically be consolidated at this stage, whereas the relationship between concepts such as "data type" and "format" may require human judgment.
+To reduce incorrect semantic merges, concept synthesis favors under-consolidation over premature consolidation. Concepts that remain separate can still be merged during expert refinement, whereas distinctions removed at this stage may be difficult to recover. For example, simple plural variants such as "geographic location" and "geographic locations" would typically be consolidated, whereas the relationship between concepts such as "data type" and "format" may require human judgment.
 
-The candidate ontology is generated by applying multimodal LLM-based semantic abstraction to the aggregated field profiles. For each canonical metadata concept, the ontology includes a definition, representative examples, and explanatory reasoning supporting the proposed consolidation. The resulting candidate ontology represents the first global conceptual model of the discovered metadata space and serves as the input to ontology engineering.
+An LLM synthesizes the candidate inventory from the aggregated field profiles. Each canonical metadata concept includes a definition, representative examples, and a rationale for the proposed consolidation. The resulting inventory is the first shared representation of the discovered metadata space and serves as the input to expert concept refinement.
 
-\subsection{Ontology engineering}
+\subsection{Expert concept refinement}
 
-The objective of ontology engineering is to transform the candidate ontology produced during ontology induction into a refined ontology suitable for operational use. Whereas ontology induction emphasizes semantic abstraction, ontology engineering emphasizes conceptual correctness, scope definition, and semantic consistency. It is during this stage that the canonical metadata vocabulary is finalized.
+The objective of expert concept refinement is to transform the candidate metadata concept inventory into a refined inventory suitable for schema design. Whereas concept synthesis emphasizes semantic abstraction, expert refinement establishes conceptual boundaries, scope, and internal consistency. This stage finalizes the canonical metadata vocabulary.
 
-Ontology engineering proceeds through an iterative review process in which candidate metadata concepts are evaluated individually and in relation to the ontology as a whole. Typical refinement activities include merging semantically equivalent concepts, splitting concepts that capture multiple distinct ideas, renaming concepts to improve clarity, excluding concepts that fall outside the intended metadata scope, refining definitions and examples, and clarifying conceptual boundaries between related concepts.
+Refinement proceeds through an iterative review in which candidate metadata concepts are evaluated individually and in relation to the inventory as a whole. Typical activities include merging semantically equivalent concepts, splitting concepts that capture multiple ideas, renaming concepts, excluding concepts outside the intended metadata scope, refining definitions and examples, and clarifying boundaries between related concepts.
 
-These refinement activities are guided primarily by semantic reasoning rather than empirical frequency. The objective is not to minimize the number of concepts, but to produce an ontology that is conceptually distinct, internally consistent, and appropriate for the intended application. A recurring consideration during ontology engineering is the distinction between descriptive metadata and extraction outputs. Candidate concepts describing values that should be extracted from analytical artifacts, rather than metadata describing the artifacts themselves, are removed from the ontology. This refinement establishes a clear conceptual boundary between metadata schema engineering and downstream metadata extraction.
+These decisions are guided primarily by semantic reasoning rather than empirical frequency. The objective is not to minimize the number of concepts, but to produce an inventory that is conceptually distinct, internally consistent, and appropriate for the intended application. A recurring consideration is the distinction between descriptive metadata and analytical content. Candidate concepts that represent values to be extracted from an artifact, rather than metadata describing the artifact, are excluded. This establishes a clear boundary between metadata schema development and downstream metadata extraction.
 
-Ontology engineering is guided primarily by human judgment. Multimodal LLMs may support the process by proposing alternative concept names, identifying overlapping definitions, summarizing similarities and differences between concepts, and suggesting refinements, but final decisions regarding concept merges, exclusions, definitions, and organization remain the responsibility of the human expert. The output of this stage is a refined ontology with clearly defined semantic boundaries that serves as the conceptual foundation for schema engineering.
+Human judgment governs this stage. An LLM may propose alternative names, identify overlapping definitions, summarize differences between concepts, and suggest refinements. Final decisions concerning merges, exclusions, definitions, and organization remain with the human expert. The output is a refined metadata concept inventory with defined semantic boundaries that serves as the conceptual foundation for metadata schema design.
 
-\subsection{Ontology validation}
+\subsection{Concept coverage assessment}
 
-The objective of ontology validation is to evaluate the refined ontology produced during ontology engineering and assess whether it provides an appropriate conceptual model of the discovered metadata space. Unlike the preceding workflow stages, ontology validation does not modify the ontology or produce a new conceptual knowledge artifact. Instead, it generates validation evidence that supports subsequent human judgment regarding the adequacy of the engineered ontology.
+The objective of concept coverage assessment is to evaluate how the refined metadata concept inventory represents the metadata field profiles produced during discovery. This stage uses evidence from the development collection to assess how well the inventory organizes the discovered metadata space. Its outputs support human review and any further refinement before schema design.
 
-Ontology validation is performed by assigning each metadata field profile generated during field profile aggregation to one of the predefined ontology concepts using ontology-constrained classification. This classification may be performed using a multimodal LLM or another suitable classification approach, enabling quantitative analyses of ontology behavior across the representative corpus.
+The assessment assigns each metadata field profile to one of the concepts in the refined inventory through constrained classification. An LLM or another suitable classifier may perform this assignment. The resulting mappings support quantitative analysis across the representative collection.
 
-The resulting concept assignments support analyses such as concept frequency distributions, corpus coverage, visualization-type coverage, identification of rare concepts, and inspection of concepts receiving unexpectedly high or low empirical support. These analyses provide evidence rather than prescribing ontology modifications. For example, infrequently occurring concepts may remain operationally important if they capture semantically distinct aspects of the artifact domain. Instead, the validation evidence informs human judgment and may motivate additional ontology refinement before proceeding to schema engineering. The output of this stage is a collection of validation evidence, including concept assignments, descriptive statistics, and related analyses characterizing the coverage and behavior of the engineered ontology.
+The concept assignments support analyses of concept frequency, corpus coverage, artifact-type coverage, rare concepts, and concepts receiving unexpectedly high or low empirical support. These analyses provide evidence rather than prescribing changes. Infrequent concepts, for example, may remain operationally important when they capture distinct aspects of the artifact class. Human interpretation of the coverage evidence may motivate further concept refinement before schema design. The output comprises concept assignments, descriptive statistics, and related analyses characterizing the coverage of the refined inventory.
 
-\subsection{Optional extension: Scaling ontology engineering}
+\subsection{Optional extension: Scaling expert concept refinement}
 
-Ontology engineering relies primarily on human review. While this is practical for moderately sized ontologies, exhaustive manual inspection becomes increasingly difficult as the number of concepts grows. For larger ontologies, similarity-based analyses can provide optional decision support.
+Expert concept refinement relies primarily on human review. While this is practical for moderately sized inventories, exhaustive manual inspection becomes increasingly difficult as the number of concepts grows. For larger inventories, similarity-based analyses can provide optional decision support.
 
-Similarity-based analyses identify relationships between metadata field profiles or ontology concepts using semantic similarity or co-occurrence. These relationships may be explored through techniques such as hierarchical clustering, community detection, or network visualization to identify groups of closely related concepts.
+Similarity-based analyses identify relationships between metadata field profiles or canonical concepts using semantic similarity or co-occurrence. These relationships may be explored through hierarchical clustering, community detection, or network visualization to identify groups of closely related concepts.
 
-These analyses support human judgment by highlighting candidate concept merges, unexpected conceptual clusters, isolated concepts, or regions of the ontology requiring additional inspection. They provide complementary evidence for ontology engineering but do not replace semantic reasoning or automate ontology design decisions.
+These analyses support human judgment by highlighting candidate merges, unexpected clusters, isolated concepts, or parts of the inventory requiring additional inspection. They provide complementary evidence for expert refinement but do not replace semantic reasoning or automate conceptual decisions.
 
-Accordingly, similarity-based analyses are treated as optional decision-support mechanisms rather than mandatory workflow stages. Their value increases with ontology size and complexity by helping focus human review on areas most likely to benefit from further inspection.
+Accordingly, similarity-based analyses are optional decision-support mechanisms rather than mandatory workflow stages. Their value increases with inventory size and complexity by focusing human review on areas most likely to benefit from further inspection.
 
-\subsection{Schema engineering}
+\subsection{Metadata schema design and specification}
 
-The objective of schema engineering is to transform the refined ontology into an operational metadata schema. Whereas ontology engineering establishes a conceptually coherent representation of the metadata space, schema engineering emphasizes practical implementation by defining metadata fields suitable for annotation, storage, retrieval, and downstream metadata extraction.
+The objective of metadata schema design and specification is to transform the refined metadata concept inventory into an operational metadata schema. Whereas concept refinement establishes a coherent representation of the metadata space, this stage determines how the concepts should be represented as fields suitable for annotation, storage, retrieval, and downstream metadata extraction.
 
-Schema engineering proceeds through an iterative design process that translates canonical metadata concepts into an operational metadata specification. Typical activities include merging ontology concepts that are conceptually distinct but operationally better represented by a single metadata field, introducing metadata fields required for practical deployment, removing concepts whose implementation cost outweighs their operational value, refining field names and definitions to improve annotation consistency, organizing metadata fields into coherent semantic modules, and developing annotation guidance, examples, and scope notes for each metadata field.
+Design proceeds iteratively. Typical activities include representing conceptually distinct concepts within a single field when operationally appropriate, introducing fields required for practical use, excluding concepts whose implementation cost outweighs their operational value, refining field names and definitions, organizing fields into coherent modules, and developing annotation guidance, examples, and scope notes.
 
-Unlike ontology engineering, which seeks to establish \emph{what metadata concepts exist}, schema engineering determines \emph{how those concepts should be represented within an operational metadata specification}. Consequently, schema engineering balances semantic correctness with practical considerations including annotation consistency, usability, maintainability, and long-term deployment. These decisions often involve trade-offs that cannot be resolved through semantic reasoning alone. For example, conceptually distinct ontology concepts may be represented by a single metadata field to simplify annotation, and infrequently occurring concepts may be retained because they provide operationally important metadata.
+Concept refinement establishes \emph{which metadata concepts are relevant}; schema design determines \emph{how those concepts should be represented operationally}. The design therefore balances semantic distinctions with annotation consistency, usability, and maintainability. These trade-offs cannot be resolved through semantic reasoning alone. Conceptually distinct concepts may be represented by one field to simplify annotation, while an infrequent concept may be retained because it has clear operational value.
 
-Schema engineering is guided primarily by human judgment. Multimodal LLMs may support the process by proposing alternative organizational structures, identifying ambiguities in field definitions, suggesting opportunities for simplification, and assisting with annotation guidance and documentation, but final schema design decisions remain the responsibility of the human expert.
+Human judgment governs schema design. An LLM may propose organizational structures, identify ambiguous definitions, suggest simplifications, and assist with annotation guidance. Final decisions concerning fields, constraints, organization, and documentation remain with the human expert.
 
-The output of this stage is a metadata schema comprising metadata fields, definitions, organizational structure, annotation guidance, examples, and other documentation required to support consistent metadata creation and downstream applications.
+The output is an operational metadata schema comprising fields, definitions, organization, annotation guidance, examples, and other documentation required for consistent metadata creation and downstream use.
+
+\subsection{Schema validation}
+\label{sec:schema_validation_methodology}
+
+The objective of schema validation is to evaluate the operational metadata schema against artifacts that were not used during its initial development. Unlike concept coverage assessment, which examines the refined concept inventory against field profiles from the development collection, schema validation occurs after schema design and tests the operational fields, definitions, and scope against held-out evidence.
+
+Schema validation may combine complementary forms of assessment. Open residual discovery generates metadata observations from held-out artifacts and identifies observations that do not fit the schema well. Confirmatory coverage assessment examines each held-out artifact for metadata that is important to interpretation or discovery but lacks an adequate schema field. Together, these assessments test both broad residual coverage and consequential omissions.
+
+Candidate gaps are not treated as automatic schema changes. Human experts review the supporting artifact evidence and determine whether each candidate represents a missing field, a documentation gap, a representation gap, an instance-specific detail, or an out-of-scope concept. Accepted findings may lead to schema revisions, after which the affected definitions or fields can be reassessed.
+
+The output of this stage is a body of validation evidence, a record of human adjudication decisions, and any justified revisions to the operational metadata schema. These outputs support bounded conclusions about schema adequacy for the tested artifact collection and intended application; they do not establish universal coverage.
 
 \section{Case study: Developing the Data Snapshot Metadata Schema}
 \label{sec:case_study}
