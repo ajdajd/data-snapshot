@@ -73,6 +73,116 @@
       "title": "Attribution",
       "type": "object"
     },
+    "AxisAssignment": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "dimension": {
+                "const": "x"
+              }
+            },
+            "required": [
+              "dimension"
+            ]
+          },
+          "then": {
+            "properties": {
+              "position": {
+                "enum": [
+                  "top",
+                  "bottom"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dimension": {
+                "const": "y"
+              }
+            },
+            "required": [
+              "dimension"
+            ]
+          },
+          "then": {
+            "properties": {
+              "position": {
+                "enum": [
+                  "left",
+                  "right"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "description": "Bind a variable to one distinct axis in a multi-axis graph.\n\nParameters\n----------\ndimension : AxisDimension\n    Cartesian dimension of the axis.\nposition : AxisPosition\n    Side of the plot where the axis appears.\nposition_index : int\n    One-based order from the plotting area outward on that side.",
+      "properties": {
+        "dimension": {
+          "$ref": "#/$defs/AxisDimension",
+          "description": "Cartesian dimension of the assigned axis.",
+          "examples": [
+            "x",
+            "y"
+          ]
+        },
+        "position": {
+          "$ref": "#/$defs/AxisPosition",
+          "description": "Side of the plot where the assigned axis appears.",
+          "examples": [
+            "top",
+            "bottom",
+            "left",
+            "right"
+          ]
+        },
+        "position_index": {
+          "description": "One-based order from the plotting area outward among axes on the same side.",
+          "examples": [
+            1,
+            2
+          ],
+          "exclusiveMinimum": 0,
+          "title": "Position Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "dimension",
+        "position",
+        "position_index"
+      ],
+      "title": "AxisAssignment",
+      "type": "object",
+      "x-validation-rules": [
+        "x axes use top or bottom; y axes use left or right."
+      ]
+    },
+    "AxisDimension": {
+      "description": "Identify a Cartesian axis dimension.",
+      "enum": [
+        "x",
+        "y"
+      ],
+      "title": "AxisDimension",
+      "type": "string"
+    },
+    "AxisPosition": {
+      "description": "Identify the side of a plot where an axis appears.",
+      "enum": [
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ],
+      "title": "AxisPosition",
+      "type": "string"
+    },
     "CategoryGroup": {
       "additionalProperties": false,
       "description": "Represent one explicit nonrecursive category grouping.\n\nParameters\n----------\nname : str\n    Explicit group heading.\ncategories : list[ControlledTerm]\n    Categories directly contained by the group.",
@@ -2923,10 +3033,10 @@
     },
     "Variable": {
       "additionalProperties": false,
-      "description": "Represent a measured variable and its applicable qualifiers.\n\nParameters\n----------\nname : str\n    Explicitly named variable, indicator, metric, or measured concept.\nunit : Unit | None\n    Applicable unit.\ncurrency : Currency | None\n    Applicable currency.\nanalytical_roles : list[AnalyticalRole] | None\n    Explicit analytical or axis roles.\nstatistical_forms : list[StatisticalFormTerm] | None\n    Applicable statistical forms.",
+      "description": "Represent a measured variable and its applicable qualifiers.\n\nParameters\n----------\nname : str\n    Explicitly named variable, indicator, metric, or measured concept.\nunit : Unit | None\n    Applicable unit.\ncurrency : Currency | None\n    Applicable currency.\nanalytical_roles : list[AnalyticalRole] | None\n    Explicit analytical or axis roles.\naxis_assignments : list[AxisAssignment] | None\n    Explicit assignments to distinct axes in a multi-axis graph.\nstatistical_forms : list[StatisticalFormTerm] | None\n    Applicable statistical forms.",
       "properties": {
         "name": {
-          "description": "The primary variable, indicator, metric, or measured concept represented by the snapshot.\n\nThis field records the variable's name or measured concept, not a normalized analytical role. Use `dimensions[].name`, `dimensions[].categories`, and `dimensions[].presentation_roles` where those structural roles apply. Analytical roles and axis assignments belong in `variables[].analytical_roles`.",
+          "description": "The primary variable, indicator, metric, or measured concept represented by the snapshot.\n\nThis field records the variable's name or measured concept, not a normalized analytical role. Use `dimensions[].name`, `dimensions[].categories`, and `dimensions[].presentation_roles` where those structural roles apply. Use `variables[].analytical_roles` for analytical roles and `variables[].axis_assignments` for distinct axes in a multi-axis graph.",
           "examples": [
             "GDP Growth",
             "Inflation",
@@ -3032,6 +3142,39 @@
             ]
           ],
           "title": "Analytical Roles"
+        },
+        "axis_assignments": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AxisAssignment"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit assignments to distinct Cartesian axes in a multi-axis graph.\n\nUse `analytical_roles` for a single or shared x- or y-axis. Use this field when variables are assigned to different axes of the same dimension. `position_index` is 1 for the axis nearest the plotting area on a given side and increases outward.",
+          "examples": [
+            [
+              {
+                "dimension": "y",
+                "position": "left",
+                "position_index": 1
+              }
+            ],
+            [
+              {
+                "dimension": "y",
+                "position": "right",
+                "position_index": 1
+              }
+            ]
+          ],
+          "title": "Axis Assignments"
         },
         "statistical_forms": {
           "anyOf": [

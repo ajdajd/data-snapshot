@@ -3,6 +3,9 @@
 from data_snapshot.metadata_schema.models import (
     AnalyticalRole,
     Attribution,
+    AxisAssignment,
+    AxisDimension,
+    AxisPosition,
     CategoryGroup,
     ControlledTerm,
     Currency,
@@ -37,6 +40,9 @@ from data_snapshot.metadata_schema.models import (
 __all__ = [
     "AnalyticalRole",
     "Attribution",
+    "AxisAssignment",
+    "AxisDimension",
+    "AxisPosition",
     "CategoryGroup",
     "ControlledTerm",
     "Currency",

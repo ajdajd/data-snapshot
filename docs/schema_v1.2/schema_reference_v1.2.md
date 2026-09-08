@@ -1180,6 +1180,93 @@ Explicit source-grounded agent role.
 ```
 
 
+## AxisAssignment
+
+Bind a variable to one distinct axis in a multi-axis graph.
+
+- x axes use top or bottom; y axes use left or right.
+
+| Field | Type | Required | Default | Constraints | Standards / code list |
+|---|---|---:|---|---|---|
+| `dimension` | `AxisDimension` | yes | — |  |  |
+| `position` | `AxisPosition` | yes | — |  |  |
+| `position_index` | `integer` | yes | — |  |  |
+
+### Field definitions and examples
+
+Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
+
+#### `dimension`
+
+**Definition**
+
+Cartesian dimension of the assigned axis.
+
+**Examples**
+
+```json
+"x"
+```
+
+```json
+"y"
+```
+
+
+#### `position`
+
+**Definition**
+
+Side of the plot where the assigned axis appears.
+
+**Examples**
+
+```json
+"top"
+```
+
+```json
+"bottom"
+```
+
+```json
+"left"
+```
+
+```json
+"right"
+```
+
+
+#### `position_index`
+
+**Definition**
+
+One-based order from the plotting area outward among axes on the same side.
+
+**Examples**
+
+```json
+1
+```
+
+```json
+2
+```
+
+
+## AxisDimension
+
+Identify a Cartesian axis dimension.
+
+`x`, `y`
+
+## AxisPosition
+
+Identify the side of a plot where an axis appears.
+
+`top`, `bottom`, `left`, `right`
+
 ## CategoryGroup
 
 Represent one explicit nonrecursive category grouping.
@@ -3123,6 +3210,7 @@ Represent a measured variable and its applicable qualifiers.
 | `unit` | `Unit \| null` | no | `null` |  | [https://schema.org/unitCode](https://schema.org/unitCode) (related_structural) |
 | `currency` | `Currency \| null` | no | `null` |  | [https://schema.org/currency](https://schema.org/currency) (close) |
 | `analytical_roles` | `array[AnalyticalRole] \| null` | no | `null` | minItems: 1 |  |
+| `axis_assignments` | `array[AxisAssignment] \| null` | no | `null` | minItems: 1 |  |
 | `statistical_forms` | `array[StatisticalFormTerm] \| null` | no | `null` | minItems: 1 | [https://schema.org/statType](https://schema.org/statType) (close) |
 
 ### Field definitions and examples
@@ -3135,7 +3223,7 @@ Each block is one possible field value. Examples for different fields are indepe
 
 The primary variable, indicator, metric, or measured concept represented by the snapshot.
 
-This field records the variable's name or measured concept, not a normalized analytical role. Use `dimensions[].name`, `dimensions[].categories`, and `dimensions[].presentation_roles` where those structural roles apply. Analytical roles and axis assignments belong in `variables[].analytical_roles`.
+This field records the variable's name or measured concept, not a normalized analytical role. Use `dimensions[].name`, `dimensions[].categories`, and `dimensions[].presentation_roles` where those structural roles apply. Use `variables[].analytical_roles` for analytical roles and `variables[].axis_assignments` for distinct axes in a multi-axis graph.
 
 **Examples**
 
@@ -3239,6 +3327,37 @@ Explicit analytical or axis roles.
 ```json
 [
   "x_axis"
+]
+```
+
+
+#### `axis_assignments`
+
+**Definition**
+
+Explicit assignments to distinct Cartesian axes in a multi-axis graph.
+
+Use `analytical_roles` for a single or shared x- or y-axis. Use this field when variables are assigned to different axes of the same dimension. `position_index` is 1 for the axis nearest the plotting area on a given side and increases outward.
+
+**Examples**
+
+```json
+[
+  {
+    "dimension": "y",
+    "position": "left",
+    "position_index": 1
+  }
+]
+```
+
+```json
+[
+  {
+    "dimension": "y",
+    "position": "right",
+    "position_index": 1
+  }
 ]
 ```
 

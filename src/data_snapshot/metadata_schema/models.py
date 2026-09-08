@@ -15,6 +15,7 @@ from pydantic import (
     BeforeValidator,
     ConfigDict,
     Field,
+    PositiveInt,
     StringConstraints,
     WithJsonSchema,
     field_validator,
@@ -245,6 +246,22 @@ class AnalyticalRole(str, Enum):
     CONTROL = "control"
     X_AXIS = "x_axis"
     Y_AXIS = "y_axis"
+
+
+class AxisDimension(str, Enum):
+    """Identify a Cartesian axis dimension."""
+
+    X = "x"
+    Y = "y"
+
+
+class AxisPosition(str, Enum):
+    """Identify the side of a plot where an axis appears."""
+
+    TOP = "top"
+    BOTTOM = "bottom"
+    LEFT = "left"
+    RIGHT = "right"
 
 
 class TemporalRelation(str, Enum):
@@ -814,6 +831,70 @@ class Language(_SchemaModel):
         return self
 
 
+class AxisAssignment(_SchemaModel):
+    """Bind a variable to one distinct axis in a multi-axis graph.
+
+    Parameters
+    ----------
+    dimension : AxisDimension
+        Cartesian dimension of the axis.
+    position : AxisPosition
+        Side of the plot where the axis appears.
+    position_index : int
+        One-based order from the plotting area outward on that side.
+    """
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {"dimension": {"const": "x"}},
+                        "required": ["dimension"],
+                    },
+                    "then": {"properties": {"position": {"enum": ["top", "bottom"]}}},
+                },
+                {
+                    "if": {
+                        "properties": {"dimension": {"const": "y"}},
+                        "required": ["dimension"],
+                    },
+                    "then": {"properties": {"position": {"enum": ["left", "right"]}}},
+                },
+            ],
+            "x-validation-rules": [
+                "x axes use top or bottom; y axes use left or right."
+            ],
+        }
+    )
+
+    dimension: AxisDimension = Field(
+        examples=["x", "y"],
+        description="Cartesian dimension of the assigned axis.",
+    )
+    position: AxisPosition = Field(
+        examples=["top", "bottom", "left", "right"],
+        description="Side of the plot where the assigned axis appears.",
+    )
+    position_index: PositiveInt = Field(
+        examples=[1, 2],
+        description="One-based order from the plotting area outward among axes on the same side.",
+    )
+
+    @model_validator(mode="after")
+    def _validate_position(self) -> AxisAssignment:
+        positions = {
+            AxisDimension.X: {AxisPosition.TOP, AxisPosition.BOTTOM},
+            AxisDimension.Y: {AxisPosition.LEFT, AxisPosition.RIGHT},
+        }
+        if self.position not in positions[self.dimension]:
+            raise ValueError(
+                f"{self.dimension.value}-axis position must be one of "
+                f"{sorted(position.value for position in positions[self.dimension])}."
+            )
+        return self
+
+
 class Variable(_SchemaModel):
     """Represent a measured variable and its applicable qualifiers.
 
@@ -827,13 +908,15 @@ class Variable(_SchemaModel):
         Applicable currency.
     analytical_roles : list[AnalyticalRole] | None
         Explicit analytical or axis roles.
+    axis_assignments : list[AxisAssignment] | None
+        Explicit assignments to distinct axes in a multi-axis graph.
     statistical_forms : list[StatisticalFormTerm] | None
         Applicable statistical forms.
     """
 
     name: NonEmptyText = Field(
         examples=["GDP Growth", "Inflation", "Literacy Rate", "Refugee Population"],
-        description="The primary variable, indicator, metric, or measured concept represented by the snapshot.\n\nThis field records the variable's name or measured concept, not a normalized analytical role. Use `dimensions[].name`, `dimensions[].categories`, and `dimensions[].presentation_roles` where those structural roles apply. Analytical roles and axis assignments belong in `variables[].analytical_roles`.",
+        description="The primary variable, indicator, metric, or measured concept represented by the snapshot.\n\nThis field records the variable's name or measured concept, not a normalized analytical role. Use `dimensions[].name`, `dimensions[].categories`, and `dimensions[].presentation_roles` where those structural roles apply. Use `variables[].analytical_roles` for analytical roles and `variables[].axis_assignments` for distinct axes in a multi-axis graph.",
         json_schema_extra=_standards(("https://schema.org/variableMeasured", "close")),
     )
     unit: Unit | None = Field(
@@ -864,6 +947,27 @@ class Variable(_SchemaModel):
         default=None,
         min_length=1,
         description="Explicit analytical or axis roles.",
+    )
+    axis_assignments: list[AxisAssignment] | None = Field(
+        examples=[
+            [
+                {
+                    "dimension": "y",
+                    "position": "left",
+                    "position_index": 1,
+                }
+            ],
+            [
+                {
+                    "dimension": "y",
+                    "position": "right",
+                    "position_index": 1,
+                }
+            ],
+        ],
+        default=None,
+        min_length=1,
+        description="Explicit assignments to distinct Cartesian axes in a multi-axis graph.\n\nUse `analytical_roles` for a single or shared x- or y-axis. Use this field when variables are assigned to different axes of the same dimension. `position_index` is 1 for the axis nearest the plotting area on a given side and increases outward.",
     )
     statistical_forms: list[StatisticalFormTerm] | None = Field(
         examples=[

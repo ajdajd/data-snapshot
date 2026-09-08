@@ -13,6 +13,7 @@ from pydantic import BaseModel, TypeAdapter, ValidationError
 import data_snapshot.metadata_schema.generation as schema_generation
 import data_snapshot.metadata_schema as metadata_models
 from data_snapshot.metadata_schema import (
+    AxisAssignment,
     ControlledTerm,
     Currency,
     DataSnapshotMetadata,
@@ -354,6 +355,35 @@ def test_open_terms_do_not_weaken_normalized_vocabularies() -> None:
         )
     with pytest.raises(ValidationError, match="Input should be"):
         Variable(name="GDP", analytical_roles=["response-ish"])
+
+
+def test_variables_support_distinct_axes_on_any_plot_side() -> None:
+    """Represent multiple x or y axes, including axes sharing one side."""
+    variables = [
+        Variable(
+            name="Logs",
+            axis_assignments=[
+                {"dimension": "y", "position": "left", "position_index": 1}
+            ],
+        ),
+        Variable(
+            name="Sawnwood",
+            axis_assignments=[
+                {"dimension": "y", "position": "left", "position_index": 2}
+            ],
+        ),
+        Variable(
+            name="Alternate time",
+            axis_assignments=[
+                {"dimension": "x", "position": "top", "position_index": 1}
+            ],
+        ),
+    ]
+
+    assert variables[1].axis_assignments[0].position_index == 2
+    assert variables[2].axis_assignments[0].position.value == "top"
+    with pytest.raises(ValidationError, match="x-axis position"):
+        AxisAssignment(dimension="x", position="left", position_index=1)
 
 
 def test_standard_formats_and_cross_field_constraints_are_enforced() -> None:

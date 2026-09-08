@@ -65,7 +65,8 @@ metadata = DataSnapshotMetadata(
 print(metadata.variables[0].currency.code)  # USD
 ```
 
-Variables own their units, currencies, analytical roles, and statistical forms.
+Variables own their units, currencies, analytical roles, multi-axis assignments,
+and statistical forms.
 Dimensions own their categories and optional single-level category groups.
 Provenance separates derivation sources from credited agents. Panel titles
 remain an ordered flat collection, with visualization types at snapshot level.
