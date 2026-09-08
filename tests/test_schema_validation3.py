@@ -8,7 +8,9 @@ from types import SimpleNamespace
 
 import pytest
 
+from data_snapshot.constants import ROOT
 from data_snapshot.metadata_schema.generation import serialize_metadata_schema
+from data_snapshot.schema_validation2.validation import CandidateGap as CandidateGapV2
 from data_snapshot.schema_validation3 import (
     CandidateGap,
     SchemaValidationResult,
@@ -90,12 +92,12 @@ def _candidate(**overrides: object) -> CandidateGap:
     values: dict[str, object] = {
         "gap_id": "gap_1",
         "gap_status": "possible",
-        "missing_or_inadequately_represented_metadata": "Temporal qualifier",
+        "missing_metadata_concept": "Temporal qualifier",
+        "proposed_field_name": "temporal_qualifier",
         "evidence": "The snapshot explicitly labels the period.",
-        "faithful_representation": "Preserve the displayed period and its meaning.",
         "why_snapshot_metadata": "It qualifies the represented data.",
         "closest_schema_paths": ["temporal_coverage.period"],
-        "why_existing_schema_may_be_insufficient": "The relationship may be lost.",
+        "why_existing_fields_may_be_insufficient": "Its meaning may be lost.",
         "material_impact": "interpretability",
         "material_consequence": "Readers could misread when the data apply.",
         "uncertainty_note": "Human review is required.",
@@ -237,6 +239,28 @@ def test_validation3_logs_inconsistent_assessments_as_errors(
     assert "no-gap result" in error["error"]
 
 
+@pytest.mark.parametrize("proposed_name", ["Not Snake Case", "unit"])
+def test_validation3_rejects_invalid_or_existing_field_proposals(
+    tmp_path: Path, proposed_name: str
+) -> None:
+    """Field proposals must be new snake-case metadata concepts."""
+    paths = _write_inputs(tmp_path)
+    parsed = SchemaValidationResult(
+        coverage_assessment="possible_gap",
+        critical_or_possible_gaps=[_candidate(proposed_field_name=proposed_name)],
+    )
+
+    summary = _run(
+        paths,
+        FakeResponses([_response(parsed)]),
+        snapshot_file_names={"document_1_figure_000.png"},
+    )
+
+    assert summary.failed == 1
+    error = json.loads(paths["errors"].read_text(encoding="utf-8"))
+    assert "Proposed field" in error["error"]
+
+
 def test_provenance_ablation_is_local_and_removes_target_paths() -> None:
     """The sensitivity control cannot mutate the cached canonical schema."""
     canonical_before = serialize_metadata_schema()
@@ -264,3 +288,30 @@ def test_schema_context_contains_expected_nested_paths() -> None:
     assert "dimensions[].category_groups[].categories[]" in paths
     assert "interpretive_notes[]" in paths
     assert "provenance.sources[].name" in paths
+
+
+def test_validation3_instrument_matches_validation2_except_nested_paths() -> None:
+    """The corrected instrument differs only where v1.2 paths require it."""
+    validation2_prompt = (
+        ROOT / "src/data_snapshot/schema_validation2/prompts/system.md"
+    ).read_text(encoding="utf-8")
+    validation3_prompt = (
+        ROOT / "src/data_snapshot/schema_validation3/prompts/system.md"
+    ).read_text(encoding="utf-8")
+    normalized_prompt = validation3_prompt.replace("v1.2", "v1.1.1")
+    normalized_prompt = normalized_prompt.replace(
+        "using exact v1.1.1 schema paths. Use dot notation and `[]` for array "
+        "items, such as `variables[].unit` or "
+        "`dimensions[].category_groups[].categories`.",
+        "using exact v1.1.1 field names.",
+    ).replace(
+        "exact closest v1.1.1 schema paths",
+        "exact closest v1.1.1 fields",
+    )
+
+    assert normalized_prompt == validation2_prompt
+    validation2_fields = set(CandidateGapV2.model_json_schema()["properties"])
+    validation3_fields = set(CandidateGap.model_json_schema()["properties"])
+    assert validation3_fields == (validation2_fields - {"closest_schema_fields"}) | {
+        "closest_schema_paths"
+    }

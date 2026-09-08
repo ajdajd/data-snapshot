@@ -113,3 +113,4 @@ notebooks/schema_validation2/data/*
 notebooks/schema_validation2/outputs/*
 notebooks/schema_validation3/data/*
 notebooks/schema_validation3/outputs/*
+notebooks/schema_v1_2_representation_stress_test/notebooks/outputs/*

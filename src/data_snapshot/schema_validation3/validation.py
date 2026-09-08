@@ -22,10 +22,11 @@ _SNAPSHOT_PATTERN = re.compile(
     r"^(?P<document_id>.+)_(?P<artifact_type>figure|table)_"
     r"(?P<artifact_index>\d{3})\.png$"
 )
+_SNAKE_CASE_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
 class CandidateGap(BaseModel):
-    """Describe one critical or possibly critical v1.2 representation gap.
+    """Describe one critical or possibly critical v1.2 coverage gap.
 
     Parameters
     ----------
@@ -33,20 +34,20 @@ class CandidateGap(BaseModel):
         Identifier unique within the snapshot assessment.
     gap_status : Literal["critical", "possible"]
         Strength of the model's gap assessment.
-    missing_or_inadequately_represented_metadata : str
-        Reusable snapshot metadata that may not be adequately represented.
+    missing_metadata_concept : str
+        Reusable snapshot metadata that may not be adequately covered.
+    proposed_field_name : str
+        Suggested snake-case label for human review, not an accepted field.
     evidence : str
         Concise evidence from the supplied snapshot and document context.
-    faithful_representation : str
-        Information and relationships that an adequate representation preserves.
     why_snapshot_metadata : str
         Reason the information describes the snapshot rather than only its document.
     closest_schema_paths : list[str]
         Exact v1.2 paths that most closely represent the information.
-    why_existing_schema_may_be_insufficient : str
-        Possible semantic or relational loss when using the closest paths.
+    why_existing_fields_may_be_insufficient : str
+        Possible semantic loss when using the closest existing paths.
     material_impact : Literal["interpretability", "discoverability", "both"]
-        Area materially affected if the information is not represented.
+        Area materially affected if the information is not covered.
     material_consequence : str
         Concrete impairment caused by omission or inadequate representation.
     uncertainty_note : str | None
@@ -57,12 +58,12 @@ class CandidateGap(BaseModel):
 
     gap_id: str
     gap_status: Literal["critical", "possible"]
-    missing_or_inadequately_represented_metadata: str
+    missing_metadata_concept: str
+    proposed_field_name: str
     evidence: str
-    faithful_representation: str
     why_snapshot_metadata: str
     closest_schema_paths: list[str]
-    why_existing_schema_may_be_insufficient: str
+    why_existing_fields_may_be_insufficient: str
     material_impact: Literal["interpretability", "discoverability", "both"]
     material_consequence: str
     uncertainty_note: str | None
@@ -511,12 +512,27 @@ def _render_user_prompt(
 def _validate_assessment(
     assessment: SchemaValidationResult, schema_paths: set[str]
 ) -> None:
-    """Check exact paths and snapshot-level output consistency."""
+    """Check field proposals, exact paths, and output consistency."""
     gaps = assessment.critical_or_possible_gaps
     gap_ids = [gap.gap_id for gap in gaps]
     if len(gap_ids) != len(set(gap_ids)):
         raise ValueError("Gap IDs must be unique within one assessment.")
+
+    proposed_names = [gap.proposed_field_name for gap in gaps]
+    if len(proposed_names) != len(set(proposed_names)):
+        raise ValueError("Proposed field names must be unique within one assessment.")
+    schema_field_names = {
+        path.rsplit(".", 1)[-1].removesuffix("[]") for path in schema_paths
+    }
     for gap in gaps:
+        if _SNAKE_CASE_PATTERN.fullmatch(gap.proposed_field_name) is None:
+            raise ValueError(
+                f"Proposed field {gap.proposed_field_name!r} is not snake_case."
+            )
+        if gap.proposed_field_name in schema_field_names:
+            raise ValueError(
+                f"Proposed field {gap.proposed_field_name!r} exists in v1.2."
+            )
         unknown = set(gap.closest_schema_paths) - schema_paths
         if unknown:
             raise ValueError(f"Unknown v1.2 schema paths: {sorted(unknown)}.")

@@ -14,7 +14,7 @@ The following JSON Schema is generated from the canonical Pydantic model.
 
 # Parent-document context
 
-The following metadata may clarify the snapshot, but the parent document is not the object being validated.
+The following metadata may be used to understand the snapshot, but the parent document is not the object being validated.
 
 {{DOCUMENT_METADATA}}
 
