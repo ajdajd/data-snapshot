@@ -80,7 +80,7 @@
         "name": {
           "description": "Explicit category-group heading.",
           "examples": [
-            "Violation du droit à la liberté"
+            "Violation of the right to liberty"
           ],
           "minLength": 1,
           "pattern": "\\S",
@@ -92,10 +92,10 @@
           "examples": [
             [
               {
-                "source_text": "Arrestations arbitraires"
+                "source_text": "Arbitrary arrests"
               },
               {
-                "source_text": "Enlèvements"
+                "source_text": "Abductions"
               }
             ]
           ],
@@ -448,13 +448,13 @@
               {
                 "categories": [
                   {
-                    "source_text": "Arrestations arbitraires"
+                    "source_text": "Arbitrary arrests"
                   },
                   {
-                    "source_text": "Enlèvements"
+                    "source_text": "Abductions"
                   }
                 ],
-                "name": "Violation du droit à la liberté"
+                "name": "Violation of the right to liberty"
               }
             ]
           ],

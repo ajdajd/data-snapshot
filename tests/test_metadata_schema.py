@@ -268,10 +268,10 @@ def test_representative_record_preserves_nested_relationships() -> None:
                     "presentation_roles": ["column"],
                     "category_groups": [
                         {
-                            "name": "Violation du droit à la liberté",
+                            "name": "Violation of the right to liberty",
                             "categories": [
-                                {"source_text": "Arrestations arbitraires"},
-                                {"source_text": "Enlèvements"},
+                                {"source_text": "Arbitrary arrests"},
+                                {"source_text": "Abductions"},
                             ],
                         }
                     ],
@@ -338,7 +338,7 @@ def test_representative_record_preserves_nested_relationships() -> None:
     assert record.variables[0].currency.code == "USD"
     assert (
         record.dimensions[0].category_groups[0].categories[1].source_text
-        == "Enlèvements"
+        == "Abductions"
     )
     assert record.geographic_coverage.scope.country_code == "NE"
     assert record.financing.instruments[0].source_text == "Grant"

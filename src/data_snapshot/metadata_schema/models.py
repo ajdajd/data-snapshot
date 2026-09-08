@@ -892,14 +892,14 @@ class CategoryGroup(_SchemaModel):
     """
 
     name: NonEmptyText = Field(
-        examples=["Violation du droit à la liberté"],
+        examples=["Violation of the right to liberty"],
         description="Explicit category-group heading.",
     )
     categories: list[ControlledTerm] = Field(
         examples=[
             [
-                {"source_text": "Arrestations arbitraires"},
-                {"source_text": "Enlèvements"},
+                {"source_text": "Arbitrary arrests"},
+                {"source_text": "Abductions"},
             ]
         ],
         min_length=1,
@@ -956,10 +956,10 @@ class Dimension(_SchemaModel):
         examples=[
             [
                 {
-                    "name": "Violation du droit à la liberté",
+                    "name": "Violation of the right to liberty",
                     "categories": [
-                        {"source_text": "Arrestations arbitraires"},
-                        {"source_text": "Enlèvements"},
+                        {"source_text": "Arbitrary arrests"},
+                        {"source_text": "Abductions"},
                     ],
                 }
             ]

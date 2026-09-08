@@ -1202,7 +1202,7 @@ Explicit category-group heading.
 **Examples**
 
 ```json
-"Violation du droit à la liberté"
+"Violation of the right to liberty"
 ```
 
 
@@ -1217,10 +1217,10 @@ Categories directly contained by the group.
 ```json
 [
   {
-    "source_text": "Arrestations arbitraires"
+    "source_text": "Arbitrary arrests"
   },
   {
-    "source_text": "Enlèvements"
+    "source_text": "Abductions"
   }
 ]
 ```
@@ -1493,13 +1493,13 @@ One level of explicit category groups.
   {
     "categories": [
       {
-        "source_text": "Arrestations arbitraires"
+        "source_text": "Arbitrary arrests"
       },
       {
-        "source_text": "Enlèvements"
+        "source_text": "Abductions"
       }
     ],
-    "name": "Violation du droit à la liberté"
+    "name": "Violation of the right to liberty"
   }
 ]
 ```
