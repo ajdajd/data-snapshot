@@ -93,7 +93,7 @@ LLM-assisted ontology learning provides a second methodological foundation. LLMs
 
 Together, these studies show how LLMs can support progressively more formal knowledge-representation tasks, from term typing and taxonomy construction to ontology reuse, verification, and repair.
 
-Stage-wise evidence suggests that expert involvement becomes increasingly important as ontology work progresses from term extraction toward hierarchy and relation specification~\cite{ding2026ontology}. A systematic review similarly identifies broad use of LLMs across ontology-engineering activities alongside limited human evaluation and inconsistent validation practices~\cite{li2026ontologyreview}. These findings support assigning exploratory discovery and abstraction to the LLM while retaining human responsibility for conceptual boundaries, consolidation decisions, and operational schema design.
+\cite{ding2026ontology find that expert involvement becomes increasingly important as ontology work progresses from term extraction toward hierarchy and relation specification.}. \cite{li2026ontologyreview} similarly identify broad use of LLMs across ontology-engineering activities alongside limited human evaluation and inconsistent validation practices. These findings support assigning exploratory discovery and abstraction to the LLM while retaining human responsibility for conceptual boundaries, consolidation decisions, and operational schema design.
 
 \subsection{Open schema induction and knowledge graph construction}
 
@@ -191,7 +191,7 @@ The following section presents the proposed methodology.
 \section{Methodology}
 \label{sec:methodology}
 
-This section presents a reusable methodology for developing an operational metadata schema for multimodal analytical artifacts that lack an established descriptive standard. The methodology decomposes schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support selected discovery, consolidation, and assessment tasks, while human experts retain responsibility for conceptual and operational decisions.
+This section presents a reusable methodology for developing an operational metadata schema for multimodal analytical artifacts that lack a dedicated operational metadata schema or directly adoptable metadata profile. The methodology decomposes schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support selected discovery, consolidation, and assessment tasks, while human experts retain responsibility for conceptual and operational decisions.
 
 The stages separate artifact-level discovery, evidence aggregation, concept synthesis, expert refinement, concept coverage assessment, metadata schema design and specification, and schema validation. This decomposition makes each transformation independently reviewable and preserves traceability from the operational schema to the artifacts that motivated it. Table~\ref{tab:methodology_summary} summarizes the workflow.
 
@@ -437,7 +437,7 @@ A central design decision was the separation of metadata describing the snapshot
 \subsection{Schema validation}
 \label{sec:schema_validation_case_study}
 
-A separate collection of 202 snapshots was held out from metadata discovery, concept refinement, and schema design. It contained up to 35 figures and 35 tables from each corpus; only 27 eligible figures remained in the Refugee Project Appraisal Document corpus after the 210 case study snapshots were excluded (Table~\ref{tab:validation_composition}). Both validation exercises used this same held-out collection and addressed different questions using the same evidence.
+A separate collection of 202 snapshots was held out from all schema-development stages. It contained up to 35 figures and 35 tables from each corpus; only 27 eligible figures remained in the Refugee Project Appraisal Document corpus after the 210 case study snapshots were excluded (Table~\ref{tab:validation_composition}). Both validation exercises used this same held-out collection and addressed different questions using the same evidence.
 
 \begin{table}[!ht]
     \centering
@@ -629,7 +629,7 @@ Metadata field profiles preserve rich semantic evidence but remain too numerous 
     \end{tabular}
 \end{table}
 
-Canonical metadata concept synthesis consolidated the discovered semantic space by grouping metadata field profiles that represented the same underlying concept despite differences in terminology, disciplinary perspective, or level of abstraction. Rather than maximizing semantic compression, the multimodal LLM was instructed to merge conservatively and retain plausible distinctions when uncertainty remained. This reduced 833 field profiles to a candidate inventory of 70 concepts intended to apply across the reporting domains represented in the case study. The reduction made the evidence more tractable for expert review while preserving distinctions that required human adjudication. Expert refinement then transformed the candidate inventory into a refined inventory of 41 concepts through recurring decisions to merge, rename, or exclude concepts (Table~\ref{tab:ontology_decisions}).
+Canonical metadata concept synthesis consolidated the discovered semantic space by grouping metadata field profiles that represented the same underlying concept despite differences in terminology, disciplinary perspective, or level of abstraction. Rather than maximizing semantic compression, the LLM was instructed to merge conservatively and retain plausible distinctions when uncertainty remained. This reduced 833 field profiles to a candidate inventory of 70 concepts intended to apply across the reporting domains represented in the case study. The reduction made the evidence more tractable for expert review while preserving distinctions that required human adjudication. Expert refinement then transformed the candidate inventory into a refined inventory of 41 concepts through recurring decisions to merge, rename, or exclude concepts (Table~\ref{tab:ontology_decisions}).
 
 \begin{table}[!ht]
     \centering
@@ -1722,7 +1722,7 @@ Assign this discovered metadata field to exactly one canonical metadata concept 
 \section{Appendix: Held-out schema validation implementation}
 \label{appendix:schema_validation}
 
-This appendix documents the two schema-validation exercises applied to the same 202 snapshots held out from metadata discovery, concept refinement, and metadata schema design. The version identifiers and field names in this appendix describe the frozen artifacts and structured outputs used during execution and are therefore retained for reproducibility. Both exercises evaluated one snapshot per request using the snapshot image, the complete frozen schema, and available source-document metadata. Neither exercise permitted the model to revise the schema or accept a proposed field.
+This appendix documents the two schema-validation exercises applied to the same 202 snapshots held out from all schema-development stages. The version identifiers and field names in this appendix describe the frozen artifacts and structured outputs used during execution and are therefore retained for reproducibility. Both exercises evaluated one snapshot per request using the snapshot image, the complete frozen schema, and available source-document metadata. Neither exercise permitted the model to revise the schema or accept a proposed field.
 
 \subsection{Validation 1: Open residual discovery}
 
