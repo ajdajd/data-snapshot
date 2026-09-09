@@ -483,6 +483,8 @@ Table~\ref{tab:schema_validation_results} summarizes the two exercises.
 
 Because both exercises used the same held-out collection, they provide complementary evidence rather than independent replications. Validation 1 tested whether broad residual discovery would reveal additional field candidates; Validation 2 tested whether any remaining omission materially affected interpretation or discovery. After human adjudication, neither exercise identified a candidate that would have changed the accepted 36-field inventory. This result supports the adequacy of the inventory for the intended schema scope and tested collections, but does not establish universal coverage of all future data snapshots.
 
+The model configurations, prompts, structured outputs, and human-adjudication procedures for both exercises are documented in Appendix~\ref{appendix:schema_validation}.
+
 The resulting schema, intermediate knowledge artifacts, and held-out validation evidence document one complete execution of the methodology. The following section analyzes how the successive semantic transformations contributed to that result.
 
 \section{Analysis of semantic transformations}
@@ -1715,6 +1717,286 @@ top_observed_values
 {{top_observed_values}}
 
 Assign this discovered metadata field to exactly one canonical metadata concept from the ontology.
+\end{lstlisting}
+
+\section{Appendix: Held-out schema validation implementation}
+\label{appendix:schema_validation}
+
+This appendix documents the two schema-validation exercises applied to the same 202 snapshots held out from metadata discovery, concept refinement, and metadata schema design. The version identifiers and field names in this appendix describe the frozen artifacts and structured outputs used during execution and are therefore retained for reproducibility. Both exercises evaluated one snapshot per request using the snapshot image, the complete frozen schema, and available source-document metadata. Neither exercise permitted the model to revise the schema or accept a proposed field.
+
+\subsection{Validation 1: Open residual discovery}
+
+\subsubsection{Model configuration}
+
+Validation 1 used GPT-5.5 through the OpenAI Responses API. Table~\ref{tab:schema_validation1_configuration} summarizes the final configuration used for the full held-out run.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Configuration used for Schema Validation 1.}
+    \label{tab:schema_validation1_configuration}
+    \begin{tabular}{ll}
+    \toprule
+    \textbf{Setting} & \textbf{Value} \\
+    \midrule
+    Frozen schema & Data Snapshot Metadata Schema v1.1 \\
+    Model & GPT-5.5 \\
+    Reasoning effort & Medium \\
+    Service tier & Flex \\
+    Maximum output tokens & 8,000 \\
+    Prompt caching & Enabled \\
+    Assessment unit & One held-out snapshot per request \\
+    Output & Pydantic Structured Output \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsubsection{Assessment and output structure}
+
+The exercise used open residual discovery. For each snapshot, the model independently identified reusable metadata concepts, compared them with the frozen schema, and returned one evidence-bearing observation for each concept substantively relevant to coverage. Each observation contained an identifier, the metadata concept, explicit evidence and its source, the closest schema fields, a fit status, and a concise rationale.
+
+The fit statuses were defined as follows:
+
+\begin{itemize}
+    \item \texttt{covered}: one or more existing fields represented the concept without material loss;
+    \item \texttt{weak\_fit}: an existing field was related, but using it would distort, omit, or conflate important semantics;
+    \item \texttt{no\_fit}: the concept was within scope and no existing field adequately represented it;
+    \item \texttt{out\_of\_scope}: the observation was extraction output or otherwise outside snapshot metadata; and
+    \item \texttt{uncertain}: the evidence or semantic interpretation was insufficient for a reliable decision.
+\end{itemize}
+
+The structured output contained two arrays: \texttt{observations} and \texttt{candidate\_new\_fields}. A candidate contained a proposed name, definition, supporting observation identifiers, an explanation of why existing fields were insufficient, its operational value, and its source level. The output contract required every candidate to be supported by at least one \texttt{weak\_fit} or \texttt{no\_fit} observation. Across the 202 requests, the model returned 2,876 observations and 578 candidate objects using 101 exact proposed names. Because snapshots were assessed independently, semantically related candidates could recur within or across exact names. The 578 figure is therefore the number of candidate objects returned across snapshots, not the number of accepted fields or unique names.
+
+\subsubsection{Human adjudication}
+
+Candidate names were not normalized by the model. Human review manually grouped obvious semantic aliases into 14 provisional review families. These families covered 518 of the 578 candidate rows and served only as an analysis aid; they were not treated as model output or as a new schema layer. The reviewer examined all 14 families, the remaining 60 ungrouped candidate rows, and all 23 boundary-quality observations classified as \texttt{uncertain} or \texttt{out\_of\_scope}.
+
+Acceptance was not determined by candidate frequency. For each candidate area, the reviewer considered whether the evidence described the snapshot rather than only its source document, whether the concept was reusable and within scope, whether existing fields already represented it adequately, whether it was metadata rather than extracted analytical content, whether an independent field had operational value, and whether the issue concerned missing vocabulary or the representation of an existing concept. Application architecture, expected retrieval behavior, generalizability, and maintenance cost informed the operational decision. Decisions and rationales were recorded by candidate area in the final adjudication report. No candidate was accepted as a new field.
+
+\subsubsection{System prompt}
+
+\begin{lstlisting}
+You are evaluating the coverage of a frozen metadata schema against one held-out data snapshot.
+
+The baseline is the **Data Snapshot Metadata Schema v1.1**. Treat it as authoritative and immutable during this task. You may identify evidence of a coverage gap, but you must not revise the schema or decide that a proposed field should be accepted.
+
+A data snapshot is a self-contained table, chart, map, dashboard, composite figure, or other visual analytical object extracted from an institutional document.
+
+## Evaluation procedure
+
+1. Independently identify reusable metadata concepts explicitly evidenced by the snapshot or its source-document metadata.
+2. Compare each concept with the definitions in v1.1.
+3. Record one observation for each distinct reusable metadata concept needed to describe the snapshot.
+4. Propose a candidate new field only when an in-scope observation has a weak fit or no fit.
+
+Do not infer missing information, use external knowledge, or treat plausibility as evidence.
+
+Focus observations on metadata concepts whose coverage is substantively at issue. Do not create observations merely to inventory routine exclusions such as numerical values, table-cell contents, filenames, corpus labels, or artifact indexes and types supplied only for pipeline provenance. Use `out_of_scope` or `uncertain` only when a genuine boundary question affects the coverage decision.
+
+## Metadata boundary
+
+Metadata describes the snapshot and supports identification, interpretation, organization, retrieval, provenance, or analytical reuse.
+
+The following are outside the schema's scope and must not become candidate fields:
+
+- extracted numerical values
+- OCR text or table-cell contents
+- chart or table reconstruction
+- statistical outputs or model results
+- visual formatting details with no descriptive value
+- implementation or extraction-pipeline artifacts
+- snapshot-specific values presented as field names
+
+Document metadata is evidence only when it materially describes or contextualizes the snapshot. Do not copy the entire document record into the assessment.
+
+Evaluate metadata according to its explicitly evidenced role and the exact schema definitions. Do not assume that a document publication date represents the snapshot's data period, or that a document author, publisher, or hosting organization is the source of the represented data. If the evidence supports that role, map the concept to the existing field. Otherwise, assess the distinct concept using the normal fit and candidate-field criteria.
+
+## Fit status
+
+Use exactly one status for every observation:
+
+- `covered`: one or more existing fields represent the concept without material loss.
+- `weak_fit`: an existing field is related, but using it would distort, omit, or conflate important semantics.
+- `no_fit`: the concept is in scope and no existing field adequately represents it.
+- `out_of_scope`: the observation is an extraction output or otherwise outside snapshot metadata.
+- `uncertain`: the evidence or semantic interpretation is insufficient for a reliable decision.
+
+For `covered` and `weak_fit`, identify the closest existing fields using their exact v1.1 names. A wording difference or synonym is not a new field.
+
+## Evidence and candidate fields
+
+Every observation must cite concise, explicit evidence and state whether it comes from the snapshot, document metadata, or both. Write both `evidence` and `fit_rationale` as one concise sentence each.
+
+Candidate fields must:
+
+- use a broadly reusable, preferably singular `snake_case` name;
+- be supported by one or more `weak_fit` or `no_fit` observations;
+- explain why existing fields are insufficient;
+- provide operational value for describing data snapshots; and
+- remain proposals for later human adjudication.
+
+Treat document-level administrative metadata as a candidate only when it materially enables identification, retrieval, verification, or interpretation of the snapshot. This boundary must not suppress valid evidence about snapshot provenance.
+
+Do not make an overall recommendation to revise v1.1 and do not claim schema saturation from a single snapshot.
+\end{lstlisting}
+
+\subsubsection{User prompt}
+
+\begin{lstlisting}
+# Frozen Data Snapshot Metadata Schema v1.1
+
+{{SCHEMA_MARKDOWN}}
+
+# Snapshot
+
+- File: `{{SNAPSHOT_FILE_NAME}}`
+- Source corpus: `{{SOURCE}}`
+- Artifact type: `{{ARTIFACT_TYPE}}`
+
+# Source-document metadata
+
+{{DOCUMENT_METADATA}}
+
+Evaluate the attached snapshot using the system instructions. Return the structured schema-validation assessment only.
+\end{lstlisting}
+
+\subsection{Validation 2: Confirmatory critical-gap assessment}
+
+\subsubsection{Model configuration}
+
+Validation 2 also used GPT-5.5 through the OpenAI Responses API, but applied a narrower assessment to the documentation-revised schema. Table~\ref{tab:schema_validation2_configuration} summarizes the final configuration. The model-facing schema retained the complete field specification but omitted validation-history language to reduce anchoring on the earlier result.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Configuration used for Schema Validation 2.}
+    \label{tab:schema_validation2_configuration}
+    \begin{tabular}{ll}
+    \toprule
+    \textbf{Setting} & \textbf{Value} \\
+    \midrule
+    Frozen schema & Data Snapshot Metadata Schema v1.1.1 \\
+    Model & GPT-5.5 \\
+    Reasoning effort & Medium \\
+    Service tier & Flex \\
+    Maximum output tokens & 8,000 \\
+    Prompt caching & Enabled \\
+    Assessment unit & One held-out snapshot per request \\
+    Output & Pydantic Structured Output \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsubsection{Assessment and output structure}
+
+Validation 2 asked whether a snapshot contained any critical or possibly critical reusable metadata that the schema could not represent adequately and whose absence would materially impair interpretation, discovery, or both. A \texttt{critical} gap required explicit evidence, reusable snapshot metadata, no adequate existing field, and a concrete material impact. A \texttt{possible} gap required plausible reusable metadata and plausible material impact, but retained uncertainty about the evidence, existing-field coverage, or materiality. Information that was merely useful, convenient, specialized, or an additional search facet did not meet either threshold.
+
+The structured output contained a snapshot-level \texttt{coverage\_assessment} and a \texttt{critical\_or\_possible\_gaps} array. The assessment was \texttt{no\_critical\_gap\_found}, \texttt{critical\_gap\_found}, or \texttt{possible\_gap}. Each candidate gap recorded its status, missing concept, proposed field name, evidence, justification as snapshot metadata, closest schema fields, possible semantic loss, material-impact category, concrete consequence, and any remaining uncertainty. Consistency rules required an empty array for \texttt{no\_critical\_gap\_found}, at least one critical gap for \texttt{critical\_gap\_found}, and one or more possible but no critical gaps for \texttt{possible\_gap}.
+
+\subsubsection{Human adjudication}
+
+Human review examined all six possible-gap records returned across five snapshots. The reviewer assessed whether the information was evidenced, reusable snapshot metadata, adequately represented by existing fields, materially important to interpretation or discovery, and generalizable beyond a specialized artifact. The reviewer also determined whether each candidate represented a missing concept, a documentation concern, or a structural representation limitation. Candidate frequency was supporting evidence rather than an acceptance rule.
+
+Adjudication was recorded by snapshot filename and gap identifier using the fields \texttt{human\_decision}, \texttt{critical\_to\_interpretability}, \texttt{critical\_to\_discoverability}, and \texttt{human\_rationale}. The final report recorded the decision and rationale for each of the six candidates. None was accepted as a new field; four were rejected or excluded, and two were classified as representation limitations. The 197 \texttt{no\_critical\_gap\_found} assessments did not receive an independent human false-negative audit.
+
+\subsubsection{System prompt}
+
+\begin{lstlisting}
+You are evaluating the coverage of a frozen metadata schema against one data snapshot.
+
+The baseline is **Data Snapshot Metadata Schema v1.1.1**. Treat it as authoritative and frozen. Your task is only to assess whether this schema adequately covers the supplied data snapshot. Do not revise the schema or decide whether a proposed field should be accepted.
+
+A data snapshot is a self-contained table, chart, map, dashboard, composite figure, or other visual analytical object extracted from an institutional document.
+
+## Core question
+
+Given the schema, snapshot, and parent-document context, is there any critical or possibly critical reusable metadata information about the snapshot that is not adequately covered by an existing field and whose absence would materially impair interpretability, discoverability, or both?
+
+## Evaluation procedure
+
+1. Consider the complete v1.1.1 schema, but do not inventory covered information.
+2. Identify only critical or possibly critical reusable snapshot metadata that may lack adequate coverage.
+3. For each gap, identify the closest existing fields using exact v1.1.1 field names. A wording difference or synonym is not a gap.
+4. Compare a faithful representation of the information with the best representation permitted by the closest existing fields. Explain the concrete interpretability or discoverability impairment that could result from omitting the information or using those fields.
+5. Return a positive `no_critical_gap_found` result when no concept meets the critical or possible thresholds.
+
+## Critical and possible gaps
+
+A `critical` gap must meet all of the following conditions:
+
+- explicit evidence supports the information;
+- the information is reusable snapshot metadata;
+- existing fields cannot represent it without materially distorting or losing its meaning; and
+- its absence has a concrete material impact on interpretability, discoverability, or both.
+
+A `possible` gap must still be plausible reusable snapshot metadata with a plausible material impact, but uncertainty remains about the evidence, existing-field coverage, or materiality.
+
+Do not report information that would merely be useful, convenient, specialized, desirable, or an additional search facet. Do not infer a particular application, interface, user group, search behavior, or workflow. Human review will determine whether each claimed impact and proposed field is justified.
+
+## Snapshot and document boundary
+
+The snapshot is the object being described. Parent-document metadata is supplied as context and may clarify the snapshot's subject, meaning, provenance, or relationship to its source document.
+
+A proposed gap must describe the snapshot, the data represented in it, or provenance explicitly attached to it. A fact that describes only the parent document is not a snapshot-schema gap. Parent-document URLs or locators, identifiers, document types, publication dates, authorship, and general attribution belong to the linked document record unless the evidence explicitly establishes a distinct snapshot-level role.
+
+For every proposed gap, explain why the information is metadata about this snapshot rather than only metadata about its parent document. Do not enumerate, classify, or reproduce the document metadata record.
+
+## Metadata boundary
+
+Reusable metadata describes the snapshot and supports interpretation or discovery across snapshots.
+
+The following are outside the schema's scope and must not become proposed fields:
+
+- extracted numerical observations or values;
+- OCR text or reconstructed table contents;
+- statistical estimates, model results, or analytical outputs;
+- snapshot-specific values presented as field names;
+- visual styling without descriptive significance;
+- implementation or extraction-pipeline artifacts; and
+- information inferred from plausibility or external knowledge.
+
+An explicitly stated methodological, uncertainty, or provenance note may be metadata even when the note contains a number. Evaluate the role of the information, not merely its textual form.
+
+## Evidence and field proposals
+
+For each critical or possible gap:
+
+- cite concise evidence from the supplied inputs;
+- describe the missing metadata concept;
+- suggest one broadly reusable snake-case field name for human review;
+- identify exact closest v1.1.1 fields, or return an empty list if none is relevant;
+- explain why those fields may be inadequate;
+- identify the material impact as `interpretability`, `discoverability`, or `both`;
+- state the concrete material consequence; and
+- use the uncertainty note only when a genuine uncertainty remains.
+
+Do not classify a proposal as a conceptual, documentation, or representation gap. Do not recommend accepting, rejecting, or implementing a field. Do not claim schema saturation from one snapshot.
+
+## Output consistency
+
+- `no_critical_gap_found` requires an empty gap array.
+- `critical_gap_found` requires at least one `critical` gap and may also include `possible` gaps.
+- `possible_gap` requires one or more `possible` gaps and no `critical` gaps.
+\end{lstlisting}
+
+\subsubsection{User prompt}
+
+\begin{lstlisting}
+# Frozen Data Snapshot Metadata Schema v1.1.1
+
+{{SCHEMA_MARKDOWN}}
+
+# Snapshot
+
+- File: `{{SNAPSHOT_FILE_NAME}}`
+- Source corpus: `{{SOURCE}}`
+- Artifact type: `{{ARTIFACT_TYPE}}`
+
+# Parent-document context
+
+The following metadata may be used to understand the snapshot, but the parent document is not the object being validated.
+
+{{DOCUMENT_METADATA}}
+
+Evaluate the attached snapshot using the system instructions. Return the structured coverage assessment only.
 \end{lstlisting}
 
 \section{Appendix: Data Snapshot Metadata Schema}
