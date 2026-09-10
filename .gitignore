@@ -105,8 +105,8 @@ notebooks/schema_discovery/data/
 notebooks/schema_discovery/*.csv
 notebooks/schema_discovery/outputs/*.csv
 notebooks/schema_discovery/outputs/*.json
-notebooks/metadata_extraction/data/*
-notebooks/metadata_extraction/outputs/*
+notebooks/metadata_extraction/extraction_v1.1/data/*
+notebooks/metadata_extraction/extraction_v1.1/outputs/*
 notebooks/schema_validation1/data/*
 notebooks/schema_validation1/outputs/*
 notebooks/schema_validation2/data/*
