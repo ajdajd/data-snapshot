@@ -15,7 +15,7 @@
     },
     "Attribution": {
       "additionalProperties": false,
-      "description": "Represent a named agent and its explicit attribution role.\n\nParameters\n----------\nname : str\n    Source-visible credited-agent name.\nidentifiers : list[Identifier] | None\n    Assigned identifiers for the agent.\nrole : CodedTerm\n    Open, source-grounded attribution role.",
+      "description": "Represent a named agent and its optional explicit attribution role.\n\nParameters\n----------\nname : str\n    Source-visible credited-agent name.\nidentifiers : list[Identifier] | None\n    Assigned identifiers for the agent.\nrole : CodedTerm | None\n    Open, source-grounded attribution role, when explicit.",
       "properties": {
         "name": {
           "description": "Source-visible entity name.",
@@ -54,7 +54,15 @@
           "title": "Identifiers"
         },
         "role": {
-          "$ref": "#/$defs/CodedTerm",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CodedTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
           "description": "Explicit source-grounded agent role.",
           "examples": [
             {
@@ -67,8 +75,7 @@
         }
       },
       "required": [
-        "name",
-        "role"
+        "name"
       ],
       "title": "Attribution",
       "type": "object"
@@ -451,9 +458,58 @@
     },
     "Dimension": {
       "additionalProperties": false,
-      "description": "Represent a classificatory dimension and its visible organization.\n\nParameters\n----------\nname : str\n    Dimension name.\ncategories : list[CodedTerm] | None\n    Ordered ungrouped categories.\ncategory_groups : list[CategoryGroup] | None\n    One level of explicit category groups.\npresentation_roles : list[PresentationRole] | None\n    Explicit row and/or column roles.",
+      "anyOf": [
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "properties": {
+            "categories": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "categories"
+          ]
+        },
+        {
+          "properties": {
+            "category_groups": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "category_groups"
+          ]
+        }
+      ],
+      "description": "Represent a classificatory dimension and its visible organization.\n\nParameters\n----------\nname : str | None\n    Dimension name, when identifiable.\ncategories : list[CodedTerm] | None\n    Ordered ungrouped categories.\ncategory_groups : list[CategoryGroup] | None\n    One level of explicit category groups.\npresentation_roles : list[PresentationRole] | None\n    Explicit row and/or column roles.",
       "properties": {
         "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
           "description": "The conceptual variable or dimension used to organize, group, classify, or compare the represented values.",
           "examples": [
             "Country",
@@ -462,10 +518,7 @@
             "Industry Sector",
             "Scenario"
           ],
-          "minLength": 1,
-          "pattern": "\\S",
-          "title": "Name",
-          "type": "string"
+          "title": "Name"
         },
         "categories": {
           "anyOf": [
@@ -597,11 +650,11 @@
           "title": "Presentation Roles"
         }
       },
-      "required": [
-        "name"
-      ],
       "title": "Dimension",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: name, categories, category_groups."
+      ]
     },
     "EntityReference": {
       "additionalProperties": false,
@@ -1093,6 +1146,54 @@
           "required": [
             "name"
           ]
+        },
+        {
+          "properties": {
+            "country_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "country_code"
+          ]
+        },
+        {
+          "properties": {
+            "subdivision_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "subdivision_code"
+          ]
+        },
+        {
+          "properties": {
+            "m49_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "m49_code"
+          ]
+        },
+        {
+          "properties": {
+            "identifiers": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "identifiers"
+          ]
         }
       ],
       "description": "Represent an additional named location and its optional role and type.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\ncountry_code : str | None\n    ISO 3166-1 alpha-2 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.\nrole : str | None\n    Explicit source-grounded geographic role.\ntype : CodedTerm | None\n    Physical or administrative type of the named location.",
@@ -1282,7 +1383,7 @@
       "title": "GeographicLocation",
       "type": "object",
       "x-validation-rules": [
-        "At least one non-null value is required: source_text, name."
+        "At least one non-null value is required: source_text, name, country_code, subdivision_code, m49_code, identifiers."
       ]
     },
     "Identifier": {
@@ -1470,6 +1571,54 @@
           "required": [
             "name"
           ]
+        },
+        {
+          "properties": {
+            "country_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "country_code"
+          ]
+        },
+        {
+          "properties": {
+            "subdivision_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "subdivision_code"
+          ]
+        },
+        {
+          "properties": {
+            "m49_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "m49_code"
+          ]
+        },
+        {
+          "properties": {
+            "identifiers": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "identifiers"
+          ]
         }
       ],
       "description": "Represent a source-grounded place with optional standard identifiers.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\ncountry_code : str | None\n    ISO 3166-1 alpha-2 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.",
@@ -1612,7 +1761,7 @@
       "title": "Place",
       "type": "object",
       "x-validation-rules": [
-        "At least one non-null value is required: source_text, name."
+        "At least one non-null value is required: source_text, name, country_code, subdivision_code, m49_code, identifiers."
       ]
     },
     "PresentationRole": {
@@ -1862,7 +2011,7 @@
             }
           ],
           "default": null,
-          "description": "Role-bearing credited agents.",
+          "description": "Agents explicitly credited for the snapshot artifact; include a role when it is explicit.",
           "examples": [
             [
               {
@@ -2737,9 +2886,114 @@
     },
     "Variable": {
       "additionalProperties": false,
-      "description": "Represent a measured variable and its applicable qualifiers.\n\nParameters\n----------\nname : str\n    Explicitly named variable, indicator, metric, or measured concept.\nunit : Unit | None\n    Applicable unit.\ncurrency : Currency | None\n    Applicable currency.\nanalytical_roles : list[AnalyticalRole] | None\n    Explicit analytical or axis roles.\naxis_assignments : list[AxisAssignment] | None\n    Explicit assignments to distinct axes in a multi-axis graph.\nstatistical_forms : list[StatisticalFormTerm] | None\n    Applicable statistical forms.",
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "analytical_roles": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "analytical_roles"
+                ]
+              },
+              {
+                "properties": {
+                  "axis_assignments": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "axis_assignments"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "name": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        }
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "properties": {
+            "unit": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "unit"
+          ]
+        },
+        {
+          "properties": {
+            "currency": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "currency"
+          ]
+        },
+        {
+          "properties": {
+            "statistical_forms": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "statistical_forms"
+          ]
+        }
+      ],
+      "description": "Represent a measured variable and its applicable qualifiers.\n\nParameters\n----------\nname : str | None\n    Variable, indicator, metric, or measured concept, when identifiable.\nunit : Unit | None\n    Applicable unit.\ncurrency : Currency | None\n    Applicable currency.\nanalytical_roles : list[AnalyticalRole] | None\n    Explicit analytical or axis roles.\naxis_assignments : list[AxisAssignment] | None\n    Explicit assignments to distinct axes in a multi-axis graph.\nstatistical_forms : list[StatisticalFormTerm] | None\n    Applicable statistical forms.",
       "properties": {
         "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
           "description": "The primary variable, indicator, metric, or measured concept represented by the snapshot.\n\nThis field records the variable's name or measured concept, not a normalized analytical role. Use `dimensions[].name`, `dimensions[].categories`, and `dimensions[].presentation_roles` where those structural roles apply. Use `variables[].analytical_roles` for analytical roles and `variables[].axis_assignments` for distinct axes in a multi-axis graph.",
           "examples": [
             "GDP Growth",
@@ -2747,10 +3001,7 @@
             "Literacy Rate",
             "Refugee Population"
           ],
-          "minLength": 1,
-          "pattern": "\\S",
           "title": "Name",
-          "type": "string",
           "x-standards": [
             {
               "relationship": "close",
@@ -2931,11 +3182,12 @@
           ]
         }
       },
-      "required": [
-        "name"
-      ],
       "title": "Variable",
-      "type": "object"
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: name, unit, currency, statistical_forms.",
+        "Analytical roles and axis assignments require a non-null variable name."
+      ]
     },
     "VisualizationTypeTerm": {
       "additionalProperties": false,
@@ -3246,7 +3498,7 @@
         }
       ],
       "default": null,
-      "description": "Explicitly named measured concepts and their qualifiers.",
+      "description": "Measured concepts and their applicable qualifiers.\n\nPopulate `name` when the measured concept can be identified from the snapshot. Otherwise return `null` rather than using a unit, `%`, `Value`, `Unknown`, or another placeholder as the name; retain the variable only when it contains a unit, currency, or statistical form. Analytical roles and axis assignments require a named measured concept. Repeat a shared unit, currency, multiplier, or statistical form on every variable to which it applies. Do not use a variable as a shared-default object.",
       "examples": [
         [
           {
@@ -3266,6 +3518,38 @@
         [
           {
             "name": "Refugee Population"
+          }
+        ],
+        [
+          {
+            "name": null,
+            "unit": {
+              "source_text": "%"
+            }
+          }
+        ],
+        [
+          {
+            "currency": {
+              "code": "USD",
+              "source_text": "US$"
+            },
+            "name": "Revenue",
+            "unit": {
+              "multiplier_exponent": 6,
+              "source_text": "US$ millions"
+            }
+          },
+          {
+            "currency": {
+              "code": "USD",
+              "source_text": "US$"
+            },
+            "name": "Operating cost",
+            "unit": {
+              "multiplier_exponent": 6,
+              "source_text": "US$ millions"
+            }
           }
         ]
       ],

@@ -186,7 +186,9 @@ Populate only when panel titles are explicitly present.
 
 **Definition**
 
-Explicitly named measured concepts and their qualifiers.
+Measured concepts and their applicable qualifiers.
+
+Populate `name` when the measured concept can be identified from the snapshot. Otherwise return `null` rather than using a unit, `%`, `Value`, `Unknown`, or another placeholder as the name; retain the variable only when it contains a unit, currency, or statistical form. Analytical roles and axis assignments require a named measured concept. Repeat a shared unit, currency, multiplier, or statistical form on every variable to which it applies. Do not use a variable as a shared-default object.
 
 **Examples**
 
@@ -218,6 +220,44 @@ Explicitly named measured concepts and their qualifiers.
 [
   {
     "name": "Refugee Population"
+  }
+]
+```
+
+```json
+[
+  {
+    "name": null,
+    "unit": {
+      "source_text": "%"
+    }
+  }
+]
+```
+
+```json
+[
+  {
+    "currency": {
+      "code": "USD",
+      "source_text": "US$"
+    },
+    "name": "Revenue",
+    "unit": {
+      "multiplier_exponent": 6,
+      "source_text": "US$ millions"
+    }
+  },
+  {
+    "currency": {
+      "code": "USD",
+      "source_text": "US$"
+    },
+    "name": "Operating cost",
+    "unit": {
+      "multiplier_exponent": 6,
+      "source_text": "US$ millions"
+    }
   }
 ]
 ```
@@ -1070,13 +1110,13 @@ Identify an explicitly stated analytical or axis role.
 
 ## Attribution
 
-Represent a named agent and its explicit attribution role.
+Represent a named agent and its optional explicit attribution role.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
 | `name` | `string` | yes | — | minLength: 1; pattern: \S |  |
 | `identifiers` | `array[Identifier] \| null` | no | `null` | minItems: 1 |  |
-| `role` | `CodedTerm` | yes | — |  |  |
+| `role` | `CodedTerm \| null` | no | `null` |  |  |
 
 ### Field definitions and examples
 
@@ -1405,9 +1445,11 @@ Uppercase ISO 4217 alphabetic code.
 
 Represent a classificatory dimension and its visible organization.
 
+- At least one non-null value is required: name, categories, category_groups.
+
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `name` | `string` | yes | — | minLength: 1; pattern: \S |  |
+| `name` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `categories` | `array[CodedTerm] \| null` | no | `null` | minItems: 1 | [http://www.w3.org/2004/02/skos/core#Concept](http://www.w3.org/2004/02/skos/core#Concept) (related_structural) |
 | `category_groups` | `array[CategoryGroup] \| null` | no | `null` | minItems: 1 | [http://www.w3.org/2004/02/skos/core#broader](http://www.w3.org/2004/02/skos/core#broader) (related_structural) |
 | `presentation_roles` | `array[PresentationRole] \| null` | no | `null` | minItems: 1 |  |
@@ -1944,7 +1986,7 @@ Enumerate approved normalized geographic levels.
 
 Represent an additional named location and its optional role and type.
 
-- At least one non-null value is required: source_text, name.
+- At least one non-null value is required: source_text, name, country_code, subdivision_code, m49_code, identifiers.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
@@ -2262,7 +2304,7 @@ Canonical BCP 47 language tag.
 
 Represent a source-grounded place with optional standard identifiers.
 
-- At least one non-null value is required: source_text, name.
+- At least one non-null value is required: source_text, name, country_code, subdivision_code, m49_code, identifiers.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
@@ -2541,7 +2583,7 @@ Represented-data derivation sources.
 
 **Definition**
 
-Role-bearing credited agents.
+Agents explicitly credited for the snapshot artifact; include a role when it is explicit.
 
 **Examples**
 
@@ -2998,9 +3040,13 @@ Base-10 SDMX unit-multiplier exponent.
 
 Represent a measured variable and its applicable qualifiers.
 
+- At least one non-null value is required: name, unit, currency, statistical_forms.
+
+- Analytical roles and axis assignments require a non-null variable name.
+
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `name` | `string` | yes | — | minLength: 1; pattern: \S | [https://schema.org/variableMeasured](https://schema.org/variableMeasured) (close) |
+| `name` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [https://schema.org/variableMeasured](https://schema.org/variableMeasured) (close) |
 | `unit` | `Unit \| null` | no | `null` |  | [https://schema.org/unitCode](https://schema.org/unitCode) (related_structural) |
 | `currency` | `Currency \| null` | no | `null` |  | [https://schema.org/currency](https://schema.org/currency) (close) |
 | `analytical_roles` | `array[AnalyticalRole] \| null` | no | `null` | minItems: 1 |  |

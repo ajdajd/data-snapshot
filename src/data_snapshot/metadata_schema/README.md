@@ -66,10 +66,19 @@ print(metadata.variables[0].currency.code)  # USD
 ```
 
 Variables own their units, currencies, analytical roles, multi-axis assignments,
-and statistical forms.
-Dimensions own their categories and optional single-level category groups.
-Provenance separates derivation sources from credited agents. Panel titles
-remain an ordered flat collection, with visualization types at snapshot level.
+and statistical forms. Populate a variable name whenever the measured concept
+is identifiable. An unnamed variable may retain a visible unit, currency, or
+statistical form, but it cannot contain an analytical role or axis assignment.
+Never use `%`, `Value`, `Unknown`, or another placeholder as a variable name.
+Repeat a qualifier that applies to multiple variables on each applicable
+variable.
+
+Dimensions own their categories and optional single-level category groups. An
+unnamed dimension is valid when it contains categories or category groups; a
+row or column role alone is insufficient. Provenance separates derivation
+sources from credited agents, and a credited agent does not require an explicit
+role. Panel titles remain an ordered flat collection, with visualization types
+at snapshot level.
 
 Within `geographic_coverage`, `locations[].type` describes what a named location
 is, such as a school or district. `level` describes the administrative or
@@ -106,7 +115,8 @@ except ValidationError as error:
 - All root fields are optional. An empty root `{}` is valid.
 - Missing values and explicit `null` both become `None`.
 - Supplied collections must be nonempty; nested objects must satisfy their
-  required fields or populated-content rules.
+  required fields or populated-content rules. A place may be identified by a
+  name, source text, authoritative code, or identifier.
 - Unknown properties and blank text are rejected.
 - Source text receives Unicode NFC normalization and outer whitespace trimming.
   Exact collection duplicates are removed while preserving first-occurrence order.

@@ -129,6 +129,24 @@ def _content_schema(*names: str) -> dict[str, Any]:
     }
 
 
+def _variable_schema(schema: dict[str, Any]) -> None:
+    schema.update(_content_schema("name", "unit", "currency", "statistical_forms"))
+    schema["allOf"] = [
+        {
+            "if": {
+                "anyOf": [
+                    _populated("analytical_roles"),
+                    _populated("axis_assignments"),
+                ]
+            },
+            "then": _populated("name"),
+        }
+    ]
+    schema["x-validation-rules"].append(
+        "Analytical roles and axis assignments require a non-null variable name."
+    )
+
+
 def _temporal_schema(schema: dict[str, Any]) -> None:
     schema["anyOf"] = [
         _populated("source_text"),
@@ -636,7 +654,7 @@ class EntityReference(_SchemaModel):
 
 
 class Attribution(EntityReference):
-    """Represent a named agent and its explicit attribution role.
+    """Represent a named agent and its optional explicit attribution role.
 
     Parameters
     ----------
@@ -644,16 +662,17 @@ class Attribution(EntityReference):
         Source-visible credited-agent name.
     identifiers : list[Identifier] | None
         Assigned identifiers for the agent.
-    role : CodedTerm
-        Open, source-grounded attribution role.
+    role : CodedTerm | None
+        Open, source-grounded attribution role, when explicit.
     """
 
     name: NonEmptyText = Field(
         description="Source-visible entity name.",
         examples=["Map Design Unit", "National Statistics Office"],
     )
-    role: CodedTerm = Field(
+    role: CodedTerm | None = Field(
         examples=[{"source_text": "Map maker"}, {"source_text": "Producer"}],
+        default=None,
         description="Explicit source-grounded agent role.",
     )
 
@@ -896,8 +915,8 @@ class Variable(_SchemaModel):
 
     Parameters
     ----------
-    name : str
-        Explicitly named variable, indicator, metric, or measured concept.
+    name : str | None
+        Variable, indicator, metric, or measured concept, when identifiable.
     unit : Unit | None
         Applicable unit.
     currency : Currency | None
@@ -910,8 +929,11 @@ class Variable(_SchemaModel):
         Applicable statistical forms.
     """
 
-    name: NonEmptyText = Field(
+    model_config = ConfigDict(json_schema_extra=_variable_schema)
+
+    name: NonEmptyText | None = Field(
         examples=["GDP Growth", "Inflation", "Literacy Rate", "Refugee Population"],
+        default=None,
         description="The primary variable, indicator, metric, or measured concept represented by the snapshot.\n\nThis field records the variable's name or measured concept, not a normalized analytical role. Use `dimensions[].name`, `dimensions[].categories`, and `dimensions[].presentation_roles` where those structural roles apply. Use `variables[].analytical_roles` for analytical roles and `variables[].axis_assignments` for distinct axes in a multi-axis graph.",
         json_schema_extra=_standards(("https://schema.org/variableMeasured", "close")),
     )
@@ -979,6 +1001,25 @@ class Variable(_SchemaModel):
         json_schema_extra=_standards(("https://schema.org/statType", "close")),
     )
 
+    @model_validator(mode="after")
+    def _validate_content(self) -> Variable:
+        if (
+            self.name is None
+            and self.unit is None
+            and self.currency is None
+            and self.statistical_forms is None
+        ):
+            raise ValueError(
+                "A variable requires a name, unit, currency, or statistical forms."
+            )
+        if self.name is None and (
+            self.analytical_roles is not None or self.axis_assignments is not None
+        ):
+            raise ValueError(
+                "Analytical roles and axis assignments require a variable name."
+            )
+        return self
+
 
 class CategoryGroup(_SchemaModel):
     """Represent one explicit nonrecursive category grouping.
@@ -1012,8 +1053,8 @@ class Dimension(_SchemaModel):
 
     Parameters
     ----------
-    name : str
-        Dimension name.
+    name : str | None
+        Dimension name, when identifiable.
     categories : list[CodedTerm] | None
         Ordered ungrouped categories.
     category_groups : list[CategoryGroup] | None
@@ -1022,8 +1063,13 @@ class Dimension(_SchemaModel):
         Explicit row and/or column roles.
     """
 
-    name: NonEmptyText = Field(
+    model_config = ConfigDict(
+        json_schema_extra=_content_schema("name", "categories", "category_groups")
+    )
+
+    name: NonEmptyText | None = Field(
         examples=["Country", "Year", "Education Level", "Industry Sector", "Scenario"],
+        default=None,
         description="The conceptual variable or dimension used to organize, group, classify, or compare the represented values.",
     )
     categories: list[CodedTerm] | None = Field(
@@ -1077,6 +1123,18 @@ class Dimension(_SchemaModel):
         min_length=1,
         description="Explicit table-presentation roles.\n\n`row`: The conceptual variable represented by table rows.\n\n`column`: The conceptual variable represented by table columns.",
     )
+
+    @model_validator(mode="after")
+    def _validate_content(self) -> Dimension:
+        if (
+            self.name is None
+            and self.categories is None
+            and self.category_groups is None
+        ):
+            raise ValueError(
+                "A dimension requires a name, categories, or category groups."
+            )
+        return self
 
 
 class TemporalExpression(_SchemaModel):
@@ -1252,7 +1310,16 @@ class Place(_SchemaModel):
         Other authoritative identifiers.
     """
 
-    model_config = ConfigDict(json_schema_extra=_content_schema("source_text", "name"))
+    model_config = ConfigDict(
+        json_schema_extra=_content_schema(
+            "source_text",
+            "name",
+            "country_code",
+            "subdivision_code",
+            "m49_code",
+            "identifiers",
+        )
+    )
 
     source_text: NonEmptyText | None = Field(
         examples=["Global", "Kenya", "Sub-Saharan Africa", "Latin America"],
@@ -1308,8 +1375,19 @@ class Place(_SchemaModel):
 
     @model_validator(mode="after")
     def _validate_name(self) -> Place:
-        if self.source_text is None and self.name is None:
-            raise ValueError("A place requires source_text or name.")
+        if not any(
+            (
+                self.source_text,
+                self.name,
+                self.country_code,
+                self.subdivision_code,
+                self.m49_code,
+                self.identifiers,
+            )
+        ):
+            raise ValueError(
+                "A place requires a name, source text, code, or identifier."
+            )
         return self
 
 
@@ -1452,7 +1530,7 @@ class Provenance(_SchemaModel):
         examples=[[{"name": "Map Design Unit", "role": {"source_text": "Map maker"}}]],
         default=None,
         min_length=1,
-        description="Role-bearing credited agents.",
+        description="Agents explicitly credited for the snapshot artifact; include a role when it is explicit.",
         json_schema_extra=_standards(
             ("http://www.w3.org/ns/prov#wasAttributedTo", "related_structural")
         ),
@@ -1724,10 +1802,29 @@ class DataSnapshotMetadata(_SchemaModel):
             [{"name": "Inflation"}],
             [{"name": "Literacy Rate"}],
             [{"name": "Refugee Population"}],
+            [{"name": None, "unit": {"source_text": "%"}}],
+            [
+                {
+                    "name": "Revenue",
+                    "unit": {
+                        "source_text": "US$ millions",
+                        "multiplier_exponent": 6,
+                    },
+                    "currency": {"source_text": "US$", "code": "USD"},
+                },
+                {
+                    "name": "Operating cost",
+                    "unit": {
+                        "source_text": "US$ millions",
+                        "multiplier_exponent": 6,
+                    },
+                    "currency": {"source_text": "US$", "code": "USD"},
+                },
+            ],
         ],
         default=None,
         min_length=1,
-        description="Explicitly named measured concepts and their qualifiers.",
+        description="Measured concepts and their applicable qualifiers.\n\nPopulate `name` when the measured concept can be identified from the snapshot. Otherwise return `null` rather than using a unit, `%`, `Value`, `Unknown`, or another placeholder as the name; retain the variable only when it contains a unit, currency, or statistical form. Analytical roles and axis assignments require a named measured concept. Repeat a shared unit, currency, multiplier, or statistical form on every variable to which it applies. Do not use a variable as a shared-default object.",
         json_schema_extra=_standards(
             ("https://schema.org/variableMeasured", "close"),
             ("https://ddialliance.org/Specification/DDI-Lifecycle/3.3/", "close"),

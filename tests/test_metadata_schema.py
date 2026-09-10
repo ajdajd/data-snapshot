@@ -13,6 +13,7 @@ from pydantic import BaseModel, TypeAdapter, ValidationError
 import data_snapshot.metadata_schema.generation as schema_generation
 import data_snapshot.metadata_schema as metadata_models
 from data_snapshot.metadata_schema import (
+    Attribution,
     AxisAssignment,
     CodedTerm,
     Currency,
@@ -348,6 +349,32 @@ def test_open_terms_do_not_weaken_normalized_vocabularies() -> None:
         )
     with pytest.raises(ValidationError, match="Input should be"):
         Variable(name="GDP", analytical_roles=["response-ish"])
+
+
+def test_nested_objects_preserve_bounded_partial_metadata() -> None:
+    """Retain meaningful child metadata without inventing missing labels."""
+    variable = Variable(name=None, unit={"source_text": "%"})
+    dimension = Dimension(
+        categories=[{"source_text": "Male"}, {"source_text": "Female"}],
+        presentation_roles=["row"],
+    )
+    attribution = Attribution(name="Map Design Unit")
+    place = Place(country_code="PH")
+
+    assert variable.name is None
+    assert variable.unit.source_text == "%"
+    assert dimension.name is None
+    assert attribution.role is None
+    assert place.country_code == "PH"
+
+    with pytest.raises(ValidationError, match="requires a name, unit, currency"):
+        Variable()
+    with pytest.raises(ValidationError, match="require a variable name"):
+        Variable(unit={"source_text": "%"}, analytical_roles=["outcome"])
+    with pytest.raises(ValidationError, match="requires a name, categories"):
+        Dimension(presentation_roles=["row"])
+    with pytest.raises(ValidationError, match="name, source text, code"):
+        metadata_models.GeographicLocation(role="Host country")
 
 
 def test_plain_semantic_fields_accept_inferred_values_directly() -> None:
@@ -739,7 +766,46 @@ def test_fractional_interval_ordering_is_exact_across_offsets() -> None:
             {"financing": {"instruments": [{"source_text": "Grant"}]}},
             True,
         ),
-        ({"geographic_coverage": {"scope": {"country_code": "PH"}}}, False),
+        ({"variables": [{"name": None, "unit": {"source_text": "%"}}]}, True),
+        ({"variables": [{"unit": {"source_text": "%"}}]}, True),
+        ({"variables": [{}]}, False),
+        ({"variables": [{"analytical_roles": ["outcome"]}]}, False),
+        (
+            {
+                "variables": [
+                    {
+                        "unit": {"source_text": "%"},
+                        "analytical_roles": ["outcome"],
+                    }
+                ]
+            },
+            False,
+        ),
+        (
+            {
+                "dimensions": [
+                    {
+                        "categories": [
+                            {"source_text": "Male"},
+                            {"source_text": "Female"},
+                        ],
+                        "presentation_roles": ["row"],
+                    }
+                ]
+            },
+            True,
+        ),
+        ({"dimensions": [{"presentation_roles": ["row"]}]}, False),
+        ({"provenance": {"attributions": [{"name": "Map Design Unit"}]}}, True),
+        (
+            {"geographic_coverage": {"locations": [{"country_code": "PH"}]}},
+            True,
+        ),
+        (
+            {"geographic_coverage": {"locations": [{"role": "Host country"}]}},
+            False,
+        ),
+        ({"geographic_coverage": {"scope": {"country_code": "PH"}}}, True),
         ({"languages": [{"source_text": None, "tag": None}]}, False),
         ({"languages": [{"tag": "en-a"}]}, False),
     ],
