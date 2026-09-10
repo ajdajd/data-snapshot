@@ -58,7 +58,7 @@ metadata = DataSnapshotMetadata(
             statistical_forms=[{"normalized_value": "sum"}],
         )
     ],
-    geographic_coverage={"scope": {"name": "Niger", "country_code": "NE"}},
+    geographic_coverage={"scope": {"name": "Niger", "iso3_code": "NER"}},
     financing={"funders": [{"name": "International Development Association"}]},
 )
 
@@ -83,7 +83,9 @@ at snapshot level.
 Within `geographic_coverage`, `locations[].type` describes what a named location
 is, such as a school or district. `level` describes the administrative or
 spatial level at which the snapshot's data are reported. Both may be present
-when the snapshot supports both meanings.
+when the snapshot supports both meanings. `iso3_code` stores an ISO 3166-1
+alpha-3 country code such as `PHL`; World Bank aggregate and region codes do not
+belong in that field.
 
 Parent-document metadata is managed separately; `source_document_title` is not
 a v1.3 field. The models represent metadata, not extracted numerical observations.
@@ -144,6 +146,10 @@ The four specialized normalized-term models constrain `normalized_value` to an
 approved enum: `StatisticalFormTerm`, `VisualizationTypeTerm`,
 `TemporalGranularityTerm`, and `GeographicLevelTerm`. They accept either an
 explicit source label, a normalized value inferred from the snapshot, or both.
+For visualization types, preserve an explicitly written unfamiliar label as a
+source-only term. Return `visualization_types=null` when neither a listed type
+nor an explicit unfamiliar label is supported; never force the closest enum
+value.
 
 ```python
 from data_snapshot.metadata_schema import (
@@ -165,7 +171,23 @@ unfamiliar_form = StatisticalFormTerm(source_text="Winsorized mean")
 ```
 
 Preserve displayed wording when adding normalized values. Pydantic validates the
-structure and vocabulary membership; it does not infer mappings.
+structure and membership in local enum vocabularies; it does not infer mappings.
+
+## External registry validation
+
+Schema v1.3 validates the syntax and relationships of external codes and tags,
+but it does not perform registry membership checks or offline normalization. A
+well-formed but unassigned value can therefore pass Pydantic validation. The
+planned offline normalizer and its pinned reference data are deferred to v1.4;
+the affected fields and candidate machine-readable sources are recorded in the
+[v1.3 change report](../../../notebooks/metadata_extraction/0.0-schema_v1.3_change_report.md#13-align-standards-claims-with-actual-validation-strength).
+
+Identifier `value` data may come from the snapshot or trusted metadata.
+`scheme`, `issuer`, and `uri` may additionally come from configured and verified
+enrichment. The extractor must not infer or manufacture any of these values
+from an identifier's apparent pattern or from model knowledge. Add an
+authoritative URI only when the source or enrichment process supplies and
+verifies it.
 
 ## Serializing records
 

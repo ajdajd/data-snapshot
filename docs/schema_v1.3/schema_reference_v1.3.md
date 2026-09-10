@@ -413,13 +413,43 @@ The human population, beneficiary group, or demographic group that is the primar
 
 The primary visualization used to encode the represented data.
 
-For a composite or multi-panel snapshot, record a concise description of the overall visualization type or visible combination when no single type adequately describes the artifact. Use `panel_titles` for explicit panel headings.
+Use `normalized_value` when the visualization type is inferred from visual form. Use `source_text` only when wording in the snapshot explicitly names the visualization form; do not manufacture source wording from the visual design. Preserve an explicitly written unfamiliar type in `source_text` without a normalized value. If neither a listed normalized type nor an explicit unfamiliar source label is supported, return `null`; do not force a match to the closest vocabulary value. For a composite or multi-panel snapshot, record the overall visualization type when no single component type adequately describes the artifact. Use `panel_titles` for explicit panel headings.
 
 **Examples**
 
 ```json
 [
   {
+    "normalized_value": "bar_chart"
+  }
+]
+```
+
+```json
+[
+  {
+    "normalized_value": "bar_chart",
+    "source_text": "Bar Graph"
+  }
+]
+```
+
+```json
+[
+  {
+    "source_text": "Waffle chart"
+  }
+]
+```
+
+```json
+null
+```
+
+```json
+[
+  {
+    "normalized_value": "bar_chart",
     "source_text": "Bar chart"
   }
 ]
@@ -428,6 +458,7 @@ For a composite or multi-panel snapshot, record a concise description of the ove
 ```json
 [
   {
+    "normalized_value": "line_chart",
     "source_text": "Line chart"
   }
 ]
@@ -436,6 +467,7 @@ For a composite or multi-panel snapshot, record a concise description of the ove
 ```json
 [
   {
+    "normalized_value": "table",
     "source_text": "Table"
   }
 ]
@@ -444,6 +476,7 @@ For a composite or multi-panel snapshot, record a concise description of the ove
 ```json
 [
   {
+    "normalized_value": "map",
     "source_text": "Map"
   }
 ]
@@ -452,6 +485,7 @@ For a composite or multi-panel snapshot, record a concise description of the ove
 ```json
 [
   {
+    "normalized_value": "heatmap",
     "source_text": "Heatmap"
   }
 ]
@@ -460,6 +494,7 @@ For a composite or multi-panel snapshot, record a concise description of the ove
 ```json
 [
   {
+    "normalized_value": "composite_figure",
     "source_text": "Composite figure: line charts and map"
   }
 ]
@@ -477,7 +512,11 @@ When the represented data apply and their granularity.
 ```json
 {
   "period": {
-    "source_text": "2015–2020"
+    "end": "2020",
+    "precision": "year",
+    "relation": "interval",
+    "source_text": "2015–2020",
+    "start": "2015"
   }
 }
 ```
@@ -493,7 +532,10 @@ When the represented data apply and their granularity.
 ```json
 {
   "period": {
-    "source_text": "January 2024"
+    "precision": "month",
+    "relation": "point",
+    "source_text": "January 2024",
+    "start": "2024-01"
   }
 }
 ```
@@ -501,6 +543,7 @@ When the represented data apply and their granularity.
 ```json
 {
   "granularity": {
+    "normalized_value": "annual",
     "source_text": "Annual"
   }
 }
@@ -509,6 +552,7 @@ When the represented data apply and their granularity.
 ```json
 {
   "granularity": {
+    "normalized_value": "monthly",
     "source_text": "Monthly"
   }
 }
@@ -517,6 +561,7 @@ When the represented data apply and their granularity.
 ```json
 {
   "granularity": {
+    "normalized_value": "quarterly",
     "source_text": "Quarterly"
   }
 }
@@ -525,6 +570,7 @@ When the represented data apply and their granularity.
 ```json
 {
   "granularity": {
+    "normalized_value": "daily",
     "source_text": "Daily"
   }
 }
@@ -542,6 +588,8 @@ Overall geographic scope, additional locations, and level.
 ```json
 {
   "scope": {
+    "m49_code": "001",
+    "name": "Global",
     "source_text": "Global"
   }
 }
@@ -550,6 +598,8 @@ Overall geographic scope, additional locations, and level.
 ```json
 {
   "scope": {
+    "iso3_code": "KEN",
+    "name": "Kenya",
     "source_text": "Kenya"
   }
 }
@@ -558,6 +608,8 @@ Overall geographic scope, additional locations, and level.
 ```json
 {
   "scope": {
+    "m49_code": "202",
+    "name": "Sub-Saharan Africa",
     "source_text": "Sub-Saharan Africa"
   }
 }
@@ -566,6 +618,7 @@ Overall geographic scope, additional locations, and level.
 ```json
 {
   "scope": {
+    "name": "Latin America",
     "source_text": "Latin America"
   }
 }
@@ -575,6 +628,7 @@ Overall geographic scope, additional locations, and level.
 {
   "locations": [
     {
+      "iso3_code": "UGA",
       "name": "Uganda"
     }
   ]
@@ -595,6 +649,7 @@ Overall geographic scope, additional locations, and level.
 {
   "locations": [
     {
+      "m49_code": "011",
       "name": "West Africa"
     }
   ]
@@ -605,6 +660,7 @@ Overall geographic scope, additional locations, and level.
 {
   "locations": [
     {
+      "iso3_code": "BFA",
       "name": "Burkina Faso"
     }
   ]
@@ -614,6 +670,7 @@ Overall geographic scope, additional locations, and level.
 ```json
 {
   "level": {
+    "normalized_value": "country",
     "source_text": "Country"
   }
 }
@@ -638,6 +695,7 @@ Overall geographic scope, additional locations, and level.
 ```json
 {
   "level": {
+    "normalized_value": "site",
     "source_text": "Facility"
   }
 }
@@ -709,7 +767,7 @@ Populate only when the snapshot explicitly presents a comparative relationship. 
 
 The named dataset, survey, publication, organization, or credited agent from which the represented data originate or which is explicitly credited with producing the snapshot artifact.
 
-Use `sources` for represented-data derivation sources and `attributions` for credited agents with explicit roles. Do not copy the parent document's authors or publisher into this field solely because they are associated with the document; the source or attribution must be explicitly relevant to the snapshot or its represented data.
+Use `sources` for represented-data derivation sources and `attributions` for credited agents; include an attribution role when it is explicit. Do not copy the parent document's authors or publisher into this field solely because they are associated with the document; the source or attribution must be explicitly relevant to the snapshot or its represented data.
 
 **Examples**
 
@@ -778,7 +836,8 @@ The language used within the snapshot.
 ```json
 [
   {
-    "source_text": "English"
+    "source_text": "English",
+    "tag": "en"
   }
 ]
 ```
@@ -786,7 +845,8 @@ The language used within the snapshot.
 ```json
 [
   {
-    "source_text": "French"
+    "source_text": "French",
+    "tag": "fr"
   }
 ]
 ```
@@ -794,7 +854,8 @@ The language used within the snapshot.
 ```json
 [
   {
-    "source_text": "Arabic"
+    "source_text": "Arabic",
+    "tag": "ar"
   }
 ]
 ```
@@ -1816,24 +1877,31 @@ The primary geographic area represented by the snapshot.
 
 ```json
 {
+  "m49_code": "001",
+  "name": "Global",
   "source_text": "Global"
 }
 ```
 
 ```json
 {
+  "iso3_code": "KEN",
+  "name": "Kenya",
   "source_text": "Kenya"
 }
 ```
 
 ```json
 {
+  "m49_code": "202",
+  "name": "Sub-Saharan Africa",
   "source_text": "Sub-Saharan Africa"
 }
 ```
 
 ```json
 {
+  "name": "Latin America",
   "source_text": "Latin America"
 }
 ```
@@ -1852,6 +1920,7 @@ Use this collection for additional named locations; record the overall coverage 
 ```json
 [
   {
+    "iso3_code": "UGA",
     "name": "Uganda"
   }
 ]
@@ -1868,6 +1937,7 @@ Use this collection for additional named locations; record the overall coverage 
 ```json
 [
   {
+    "m49_code": "011",
     "name": "West Africa"
   }
 ]
@@ -1876,6 +1946,7 @@ Use this collection for additional named locations; record the overall coverage 
 ```json
 [
   {
+    "iso3_code": "BFA",
     "name": "Burkina Faso"
   }
 ]
@@ -1892,6 +1963,7 @@ The administrative or spatial level at which data are reported.
 
 ```json
 {
+  "normalized_value": "country",
   "source_text": "Country"
 }
 ```
@@ -1910,6 +1982,7 @@ The administrative or spatial level at which data are reported.
 
 ```json
 {
+  "normalized_value": "site",
   "source_text": "Facility"
 }
 ```
@@ -1986,13 +2059,13 @@ Enumerate approved normalized geographic levels.
 
 Represent an additional named location and its optional role and type.
 
-- At least one non-null value is required: source_text, name, country_code, subdivision_code, m49_code, identifiers.
+- At least one non-null value is required: source_text, name, iso3_code, subdivision_code, m49_code, identifiers.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
 | `source_text` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `name` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
-| `country_code` | `string \| null` | no | `null` | pattern: ^[A-Z]{2}$ | [ISO ISO 3166-1](https://www.iso.org/iso-3166-country-codes.html); release: not pinned; syntax only |
+| `iso3_code` | `string \| null` | no | `null` | pattern: ^[A-Z]{3}$ | [ISO ISO 3166-1](https://www.iso.org/iso-3166-country-codes.html); release: not pinned; syntax only |
 | `subdivision_code` | `string \| null` | no | `null` | pattern: ^[A-Z]{2}-[A-Z0-9]{1,3}$ | [ISO ISO 3166-2](https://www.iso.org/iso-3166-country-codes.html); release: not pinned; syntax only |
 | `m49_code` | `string \| null` | no | `null` | pattern: ^[0-9]{3}$ | [United Nations M49](https://unstats.un.org/unsd/methodology/m49/); release: not pinned; syntax only |
 | `identifiers` | `array[Identifier] \| null` | no | `null` | minItems: 1 |  |
@@ -2049,20 +2122,20 @@ Preferred place name.
 ```
 
 
-#### `country_code`
+#### `iso3_code`
 
 **Definition**
 
-ISO 3166-1 alpha-2 country code.
+ISO 3166-1 alpha-3 code for a country or area. Do not use World Bank aggregate or region codes.
 
 **Examples**
 
 ```json
-"KE"
+"KEN"
 ```
 
 ```json
-"PH"
+"PHL"
 ```
 
 
@@ -2107,8 +2180,8 @@ Other authoritative identifiers.
 ```json
 [
   {
-    "scheme": "ISO 3166-1 alpha-2",
-    "value": "KE"
+    "scheme": "ISO 3166-1 alpha-3",
+    "value": "KEN"
   }
 ]
 ```
@@ -2174,7 +2247,7 @@ The physical or administrative type of a named geographic location represented i
 
 ## Identifier
 
-Represent an assigned identifier and its optional authority context.
+Represent a verified identifier and its optional authority context.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
@@ -2191,7 +2264,7 @@ Each block is one possible field value. Examples for different fields are indepe
 
 **Definition**
 
-Identifier exactly as assigned.
+Identifier exactly as assigned in the snapshot or trusted metadata. Do not infer or manufacture it from its apparent pattern or from model knowledge.
 
 **Examples**
 
@@ -2208,7 +2281,7 @@ Identifier exactly as assigned.
 
 **Definition**
 
-Identifier scheme, when known.
+Identifier scheme explicitly supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not infer it from the identifier's apparent pattern or from model knowledge.
 
 **Examples**
 
@@ -2221,7 +2294,7 @@ Identifier scheme, when known.
 
 **Definition**
 
-Issuing agent, when known.
+Issuing agent explicitly supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not infer it from model knowledge.
 
 **Examples**
 
@@ -2234,7 +2307,7 @@ Issuing agent, when known.
 
 **Definition**
 
-Authoritative absolute URI for the identifier.
+Authoritative absolute URI supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not construct or infer it from model knowledge.
 
 **Examples**
 
@@ -2304,13 +2377,13 @@ Canonical BCP 47 language tag.
 
 Represent a source-grounded place with optional standard identifiers.
 
-- At least one non-null value is required: source_text, name, country_code, subdivision_code, m49_code, identifiers.
+- At least one non-null value is required: source_text, name, iso3_code, subdivision_code, m49_code, identifiers.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
 | `source_text` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `name` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
-| `country_code` | `string \| null` | no | `null` | pattern: ^[A-Z]{2}$ | [ISO ISO 3166-1](https://www.iso.org/iso-3166-country-codes.html); release: not pinned; syntax only |
+| `iso3_code` | `string \| null` | no | `null` | pattern: ^[A-Z]{3}$ | [ISO ISO 3166-1](https://www.iso.org/iso-3166-country-codes.html); release: not pinned; syntax only |
 | `subdivision_code` | `string \| null` | no | `null` | pattern: ^[A-Z]{2}-[A-Z0-9]{1,3}$ | [ISO ISO 3166-2](https://www.iso.org/iso-3166-country-codes.html); release: not pinned; syntax only |
 | `m49_code` | `string \| null` | no | `null` | pattern: ^[0-9]{3}$ | [United Nations M49](https://unstats.un.org/unsd/methodology/m49/); release: not pinned; syntax only |
 | `identifiers` | `array[Identifier] \| null` | no | `null` | minItems: 1 |  |
@@ -2365,20 +2438,20 @@ Preferred place name.
 ```
 
 
-#### `country_code`
+#### `iso3_code`
 
 **Definition**
 
-ISO 3166-1 alpha-2 country code.
+ISO 3166-1 alpha-3 code for a country or area. Do not use World Bank aggregate or region codes.
 
 **Examples**
 
 ```json
-"KE"
+"KEN"
 ```
 
 ```json
-"PH"
+"PHL"
 ```
 
 
@@ -2423,8 +2496,8 @@ Other authoritative identifiers.
 ```json
 [
   {
-    "scheme": "ISO 3166-1 alpha-2",
-    "value": "KE"
+    "scheme": "ISO 3166-1 alpha-3",
+    "value": "KEN"
   }
 ]
 ```
@@ -2697,7 +2770,11 @@ This field describes **when the represented data apply**. It does not describe w
 
 ```json
 {
-  "source_text": "2015–2020"
+  "end": "2020",
+  "precision": "year",
+  "relation": "interval",
+  "source_text": "2015–2020",
+  "start": "2015"
 }
 ```
 
@@ -2709,7 +2786,10 @@ This field describes **when the represented data apply**. It does not describe w
 
 ```json
 {
-  "source_text": "January 2024"
+  "precision": "month",
+  "relation": "point",
+  "source_text": "January 2024",
+  "start": "2024-01"
 }
 ```
 
@@ -2724,24 +2804,28 @@ The temporal resolution at which the represented data are reported.
 
 ```json
 {
+  "normalized_value": "annual",
   "source_text": "Annual"
 }
 ```
 
 ```json
 {
+  "normalized_value": "monthly",
   "source_text": "Monthly"
 }
 ```
 
 ```json
 {
+  "normalized_value": "quarterly",
   "source_text": "Quarterly"
 }
 ```
 
 ```json
 {
+  "normalized_value": "daily",
   "source_text": "Daily"
 }
 ```
@@ -3094,6 +3178,7 @@ The unit used to interpret reported quantitative values.
 
 ```json
 {
+  "code": "P1",
   "source_text": "Percent"
 }
 ```
@@ -3112,6 +3197,7 @@ The unit used to interpret reported quantitative values.
 
 ```json
 {
+  "code": "KMT",
   "source_text": "Kilometers"
 }
 ```
@@ -3127,18 +3213,21 @@ The currency denomination used for monetary values.
 
 ```json
 {
+  "code": "USD",
   "source_text": "USD"
 }
 ```
 
 ```json
 {
+  "code": "EUR",
   "source_text": "EUR"
 }
 ```
 
 ```json
 {
+  "code": "JPY",
   "source_text": "JPY"
 }
 ```
@@ -3213,6 +3302,7 @@ The statistical form in which values are expressed.
 ```json
 [
   {
+    "normalized_value": "count",
     "source_text": "Count"
   }
 ]
@@ -3221,6 +3311,7 @@ The statistical form in which values are expressed.
 ```json
 [
   {
+    "normalized_value": "percentage",
     "source_text": "Percentage"
   }
 ]
@@ -3229,6 +3320,7 @@ The statistical form in which values are expressed.
 ```json
 [
   {
+    "normalized_value": "rate",
     "source_text": "Rate"
   }
 ]
@@ -3237,6 +3329,7 @@ The statistical form in which values are expressed.
 ```json
 [
   {
+    "normalized_value": "index",
     "source_text": "Index"
   }
 ]

@@ -419,35 +419,38 @@ class GeographicLevelValue(str, Enum):
 
 
 class Identifier(_SchemaModel):
-    """Represent an assigned identifier and its optional authority context.
+    """Represent a verified identifier and its optional authority context.
 
     Parameters
     ----------
     value : str
-        Identifier exactly as assigned.
+        Identifier exactly as assigned in source evidence or trusted metadata.
     scheme : str | None
-        Identifier scheme, when known.
+        Verified identifier scheme, when available.
     issuer : str | None
-        Issuing agent, when known.
+        Verified issuing agent, when available.
     uri : AnyUrl | None
-        Authoritative absolute URI for the identifier.
+        Verified authoritative absolute URI for the identifier.
     """
 
     value: NonEmptyText = Field(
-        examples=["P171254", "P178944"], description="Identifier exactly as assigned."
+        examples=["P171254", "P178944"],
+        description="Identifier exactly as assigned in the snapshot or trusted metadata. Do not infer or manufacture it from its apparent pattern or from model knowledge.",
     )
     scheme: NonEmptyText | None = Field(
         examples=["World Bank project ID"],
         default=None,
-        description="Identifier scheme, when known.",
+        description="Identifier scheme explicitly supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not infer it from the identifier's apparent pattern or from model knowledge.",
     )
     issuer: NonEmptyText | None = Field(
-        examples=["World Bank"], default=None, description="Issuing agent, when known."
+        examples=["World Bank"],
+        default=None,
+        description="Issuing agent explicitly supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not infer it from model knowledge.",
     )
     uri: AbsoluteURI | None = Field(
         examples=["https://example.org/projects/P171254"],
         default=None,
-        description="Authoritative absolute URI for the identifier.",
+        description="Authoritative absolute URI supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not construct or infer it from model knowledge.",
     )
 
 
@@ -939,10 +942,10 @@ class Variable(_SchemaModel):
     )
     unit: Unit | None = Field(
         examples=[
-            {"source_text": "Percent"},
+            {"source_text": "Percent", "code": "P1"},
             {"source_text": "USD"},
             {"source_text": "People"},
-            {"source_text": "Kilometers"},
+            {"source_text": "Kilometers", "code": "KMT"},
         ],
         default=None,
         description="The unit used to interpret reported quantitative values.",
@@ -952,9 +955,9 @@ class Variable(_SchemaModel):
     )
     currency: Currency | None = Field(
         examples=[
-            {"source_text": "USD"},
-            {"source_text": "EUR"},
-            {"source_text": "JPY"},
+            {"source_text": "USD", "code": "USD"},
+            {"source_text": "EUR", "code": "EUR"},
+            {"source_text": "JPY", "code": "JPY"},
         ],
         default=None,
         description="The currency denomination used for monetary values.",
@@ -989,10 +992,15 @@ class Variable(_SchemaModel):
     )
     statistical_forms: list[StatisticalFormTerm] | None = Field(
         examples=[
-            [{"source_text": "Count"}],
-            [{"source_text": "Percentage"}],
-            [{"source_text": "Rate"}],
-            [{"source_text": "Index"}],
+            [{"source_text": "Count", "normalized_value": "count"}],
+            [
+                {
+                    "source_text": "Percentage",
+                    "normalized_value": "percentage",
+                }
+            ],
+            [{"source_text": "Rate", "normalized_value": "rate"}],
+            [{"source_text": "Index", "normalized_value": "index"}],
             [{"source_text": "Average"}],
         ],
         default=None,
@@ -1262,9 +1270,20 @@ class TemporalCoverage(_SchemaModel):
 
     period: TemporalExpression | None = Field(
         examples=[
-            {"source_text": "2015–2020"},
+            {
+                "source_text": "2015–2020",
+                "start": "2015",
+                "end": "2020",
+                "relation": "interval",
+                "precision": "year",
+            },
             {"source_text": "FY2023"},
-            {"source_text": "January 2024"},
+            {
+                "source_text": "January 2024",
+                "start": "2024-01",
+                "relation": "point",
+                "precision": "month",
+            },
         ],
         default=None,
         description="The period or date range represented by the data.\n\nThis field describes **when the represented data apply**. It does not describe when the snapshot artifact or parent document was created, prepared, issued, published, revised, or retrieved. When an explicit artifact date appears only as part of a footer or provenance statement, preserve the complete statement in `interpretive_notes` rather than treating the date as `temporal_coverage.period`.",
@@ -1275,10 +1294,10 @@ class TemporalCoverage(_SchemaModel):
     )
     granularity: TemporalGranularityTerm | None = Field(
         examples=[
-            {"source_text": "Annual"},
-            {"source_text": "Monthly"},
-            {"source_text": "Quarterly"},
-            {"source_text": "Daily"},
+            {"source_text": "Annual", "normalized_value": "annual"},
+            {"source_text": "Monthly", "normalized_value": "monthly"},
+            {"source_text": "Quarterly", "normalized_value": "quarterly"},
+            {"source_text": "Daily", "normalized_value": "daily"},
         ],
         default=None,
         description="The temporal resolution at which the represented data are reported.",
@@ -1300,8 +1319,8 @@ class Place(_SchemaModel):
         Displayed place expression.
     name : str | None
         Preferred place name.
-    country_code : str | None
-        ISO 3166-1 alpha-2 country code.
+    iso3_code : str | None
+        ISO 3166-1 alpha-3 country code.
     subdivision_code : str | None
         ISO 3166-2 subdivision code.
     m49_code : str | None
@@ -1314,7 +1333,7 @@ class Place(_SchemaModel):
         json_schema_extra=_content_schema(
             "source_text",
             "name",
-            "country_code",
+            "iso3_code",
             "subdivision_code",
             "m49_code",
             "identifiers",
@@ -1331,12 +1350,12 @@ class Place(_SchemaModel):
         default=None,
         description="Preferred place name.",
     )
-    country_code: (
-        Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z]{2}$")] | None
+    iso3_code: (
+        Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z]{3}$")] | None
     ) = Field(
-        examples=["KE", "PH"],
+        examples=["KEN", "PHL"],
         default=None,
-        description="ISO 3166-1 alpha-2 country code.",
+        description="ISO 3166-1 alpha-3 code for a country or area. Do not use World Bank aggregate or region codes.",
         json_schema_extra=_code_list(
             "ISO", "ISO 3166-1", "https://www.iso.org/iso-3166-country-codes.html"
         ),
@@ -1367,7 +1386,7 @@ class Place(_SchemaModel):
         ),
     )
     identifiers: list[Identifier] | None = Field(
-        examples=[[{"value": "KE", "scheme": "ISO 3166-1 alpha-2"}]],
+        examples=[[{"value": "KEN", "scheme": "ISO 3166-1 alpha-3"}]],
         default=None,
         min_length=1,
         description="Other authoritative identifiers.",
@@ -1379,7 +1398,7 @@ class Place(_SchemaModel):
             (
                 self.source_text,
                 self.name,
-                self.country_code,
+                self.iso3_code,
                 self.subdivision_code,
                 self.m49_code,
                 self.identifiers,
@@ -1400,8 +1419,8 @@ class GeographicLocation(Place):
         Displayed place expression.
     name : str | None
         Preferred place name.
-    country_code : str | None
-        ISO 3166-1 alpha-2 country code.
+    iso3_code : str | None
+        ISO 3166-1 alpha-3 country code.
     subdivision_code : str | None
         ISO 3166-2 subdivision code.
     m49_code : str | None
@@ -1455,10 +1474,14 @@ class GeographicCoverage(_SchemaModel):
 
     scope: Place | None = Field(
         examples=[
-            {"source_text": "Global"},
-            {"source_text": "Kenya"},
-            {"source_text": "Sub-Saharan Africa"},
-            {"source_text": "Latin America"},
+            {"source_text": "Global", "name": "Global", "m49_code": "001"},
+            {"source_text": "Kenya", "name": "Kenya", "iso3_code": "KEN"},
+            {
+                "source_text": "Sub-Saharan Africa",
+                "name": "Sub-Saharan Africa",
+                "m49_code": "202",
+            },
+            {"source_text": "Latin America", "name": "Latin America"},
         ],
         default=None,
         description="The primary geographic area represented by the snapshot.",
@@ -1466,10 +1489,10 @@ class GeographicCoverage(_SchemaModel):
     )
     locations: list[GeographicLocation] | None = Field(
         examples=[
-            [{"name": "Uganda"}],
+            [{"name": "Uganda", "iso3_code": "UGA"}],
             [{"name": "Nairobi"}],
-            [{"name": "West Africa"}],
-            [{"name": "Burkina Faso"}],
+            [{"name": "West Africa", "m49_code": "011"}],
+            [{"name": "Burkina Faso", "iso3_code": "BFA"}],
         ],
         default=None,
         min_length=1,
@@ -1480,10 +1503,10 @@ class GeographicCoverage(_SchemaModel):
     )
     level: GeographicLevelTerm | None = Field(
         examples=[
-            {"source_text": "Country"},
+            {"source_text": "Country", "normalized_value": "country"},
             {"source_text": "Province"},
             {"source_text": "District"},
-            {"source_text": "Facility"},
+            {"source_text": "Facility", "normalized_value": "site"},
         ],
         default=None,
         description="The administrative or spatial level at which data are reported.",
@@ -1872,16 +1895,25 @@ class DataSnapshotMetadata(_SchemaModel):
     )
     visualization_types: list[VisualizationTypeTerm] | None = Field(
         examples=[
-            [{"source_text": "Bar chart"}],
-            [{"source_text": "Line chart"}],
-            [{"source_text": "Table"}],
-            [{"source_text": "Map"}],
-            [{"source_text": "Heatmap"}],
-            [{"source_text": "Composite figure: line charts and map"}],
+            [{"normalized_value": "bar_chart"}],
+            [{"source_text": "Bar Graph", "normalized_value": "bar_chart"}],
+            [{"source_text": "Waffle chart"}],
+            None,
+            [{"source_text": "Bar chart", "normalized_value": "bar_chart"}],
+            [{"source_text": "Line chart", "normalized_value": "line_chart"}],
+            [{"source_text": "Table", "normalized_value": "table"}],
+            [{"source_text": "Map", "normalized_value": "map"}],
+            [{"source_text": "Heatmap", "normalized_value": "heatmap"}],
+            [
+                {
+                    "source_text": "Composite figure: line charts and map",
+                    "normalized_value": "composite_figure",
+                }
+            ],
         ],
         default=None,
         min_length=1,
-        description="The primary visualization used to encode the represented data.\n\nFor a composite or multi-panel snapshot, record a concise description of the overall visualization type or visible combination when no single type adequately describes the artifact. Use `panel_titles` for explicit panel headings.",
+        description="The primary visualization used to encode the represented data.\n\nUse `normalized_value` when the visualization type is inferred from visual form. Use `source_text` only when wording in the snapshot explicitly names the visualization form; do not manufacture source wording from the visual design. Preserve an explicitly written unfamiliar type in `source_text` without a normalized value. If neither a listed normalized type nor an explicit unfamiliar source label is supported, return `null`; do not force a match to the closest vocabulary value. For a composite or multi-panel snapshot, record the overall visualization type when no single component type adequately describes the artifact. Use `panel_titles` for explicit panel headings.",
         json_schema_extra=_standards(
             ("http://purl.org/dc/terms/type", "standard_broader"),
             ("https://schema.org/additionalType", "standard_broader"),
@@ -1889,13 +1921,48 @@ class DataSnapshotMetadata(_SchemaModel):
     )
     temporal_coverage: TemporalCoverage | None = Field(
         examples=[
-            {"period": {"source_text": "2015–2020"}},
+            {
+                "period": {
+                    "source_text": "2015–2020",
+                    "start": "2015",
+                    "end": "2020",
+                    "relation": "interval",
+                    "precision": "year",
+                }
+            },
             {"period": {"source_text": "FY2023"}},
-            {"period": {"source_text": "January 2024"}},
-            {"granularity": {"source_text": "Annual"}},
-            {"granularity": {"source_text": "Monthly"}},
-            {"granularity": {"source_text": "Quarterly"}},
-            {"granularity": {"source_text": "Daily"}},
+            {
+                "period": {
+                    "source_text": "January 2024",
+                    "start": "2024-01",
+                    "relation": "point",
+                    "precision": "month",
+                }
+            },
+            {
+                "granularity": {
+                    "source_text": "Annual",
+                    "normalized_value": "annual",
+                }
+            },
+            {
+                "granularity": {
+                    "source_text": "Monthly",
+                    "normalized_value": "monthly",
+                }
+            },
+            {
+                "granularity": {
+                    "source_text": "Quarterly",
+                    "normalized_value": "quarterly",
+                }
+            },
+            {
+                "granularity": {
+                    "source_text": "Daily",
+                    "normalized_value": "daily",
+                }
+            },
         ],
         default=None,
         description="When the represented data apply and their granularity.",
@@ -1906,18 +1973,36 @@ class DataSnapshotMetadata(_SchemaModel):
     )
     geographic_coverage: GeographicCoverage | None = Field(
         examples=[
-            {"scope": {"source_text": "Global"}},
-            {"scope": {"source_text": "Kenya"}},
-            {"scope": {"source_text": "Sub-Saharan Africa"}},
-            {"scope": {"source_text": "Latin America"}},
-            {"locations": [{"name": "Uganda"}]},
+            {
+                "scope": {
+                    "source_text": "Global",
+                    "name": "Global",
+                    "m49_code": "001",
+                }
+            },
+            {
+                "scope": {
+                    "source_text": "Kenya",
+                    "name": "Kenya",
+                    "iso3_code": "KEN",
+                }
+            },
+            {
+                "scope": {
+                    "source_text": "Sub-Saharan Africa",
+                    "name": "Sub-Saharan Africa",
+                    "m49_code": "202",
+                }
+            },
+            {"scope": {"source_text": "Latin America", "name": "Latin America"}},
+            {"locations": [{"name": "Uganda", "iso3_code": "UGA"}]},
             {"locations": [{"name": "Nairobi"}]},
-            {"locations": [{"name": "West Africa"}]},
-            {"locations": [{"name": "Burkina Faso"}]},
-            {"level": {"source_text": "Country"}},
+            {"locations": [{"name": "West Africa", "m49_code": "011"}]},
+            {"locations": [{"name": "Burkina Faso", "iso3_code": "BFA"}]},
+            {"level": {"source_text": "Country", "normalized_value": "country"}},
             {"level": {"source_text": "Province"}},
             {"level": {"source_text": "District"}},
-            {"level": {"source_text": "Facility"}},
+            {"level": {"source_text": "Facility", "normalized_value": "site"}},
         ],
         default=None,
         description="Overall geographic scope, additional locations, and level.",
@@ -1954,13 +2039,13 @@ class DataSnapshotMetadata(_SchemaModel):
             },
         ],
         default=None,
-        description="The named dataset, survey, publication, organization, or credited agent from which the represented data originate or which is explicitly credited with producing the snapshot artifact.\n\nUse `sources` for represented-data derivation sources and `attributions` for credited agents with explicit roles. Do not copy the parent document's authors or publisher into this field solely because they are associated with the document; the source or attribution must be explicitly relevant to the snapshot or its represented data.",
+        description="The named dataset, survey, publication, organization, or credited agent from which the represented data originate or which is explicitly credited with producing the snapshot artifact.\n\nUse `sources` for represented-data derivation sources and `attributions` for credited agents; include an attribution role when it is explicit. Do not copy the parent document's authors or publisher into this field solely because they are associated with the document; the source or attribution must be explicitly relevant to the snapshot or its represented data.",
     )
     languages: list[Language] | None = Field(
         examples=[
-            [{"source_text": "English"}],
-            [{"source_text": "French"}],
-            [{"source_text": "Arabic"}],
+            [{"source_text": "English", "tag": "en"}],
+            [{"source_text": "French", "tag": "fr"}],
+            [{"source_text": "Arabic", "tag": "ar"}],
         ],
         default=None,
         min_length=1,

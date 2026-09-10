@@ -170,11 +170,6 @@ def test_uncontested_examples_preserve_all_v111_text_in_order() -> None:
         "currency": ("Variable", "currency", ("source_text",)),
         "measure_type": ("Variable", "statistical_forms", (0, "source_text")),
         "comparison_group": ("DataSnapshotMetadata", "comparisons", (0,)),
-        "visualization_type": (
-            "DataSnapshotMetadata",
-            "visualization_types",
-            (0, "source_text"),
-        ),
         "language": ("DataSnapshotMetadata", "languages", (0, "source_text")),
         "interpretive_note": ("DataSnapshotMetadata", "interpretive_notes", (0,)),
         "project_name": ("Project", "name", ()),
@@ -232,6 +227,74 @@ def test_uncontested_examples_preserve_all_v111_text_in_order() -> None:
             for example in dimensions
             if example[0].get("presentation_roles") == [role]
         ] == legacy[name][1]
+    visualization_examples = DataSnapshotMetadata.model_fields[
+        "visualization_types"
+    ].examples
+    assert [
+        example[0]["source_text"]
+        for example in visualization_examples
+        if example is not None
+        and example[0].get("source_text") not in {"Bar Graph", "Waffle chart"}
+        and "source_text" in example[0]
+    ] == legacy["visualization_type"][1]
+
+
+def test_worked_examples_pair_only_deterministic_normalization() -> None:
+    """Show normalized values while leaving ambiguous legacy examples source-only."""
+    periods = metadata_models.TemporalCoverage.model_fields["period"].examples
+    levels = metadata_models.GeographicCoverage.model_fields["level"].examples
+    forms = Variable.model_fields["statistical_forms"].examples
+    visualizations = DataSnapshotMetadata.model_fields["visualization_types"].examples
+
+    assert periods[0] == {
+        "source_text": "2015–2020",
+        "start": "2015",
+        "end": "2020",
+        "relation": "interval",
+        "precision": "year",
+    }
+    assert periods[1] == {"source_text": "FY2023"}
+    assert levels[0] == {
+        "source_text": "Country",
+        "normalized_value": "country",
+    }
+    assert levels[1] == {"source_text": "Province"}
+    assert forms[-1] == [{"source_text": "Average"}]
+    assert visualizations[0] == [{"normalized_value": "bar_chart"}]
+    assert visualizations[1] == [
+        {"source_text": "Bar Graph", "normalized_value": "bar_chart"}
+    ]
+
+
+def test_visualization_fallback_distinguishes_source_only_from_unknown() -> None:
+    """Preserve unfamiliar labels and use root null when no type is supported."""
+    examples = DataSnapshotMetadata.model_fields["visualization_types"].examples
+    assert [{"source_text": "Waffle chart"}] in examples
+    assert None in examples
+
+    source_only = VisualizationTypeTerm(source_text="Waffle chart")
+    assert source_only.normalized_value is None
+    assert DataSnapshotMetadata(visualization_types=None).visualization_types is None
+    with pytest.raises(ValidationError):
+        VisualizationTypeTerm(normalized_value="waffle_chart")
+
+    description = DataSnapshotMetadata.model_fields["visualization_types"].description
+    assert description is not None
+    assert "return `null`; do not force a match" in description
+
+
+def test_iso3_country_code_replaces_v12_alpha2_field() -> None:
+    """Accept ISO alpha-3 syntax and reject the removed v1.2 field name."""
+    assert Place(iso3_code="PHL").iso3_code == "PHL"
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        Place(name="Philippines", country_code="PH")
+
+
+def test_identifier_descriptions_forbid_model_knowledge_enrichment() -> None:
+    """Expose the approved evidence boundary in every identifier property."""
+    for field_name in ("value", "scheme", "issuer", "uri"):
+        description = Identifier.model_fields[field_name].description
+        assert "model knowledge" in description
 
 
 def test_representative_record_preserves_nested_relationships() -> None:
@@ -293,7 +356,7 @@ def test_representative_record_preserves_nested_relationships() -> None:
                 "scope": {
                     "source_text": "Niger",
                     "name": "Niger",
-                    "country_code": "NE",
+                    "iso3_code": "NER",
                 },
                 "level": {
                     "source_text": "Country",
@@ -335,7 +398,7 @@ def test_representative_record_preserves_nested_relationships() -> None:
         record.dimensions[0].category_groups[0].categories[1].source_text
         == "Abductions"
     )
-    assert record.geographic_coverage.scope.country_code == "NE"
+    assert record.geographic_coverage.scope.iso3_code == "NER"
     assert record.financing.instruments[0].source_text == "Grant"
 
 
@@ -359,13 +422,13 @@ def test_nested_objects_preserve_bounded_partial_metadata() -> None:
         presentation_roles=["row"],
     )
     attribution = Attribution(name="Map Design Unit")
-    place = Place(country_code="PH")
+    place = Place(iso3_code="PHL")
 
     assert variable.name is None
     assert variable.unit.source_text == "%"
     assert dimension.name is None
     assert attribution.role is None
-    assert place.country_code == "PH"
+    assert place.iso3_code == "PHL"
 
     with pytest.raises(ValidationError, match="requires a name, unit, currency"):
         Variable()
@@ -472,7 +535,7 @@ def test_standard_formats_and_cross_field_constraints_are_enforced() -> None:
     """Invalid codes, temporal relationships, and unqualified codes fail."""
     with pytest.raises(ValidationError, match="String should match pattern"):
         DataSnapshotMetadata(
-            geographic_coverage={"scope": {"name": "Philippines", "country_code": "ph"}}
+            geographic_coverage={"scope": {"name": "Philippines", "iso3_code": "phl"}}
         )
     with pytest.raises(ValidationError, match="String should match pattern"):
         Currency(source_text="peso", code="php")
@@ -535,7 +598,7 @@ def test_cardinality_nonrecursive_groups_and_deduplication() -> None:
             "panel_titles": ["1999", "2006"],
             "visualization_types": [{"normalized_value": "choropleth_map"}],
             "geographic_coverage": {
-                "scope": {"name": "Vietnam", "country_code": "VN"},
+                "scope": {"name": "Vietnam", "iso3_code": "VNM"},
                 "level": {
                     "source_text": "Province",
                     "normalized_value": "administrative_area_1",
@@ -560,7 +623,7 @@ def test_cardinality_nonrecursive_groups_and_deduplication() -> None:
                 "locations": [
                     {
                         "name": "South Sudan",
-                        "country_code": "SS",
+                        "iso3_code": "SSD",
                         "role": "Country of origin",
                     }
                 ],
@@ -798,14 +861,14 @@ def test_fractional_interval_ordering_is_exact_across_offsets() -> None:
         ({"dimensions": [{"presentation_roles": ["row"]}]}, False),
         ({"provenance": {"attributions": [{"name": "Map Design Unit"}]}}, True),
         (
-            {"geographic_coverage": {"locations": [{"country_code": "PH"}]}},
+            {"geographic_coverage": {"locations": [{"iso3_code": "PHL"}]}},
             True,
         ),
         (
             {"geographic_coverage": {"locations": [{"role": "Host country"}]}},
             False,
         ),
-        ({"geographic_coverage": {"scope": {"country_code": "PH"}}}, True),
+        ({"geographic_coverage": {"scope": {"iso3_code": "PHL"}}}, True),
         ({"languages": [{"source_text": None, "tag": None}]}, False),
         ({"languages": [{"tag": "en-a"}]}, False),
     ],

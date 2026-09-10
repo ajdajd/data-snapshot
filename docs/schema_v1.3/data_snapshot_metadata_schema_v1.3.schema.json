@@ -933,15 +933,22 @@
           "description": "The primary geographic area represented by the snapshot.",
           "examples": [
             {
+              "m49_code": "001",
+              "name": "Global",
               "source_text": "Global"
             },
             {
+              "iso3_code": "KEN",
+              "name": "Kenya",
               "source_text": "Kenya"
             },
             {
+              "m49_code": "202",
+              "name": "Sub-Saharan Africa",
               "source_text": "Sub-Saharan Africa"
             },
             {
+              "name": "Latin America",
               "source_text": "Latin America"
             }
           ],
@@ -970,6 +977,7 @@
           "examples": [
             [
               {
+                "iso3_code": "UGA",
                 "name": "Uganda"
               }
             ],
@@ -980,11 +988,13 @@
             ],
             [
               {
+                "m49_code": "011",
                 "name": "West Africa"
               }
             ],
             [
               {
+                "iso3_code": "BFA",
                 "name": "Burkina Faso"
               }
             ]
@@ -1010,6 +1020,7 @@
           "description": "The administrative or spatial level at which data are reported.",
           "examples": [
             {
+              "normalized_value": "country",
               "source_text": "Country"
             },
             {
@@ -1019,6 +1030,7 @@
               "source_text": "District"
             },
             {
+              "normalized_value": "site",
               "source_text": "Facility"
             }
           ]
@@ -1149,14 +1161,14 @@
         },
         {
           "properties": {
-            "country_code": {
+            "iso3_code": {
               "not": {
                 "type": "null"
               }
             }
           },
           "required": [
-            "country_code"
+            "iso3_code"
           ]
         },
         {
@@ -1196,7 +1208,7 @@
           ]
         }
       ],
-      "description": "Represent an additional named location and its optional role and type.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\ncountry_code : str | None\n    ISO 3166-1 alpha-2 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.\nrole : str | None\n    Explicit source-grounded geographic role.\ntype : CodedTerm | None\n    Physical or administrative type of the named location.",
+      "description": "Represent an additional named location and its optional role and type.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\niso3_code : str | None\n    ISO 3166-1 alpha-3 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.\nrole : str | None\n    Explicit source-grounded geographic role.\ntype : CodedTerm | None\n    Physical or administrative type of the named location.",
       "properties": {
         "source_text": {
           "anyOf": [
@@ -1239,10 +1251,10 @@
           ],
           "title": "Name"
         },
-        "country_code": {
+        "iso3_code": {
           "anyOf": [
             {
-              "pattern": "^[A-Z]{2}$",
+              "pattern": "^[A-Z]{3}$",
               "type": "string"
             },
             {
@@ -1250,12 +1262,12 @@
             }
           ],
           "default": null,
-          "description": "ISO 3166-1 alpha-2 country code.",
+          "description": "ISO 3166-1 alpha-3 code for a country or area. Do not use World Bank aggregate or region codes.",
           "examples": [
-            "KE",
-            "PH"
+            "KEN",
+            "PHL"
           ],
-          "title": "Country Code",
+          "title": "Iso3 Code",
           "x-code-list": {
             "authority": "ISO",
             "identifier": "ISO 3166-1",
@@ -1325,8 +1337,8 @@
           "examples": [
             [
               {
-                "scheme": "ISO 3166-1 alpha-2",
-                "value": "KE"
+                "scheme": "ISO 3166-1 alpha-3",
+                "value": "KEN"
               }
             ]
           ],
@@ -1383,15 +1395,15 @@
       "title": "GeographicLocation",
       "type": "object",
       "x-validation-rules": [
-        "At least one non-null value is required: source_text, name, country_code, subdivision_code, m49_code, identifiers."
+        "At least one non-null value is required: source_text, name, iso3_code, subdivision_code, m49_code, identifiers."
       ]
     },
     "Identifier": {
       "additionalProperties": false,
-      "description": "Represent an assigned identifier and its optional authority context.\n\nParameters\n----------\nvalue : str\n    Identifier exactly as assigned.\nscheme : str | None\n    Identifier scheme, when known.\nissuer : str | None\n    Issuing agent, when known.\nuri : AnyUrl | None\n    Authoritative absolute URI for the identifier.",
+      "description": "Represent a verified identifier and its optional authority context.\n\nParameters\n----------\nvalue : str\n    Identifier exactly as assigned in source evidence or trusted metadata.\nscheme : str | None\n    Verified identifier scheme, when available.\nissuer : str | None\n    Verified issuing agent, when available.\nuri : AnyUrl | None\n    Verified authoritative absolute URI for the identifier.",
       "properties": {
         "value": {
-          "description": "Identifier exactly as assigned.",
+          "description": "Identifier exactly as assigned in the snapshot or trusted metadata. Do not infer or manufacture it from its apparent pattern or from model knowledge.",
           "examples": [
             "P171254",
             "P178944"
@@ -1413,7 +1425,7 @@
             }
           ],
           "default": null,
-          "description": "Identifier scheme, when known.",
+          "description": "Identifier scheme explicitly supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not infer it from the identifier's apparent pattern or from model knowledge.",
           "examples": [
             "World Bank project ID"
           ],
@@ -1431,7 +1443,7 @@
             }
           ],
           "default": null,
-          "description": "Issuing agent, when known.",
+          "description": "Issuing agent explicitly supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not infer it from model knowledge.",
           "examples": [
             "World Bank"
           ],
@@ -1450,7 +1462,7 @@
             }
           ],
           "default": null,
-          "description": "Authoritative absolute URI for the identifier.",
+          "description": "Authoritative absolute URI supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not construct or infer it from model knowledge.",
           "examples": [
             "https://example.org/projects/P171254"
           ],
@@ -1574,14 +1586,14 @@
         },
         {
           "properties": {
-            "country_code": {
+            "iso3_code": {
               "not": {
                 "type": "null"
               }
             }
           },
           "required": [
-            "country_code"
+            "iso3_code"
           ]
         },
         {
@@ -1621,7 +1633,7 @@
           ]
         }
       ],
-      "description": "Represent a source-grounded place with optional standard identifiers.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\ncountry_code : str | None\n    ISO 3166-1 alpha-2 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.",
+      "description": "Represent a source-grounded place with optional standard identifiers.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\niso3_code : str | None\n    ISO 3166-1 alpha-3 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.",
       "properties": {
         "source_text": {
           "anyOf": [
@@ -1664,10 +1676,10 @@
           ],
           "title": "Name"
         },
-        "country_code": {
+        "iso3_code": {
           "anyOf": [
             {
-              "pattern": "^[A-Z]{2}$",
+              "pattern": "^[A-Z]{3}$",
               "type": "string"
             },
             {
@@ -1675,12 +1687,12 @@
             }
           ],
           "default": null,
-          "description": "ISO 3166-1 alpha-2 country code.",
+          "description": "ISO 3166-1 alpha-3 code for a country or area. Do not use World Bank aggregate or region codes.",
           "examples": [
-            "KE",
-            "PH"
+            "KEN",
+            "PHL"
           ],
-          "title": "Country Code",
+          "title": "Iso3 Code",
           "x-code-list": {
             "authority": "ISO",
             "identifier": "ISO 3166-1",
@@ -1750,8 +1762,8 @@
           "examples": [
             [
               {
-                "scheme": "ISO 3166-1 alpha-2",
-                "value": "KE"
+                "scheme": "ISO 3166-1 alpha-3",
+                "value": "KEN"
               }
             ]
           ],
@@ -1761,7 +1773,7 @@
       "title": "Place",
       "type": "object",
       "x-validation-rules": [
-        "At least one non-null value is required: source_text, name, country_code, subdivision_code, m49_code, identifiers."
+        "At least one non-null value is required: source_text, name, iso3_code, subdivision_code, m49_code, identifiers."
       ]
     },
     "PresentationRole": {
@@ -2208,13 +2220,20 @@
           "description": "The period or date range represented by the data.\n\nThis field describes **when the represented data apply**. It does not describe when the snapshot artifact or parent document was created, prepared, issued, published, revised, or retrieved. When an explicit artifact date appears only as part of a footer or provenance statement, preserve the complete statement in `interpretive_notes` rather than treating the date as `temporal_coverage.period`.",
           "examples": [
             {
-              "source_text": "2015–2020"
+              "end": "2020",
+              "precision": "year",
+              "relation": "interval",
+              "source_text": "2015–2020",
+              "start": "2015"
             },
             {
               "source_text": "FY2023"
             },
             {
-              "source_text": "January 2024"
+              "precision": "month",
+              "relation": "point",
+              "source_text": "January 2024",
+              "start": "2024-01"
             }
           ],
           "x-standards": [
@@ -2241,15 +2260,19 @@
           "description": "The temporal resolution at which the represented data are reported.",
           "examples": [
             {
+              "normalized_value": "annual",
               "source_text": "Annual"
             },
             {
+              "normalized_value": "monthly",
               "source_text": "Monthly"
             },
             {
+              "normalized_value": "quarterly",
               "source_text": "Quarterly"
             },
             {
+              "normalized_value": "daily",
               "source_text": "Daily"
             }
           ]
@@ -3022,6 +3045,7 @@
           "description": "The unit used to interpret reported quantitative values.",
           "examples": [
             {
+              "code": "P1",
               "source_text": "Percent"
             },
             {
@@ -3031,6 +3055,7 @@
               "source_text": "People"
             },
             {
+              "code": "KMT",
               "source_text": "Kilometers"
             }
           ],
@@ -3054,12 +3079,15 @@
           "description": "The currency denomination used for monetary values.",
           "examples": [
             {
+              "code": "USD",
               "source_text": "USD"
             },
             {
+              "code": "EUR",
               "source_text": "EUR"
             },
             {
+              "code": "JPY",
               "source_text": "JPY"
             }
           ],
@@ -3149,21 +3177,25 @@
           "examples": [
             [
               {
+                "normalized_value": "count",
                 "source_text": "Count"
               }
             ],
             [
               {
+                "normalized_value": "percentage",
                 "source_text": "Percentage"
               }
             ],
             [
               {
+                "normalized_value": "rate",
                 "source_text": "Rate"
               }
             ],
             [
               {
+                "normalized_value": "index",
                 "source_text": "Index"
               }
             ],
@@ -3713,35 +3745,58 @@
         }
       ],
       "default": null,
-      "description": "The primary visualization used to encode the represented data.\n\nFor a composite or multi-panel snapshot, record a concise description of the overall visualization type or visible combination when no single type adequately describes the artifact. Use `panel_titles` for explicit panel headings.",
+      "description": "The primary visualization used to encode the represented data.\n\nUse `normalized_value` when the visualization type is inferred from visual form. Use `source_text` only when wording in the snapshot explicitly names the visualization form; do not manufacture source wording from the visual design. Preserve an explicitly written unfamiliar type in `source_text` without a normalized value. If neither a listed normalized type nor an explicit unfamiliar source label is supported, return `null`; do not force a match to the closest vocabulary value. For a composite or multi-panel snapshot, record the overall visualization type when no single component type adequately describes the artifact. Use `panel_titles` for explicit panel headings.",
       "examples": [
         [
           {
+            "normalized_value": "bar_chart"
+          }
+        ],
+        [
+          {
+            "normalized_value": "bar_chart",
+            "source_text": "Bar Graph"
+          }
+        ],
+        [
+          {
+            "source_text": "Waffle chart"
+          }
+        ],
+        null,
+        [
+          {
+            "normalized_value": "bar_chart",
             "source_text": "Bar chart"
           }
         ],
         [
           {
+            "normalized_value": "line_chart",
             "source_text": "Line chart"
           }
         ],
         [
           {
+            "normalized_value": "table",
             "source_text": "Table"
           }
         ],
         [
           {
+            "normalized_value": "map",
             "source_text": "Map"
           }
         ],
         [
           {
+            "normalized_value": "heatmap",
             "source_text": "Heatmap"
           }
         ],
         [
           {
+            "normalized_value": "composite_figure",
             "source_text": "Composite figure: line charts and map"
           }
         ]
@@ -3772,7 +3827,11 @@
       "examples": [
         {
           "period": {
-            "source_text": "2015–2020"
+            "end": "2020",
+            "precision": "year",
+            "relation": "interval",
+            "source_text": "2015–2020",
+            "start": "2015"
           }
         },
         {
@@ -3782,26 +3841,33 @@
         },
         {
           "period": {
-            "source_text": "January 2024"
+            "precision": "month",
+            "relation": "point",
+            "source_text": "January 2024",
+            "start": "2024-01"
           }
         },
         {
           "granularity": {
+            "normalized_value": "annual",
             "source_text": "Annual"
           }
         },
         {
           "granularity": {
+            "normalized_value": "monthly",
             "source_text": "Monthly"
           }
         },
         {
           "granularity": {
+            "normalized_value": "quarterly",
             "source_text": "Quarterly"
           }
         },
         {
           "granularity": {
+            "normalized_value": "daily",
             "source_text": "Daily"
           }
         }
@@ -3831,27 +3897,35 @@
       "examples": [
         {
           "scope": {
+            "m49_code": "001",
+            "name": "Global",
             "source_text": "Global"
           }
         },
         {
           "scope": {
+            "iso3_code": "KEN",
+            "name": "Kenya",
             "source_text": "Kenya"
           }
         },
         {
           "scope": {
+            "m49_code": "202",
+            "name": "Sub-Saharan Africa",
             "source_text": "Sub-Saharan Africa"
           }
         },
         {
           "scope": {
+            "name": "Latin America",
             "source_text": "Latin America"
           }
         },
         {
           "locations": [
             {
+              "iso3_code": "UGA",
               "name": "Uganda"
             }
           ]
@@ -3866,6 +3940,7 @@
         {
           "locations": [
             {
+              "m49_code": "011",
               "name": "West Africa"
             }
           ]
@@ -3873,12 +3948,14 @@
         {
           "locations": [
             {
+              "iso3_code": "BFA",
               "name": "Burkina Faso"
             }
           ]
         },
         {
           "level": {
+            "normalized_value": "country",
             "source_text": "Country"
           }
         },
@@ -3894,6 +3971,7 @@
         },
         {
           "level": {
+            "normalized_value": "site",
             "source_text": "Facility"
           }
         }
@@ -3964,7 +4042,7 @@
         }
       ],
       "default": null,
-      "description": "The named dataset, survey, publication, organization, or credited agent from which the represented data originate or which is explicitly credited with producing the snapshot artifact.\n\nUse `sources` for represented-data derivation sources and `attributions` for credited agents with explicit roles. Do not copy the parent document's authors or publisher into this field solely because they are associated with the document; the source or attribution must be explicitly relevant to the snapshot or its represented data.",
+      "description": "The named dataset, survey, publication, organization, or credited agent from which the represented data originate or which is explicitly credited with producing the snapshot artifact.\n\nUse `sources` for represented-data derivation sources and `attributions` for credited agents; include an attribution role when it is explicit. Do not copy the parent document's authors or publisher into this field solely because they are associated with the document; the source or attribution must be explicitly relevant to the snapshot or its represented data.",
       "examples": [
         {
           "sources": [
@@ -4024,17 +4102,20 @@
       "examples": [
         [
           {
-            "source_text": "English"
+            "source_text": "English",
+            "tag": "en"
           }
         ],
         [
           {
-            "source_text": "French"
+            "source_text": "French",
+            "tag": "fr"
           }
         ],
         [
           {
-            "source_text": "Arabic"
+            "source_text": "Arabic",
+            "tag": "ar"
           }
         ]
       ],
