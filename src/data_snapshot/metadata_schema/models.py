@@ -1333,7 +1333,7 @@ class GeographicLocation(Place):
     role : str | None
         Explicit source-grounded geographic role.
     type : CodedTerm | None
-        Physical or administrative location type.
+        Physical or administrative type of the named location.
     """
 
     role: NonEmptyText | None = Field(
@@ -1354,7 +1354,7 @@ class GeographicLocation(Place):
             {"source_text": "District"},
         ],
         default=None,
-        description="The type of physical location represented.",
+        description="The physical or administrative type of a named geographic location represented in the snapshot. This field describes what the location is; use `geographic_coverage.level` for the administrative or spatial level at which the snapshot's data are reported.",
     )
 
 

@@ -71,6 +71,11 @@ Dimensions own their categories and optional single-level category groups.
 Provenance separates derivation sources from credited agents. Panel titles
 remain an ordered flat collection, with visualization types at snapshot level.
 
+Within `geographic_coverage`, `locations[].type` describes what a named location
+is, such as a school or district. `level` describes the administrative or
+spatial level at which the snapshot's data are reported. Both may be present
+when the snapshot supports both meanings.
+
 Parent-document metadata is managed separately; `source_document_title` is not
 a v1.3 field. The models represent metadata, not extracted numerical observations.
 

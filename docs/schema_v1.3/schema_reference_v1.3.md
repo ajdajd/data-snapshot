@@ -2101,7 +2101,7 @@ The semantic role played by geographic entities within the represented data.
 
 **Definition**
 
-The type of physical location represented.
+The physical or administrative type of a named geographic location represented in the snapshot. This field describes what the location is; use `geographic_coverage.level` for the administrative or spatial level at which the snapshot's data are reported.
 
 **Examples**
 

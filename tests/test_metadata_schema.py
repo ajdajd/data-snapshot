@@ -114,7 +114,6 @@ def test_uncontested_descriptions_match_v111_verbatim() -> None:
         "geographic_scope": ("GeographicCoverage", "scope"),
         "geographic_granularity": ("GeographicCoverage", "level"),
         "geographic_role": ("GeographicLocation", "role"),
-        "location_type": ("GeographicLocation", "type"),
         "unit_of_measure": ("Variable", "unit"),
         "currency": ("Variable", "currency"),
         "measure_type": ("Variable", "statistical_forms"),
@@ -370,6 +369,34 @@ def test_plain_semantic_fields_accept_inferred_values_directly() -> None:
     assert record.geographic_coverage.locations[0].role == "Country of implementation"
     with pytest.raises(ValidationError):
         DataSnapshotMetadata(subject_domains=[{"source_text": "Agriculture"}])
+
+
+def test_location_type_is_distinct_from_reporting_level() -> None:
+    """Represent a named place kind separately from data reporting level."""
+    record = DataSnapshotMetadata.model_validate(
+        {
+            "geographic_coverage": {
+                "locations": [
+                    {
+                        "name": "Baringo District",
+                        "type": {"source_text": "District"},
+                    }
+                ],
+                "level": {"normalized_value": "administrative_area_2"},
+            }
+        }
+    )
+
+    assert record.geographic_coverage.locations[0].type.source_text == "District"
+    assert record.geographic_coverage.level.normalized_value.value == (
+        "administrative_area_2"
+    )
+    assert metadata_models.GeographicLocation.model_fields["type"].description == (
+        "The physical or administrative type of a named geographic location "
+        "represented in the snapshot. This field describes what the location is; "
+        "use `geographic_coverage.level` for the administrative or spatial level at "
+        "which the snapshot's data are reported."
+    )
 
 
 def test_normalized_terms_expose_only_source_and_closed_value() -> None:

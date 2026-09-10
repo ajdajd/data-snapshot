@@ -1095,7 +1095,7 @@
           ]
         }
       ],
-      "description": "Represent an additional named location and its optional role and type.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\ncountry_code : str | None\n    ISO 3166-1 alpha-2 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.\nrole : str | None\n    Explicit source-grounded geographic role.\ntype : CodedTerm | None\n    Physical or administrative location type.",
+      "description": "Represent an additional named location and its optional role and type.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\ncountry_code : str | None\n    ISO 3166-1 alpha-2 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.\nrole : str | None\n    Explicit source-grounded geographic role.\ntype : CodedTerm | None\n    Physical or administrative type of the named location.",
       "properties": {
         "source_text": {
           "anyOf": [
@@ -1262,7 +1262,7 @@
             }
           ],
           "default": null,
-          "description": "The type of physical location represented.",
+          "description": "The physical or administrative type of a named geographic location represented in the snapshot. This field describes what the location is; use `geographic_coverage.level` for the administrative or spatial level at which the snapshot's data are reported.",
           "examples": [
             {
               "source_text": "Refugee camp"
