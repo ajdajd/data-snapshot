@@ -8,16 +8,18 @@ import os
 import re
 import time
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 from tqdm.auto import tqdm
 
-from data_snapshot.metadata_schema.generation import serialize_metadata_schema
+from data_snapshot.constants import ROOT
 
 
 _PROMPT_DIR = Path(__file__).parent / "prompts"
+_SCHEMA_PATH = ROOT / "docs/schema_v1.2/data_snapshot_metadata_schema_v1.2.schema.json"
 _SNAPSHOT_PATTERN = re.compile(
     r"^(?P<document_id>.+)_(?P<artifact_type>figure|table)_"
     r"(?P<artifact_index>\d{3})\.png$"
@@ -312,8 +314,8 @@ def run_validation(
 def _schema_context(
     excluded_schema_fields: tuple[str, ...] = (),
 ) -> tuple[str, set[str]]:
-    """Serialize a canonical or locally ablated schema and its valid paths."""
-    schema = json.loads(serialize_metadata_schema())
+    """Serialize the frozen v1.2 schema or a local ablation and its paths."""
+    schema = json.loads(_frozen_schema_json())
     if excluded_schema_fields:
         properties = schema.get("properties", {})
         missing = set(excluded_schema_fields) - set(properties)
@@ -336,6 +338,12 @@ def _schema_context(
         json.dumps(schema, ensure_ascii=False, separators=(",", ":")),
         _schema_field_paths(schema),
     )
+
+
+@cache
+def _frozen_schema_json() -> str:
+    """Read the checked-in schema used by the completed Validation 3 run."""
+    return _SCHEMA_PATH.read_text(encoding="utf-8")
 
 
 def _schema_field_paths(schema: dict[str, Any]) -> set[str]:

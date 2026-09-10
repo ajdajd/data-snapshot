@@ -1,4 +1,4 @@
-"""Define the canonical Data Snapshot Metadata Schema v1.2 models."""
+"""Define the canonical Data Snapshot Metadata Schema v1.3 models."""
 
 from __future__ import annotations
 
@@ -130,6 +130,11 @@ def _content_schema(*names: str) -> dict[str, Any]:
 
 
 def _temporal_schema(schema: dict[str, Any]) -> None:
+    schema["anyOf"] = [
+        _populated("source_text"),
+        _populated("start"),
+        _populated("end"),
+    ]
     schema["allOf"] = [
         {
             "if": {"anyOf": [_populated("start"), _populated("end")]},
@@ -187,6 +192,7 @@ def _temporal_schema(schema: dict[str, Any]) -> None:
             }
         )
     schema["x-validation-rules"] = [
+        "At least one of source_text, start, or end must be non-null.",
         "Normalized bounds require relation and precision; source-only expressions omit both.",
         "point and as_of require start only; interval requires both bounds; open_interval requires exactly one bound.",
         "Bounds must match the declared precision. Python additionally validates calendar dates and chronological ordering.",
@@ -427,15 +433,13 @@ class Identifier(_SchemaModel):
     )
 
 
-class ControlledTerm(_SchemaModel):
-    """Represent a source-grounded term with optional normalization.
+class CodedTerm(_SchemaModel):
+    """Represent source wording with optional exact vocabulary identifiers.
 
     Parameters
     ----------
     source_text : str | None
-        Faithful source-visible expression.
-    normalized_value : str | None
-        Preferred application or vocabulary value.
+        Exact source-visible text or symbol that expresses the term.
     code : str | None
         Code in the named scheme.
     scheme : str | None
@@ -446,30 +450,28 @@ class ControlledTerm(_SchemaModel):
 
     model_config = ConfigDict(
         json_schema_extra={
-            **_content_schema("source_text", "normalized_value", "code", "uri"),
-            "allOf": [{"if": _populated("code"), "then": _populated("scheme")}],
+            **_content_schema("source_text", "code", "uri"),
+            "allOf": [
+                {"if": _populated("code"), "then": _populated("scheme")},
+                {"if": _populated("scheme"), "then": _populated("code")},
+            ],
             "x-validation-rules": [
-                "At least one of source_text, normalized_value, code, or uri must be non-null.",
-                "A non-null code requires a non-null scheme.",
+                "At least one of source_text, code, or uri must be non-null.",
+                "Code and scheme must be non-null together.",
             ],
         }
     )
 
     source_text: NonEmptyText | None = Field(
-        examples=["Health", "Education"],
+        examples=["Grant", "District"],
         default=None,
-        description="Faithful source-visible expression.",
-    )
-    normalized_value: NonEmptyText | None = Field(
-        examples=["health", "education"],
-        default=None,
-        description="Preferred application or vocabulary value.",
+        description="Exact text or symbol visible in the snapshot that explicitly expresses the value represented by this object. Omit it when the value is inferred from visual form, structure, or context rather than transcribed.",
     )
     code: NonEmptyText | None = Field(
-        examples=["TERM-001"], default=None, description="Code in the named scheme."
+        examples=["110"], default=None, description="Code in the named scheme."
     )
     scheme: NonEmptyText | None = Field(
-        examples=["https://example.org/concepts"],
+        examples=["IATI Finance Type"],
         default=None,
         description="Code-list or vocabulary identifier.",
     )
@@ -480,34 +482,45 @@ class ControlledTerm(_SchemaModel):
     )
 
     @model_validator(mode="after")
-    def _validate_term(self) -> ControlledTerm:
-        if not any((self.source_text, self.normalized_value, self.code, self.uri)):
-            raise ValueError("A controlled term must contain a value.")
-        if self.code is not None and self.scheme is None:
-            raise ValueError("A controlled-term code requires a scheme.")
+    def _validate_term(self) -> CodedTerm:
+        if not any((self.source_text, self.code, self.uri)):
+            raise ValueError("A coded term must contain source text, a code, or a URI.")
+        if (self.code is None) != (self.scheme is None):
+            raise ValueError("A coded-term code and scheme must be supplied together.")
         return self
 
 
-class StatisticalFormTerm(ControlledTerm):
+class _NormalizedTerm(_SchemaModel):
+    """Validate the shared content rule for normalized term models."""
+
+    model_config = ConfigDict(
+        json_schema_extra=_content_schema("source_text", "normalized_value")
+    )
+
+    source_text: NonEmptyText | None = None
+    normalized_value: NonEmptyText | None = None
+
+    @model_validator(mode="after")
+    def _validate_term(self) -> _NormalizedTerm:
+        if self.source_text is None and self.normalized_value is None:
+            raise ValueError("A normalized term must contain source text or a value.")
+        return self
+
+
+class StatisticalFormTerm(_NormalizedTerm):
     """Represent a known or source-only statistical form.
 
     Parameters
     ----------
     source_text : str | None
-        Faithful source-visible expression.
+        Exact source-visible expression of the statistical form.
     normalized_value : StatisticalFormValue | None
         Approved normalized statistical form.
-    code : str | None
-        Code in the named scheme.
-    scheme : str | None
-        Code-list or vocabulary identifier.
-    uri : AnyUrl | None
-        Authoritative URI for the represented concept.
     """
 
     source_text: NonEmptyText | None = Field(
         default=None,
-        description="Faithful source-visible expression.",
+        description="Exact text or symbol visible in the snapshot that explicitly expresses the statistical form.",
         examples=["Count", "Percentage", "Rate", "Index", "Average"],
     )
     normalized_value: StatisticalFormValue | None = Field(
@@ -517,26 +530,20 @@ class StatisticalFormTerm(ControlledTerm):
     )
 
 
-class VisualizationTypeTerm(ControlledTerm):
+class VisualizationTypeTerm(_NormalizedTerm):
     """Represent a known or source-only visualization type.
 
     Parameters
     ----------
     source_text : str | None
-        Faithful source-visible expression.
+        Exact source-visible name of the visualization type.
     normalized_value : VisualizationTypeValue | None
         Approved normalized visualization type.
-    code : str | None
-        Code in the named scheme.
-    scheme : str | None
-        Code-list or vocabulary identifier.
-    uri : AnyUrl | None
-        Authoritative URI for the represented concept.
     """
 
     source_text: NonEmptyText | None = Field(
         default=None,
-        description="Faithful source-visible expression.",
+        description="Exact text visible in the snapshot that explicitly names the visualization type.",
         examples=[
             "Bar chart",
             "Line chart",
@@ -553,26 +560,20 @@ class VisualizationTypeTerm(ControlledTerm):
     )
 
 
-class TemporalGranularityTerm(ControlledTerm):
+class TemporalGranularityTerm(_NormalizedTerm):
     """Represent a known or source-only temporal granularity.
 
     Parameters
     ----------
     source_text : str | None
-        Faithful source-visible expression.
+        Exact source-visible expression of the temporal granularity.
     normalized_value : TemporalGranularityValue | None
         Approved normalized temporal granularity.
-    code : str | None
-        Code in the named scheme.
-    scheme : str | None
-        Code-list or vocabulary identifier.
-    uri : AnyUrl | None
-        Authoritative URI for the represented concept.
     """
 
     source_text: NonEmptyText | None = Field(
         default=None,
-        description="Faithful source-visible expression.",
+        description="Exact text visible in the snapshot that explicitly states the temporal granularity.",
         examples=["Annual", "Monthly", "Quarterly", "Daily"],
     )
     normalized_value: TemporalGranularityValue | None = Field(
@@ -582,26 +583,20 @@ class TemporalGranularityTerm(ControlledTerm):
     )
 
 
-class GeographicLevelTerm(ControlledTerm):
+class GeographicLevelTerm(_NormalizedTerm):
     """Represent a known or source-only geographic reporting level.
 
     Parameters
     ----------
     source_text : str | None
-        Faithful source-visible expression.
+        Exact source-visible expression of the geographic level.
     normalized_value : GeographicLevelValue | None
         Approved normalized geographic level.
-    code : str | None
-        Code in the named scheme.
-    scheme : str | None
-        Code-list or vocabulary identifier.
-    uri : AnyUrl | None
-        Authoritative URI for the represented concept.
     """
 
     source_text: NonEmptyText | None = Field(
         default=None,
-        description="Faithful source-visible expression.",
+        description="Exact text visible in the snapshot that explicitly states the geographic level.",
         examples=["Country", "Province", "District", "Facility"],
     )
     normalized_value: GeographicLevelValue | None = Field(
@@ -649,7 +644,7 @@ class Attribution(EntityReference):
         Source-visible credited-agent name.
     identifiers : list[Identifier] | None
         Assigned identifiers for the agent.
-    role : ControlledTerm
+    role : CodedTerm
         Open, source-grounded attribution role.
     """
 
@@ -657,7 +652,7 @@ class Attribution(EntityReference):
         description="Source-visible entity name.",
         examples=["Map Design Unit", "National Statistics Office"],
     )
-    role: ControlledTerm = Field(
+    role: CodedTerm = Field(
         examples=[{"source_text": "Map maker"}, {"source_text": "Producer"}],
         description="Explicit source-grounded agent role.",
     )
@@ -678,7 +673,7 @@ class Unit(_SchemaModel):
 
     source_text: NonEmptyText = Field(
         examples=["Percent", "USD", "People", "Kilometers"],
-        description="Displayed unit expression.",
+        description="Exact text or symbol visible in the snapshot that explicitly expresses the unit.",
     )
     code: (
         Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z0-9]{1,3}$")]
@@ -718,7 +713,8 @@ class Currency(_SchemaModel):
     """
 
     source_text: NonEmptyText = Field(
-        examples=["USD", "EUR", "JPY"], description="Displayed currency expression."
+        examples=["USD", "EUR", "JPY"],
+        description="Exact text or symbol visible in the snapshot that explicitly expresses the currency.",
     )
     code: (
         Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z]{3}$")] | None
@@ -748,7 +744,7 @@ class Language(_SchemaModel):
     source_text: NonEmptyText | None = Field(
         examples=["English", "French", "Arabic"],
         default=None,
-        description="Displayed language label, when present.",
+        description="Exact text visible in the snapshot that explicitly names the language. Omit it when the language is inferred from the snapshot content.",
     )
     tag: (
         Annotated[
@@ -991,7 +987,7 @@ class CategoryGroup(_SchemaModel):
     ----------
     name : str
         Explicit group heading.
-    categories : list[ControlledTerm]
+    categories : list[CodedTerm]
         Categories directly contained by the group.
     """
 
@@ -999,7 +995,7 @@ class CategoryGroup(_SchemaModel):
         examples=["Violation of the right to liberty"],
         description="Explicit category-group heading.",
     )
-    categories: list[ControlledTerm] = Field(
+    categories: list[CodedTerm] = Field(
         examples=[
             [
                 {"source_text": "Arbitrary arrests"},
@@ -1018,7 +1014,7 @@ class Dimension(_SchemaModel):
     ----------
     name : str
         Dimension name.
-    categories : list[ControlledTerm] | None
+    categories : list[CodedTerm] | None
         Ordered ungrouped categories.
     category_groups : list[CategoryGroup] | None
         One level of explicit category groups.
@@ -1030,7 +1026,7 @@ class Dimension(_SchemaModel):
         examples=["Country", "Year", "Education Level", "Industry Sector", "Scenario"],
         description="The conceptual variable or dimension used to organize, group, classify, or compare the represented values.",
     )
-    categories: list[ControlledTerm] | None = Field(
+    categories: list[CodedTerm] | None = Field(
         examples=[
             [{"source_text": "Male"}, {"source_text": "Female"}],
             [
@@ -1088,8 +1084,8 @@ class TemporalExpression(_SchemaModel):
 
     Parameters
     ----------
-    source_text : str
-        Complete source expression.
+    source_text : str | None
+        Complete time expression explicitly visible in the snapshot.
     start : str | None
         Normalized starting value.
     end : str | None
@@ -1102,9 +1098,10 @@ class TemporalExpression(_SchemaModel):
 
     model_config = ConfigDict(json_schema_extra=_temporal_schema)
 
-    source_text: NonEmptyText = Field(
+    source_text: NonEmptyText | None = Field(
         examples=["2015–2020", "FY2023", "January 2024"],
-        description="Complete source time expression.",
+        default=None,
+        description="Exact complete time expression visible in the snapshot. Omit it when normalized bounds are inferred from separate labels or structure rather than transcribed as one expression.",
     )
     start: NonEmptyText | None = Field(
         examples=["2015", "2024-01", "2024-01-01T12:00:00.1Z"],
@@ -1128,6 +1125,8 @@ class TemporalExpression(_SchemaModel):
     @model_validator(mode="after")
     def _validate_bounds(self) -> TemporalExpression:
         bounds = [bound for bound in (self.start, self.end) if bound is not None]
+        if self.source_text is None and not bounds:
+            raise ValueError("A temporal expression requires source text or a bound.")
         if not bounds:
             if self.relation is not None or self.precision is not None:
                 raise ValueError("Temporal relation and precision require a bound.")
@@ -1258,7 +1257,7 @@ class Place(_SchemaModel):
     source_text: NonEmptyText | None = Field(
         examples=["Global", "Kenya", "Sub-Saharan Africa", "Latin America"],
         default=None,
-        description="Displayed place expression.",
+        description="Exact text visible in the snapshot that explicitly expresses the place. Omit it when the normalized place is inferred from structure or context.",
     )
     name: NonEmptyText | None = Field(
         examples=["Kenya", "Sub-Saharan Africa", "Philippines"],
@@ -1331,23 +1330,23 @@ class GeographicLocation(Place):
         UN M49 statistical-area code.
     identifiers : list[Identifier] | None
         Other authoritative identifiers.
-    role : ControlledTerm | None
+    role : str | None
         Explicit source-grounded geographic role.
-    type : ControlledTerm | None
+    type : CodedTerm | None
         Physical or administrative location type.
     """
 
-    role: ControlledTerm | None = Field(
+    role: NonEmptyText | None = Field(
         examples=[
-            {"source_text": "Country of origin"},
-            {"source_text": "Host country"},
-            {"source_text": "Destination"},
-            {"source_text": "Reporting location"},
+            "Country of origin",
+            "Host country",
+            "Destination",
+            "Reporting location",
         ],
         default=None,
         description="The semantic role played by geographic entities within the represented data.",
     )
-    type: ControlledTerm | None = Field(
+    type: CodedTerm | None = Field(
         examples=[
             {"source_text": "Refugee camp"},
             {"source_text": "Hospital"},
@@ -1527,11 +1526,11 @@ class Financing(_SchemaModel):
 
     Parameters
     ----------
-    measures : list[ControlledTerm] | None
+    measures : list[str] | None
         Financial quantities or funding-related measures.
     funders : list[EntityReference] | None
         Named funding sources.
-    instruments : list[ControlledTerm] | None
+    instruments : list[CodedTerm] | None
         Financing mechanisms.
     """
 
@@ -1539,12 +1538,12 @@ class Financing(_SchemaModel):
         json_schema_extra=_content_schema("measures", "funders", "instruments")
     )
 
-    measures: list[ControlledTerm] | None = Field(
+    measures: list[NonEmptyText] | None = Field(
         examples=[
-            [{"source_text": "Project Cost"}],
-            [{"source_text": "Disbursement"}],
-            [{"source_text": "Financing Gap"}],
-            [{"source_text": "Budget Allocation"}],
+            ["Project Cost"],
+            ["Disbursement"],
+            ["Financing Gap"],
+            ["Budget Allocation"],
         ],
         default=None,
         min_length=1,
@@ -1562,7 +1561,7 @@ class Financing(_SchemaModel):
         description="The organization or funding source providing financial support.",
         json_schema_extra=_standards(("https://schema.org/funder", "exact")),
     )
-    instruments: list[ControlledTerm] | None = Field(
+    instruments: list[CodedTerm] | None = Field(
         examples=[
             [{"source_text": "Grant"}],
             [{"source_text": "Loan"}],
@@ -1596,7 +1595,7 @@ class DataSnapshotMetadata(_SchemaModel):
         Primary title, caption, or heading.
     document_label : str | None
         Label assigned within the parent source document.
-    subject_domains : list[ControlledTerm] | None
+    subject_domains : list[str] | None
         Broad thematic, policy, or sectoral domains.
     subject_summary : str | None
         Concise analytical summary.
@@ -1606,7 +1605,7 @@ class DataSnapshotMetadata(_SchemaModel):
         Measured concepts and their qualifiers.
     dimensions : list[Dimension] | None
         Classificatory dimensions and visible organization.
-    population_group : ControlledTerm | None
+    population_group : str | None
         Human population represented by the data.
     visualization_types : list[VisualizationTypeTerm] | None
         Visible visualization forms.
@@ -1624,22 +1623,22 @@ class DataSnapshotMetadata(_SchemaModel):
         Complete source-visible interpretive statements.
     project : Project | None
         Associated project or operational context.
-    intervention_types : list[ControlledTerm] | None
+    intervention_types : list[str] | None
         Represented interventions or activities.
     financing : Financing | None
         Project-financing context.
-    analysis_methods : list[ControlledTerm] | None
+    analysis_methods : list[str] | None
         Explicit analytical methods.
-    data_collection_methods : list[ControlledTerm] | None
+    data_collection_methods : list[CodedTerm] | None
         Explicit data-collection methods.
     """
 
     model_config = ConfigDict(
         extra="forbid",
-        title="Data Snapshot Metadata Schema v1.2",
+        title="Data Snapshot Metadata Schema v1.3",
         json_schema_extra={
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "x-schema-version": "1.2",
+            "x-schema-version": "1.3",
             "x-status": "implementation",
             "x-validation-rules": [
                 "Python is the canonical validator. JSON Schema enforces exported structural rules; format assertions require a format-aware validator.",
@@ -1677,13 +1676,13 @@ class DataSnapshotMetadata(_SchemaModel):
             ("https://schema.org/identifier", "standard_broader"),
         ),
     )
-    subject_domains: list[ControlledTerm] | None = Field(
+    subject_domains: list[NonEmptyText] | None = Field(
         examples=[
-            [{"source_text": "Education"}],
-            [{"source_text": "Health"}],
-            [{"source_text": "Macroeconomics"}],
-            [{"source_text": "Agriculture"}],
-            [{"source_text": "Forced Displacement"}],
+            ["Education"],
+            ["Health"],
+            ["Macroeconomics"],
+            ["Agriculture"],
+            ["Forced Displacement"],
         ],
         default=None,
         min_length=1,
@@ -1756,13 +1755,13 @@ class DataSnapshotMetadata(_SchemaModel):
             ("https://ddialliance.org/Specification/DDI-Lifecycle/3.3/", "close"),
         ),
     )
-    population_group: ControlledTerm | None = Field(
+    population_group: NonEmptyText | None = Field(
         examples=[
-            {"source_text": "Refugees"},
-            {"source_text": "Children under five"},
-            {"source_text": "Female respondents"},
-            {"source_text": "Host communities"},
-            {"source_text": "Technical education graduates"},
+            "Refugees",
+            "Children under five",
+            "Female respondents",
+            "Host communities",
+            "Technical education graduates",
         ],
         default=None,
         description="The human population, beneficiary group, or demographic group that is the primary subject of the represented data. This field describes who the data are about, not how they are categorized or disaggregated.",
@@ -1907,11 +1906,11 @@ class DataSnapshotMetadata(_SchemaModel):
             ),
         ),
     )
-    intervention_types: list[ControlledTerm] | None = Field(
+    intervention_types: list[NonEmptyText] | None = Field(
         examples=[
-            [{"source_text": "Cash Transfer"}],
-            [{"source_text": "Vaccination"}],
-            [{"source_text": "School Construction"}],
+            ["Cash Transfer"],
+            ["Vaccination"],
+            ["School Construction"],
         ],
         default=None,
         min_length=1,
@@ -1919,10 +1918,10 @@ class DataSnapshotMetadata(_SchemaModel):
     )
     financing: Financing | None = Field(
         examples=[
-            {"measures": [{"source_text": "Project Cost"}]},
-            {"measures": [{"source_text": "Disbursement"}]},
-            {"measures": [{"source_text": "Financing Gap"}]},
-            {"measures": [{"source_text": "Budget Allocation"}]},
+            {"measures": ["Project Cost"]},
+            {"measures": ["Disbursement"]},
+            {"measures": ["Financing Gap"]},
+            {"measures": ["Budget Allocation"]},
             {"funders": [{"name": "IDA"}]},
             {"funders": [{"name": "IBRD"}]},
             {"funders": [{"name": "Government"}]},
@@ -1935,12 +1934,12 @@ class DataSnapshotMetadata(_SchemaModel):
         default=None,
         description="Project-financing measures, funders, and instruments.",
     )
-    analysis_methods: list[ControlledTerm] | None = Field(
+    analysis_methods: list[NonEmptyText] | None = Field(
         examples=[
-            [{"source_text": "Difference-in-Differences"}],
-            [{"source_text": "Regression"}],
-            [{"source_text": "Tobit model"}],
-            [{"source_text": "Cost-Benefit Analysis"}],
+            ["Difference-in-Differences"],
+            ["Regression"],
+            ["Tobit model"],
+            ["Cost-Benefit Analysis"],
         ],
         default=None,
         min_length=1,
@@ -1950,7 +1949,7 @@ class DataSnapshotMetadata(_SchemaModel):
             ("http://www.w3.org/ns/prov#Activity", "related_structural"),
         ),
     )
-    data_collection_methods: list[ControlledTerm] | None = Field(
+    data_collection_methods: list[CodedTerm] | None = Field(
         examples=[
             [{"source_text": "Household Survey"}],
             [{"source_text": "Administrative Records"}],

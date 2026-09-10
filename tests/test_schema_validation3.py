@@ -9,14 +9,16 @@ from types import SimpleNamespace
 import pytest
 
 from data_snapshot.constants import ROOT
-from data_snapshot.metadata_schema.generation import serialize_metadata_schema
 from data_snapshot.schema_validation2.validation import CandidateGap as CandidateGapV2
 from data_snapshot.schema_validation3 import (
     CandidateGap,
     SchemaValidationResult,
     run_validation,
 )
-from data_snapshot.schema_validation3.validation import _schema_context
+from data_snapshot.schema_validation3.validation import (
+    _frozen_schema_json,
+    _schema_context,
+)
 
 
 class FakeResponses:
@@ -125,8 +127,8 @@ def _run(
     )
 
 
-def test_validation3_uses_generated_schema_and_parent_context(tmp_path: Path) -> None:
-    """Requests contain canonical v1.2 JSON and parent-document context."""
+def test_validation3_uses_frozen_schema_and_parent_context(tmp_path: Path) -> None:
+    """Requests contain frozen v1.2 JSON and parent-document context."""
     paths = _write_inputs(tmp_path)
     responses = FakeResponses([_no_gap_response()])
 
@@ -262,8 +264,8 @@ def test_validation3_rejects_invalid_or_existing_field_proposals(
 
 
 def test_provenance_ablation_is_local_and_removes_target_paths() -> None:
-    """The sensitivity control cannot mutate the cached canonical schema."""
-    canonical_before = serialize_metadata_schema()
+    """The sensitivity control cannot mutate the cached frozen schema."""
+    canonical_before = _frozen_schema_json()
     schema_json, paths = _schema_context(("provenance", "interpretive_notes"))
     schema = json.loads(schema_json)
 
@@ -274,7 +276,7 @@ def test_provenance_ablation_is_local_and_removes_target_paths() -> None:
     assert "`provenance`" not in schema_json
     assert not any(path.startswith("provenance") for path in paths)
     assert "temporal_coverage.period" in paths
-    assert serialize_metadata_schema() == canonical_before
+    assert _frozen_schema_json() == canonical_before
 
 
 def test_schema_context_contains_expected_nested_paths() -> None:

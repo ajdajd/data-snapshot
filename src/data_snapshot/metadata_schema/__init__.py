@@ -1,4 +1,4 @@
-"""Expose the canonical Data Snapshot Metadata Schema v1.2 API."""
+"""Expose the canonical Data Snapshot Metadata Schema v1.3 API."""
 
 from data_snapshot.metadata_schema.models import (
     AnalyticalRole,
@@ -7,7 +7,7 @@ from data_snapshot.metadata_schema.models import (
     AxisDimension,
     AxisPosition,
     CategoryGroup,
-    ControlledTerm,
+    CodedTerm,
     Currency,
     DataSnapshotMetadata,
     Dimension,
@@ -44,7 +44,7 @@ __all__ = [
     "AxisDimension",
     "AxisPosition",
     "CategoryGroup",
-    "ControlledTerm",
+    "CodedTerm",
     "Currency",
     "DataSnapshotMetadata",
     "Dimension",

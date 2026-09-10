@@ -1,4 +1,4 @@
-# Data Snapshot Metadata Schema v1.2
+# Data Snapshot Metadata Schema v1.3
 
 Pydantic models for the semantic metadata of a data snapshot: a table, chart,
 map, dashboard, or composite figure extracted from a document.
@@ -72,11 +72,11 @@ Provenance separates derivation sources from credited agents. Panel titles
 remain an ordered flat collection, with visualization types at snapshot level.
 
 Parent-document metadata is managed separately; `source_document_title` is not
-a v1.2 field. The models represent metadata, not extracted numerical observations.
+a v1.3 field. The models represent metadata, not extracted numerical observations.
 
 ## Developer notes
 
-- `visualization_types`: v1.2 does not separately encode component-to-type
+- `visualization_types`: v1.3 does not separately encode component-to-type
   relationships or panel count.
 
 ## Validating input
@@ -113,20 +113,35 @@ Validation applies when constructing or parsing records. Revalidate modified
 data before treating it as canonical; assignment and in-place collection edits
 do not automatically rerun all validators.
 
-## Controlled terms and source text
+## Semantic text, coded terms, and normalized terms
 
-Use `ControlledTerm` for open concepts. Specialized term models constrain
-`normalized_value` to their approved enums while accepting unfamiliar wording
-in `source_text`.
+Fields without an approved normalization vocabulary store their semantic values
+directly as strings. This includes subject domains, population groups,
+intervention types, financing measures, analysis methods, and geographic roles.
+
+Use `CodedTerm` when a value can carry an exact external code or authoritative
+URI. Its `source_text` is the exact text or symbol visible in the snapshot that
+explicitly expresses the represented value. Omit `source_text` when the value is
+inferred from visual form, structure, or context rather than transcribed. A
+`code` and `scheme` must be supplied together.
+
+The four specialized normalized-term models constrain `normalized_value` to an
+approved enum: `StatisticalFormTerm`, `VisualizationTypeTerm`,
+`TemporalGranularityTerm`, and `GeographicLevelTerm`. They accept either an
+explicit source label, a normalized value inferred from the snapshot, or both.
 
 ```python
 from data_snapshot.metadata_schema import (
-    ControlledTerm,
+    CodedTerm,
     StatisticalFormTerm,
     StatisticalFormValue,
 )
 
-domain = ControlledTerm(source_text="Public health")
+coded_instrument = CodedTerm(
+    source_text="Grant",
+    code="110",
+    scheme="IATI Finance Type",
+)
 known_form = StatisticalFormTerm(
     source_text="Mean",
     normalized_value=StatisticalFormValue.ARITHMETIC_MEAN,
@@ -134,9 +149,8 @@ known_form = StatisticalFormTerm(
 unfamiliar_form = StatisticalFormTerm(source_text="Winsorized mean")
 ```
 
-A general-purpose controlled-term `code` requires a `scheme`. Source-only terms
-need no external mapping. Preserve displayed wording when adding normalized
-values; the models do not infer those mappings.
+Preserve displayed wording when adding normalized values. Pydantic validates the
+structure and vocabulary membership; it does not infer mappings.
 
 ## Serializing records
 
@@ -186,8 +200,8 @@ uv run --locked python -m data_snapshot.metadata_schema.generation
 
 This overwrites the generated files:
 
-- [JSON Schema](../../../docs/schema_v1.2/data_snapshot_metadata_schema_v1.2.schema.json)
-- [Field reference](../../../docs/schema_v1.2/schema_reference_v1.2.md)
+- [JSON Schema](../../../docs/schema_v1.3/data_snapshot_metadata_schema_v1.3.schema.json)
+- [Field reference](../../../docs/schema_v1.3/schema_reference_v1.3.md)
 
 Check whether they match the models without writing files, in a **WSL terminal
 or PowerShell**:
@@ -202,7 +216,8 @@ output paths. Import these helpers from `data_snapshot.metadata_schema.generatio
 
 ## Further reading
 
-- [Field reference](../../../docs/schema_v1.2/schema_reference_v1.2.md): generated types, constraints, enums, and mappings.
-- [Concept design](../../../docs/schema_v1.2/2.0-concept_design.md): the approved concepts and their relationships.
-- [Normalization profile](../../../docs/schema_v1.2/3.0-normalization.md): source preservation and normalized-value policy.
-- [Standards crosswalk](../../../docs/schema_v1.2/1.0-standards_crosswalk.md): semantic alignment with external standards.
+- [Field reference](../../../docs/schema_v1.3/schema_reference_v1.3.md): generated types, constraints, enums, and mappings.
+- [Schema v1.3 change report](../../../notebooks/metadata_extraction/0.0-schema_v1.3_change_report.md): decisions and expected extraction effects.
+- [Schema v1.2 concept design](../../../docs/schema_v1.2/2.0-concept_design.md): the baseline concepts and their relationships.
+- [Schema v1.2 normalization profile](../../../docs/schema_v1.2/3.0-normalization.md): the baseline normalization policy.
+- [Schema v1.2 standards crosswalk](../../../docs/schema_v1.2/1.0-standards_crosswalk.md): the baseline semantic alignment with external standards.

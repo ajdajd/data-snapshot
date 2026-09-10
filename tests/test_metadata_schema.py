@@ -1,4 +1,4 @@
-"""Tests for Data Snapshot Metadata Schema v1.2."""
+"""Tests for Data Snapshot Metadata Schema v1.3."""
 
 from __future__ import annotations
 
@@ -14,17 +14,20 @@ import data_snapshot.metadata_schema.generation as schema_generation
 import data_snapshot.metadata_schema as metadata_models
 from data_snapshot.metadata_schema import (
     AxisAssignment,
-    ControlledTerm,
+    CodedTerm,
     Currency,
     DataSnapshotMetadata,
     Dimension,
+    GeographicLevelTerm,
     Language,
     Identifier,
     Place,
     StatisticalFormTerm,
     TemporalExpression,
+    TemporalGranularityTerm,
     Unit,
     Variable,
+    VisualizationTypeTerm,
 )
 from data_snapshot.metadata_schema.generation import (
     render_json_schema,
@@ -137,7 +140,7 @@ def test_uncontested_descriptions_match_v111_verbatim() -> None:
 
 
 def test_uncontested_examples_preserve_all_v111_text_in_order() -> None:
-    """Compare every original example at its v1.2 destination without sampling."""
+    """Compare every original example at its v1.3 destination without sampling."""
     # Grouped labels and provenance use the approved structural adaptations below.
     destinations = {
         "title": ("DataSnapshotMetadata", "title", ()),
@@ -145,7 +148,7 @@ def test_uncontested_examples_preserve_all_v111_text_in_order() -> None:
         "subject_domain": (
             "DataSnapshotMetadata",
             "subject_domains",
-            (0, "source_text"),
+            (0,),
         ),
         "subject_summary": ("DataSnapshotMetadata", "subject_summary", ()),
         "panel_title": ("DataSnapshotMetadata", "panel_titles", (0,)),
@@ -154,14 +157,14 @@ def test_uncontested_examples_preserve_all_v111_text_in_order() -> None:
         "population_group": (
             "DataSnapshotMetadata",
             "population_group",
-            ("source_text",),
+            (),
         ),
         "time_period": ("TemporalCoverage", "period", ("source_text",)),
         "temporal_granularity": ("TemporalCoverage", "granularity", ("source_text",)),
         "geographic_scope": ("GeographicCoverage", "scope", ("source_text",)),
         "geographic_entities": ("GeographicCoverage", "locations", (0, "name")),
         "geographic_granularity": ("GeographicCoverage", "level", ("source_text",)),
-        "geographic_role": ("GeographicLocation", "role", ("source_text",)),
+        "geographic_role": ("GeographicLocation", "role", ()),
         "location_type": ("GeographicLocation", "type", ("source_text",)),
         "unit_of_measure": ("Variable", "unit", ("source_text",)),
         "currency": ("Variable", "currency", ("source_text",)),
@@ -180,15 +183,15 @@ def test_uncontested_examples_preserve_all_v111_text_in_order() -> None:
         "intervention_type": (
             "DataSnapshotMetadata",
             "intervention_types",
-            (0, "source_text"),
+            (0,),
         ),
-        "financial_measure": ("Financing", "measures", (0, "source_text")),
+        "financial_measure": ("Financing", "measures", (0,)),
         "financing_source": ("Financing", "funders", (0, "name")),
         "financing_instrument": ("Financing", "instruments", (0, "source_text")),
         "analysis_method": (
             "DataSnapshotMetadata",
             "analysis_methods",
-            (0, "source_text"),
+            (0,),
         ),
         "data_collection_method": (
             "DataSnapshotMetadata",
@@ -237,12 +240,7 @@ def test_representative_record_preserves_nested_relationships() -> None:
         {
             "title": "Total project financing",
             "document_label": "Table 3",
-            "subject_domains": [
-                {
-                    "source_text": "Health",
-                    "normalized_value": "health",
-                }
-            ],
+            "subject_domains": ["Health"],
             "panel_titles": ["Credit", "Grant"],
             "variables": [
                 {
@@ -257,8 +255,6 @@ def test_representative_record_preserves_nested_relationships() -> None:
                         {
                             "source_text": "Total",
                             "normalized_value": "sum",
-                            "code": "SUM",
-                            "scheme": "SDMX CL_STATISTICAL_OPERATION 1.0",
                         }
                     ],
                 }
@@ -278,7 +274,7 @@ def test_representative_record_preserves_nested_relationships() -> None:
                     ],
                 }
             ],
-            "population_group": {"source_text": "Beneficiaries"},
+            "population_group": "Beneficiaries",
             "visualization_types": [{"normalized_value": "table"}],
             "temporal_coverage": {
                 "period": {
@@ -291,8 +287,6 @@ def test_representative_record_preserves_nested_relationships() -> None:
                 "granularity": {
                     "source_text": "Annual",
                     "normalized_value": "annual",
-                    "code": "A",
-                    "scheme": "SDMX CL_FREQ 2.1",
                 },
             },
             "geographic_coverage": {
@@ -322,16 +316,16 @@ def test_representative_record_preserves_nested_relationships() -> None:
                 ],
                 "components": [{"name": "Crisis Response Window"}],
             },
-            "intervention_types": [{"source_text": "Emergency response"}],
+            "intervention_types": ["Emergency response"],
             "financing": {
-                "measures": [{"source_text": "Financing gap"}],
+                "measures": ["Financing gap"],
                 "funders": [{"name": "International Development Association"}],
                 "instruments": [
                     {"source_text": "Grant"},
                     {"source_text": "Credit"},
                 ],
             },
-            "analysis_methods": [{"source_text": "Authors' calculation"}],
+            "analysis_methods": ["Authors' calculation"],
             "data_collection_methods": [{"source_text": "Administrative records"}],
         }
     )
@@ -355,6 +349,40 @@ def test_open_terms_do_not_weaken_normalized_vocabularies() -> None:
         )
     with pytest.raises(ValidationError, match="Input should be"):
         Variable(name="GDP", analytical_roles=["response-ish"])
+
+
+def test_plain_semantic_fields_accept_inferred_values_directly() -> None:
+    """Store semantic values directly when no normalization vocabulary exists."""
+    record = DataSnapshotMetadata.model_validate(
+        {
+            "subject_domains": ["Agriculture"],
+            "population_group": "K-12 students",
+            "intervention_types": ["School construction"],
+            "financing": {"measures": ["Liquidated budget"]},
+            "analysis_methods": ["Regression"],
+            "geographic_coverage": {
+                "locations": [{"name": "Kenya", "role": "Country of implementation"}]
+            },
+        }
+    )
+
+    assert record.subject_domains == ["Agriculture"]
+    assert record.geographic_coverage.locations[0].role == "Country of implementation"
+    with pytest.raises(ValidationError):
+        DataSnapshotMetadata(subject_domains=[{"source_text": "Agriculture"}])
+
+
+def test_normalized_terms_expose_only_source_and_closed_value() -> None:
+    """Keep normalized vocabularies narrow and reject generic coding properties."""
+    for model in [
+        StatisticalFormTerm,
+        VisualizationTypeTerm,
+        TemporalGranularityTerm,
+        GeographicLevelTerm,
+    ]:
+        assert set(model.model_fields) == {"source_text", "normalized_value"}
+        with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+            model.model_validate({"source_text": "Visible label", "code": "X"})
 
 
 def test_variables_support_distinct_axes_on_any_plot_side() -> None:
@@ -400,8 +428,8 @@ def test_standard_formats_and_cross_field_constraints_are_enforced() -> None:
         Place(name="Africa", m49_code="00X")
     with pytest.raises(ValidationError, match="canonical BCP 47 casing"):
         Language(tag="EN-us")
-    with pytest.raises(ValidationError, match="requires a scheme"):
-        ControlledTerm(source_text="Mean", code="MEAN")
+    with pytest.raises(ValidationError, match="supplied together"):
+        CodedTerm(source_text="Mean", code="MEAN")
     with pytest.raises(ValidationError, match="interval requires start and end"):
         TemporalExpression(
             source_text="Since 2020",
@@ -479,7 +507,7 @@ def test_cardinality_nonrecursive_groups_and_deduplication() -> None:
                     {
                         "name": "South Sudan",
                         "country_code": "SS",
-                        "role": {"source_text": "Country of origin"},
+                        "role": "Country of origin",
                     }
                 ],
             }
@@ -499,7 +527,7 @@ def test_generation_is_deterministic_and_matches_written_files(tmp_path: Path) -
     assert first_markdown == render_markdown_reference()
     schema = json.loads(first_json)
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
-    assert schema["x-schema-version"] == "1.2"
+    assert schema["x-schema-version"] == "1.3"
     assert len(schema["properties"]) == 20
     assert schema["properties"]["title"]["x-standards"]
     assert "source_document_title" not in first_json
@@ -528,7 +556,7 @@ def test_serialized_schema_is_cached_for_repeated_use() -> None:
     assert serialize_metadata_schema.cache_info().hits == 1
     assert schema_generation._metadata_schema.cache_info().misses == 1
     assert schema_generation._metadata_schema.cache_info().hits == 2
-    assert json.loads(first)["x-schema-version"] == "1.2"
+    assert json.loads(first)["x-schema-version"] == "1.3"
 
 
 @pytest.mark.parametrize(
@@ -602,7 +630,7 @@ def test_invalid_uri_spelling_is_rejected_before_normalization(uri: str) -> None
         Invalid URI spelling that must not be silently repaired.
     """
     for model, data in [
-        (ControlledTerm, {"uri": uri}),
+        (CodedTerm, {"uri": uri}),
         (Identifier, {"value": "id", "uri": uri}),
     ]:
         with pytest.raises(ValidationError):
@@ -626,7 +654,7 @@ def test_valid_absolute_uris_remain_usable(uri: str) -> None:
     uri : str
         Valid absolute URI.
     """
-    assert str(ControlledTerm(uri=uri).uri) == uri
+    assert str(CodedTerm(uri=uri).uri) == uri
 
 
 @pytest.mark.parametrize("fraction", [".1", ".12", ".123", ".1234", ".1234567", ",123"])
@@ -670,10 +698,20 @@ def test_fractional_interval_ordering_is_exact_across_offsets() -> None:
         ({"project": {}}, False),
         ({"project": {"name": None}}, False),
         ({"project": {"name": "Project"}}, True),
-        ({"subject_domains": [{"code": "X"}]}, False),
-        ({"subject_domains": [{"code": "X", "scheme": None}]}, False),
-        ({"subject_domains": [{"code": "X", "scheme": "local"}]}, True),
-        ({"subject_domains": [{"source_text": "Domain", "code": None}]}, True),
+        ({"financing": {"instruments": [{"code": "X"}]}}, False),
+        (
+            {"financing": {"instruments": [{"code": "X", "scheme": None}]}},
+            False,
+        ),
+        ({"financing": {"instruments": [{"scheme": "local"}]}}, False),
+        (
+            {"financing": {"instruments": [{"code": "X", "scheme": "local"}]}},
+            True,
+        ),
+        (
+            {"financing": {"instruments": [{"source_text": "Grant"}]}},
+            True,
+        ),
         ({"geographic_coverage": {"scope": {"country_code": "PH"}}}, False),
         ({"languages": [{"source_text": None, "tag": None}]}, False),
         ({"languages": [{"tag": "en-a"}]}, False),
@@ -707,6 +745,20 @@ def test_exported_structural_constraints_match_python(
 def test_exported_temporal_constraints_match_python() -> None:
     """Exercise null, omission, relation, and precision combinations independently."""
     validator = Draft202012Validator(TemporalExpression.model_json_schema())
+    assert not validator.is_valid({})
+    with pytest.raises(ValidationError, match="source text or a bound"):
+        TemporalExpression()
+    normalized_only = {
+        "start": "2015",
+        "end": "2020",
+        "relation": "interval",
+        "precision": "year",
+    }
+    assert TemporalExpression.model_validate(normalized_only).source_text is None
+    assert validator.is_valid(normalized_only)
+    with pytest.raises(ValidationError, match="requires source text or a bound"):
+        TemporalExpression()
+    assert not validator.is_valid({})
     for relation in [None, "point", "as_of", "interval", "open_interval"]:
         for precision in [None, "year", "day"]:
             for start in [None, "2020"]:
@@ -737,7 +789,7 @@ def test_reference_explains_constraints_and_mapping_locations() -> None:
     reference = render_markdown_reference()
     for text in [
         "minItems: 1",
-        "code requires a non-null scheme",
+        "Code and scheme must be non-null together",
         "exclude_none=True",
         "calendar dates",
         "not pinned; syntax only",
