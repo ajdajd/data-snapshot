@@ -16,6 +16,12 @@ Schema version: `1.3`
 
 ## Snapshot fields
 
+Fields are grouped by the v1.3 semantic modules.
+
+Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
+
+### Identity and discovery
+
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
 | `title` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [http://purl.org/dc/terms/title](http://purl.org/dc/terms/title) (exact), [https://schema.org/name](https://schema.org/name) (exact) |
@@ -23,27 +29,10 @@ Schema version: `1.3`
 | `subject_domains` | `array[string] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/subject](http://purl.org/dc/terms/subject) (standard_broader), [https://schema.org/about](https://schema.org/about) (standard_broader) |
 | `subject_summary` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [https://schema.org/abstract](https://schema.org/abstract) (close), [http://purl.org/dc/terms/description](http://purl.org/dc/terms/description) (standard_broader) |
 | `panel_titles` | `array[string] \| null` | no | `null` | minItems: 1 | [https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/fig-group.html](https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/fig-group.html) (close), [https://schema.org/hasPart](https://schema.org/hasPart) (related_structural) |
-| `variables` | `array[Variable] \| null` | no | `null` | minItems: 1 | [https://schema.org/variableMeasured](https://schema.org/variableMeasured) (close), [https://ddialliance.org/Specification/DDI-Lifecycle/3.3/](https://ddialliance.org/Specification/DDI-Lifecycle/3.3/) (close) |
-| `dimensions` | `array[Dimension] \| null` | no | `null` | minItems: 1 | [https://sdmx.org/](https://sdmx.org/) (close), [https://ddialliance.org/Specification/DDI-Lifecycle/3.3/](https://ddialliance.org/Specification/DDI-Lifecycle/3.3/) (close) |
-| `population_group` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html](https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html) (close), [https://schema.org/populationType](https://schema.org/populationType) (close) |
-| `visualization_types` | `array[VisualizationTypeTerm] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/type](http://purl.org/dc/terms/type) (standard_broader), [https://schema.org/additionalType](https://schema.org/additionalType) (standard_broader) |
-| `temporal_coverage` | `TemporalCoverage \| null` | no | `null` |  | [https://schema.org/temporalCoverage](https://schema.org/temporalCoverage) (exact), [http://purl.org/dc/terms/temporal](http://purl.org/dc/terms/temporal) (close) |
-| `geographic_coverage` | `GeographicCoverage \| null` | no | `null` |  | [https://schema.org/spatialCoverage](https://schema.org/spatialCoverage) (exact), [http://purl.org/dc/terms/spatial](http://purl.org/dc/terms/spatial) (exact) |
-| `comparisons` | `array[string] \| null` | no | `null` | minItems: 1 |  |
-| `provenance` | `Provenance \| null` | no | `null` |  |  |
-| `languages` | `array[Language] \| null` | no | `null` | minItems: 1 | [https://schema.org/inLanguage](https://schema.org/inLanguage) (exact), [http://purl.org/dc/terms/language](http://purl.org/dc/terms/language) (exact) |
-| `interpretive_notes` | `array[string] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/description](http://purl.org/dc/terms/description) (standard_broader), [https://schema.org/description](https://schema.org/description) (standard_broader) |
-| `project` | `Project \| null` | no | `null` |  | [https://schema.org/Project](https://schema.org/Project) (standard_narrower), [https://iatistandard.org/en/iati-standard/203/activity-standard/](https://iatistandard.org/en/iati-standard/203/activity-standard/) (close) |
-| `intervention_types` | `array[string] \| null` | no | `null` | minItems: 1 |  |
-| `financing` | `Financing \| null` | no | `null` |  |  |
-| `analysis_methods` | `array[string] \| null` | no | `null` | minItems: 1 | [https://schema.org/measurementTechnique](https://schema.org/measurementTechnique) (related_structural), [http://www.w3.org/ns/prov#Activity](http://www.w3.org/ns/prov#Activity) (related_structural) |
-| `data_collection_methods` | `array[CodedTerm] \| null` | no | `null` | minItems: 1 | [https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/](https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/) (exact), [https://schema.org/measurementMethod](https://schema.org/measurementMethod) (close) |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `title`
+##### `title`
 
 **Definition**
 
@@ -68,7 +57,7 @@ The primary title, caption, or heading that identifies the data snapshot.
 ```
 
 
-#### `document_label`
+##### `document_label`
 
 **Definition**
 
@@ -93,7 +82,7 @@ A document-assigned identifier used to reference the snapshot within the source 
 ```
 
 
-#### `subject_domains`
+##### `subject_domains`
 
 **Definition**
 
@@ -132,7 +121,7 @@ The broad thematic, policy, or sectoral domain represented by the snapshot.
 ```
 
 
-#### `subject_summary`
+##### `subject_summary`
 
 **Definition**
 
@@ -153,7 +142,7 @@ A concise summary describing the primary analytical subject or purpose of the sn
 ```
 
 
-#### `panel_titles`
+##### `panel_titles`
 
 **Definition**
 
@@ -182,7 +171,17 @@ Populate only when panel titles are explicitly present.
 ```
 
 
-#### `variables`
+### Subject and semantics
+
+| Field | Type | Required | Default | Constraints | Standards / code list |
+|---|---|---:|---|---|---|
+| `variables` | `array[Variable] \| null` | no | `null` | minItems: 1 | [https://schema.org/variableMeasured](https://schema.org/variableMeasured) (close), [https://ddialliance.org/Specification/DDI-Lifecycle/3.3/](https://ddialliance.org/Specification/DDI-Lifecycle/3.3/) (close) |
+| `dimensions` | `array[Dimension] \| null` | no | `null` | minItems: 1 | [https://sdmx.org/](https://sdmx.org/) (close), [https://ddialliance.org/Specification/DDI-Lifecycle/3.3/](https://ddialliance.org/Specification/DDI-Lifecycle/3.3/) (close) |
+| `population_group` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html](https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html) (close), [https://schema.org/populationType](https://schema.org/populationType) (close) |
+
+#### Field definitions and examples
+
+##### `variables`
 
 **Definition**
 
@@ -263,7 +262,7 @@ Populate `name` when the measured concept can be identified from the snapshot. O
 ```
 
 
-#### `dimensions`
+##### `dimensions`
 
 **Definition**
 
@@ -378,7 +377,7 @@ Classificatory dimensions and their visible organization.
 ```
 
 
-#### `population_group`
+##### `population_group`
 
 **Definition**
 
@@ -407,101 +406,15 @@ The human population, beneficiary group, or demographic group that is the primar
 ```
 
 
-#### `visualization_types`
+### Temporal context
 
-**Definition**
+| Field | Type | Required | Default | Constraints | Standards / code list |
+|---|---|---:|---|---|---|
+| `temporal_coverage` | `TemporalCoverage \| null` | no | `null` |  | [https://schema.org/temporalCoverage](https://schema.org/temporalCoverage) (exact), [http://purl.org/dc/terms/temporal](http://purl.org/dc/terms/temporal) (close) |
 
-The primary visualization used to encode the represented data.
+#### Field definitions and examples
 
-Use `normalized_value` when the visualization type is inferred from visual form. Use `source_text` only when wording in the snapshot explicitly names the visualization form; do not manufacture source wording from the visual design. Preserve an explicitly written unfamiliar type in `source_text` without a normalized value. If neither a listed normalized type nor an explicit unfamiliar source label is supported, return `null`; do not force a match to the closest vocabulary value. For a composite or multi-panel snapshot, record the overall visualization type when no single component type adequately describes the artifact. Use `panel_titles` for explicit panel headings.
-
-**Examples**
-
-```json
-[
-  {
-    "normalized_value": "bar_chart"
-  }
-]
-```
-
-```json
-[
-  {
-    "normalized_value": "bar_chart",
-    "source_text": "Bar Graph"
-  }
-]
-```
-
-```json
-[
-  {
-    "source_text": "Waffle chart"
-  }
-]
-```
-
-```json
-null
-```
-
-```json
-[
-  {
-    "normalized_value": "bar_chart",
-    "source_text": "Bar chart"
-  }
-]
-```
-
-```json
-[
-  {
-    "normalized_value": "line_chart",
-    "source_text": "Line chart"
-  }
-]
-```
-
-```json
-[
-  {
-    "normalized_value": "table",
-    "source_text": "Table"
-  }
-]
-```
-
-```json
-[
-  {
-    "normalized_value": "map",
-    "source_text": "Map"
-  }
-]
-```
-
-```json
-[
-  {
-    "normalized_value": "heatmap",
-    "source_text": "Heatmap"
-  }
-]
-```
-
-```json
-[
-  {
-    "normalized_value": "composite_figure",
-    "source_text": "Composite figure: line charts and map"
-  }
-]
-```
-
-
-#### `temporal_coverage`
+##### `temporal_coverage`
 
 **Definition**
 
@@ -577,7 +490,15 @@ When the represented data apply and their granularity.
 ```
 
 
-#### `geographic_coverage`
+### Spatial context
+
+| Field | Type | Required | Default | Constraints | Standards / code list |
+|---|---|---:|---|---|---|
+| `geographic_coverage` | `GeographicCoverage \| null` | no | `null` |  | [https://schema.org/spatialCoverage](https://schema.org/spatialCoverage) (exact), [http://purl.org/dc/terms/spatial](http://purl.org/dc/terms/spatial) (exact) |
+
+#### Field definitions and examples
+
+##### `geographic_coverage`
 
 **Definition**
 
@@ -702,7 +623,15 @@ Overall geographic scope, additional locations, and level.
 ```
 
 
-#### `comparisons`
+### Measurement context
+
+| Field | Type | Required | Default | Constraints | Standards / code list |
+|---|---|---:|---|---|---|
+| `comparisons` | `array[string] \| null` | no | `null` | minItems: 1 |  |
+
+#### Field definitions and examples
+
+##### `comparisons`
 
 **Definition**
 
@@ -761,7 +690,119 @@ Populate only when the snapshot explicitly presents a comparative relationship. 
 ```
 
 
-#### `provenance`
+### Structural organization
+
+| Field | Type | Required | Default | Constraints | Standards / code list |
+|---|---|---:|---|---|---|
+| `visualization_types` | `array[VisualizationTypeTerm] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/type](http://purl.org/dc/terms/type) (standard_broader), [https://schema.org/additionalType](https://schema.org/additionalType) (standard_broader) |
+
+#### Field definitions and examples
+
+##### `visualization_types`
+
+**Definition**
+
+The primary visualization used to encode the represented data.
+
+Use `normalized_value` when the visualization type is inferred from visual form. Use `source_text` only when wording in the snapshot explicitly names the visualization form; do not manufacture source wording from the visual design. Preserve an explicitly written unfamiliar type in `source_text` without a normalized value. If neither a listed normalized type nor an explicit unfamiliar source label is supported, return `null`; do not force a match to the closest vocabulary value. For a composite or multi-panel snapshot, record the overall visualization type when no single component type adequately describes the artifact. Use `panel_titles` for explicit panel headings.
+
+**Examples**
+
+```json
+[
+  {
+    "normalized_value": "bar_chart"
+  }
+]
+```
+
+```json
+[
+  {
+    "normalized_value": "bar_chart",
+    "source_text": "Bar Graph"
+  }
+]
+```
+
+```json
+[
+  {
+    "source_text": "Waffle chart"
+  }
+]
+```
+
+```json
+null
+```
+
+```json
+[
+  {
+    "normalized_value": "bar_chart",
+    "source_text": "Bar chart"
+  }
+]
+```
+
+```json
+[
+  {
+    "normalized_value": "line_chart",
+    "source_text": "Line chart"
+  }
+]
+```
+
+```json
+[
+  {
+    "normalized_value": "table",
+    "source_text": "Table"
+  }
+]
+```
+
+```json
+[
+  {
+    "normalized_value": "map",
+    "source_text": "Map"
+  }
+]
+```
+
+```json
+[
+  {
+    "normalized_value": "heatmap",
+    "source_text": "Heatmap"
+  }
+]
+```
+
+```json
+[
+  {
+    "normalized_value": "composite_figure",
+    "source_text": "Composite figure: line charts and map"
+  }
+]
+```
+
+
+### Provenance and attribution
+
+| Field | Type | Required | Default | Constraints | Standards / code list |
+|---|---|---:|---|---|---|
+| `provenance` | `Provenance \| null` | no | `null` |  |  |
+| `languages` | `array[Language] \| null` | no | `null` | minItems: 1 | [https://schema.org/inLanguage](https://schema.org/inLanguage) (exact), [http://purl.org/dc/terms/language](http://purl.org/dc/terms/language) (exact) |
+| `interpretive_notes` | `array[string] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/description](http://purl.org/dc/terms/description) (standard_broader), [https://schema.org/description](https://schema.org/description) (standard_broader) |
+
+#### Field definitions and examples
+
+##### `provenance`
 
 **Definition**
 
@@ -825,7 +866,7 @@ Use `sources` for represented-data derivation sources and `attributions` for cre
 ```
 
 
-#### `languages`
+##### `languages`
 
 **Definition**
 
@@ -861,7 +902,7 @@ The language used within the snapshot.
 ```
 
 
-#### `interpretive_notes`
+##### `interpretive_notes`
 
 **Definition**
 
@@ -910,7 +951,17 @@ Populate only when such notes are explicitly present.
 ```
 
 
-#### `project`
+### Project and operational context
+
+| Field | Type | Required | Default | Constraints | Standards / code list |
+|---|---|---:|---|---|---|
+| `project` | `Project \| null` | no | `null` |  | [https://schema.org/Project](https://schema.org/Project) (standard_narrower), [https://iatistandard.org/en/iati-standard/203/activity-standard/](https://iatistandard.org/en/iati-standard/203/activity-standard/) (close) |
+| `intervention_types` | `array[string] \| null` | no | `null` | minItems: 1 |  |
+| `financing` | `Financing \| null` | no | `null` |  |  |
+
+#### Field definitions and examples
+
+##### `project`
 
 **Definition**
 
@@ -937,7 +988,7 @@ Associated project, program, operation, or initiative.
 ```
 
 
-#### `intervention_types`
+##### `intervention_types`
 
 **Definition**
 
@@ -964,7 +1015,7 @@ The intervention, service, policy, or operational activity represented.
 ```
 
 
-#### `financing`
+##### `financing`
 
 **Definition**
 
@@ -1085,7 +1136,16 @@ Project-financing measures, funders, and instruments.
 ```
 
 
-#### `analysis_methods`
+### Analytical and methodological context
+
+| Field | Type | Required | Default | Constraints | Standards / code list |
+|---|---|---:|---|---|---|
+| `analysis_methods` | `array[string] \| null` | no | `null` | minItems: 1 | [https://schema.org/measurementTechnique](https://schema.org/measurementTechnique) (related_structural), [http://www.w3.org/ns/prov#Activity](http://www.w3.org/ns/prov#Activity) (related_structural) |
+| `data_collection_methods` | `array[CodedTerm] \| null` | no | `null` | minItems: 1 | [https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/](https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/) (exact), [https://schema.org/measurementMethod](https://schema.org/measurementMethod) (close) |
+
+#### Field definitions and examples
+
+##### `analysis_methods`
 
 **Definition**
 
@@ -1120,7 +1180,7 @@ Populate only when explicitly stated.
 ```
 
 
-#### `data_collection_methods`
+##### `data_collection_methods`
 
 **Definition**
 
@@ -1163,13 +1223,17 @@ Populate only when explicitly stated.
 ```
 
 
-## AnalyticalRole
+## Referenced Types
+
+Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
+
+### AnalyticalRole
 
 Identify an explicitly stated analytical or axis role.
 
 `outcome`, `predictor`, `instrumental`, `control`, `x_axis`, `y_axis`
 
-## Attribution
+### Attribution
 
 Represent a named agent and its optional explicit attribution role.
 
@@ -1179,11 +1243,9 @@ Represent a named agent and its optional explicit attribution role.
 | `identifiers` | `array[Identifier] \| null` | no | `null` | minItems: 1 |  |
 | `role` | `CodedTerm \| null` | no | `null` |  |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `name`
+##### `name`
 
 **Definition**
 
@@ -1200,7 +1262,7 @@ Source-visible entity name.
 ```
 
 
-#### `identifiers`
+##### `identifiers`
 
 **Definition**
 
@@ -1218,7 +1280,7 @@ Assigned entity identifiers.
 ```
 
 
-#### `role`
+##### `role`
 
 **Definition**
 
@@ -1239,7 +1301,7 @@ Explicit source-grounded agent role.
 ```
 
 
-## AxisAssignment
+### AxisAssignment
 
 Bind a variable to one distinct axis in a multi-axis graph.
 
@@ -1251,11 +1313,9 @@ Bind a variable to one distinct axis in a multi-axis graph.
 | `position` | `AxisPosition` | yes | — |  |  |
 | `position_index` | `integer` | yes | — |  |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `dimension`
+##### `dimension`
 
 **Definition**
 
@@ -1272,7 +1332,7 @@ Cartesian dimension of the assigned axis.
 ```
 
 
-#### `position`
+##### `position`
 
 **Definition**
 
@@ -1297,7 +1357,7 @@ Side of the plot where the assigned axis appears.
 ```
 
 
-#### `position_index`
+##### `position_index`
 
 **Definition**
 
@@ -1314,19 +1374,19 @@ One-based order from the plotting area outward among axes on the same side.
 ```
 
 
-## AxisDimension
+### AxisDimension
 
 Identify a Cartesian axis dimension.
 
 `x`, `y`
 
-## AxisPosition
+### AxisPosition
 
 Identify the side of a plot where an axis appears.
 
 `top`, `bottom`, `left`, `right`
 
-## CategoryGroup
+### CategoryGroup
 
 Represent one explicit nonrecursive category grouping.
 
@@ -1335,11 +1395,9 @@ Represent one explicit nonrecursive category grouping.
 | `name` | `string` | yes | — | minLength: 1; pattern: \S |  |
 | `categories` | `array[CodedTerm]` | yes | — | minItems: 1 |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `name`
+##### `name`
 
 **Definition**
 
@@ -1352,7 +1410,7 @@ Explicit category-group heading.
 ```
 
 
-#### `categories`
+##### `categories`
 
 **Definition**
 
@@ -1372,7 +1430,7 @@ Categories directly contained by the group.
 ```
 
 
-## CodedTerm
+### CodedTerm
 
 Represent source wording with optional exact vocabulary identifiers.
 
@@ -1387,11 +1445,9 @@ Represent source wording with optional exact vocabulary identifiers.
 | `scheme` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `uri` | `uri \| null` | no | `null` | minLength: 1; pattern: ^[A-Za-z][A-Za-z0-9+.-]*:(?://(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|:)*@)?(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})*\|\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\])(?::[0-9]*)?(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])*)*\|/(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])*)*)?\|(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])*)*\|)(?:\?(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])\|[/?])*)?(?:#(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])\|[/?])*)?$; format: uri |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -1408,7 +1464,7 @@ Exact text or symbol visible in the snapshot that explicitly expresses the value
 ```
 
 
-#### `code`
+##### `code`
 
 **Definition**
 
@@ -1421,7 +1477,7 @@ Code in the named scheme.
 ```
 
 
-#### `scheme`
+##### `scheme`
 
 **Definition**
 
@@ -1434,7 +1490,7 @@ Code-list or vocabulary identifier.
 ```
 
 
-#### `uri`
+##### `uri`
 
 **Definition**
 
@@ -1447,7 +1503,7 @@ Authoritative URI for the represented concept.
 ```
 
 
-## Currency
+### Currency
 
 Represent a displayed currency and optional ISO 4217 code.
 
@@ -1456,11 +1512,9 @@ Represent a displayed currency and optional ISO 4217 code.
 | `source_text` | `string` | yes | — | minLength: 1; pattern: \S |  |
 | `code` | `string \| null` | no | `null` | pattern: ^[A-Z]{3}$ | [ISO ISO 4217](https://www.iso.org/iso-4217-currency-codes.html); release: not pinned; syntax only |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -1481,7 +1535,7 @@ Exact text or symbol visible in the snapshot that explicitly expresses the curre
 ```
 
 
-#### `code`
+##### `code`
 
 **Definition**
 
@@ -1502,7 +1556,7 @@ Uppercase ISO 4217 alphabetic code.
 ```
 
 
-## Dimension
+### Dimension
 
 Represent a classificatory dimension and its visible organization.
 
@@ -1515,11 +1569,9 @@ Represent a classificatory dimension and its visible organization.
 | `category_groups` | `array[CategoryGroup] \| null` | no | `null` | minItems: 1 | [http://www.w3.org/2004/02/skos/core#broader](http://www.w3.org/2004/02/skos/core#broader) (related_structural) |
 | `presentation_roles` | `array[PresentationRole] \| null` | no | `null` | minItems: 1 |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `name`
+##### `name`
 
 **Definition**
 
@@ -1548,7 +1600,7 @@ The conceptual variable or dimension used to organize, group, classify, or compa
 ```
 
 
-#### `categories`
+##### `categories`
 
 **Definition**
 
@@ -1610,7 +1662,7 @@ The explicit category names or labels associated with a category dimension.
 ```
 
 
-#### `category_groups`
+##### `category_groups`
 
 **Definition**
 
@@ -1635,7 +1687,7 @@ One level of explicit category groups.
 ```
 
 
-#### `presentation_roles`
+##### `presentation_roles`
 
 **Definition**
 
@@ -1660,7 +1712,7 @@ Explicit table-presentation roles.
 ```
 
 
-## EntityReference
+### EntityReference
 
 Represent a named project, organization, source, or component.
 
@@ -1669,11 +1721,9 @@ Represent a named project, organization, source, or component.
 | `name` | `string` | yes | — | minLength: 1; pattern: \S |  |
 | `identifiers` | `array[Identifier] \| null` | no | `null` | minItems: 1 |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `name`
+##### `name`
 
 **Definition**
 
@@ -1702,7 +1752,7 @@ Source-visible entity name.
 ```
 
 
-#### `identifiers`
+##### `identifiers`
 
 **Definition**
 
@@ -1720,7 +1770,7 @@ Assigned entity identifiers.
 ```
 
 
-## Financing
+### Financing
 
 Group project-financing measures, funders, and instruments.
 
@@ -1732,11 +1782,9 @@ Group project-financing measures, funders, and instruments.
 | `funders` | `array[EntityReference] \| null` | no | `null` | minItems: 1 | [https://schema.org/funder](https://schema.org/funder) (exact) |
 | `instruments` | `array[CodedTerm] \| null` | no | `null` | minItems: 1 | [https://reference.iatistandard.org/en/iati-standard/203/codelists/financetype/](https://reference.iatistandard.org/en/iati-standard/203/codelists/financetype/) (close) |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `measures`
+##### `measures`
 
 **Definition**
 
@@ -1769,7 +1817,7 @@ The financial quantity or funding-related measure represented by the snapshot.
 ```
 
 
-#### `funders`
+##### `funders`
 
 **Definition**
 
@@ -1810,7 +1858,7 @@ The organization or funding source providing financial support.
 ```
 
 
-#### `instruments`
+##### `instruments`
 
 **Definition**
 
@@ -1851,7 +1899,7 @@ The financing mechanism associated with the represented activity.
 ```
 
 
-## GeographicCoverage
+### GeographicCoverage
 
 Group overall geographic scope, locations, and reporting level.
 
@@ -1863,11 +1911,9 @@ Group overall geographic scope, locations, and reporting level.
 | `locations` | `array[GeographicLocation] \| null` | no | `null` | minItems: 1 | [https://schema.org/spatialCoverage](https://schema.org/spatialCoverage) (related_structural) |
 | `level` | `GeographicLevelTerm \| null` | no | `null` |  |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `scope`
+##### `scope`
 
 **Definition**
 
@@ -1907,7 +1953,7 @@ The primary geographic area represented by the snapshot.
 ```
 
 
-#### `locations`
+##### `locations`
 
 **Definition**
 
@@ -1953,7 +1999,7 @@ Use this collection for additional named locations; record the overall coverage 
 ```
 
 
-#### `level`
+##### `level`
 
 **Definition**
 
@@ -1988,7 +2034,7 @@ The administrative or spatial level at which data are reported.
 ```
 
 
-## GeographicLevelTerm
+### GeographicLevelTerm
 
 Represent a known or source-only geographic reporting level.
 
@@ -1999,11 +2045,9 @@ Represent a known or source-only geographic reporting level.
 | `source_text` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `normalized_value` | `GeographicLevelValue \| null` | no | `null` |  |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -2028,7 +2072,7 @@ Exact text visible in the snapshot that explicitly states the geographic level.
 ```
 
 
-#### `normalized_value`
+##### `normalized_value`
 
 **Definition**
 
@@ -2049,13 +2093,13 @@ Approved normalized geographic level.
 ```
 
 
-## GeographicLevelValue
+### GeographicLevelValue
 
 Enumerate approved normalized geographic levels.
 
 `global`, `world_region`, `country`, `administrative_area_1`, `administrative_area_2`, `administrative_area_3`, `locality`, `site`
 
-## GeographicLocation
+### GeographicLocation
 
 Represent an additional named location and its optional role and type.
 
@@ -2072,11 +2116,9 @@ Represent an additional named location and its optional role and type.
 | `role` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `type` | `CodedTerm \| null` | no | `null` |  |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -2101,7 +2143,7 @@ Exact text visible in the snapshot that explicitly expresses the place. Omit it 
 ```
 
 
-#### `name`
+##### `name`
 
 **Definition**
 
@@ -2122,7 +2164,7 @@ Preferred place name.
 ```
 
 
-#### `iso3_code`
+##### `iso3_code`
 
 **Definition**
 
@@ -2139,7 +2181,7 @@ ISO 3166-1 alpha-3 code for a country or area. Do not use World Bank aggregate o
 ```
 
 
-#### `subdivision_code`
+##### `subdivision_code`
 
 **Definition**
 
@@ -2152,7 +2194,7 @@ ISO 3166-2 subdivision code.
 ```
 
 
-#### `m49_code`
+##### `m49_code`
 
 **Definition**
 
@@ -2169,7 +2211,7 @@ UN M49 statistical-area code.
 ```
 
 
-#### `identifiers`
+##### `identifiers`
 
 **Definition**
 
@@ -2187,7 +2229,7 @@ Other authoritative identifiers.
 ```
 
 
-#### `role`
+##### `role`
 
 **Definition**
 
@@ -2212,7 +2254,7 @@ The semantic role played by geographic entities within the represented data.
 ```
 
 
-#### `type`
+##### `type`
 
 **Definition**
 
@@ -2245,7 +2287,7 @@ The physical or administrative type of a named geographic location represented i
 ```
 
 
-## Identifier
+### Identifier
 
 Represent a verified identifier and its optional authority context.
 
@@ -2256,11 +2298,9 @@ Represent a verified identifier and its optional authority context.
 | `issuer` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `uri` | `uri \| null` | no | `null` | minLength: 1; pattern: ^[A-Za-z][A-Za-z0-9+.-]*:(?://(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|:)*@)?(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})*\|\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\])(?::[0-9]*)?(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])*)*\|/(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])*)*)?\|(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])*)*\|)(?:\?(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])\|[/?])*)?(?:#(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]\|%[0-9A-Fa-f]{2})\|[:@])\|[/?])*)?$; format: uri |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `value`
+##### `value`
 
 **Definition**
 
@@ -2277,7 +2317,7 @@ Identifier exactly as assigned in the snapshot or trusted metadata. Do not infer
 ```
 
 
-#### `scheme`
+##### `scheme`
 
 **Definition**
 
@@ -2290,7 +2330,7 @@ Identifier scheme explicitly supplied by the snapshot, trusted metadata, or conf
 ```
 
 
-#### `issuer`
+##### `issuer`
 
 **Definition**
 
@@ -2303,7 +2343,7 @@ Issuing agent explicitly supplied by the snapshot, trusted metadata, or configur
 ```
 
 
-#### `uri`
+##### `uri`
 
 **Definition**
 
@@ -2316,7 +2356,7 @@ Authoritative absolute URI supplied by the snapshot, trusted metadata, or config
 ```
 
 
-## Language
+### Language
 
 Represent a snapshot language using source text and/or BCP 47.
 
@@ -2327,11 +2367,9 @@ Represent a snapshot language using source text and/or BCP 47.
 | `source_text` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `tag` | `string \| null` | no | `null` | minLength: 1; pattern: ^(?:(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}){0,3}\|[A-Za-z]{4}\|[A-Za-z]{5,8})(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}\|[0-9]{3}))?(?:-(?:[A-Za-z0-9]{5,8}\|[0-9][A-Za-z0-9]{3}))*(?:-[0-9A-WY-Za-wy-z](?:-[A-Za-z0-9]{2,8})+)*(?:-[xX](?:-[A-Za-z0-9]{1,8})+)?\|[xX](?:-[A-Za-z0-9]{1,8})+\|en-GB-oed\|i-ami\|i-bnn\|i-default\|i-enochian\|i-hak\|i-klingon\|i-lux\|i-mingo\|i-navajo\|i-pwn\|i-tao\|i-tay\|i-tsu\|sgn-BE-FR\|sgn-BE-NL\|sgn-CH-DE\|art-lojban\|cel-gaulish\|no-bok\|no-nyn\|zh-guoyu\|zh-hakka\|zh-min\|zh-min-nan\|zh-xiang)$ | [IETF/IANA BCP 47](https://www.iana.org/assignments/language-subtag-registry/); release: not pinned; syntax only |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -2352,7 +2390,7 @@ Exact text visible in the snapshot that explicitly names the language. Omit it w
 ```
 
 
-#### `tag`
+##### `tag`
 
 **Definition**
 
@@ -2373,7 +2411,7 @@ Canonical BCP 47 language tag.
 ```
 
 
-## Place
+### Place
 
 Represent a source-grounded place with optional standard identifiers.
 
@@ -2388,11 +2426,9 @@ Represent a source-grounded place with optional standard identifiers.
 | `m49_code` | `string \| null` | no | `null` | pattern: ^[0-9]{3}$ | [United Nations M49](https://unstats.un.org/unsd/methodology/m49/); release: not pinned; syntax only |
 | `identifiers` | `array[Identifier] \| null` | no | `null` | minItems: 1 |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -2417,7 +2453,7 @@ Exact text visible in the snapshot that explicitly expresses the place. Omit it 
 ```
 
 
-#### `name`
+##### `name`
 
 **Definition**
 
@@ -2438,7 +2474,7 @@ Preferred place name.
 ```
 
 
-#### `iso3_code`
+##### `iso3_code`
 
 **Definition**
 
@@ -2455,7 +2491,7 @@ ISO 3166-1 alpha-3 code for a country or area. Do not use World Bank aggregate o
 ```
 
 
-#### `subdivision_code`
+##### `subdivision_code`
 
 **Definition**
 
@@ -2468,7 +2504,7 @@ ISO 3166-2 subdivision code.
 ```
 
 
-#### `m49_code`
+##### `m49_code`
 
 **Definition**
 
@@ -2485,7 +2521,7 @@ UN M49 statistical-area code.
 ```
 
 
-#### `identifiers`
+##### `identifiers`
 
 **Definition**
 
@@ -2503,13 +2539,13 @@ Other authoritative identifiers.
 ```
 
 
-## PresentationRole
+### PresentationRole
 
 Identify a dimension's explicit table-presentation role.
 
 `row`, `column`
 
-## Project
+### Project
 
 Represent project, program, operation, or initiative context.
 
@@ -2521,11 +2557,9 @@ Represent project, program, operation, or initiative context.
 | `identifiers` | `array[Identifier] \| null` | no | `null` | minItems: 1 | [https://schema.org/identifier](https://schema.org/identifier) (standard_broader) |
 | `components` | `array[EntityReference] \| null` | no | `null` | minItems: 1 | [https://schema.org/hasPart](https://schema.org/hasPart) (related_structural) |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `name`
+##### `name`
 
 **Definition**
 
@@ -2546,7 +2580,7 @@ The project, program, operation, or initiative associated with the snapshot.
 ```
 
 
-#### `identifiers`
+##### `identifiers`
 
 **Definition**
 
@@ -2571,7 +2605,7 @@ The formal identifier assigned to the associated project or operation.
 ```
 
 
-#### `components`
+##### `components`
 
 **Definition**
 
@@ -2596,7 +2630,7 @@ The project component, workstream, or results area represented by the snapshot.
 ```
 
 
-## Provenance
+### Provenance
 
 Separate derivation sources from credited agents.
 
@@ -2607,11 +2641,9 @@ Separate derivation sources from credited agents.
 | `sources` | `array[EntityReference] \| null` | no | `null` | minItems: 1 | [http://www.w3.org/ns/prov#wasDerivedFrom](http://www.w3.org/ns/prov#wasDerivedFrom) (related_structural), [http://purl.org/dc/terms/source](http://purl.org/dc/terms/source) (close) |
 | `attributions` | `array[Attribution] \| null` | no | `null` | minItems: 1 | [http://www.w3.org/ns/prov#wasAttributedTo](http://www.w3.org/ns/prov#wasAttributedTo) (related_structural) |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `sources`
+##### `sources`
 
 **Definition**
 
@@ -2652,7 +2684,7 @@ Represented-data derivation sources.
 ```
 
 
-#### `attributions`
+##### `attributions`
 
 **Definition**
 
@@ -2672,7 +2704,7 @@ Agents explicitly credited for the snapshot artifact; include a role when it is 
 ```
 
 
-## StatisticalFormTerm
+### StatisticalFormTerm
 
 Represent a known or source-only statistical form.
 
@@ -2683,11 +2715,9 @@ Represent a known or source-only statistical form.
 | `source_text` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `normalized_value` | `StatisticalFormValue \| null` | no | `null` |  |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -2716,7 +2746,7 @@ Exact text or symbol visible in the snapshot that explicitly expresses the stati
 ```
 
 
-#### `normalized_value`
+##### `normalized_value`
 
 **Definition**
 
@@ -2737,13 +2767,13 @@ Approved normalized statistical form.
 ```
 
 
-## StatisticalFormValue
+### StatisticalFormValue
 
 Enumerate approved normalized statistical forms.
 
 `observed_value`, `count`, `arithmetic_mean`, `geometric_mean`, `weighted_mean`, `weighted_value`, `median`, `sum`, `weighted_sum`, `minimum`, `maximum`, `range`, `interquartile_range`, `variance`, `standard_deviation`, `standard_error`, `mean_absolute_deviation`, `median_absolute_deviation`, `skewness`, `kurtosis`, `lower_bound`, `upper_bound`, `score`, `rank`, `index`, `rate`, `harmonic_mean`, `trimmed_mean`, `mode`, `coefficient_of_variation`, `valid_cases`, `invalid_cases`, `percentage_of_valid_cases`, `percentage_of_invalid_cases`, `quartile`, `quintile`, `decile`, `percentile`, `ratio`, `proportion`, `percentage`, `confidence_interval`, `coefficient`, `p_value`, `change`
 
-## TemporalCoverage
+### TemporalCoverage
 
 Group represented-data time and granularity.
 
@@ -2754,11 +2784,9 @@ Group represented-data time and granularity.
 | `period` | `TemporalExpression \| null` | no | `null` |  | [https://schema.org/temporalCoverage](https://schema.org/temporalCoverage) (exact), [http://purl.org/dc/terms/temporal](http://purl.org/dc/terms/temporal) (close) |
 | `granularity` | `TemporalGranularityTerm \| null` | no | `null` |  |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `period`
+##### `period`
 
 **Definition**
 
@@ -2794,7 +2822,7 @@ This field describes **when the represented data apply**. It does not describe w
 ```
 
 
-#### `granularity`
+##### `granularity`
 
 **Definition**
 
@@ -2831,7 +2859,7 @@ The temporal resolution at which the represented data are reported.
 ```
 
 
-## TemporalExpression
+### TemporalExpression
 
 Represent source-visible time with optional normalized bounds.
 
@@ -2851,11 +2879,9 @@ Represent source-visible time with optional normalized bounds.
 | `relation` | `TemporalRelation \| null` | no | `null` |  |  |
 | `precision` | `TemporalPrecision \| null` | no | `null` |  |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -2876,7 +2902,7 @@ Exact complete time expression visible in the snapshot. Omit it when normalized 
 ```
 
 
-#### `start`
+##### `start`
 
 **Definition**
 
@@ -2897,7 +2923,7 @@ Normalized start.
 ```
 
 
-#### `end`
+##### `end`
 
 **Definition**
 
@@ -2914,7 +2940,7 @@ Normalized end.
 ```
 
 
-#### `relation`
+##### `relation`
 
 **Definition**
 
@@ -2939,7 +2965,7 @@ Relationship between normalized bounds.
 ```
 
 
-#### `precision`
+##### `precision`
 
 **Definition**
 
@@ -2964,7 +2990,7 @@ Precision of normalized bounds.
 ```
 
 
-## TemporalGranularityTerm
+### TemporalGranularityTerm
 
 Represent a known or source-only temporal granularity.
 
@@ -2975,11 +3001,9 @@ Represent a known or source-only temporal granularity.
 | `source_text` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `normalized_value` | `TemporalGranularityValue \| null` | no | `null` |  |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -3004,7 +3028,7 @@ Exact text visible in the snapshot that explicitly states the temporal granulari
 ```
 
 
-#### `normalized_value`
+##### `normalized_value`
 
 **Definition**
 
@@ -3025,25 +3049,25 @@ Approved normalized temporal granularity.
 ```
 
 
-## TemporalGranularityValue
+### TemporalGranularityValue
 
 Enumerate approved normalized temporal granularities.
 
 `hourly`, `daily`, `weekly`, `monthly`, `quarterly`, `semiannual`, `annual`, `instantaneous`, `event_based`, `multi_year`, `irregular`
 
-## TemporalPrecision
+### TemporalPrecision
 
 Describe the precision of normalized temporal bounds.
 
 `year`, `month`, `day`, `datetime`
 
-## TemporalRelation
+### TemporalRelation
 
 Describe how normalized temporal bounds form an expression.
 
 `point`, `interval`, `open_interval`, `as_of`
 
-## Unit
+### Unit
 
 Represent a displayed unit and its optional normalized qualifiers.
 
@@ -3053,11 +3077,9 @@ Represent a displayed unit and its optional normalized qualifiers.
 | `code` | `string \| null` | no | `null` | pattern: ^[A-Z0-9]{1,3}$ | [UNECE Recommendation 20](https://unece.org/trade/uncefact/cl-recommendations); release: not pinned; syntax only |
 | `multiplier_exponent` | `integer \| null` | no | `null` |  | [SDMX CL_UNIT_MULT](https://registry.sdmx.org/items/codelist.html); release: 1.1 |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -3082,7 +3104,7 @@ Exact text or symbol visible in the snapshot that explicitly expresses the unit.
 ```
 
 
-#### `code`
+##### `code`
 
 **Definition**
 
@@ -3099,7 +3121,7 @@ Exact UN/CEFACT Recommendation 20 common code.
 ```
 
 
-#### `multiplier_exponent`
+##### `multiplier_exponent`
 
 **Definition**
 
@@ -3120,7 +3142,7 @@ Base-10 SDMX unit-multiplier exponent.
 ```
 
 
-## Variable
+### Variable
 
 Represent a measured variable and its applicable qualifiers.
 
@@ -3137,11 +3159,9 @@ Represent a measured variable and its applicable qualifiers.
 | `axis_assignments` | `array[AxisAssignment] \| null` | no | `null` | minItems: 1 |  |
 | `statistical_forms` | `array[StatisticalFormTerm] \| null` | no | `null` | minItems: 1 | [https://schema.org/statType](https://schema.org/statType) (close) |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `name`
+##### `name`
 
 **Definition**
 
@@ -3168,7 +3188,7 @@ This field records the variable's name or measured concept, not a normalized ana
 ```
 
 
-#### `unit`
+##### `unit`
 
 **Definition**
 
@@ -3203,7 +3223,7 @@ The unit used to interpret reported quantitative values.
 ```
 
 
-#### `currency`
+##### `currency`
 
 **Definition**
 
@@ -3233,7 +3253,7 @@ The currency denomination used for monetary values.
 ```
 
 
-#### `analytical_roles`
+##### `analytical_roles`
 
 **Definition**
 
@@ -3260,7 +3280,7 @@ Explicit analytical or axis roles.
 ```
 
 
-#### `axis_assignments`
+##### `axis_assignments`
 
 **Definition**
 
@@ -3291,7 +3311,7 @@ Use `analytical_roles` for a single or shared x- or y-axis. Use this field when 
 ```
 
 
-#### `statistical_forms`
+##### `statistical_forms`
 
 **Definition**
 
@@ -3344,7 +3364,7 @@ The statistical form in which values are expressed.
 ```
 
 
-## VisualizationTypeTerm
+### VisualizationTypeTerm
 
 Represent a known or source-only visualization type.
 
@@ -3355,11 +3375,9 @@ Represent a known or source-only visualization type.
 | `source_text` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
 | `normalized_value` | `VisualizationTypeValue \| null` | no | `null` |  |  |
 
-### Field definitions and examples
+#### Field definitions and examples
 
-Each block is one possible field value. Examples for different fields are independent and should not be combined into a record automatically. They illustrate the schema and do not constrain accepted values. URIs under example.org are illustrative placeholders.
-
-#### `source_text`
+##### `source_text`
 
 **Definition**
 
@@ -3392,7 +3410,7 @@ Exact text visible in the snapshot that explicitly names the visualization type.
 ```
 
 
-#### `normalized_value`
+##### `normalized_value`
 
 **Definition**
 
@@ -3413,7 +3431,7 @@ Approved normalized visualization type.
 ```
 
 
-## VisualizationTypeValue
+### VisualizationTypeValue
 
 Enumerate approved normalized visualization types.
 

@@ -965,3 +965,58 @@ def test_reference_explains_constraints_and_mapping_locations() -> None:
         ("Provenance", "attributions"),
     ]:
         assert definitions[name]["properties"][field]["x-standards"]
+
+
+def test_reference_groups_snapshot_fields_and_nests_referenced_types() -> None:
+    """Keep root fields module-oriented and referenced types under one section."""
+    reference = render_markdown_reference()
+    snapshot_section, referenced_section = reference.split("\n## Referenced Types\n", 1)
+    snapshot_section = snapshot_section.split("\n## Snapshot fields\n", 1)[1]
+    modules = (
+        (
+            "Identity and discovery",
+            (
+                "title",
+                "document_label",
+                "subject_domains",
+                "subject_summary",
+                "panel_titles",
+            ),
+        ),
+        ("Subject and semantics", ("variables", "dimensions", "population_group")),
+        ("Temporal context", ("temporal_coverage",)),
+        ("Spatial context", ("geographic_coverage",)),
+        ("Measurement context", ("comparisons",)),
+        ("Structural organization", ("visualization_types",)),
+        (
+            "Provenance and attribution",
+            ("provenance", "languages", "interpretive_notes"),
+        ),
+        (
+            "Project and operational context",
+            ("project", "intervention_types", "financing"),
+        ),
+        (
+            "Analytical and methodological context",
+            ("analysis_methods", "data_collection_methods"),
+        ),
+    )
+    assert re.findall(r"^### (.+)$", snapshot_section, flags=re.MULTILINE) == [
+        name for name, _ in modules
+    ]
+    for index, (module_name, field_names) in enumerate(modules):
+        start = snapshot_section.index(f"### {module_name}\n")
+        end = (
+            snapshot_section.index(f"### {modules[index + 1][0]}\n")
+            if index + 1 < len(modules)
+            else len(snapshot_section)
+        )
+        module_section = snapshot_section[start:end]
+        for field_name in field_names:
+            assert module_section.count(f"##### `{field_name}`") == 1
+
+    definitions = DataSnapshotMetadata.model_json_schema()["$defs"]
+    assert re.findall(r"^### (.+)$", referenced_section, flags=re.MULTILINE) == list(
+        definitions
+    )
+    assert not any(f"\n## {name}\n" in reference for name in definitions)

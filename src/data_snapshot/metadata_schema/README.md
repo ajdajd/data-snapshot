@@ -255,6 +255,11 @@ output paths. Import these helpers from `data_snapshot.metadata_schema.generatio
 
 - [Field reference](../../../docs/schema_v1.3/schema_reference_v1.3.md): generated types, constraints, enums, and mappings.
 - [Schema v1.3 change report](../../../notebooks/metadata_extraction/0.0-schema_v1.3_change_report.md): decisions and expected extraction effects.
-- [Schema v1.2 concept design](../../../docs/schema_v1.2/2.0-concept_design.md): the baseline concepts and their relationships.
-- [Schema v1.2 normalization profile](../../../docs/schema_v1.2/3.0-normalization.md): the baseline normalization policy.
-- [Schema v1.2 standards crosswalk](../../../docs/schema_v1.2/1.0-standards_crosswalk.md): the baseline semantic alignment with external standards.
+
+The following v1.2 documents are frozen historical design inputs. They explain
+the baseline evaluated by Schema Validation 3 but do not override the v1.3
+models, generated artifacts, or decisions in the v1.3 change report.
+
+- [Schema v1.2 concept design](../../../docs/schema_v1.2/2.0-concept_design.md): baseline concepts and relationships.
+- [Schema v1.2 normalization profile](../../../docs/schema_v1.2/3.0-normalization.md): baseline normalization policy.
+- [Schema v1.2 standards crosswalk](../../../docs/schema_v1.2/1.0-standards_crosswalk.md): baseline semantic alignment with external standards.

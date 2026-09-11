@@ -17,6 +17,43 @@ _DEFAULT_JSON_PATH = (
 )
 _DEFAULT_MARKDOWN_PATH = _ROOT / "docs/schema_v1.3/schema_reference_v1.3.md"
 
+_SNAPSHOT_FIELD_MODULES = (
+    (
+        "Identity and discovery",
+        (
+            "title",
+            "document_label",
+            "subject_domains",
+            "subject_summary",
+            "panel_titles",
+        ),
+    ),
+    ("Subject and semantics", ("variables", "dimensions", "population_group")),
+    ("Temporal context", ("temporal_coverage",)),
+    ("Spatial context", ("geographic_coverage",)),
+    ("Measurement context", ("comparisons",)),
+    ("Structural organization", ("visualization_types",)),
+    (
+        "Provenance and attribution",
+        ("provenance", "languages", "interpretive_notes"),
+    ),
+    (
+        "Project and operational context",
+        ("project", "intervention_types", "financing"),
+    ),
+    (
+        "Analytical and methodological context",
+        ("analysis_methods", "data_collection_methods"),
+    ),
+)
+
+_EXAMPLE_GUIDANCE = (
+    "Each block is one possible field value. Examples for different fields are "
+    "independent and should not be combined into a record automatically. They "
+    "illustrate the schema and do not constrain accepted values. URIs under "
+    "example.org are illustrative placeholders."
+)
+
 
 @cache
 def _metadata_schema() -> dict[str, Any]:
@@ -73,10 +110,32 @@ def render_markdown_reference() -> str:
         "",
         "## Snapshot fields",
         "",
+        "Fields are grouped by the v1.3 semantic modules.",
+        "",
+        _EXAMPLE_GUIDANCE,
     ]
-    lines.extend(_object_table(schema))
+    properties = schema.get("properties", {})
+    grouped_fields = [
+        field_name
+        for _, field_names in _SNAPSHOT_FIELD_MODULES
+        for field_name in field_names
+    ]
+    if len(grouped_fields) != len(set(grouped_fields)) or set(grouped_fields) != set(
+        properties
+    ):
+        raise ValueError("Snapshot field modules must contain every root field once.")
+    required = set(schema.get("required", []))
+    for module_name, field_names in _SNAPSHOT_FIELD_MODULES:
+        module_schema = {
+            "properties": {name: properties[name] for name in field_names},
+            "required": [name for name in field_names if name in required],
+        }
+        lines.extend(["", f"### {module_name}", ""])
+        lines.extend(_object_table(module_schema, detail_heading_level=4))
+
+    lines.extend(["", "## Referenced Types", "", _EXAMPLE_GUIDANCE])
     for name, definition in schema.get("$defs", {}).items():
-        lines.extend(["", f"## {name}", ""])
+        lines.extend(["", f"### {name}", ""])
         description = definition.get("description")
         if description:
             lines.extend([_summary(description), ""])
@@ -85,7 +144,7 @@ def render_markdown_reference() -> str:
         if "enum" in definition:
             lines.append(", ".join(f"`{value}`" for value in definition["enum"]))
         elif definition.get("type") == "object":
-            lines.extend(_object_table(definition))
+            lines.extend(_object_table(definition, detail_heading_level=4))
         else:
             lines.append(f"Type: `{_type_label(definition)}`")
     return "\n".join(lines).rstrip() + "\n"
@@ -112,7 +171,7 @@ def write_schema_artifacts(
     markdown_output.write_text(render_markdown_reference(), encoding="utf-8")
 
 
-def _object_table(schema: dict[str, Any]) -> list[str]:
+def _object_table(schema: dict[str, Any], detail_heading_level: int = 3) -> list[str]:
     required = set(schema.get("required", []))
     lines = [
         "| Field | Type | Required | Default | Constraints | Standards / code list |",
@@ -166,16 +225,11 @@ def _object_table(schema: dict[str, Any]) -> list[str]:
         lines.extend(
             [
                 "",
-                "### Field definitions and examples",
-                "",
-                "Each block is one possible field value. Examples for different fields "
-                "are independent and should not be combined into a record automatically. "
-                "They illustrate the schema and do not constrain accepted values. "
-                "URIs under example.org are illustrative placeholders.",
+                f"{'#' * detail_heading_level} Field definitions and examples",
             ]
         )
         for name, field_schema in fields.items():
-            lines.extend(["", f"#### `{name}`", ""])
+            lines.extend(["", f"{'#' * (detail_heading_level + 1)} `{name}`", ""])
             if field_schema.get("description"):
                 lines.extend(["**Definition**", "", field_schema["description"], ""])
             if field_schema.get("examples"):
