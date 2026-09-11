@@ -1,4 +1,8 @@
-"""Extract semantic metadata from individual data snapshot images."""
+"""Archive the v1.1 metadata extraction package.
+
+Warning: Imports and paths in this historical package are intentionally stale
+after its move to ``metadata_extraction_v1_1`` and must be repaired before use.
+"""
 
 from data_snapshot.metadata_extraction.extraction import (
     ExtractionResult,

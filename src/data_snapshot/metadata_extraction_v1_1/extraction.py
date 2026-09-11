@@ -1,4 +1,8 @@
-"""Call the OpenAI Responses API for snapshot metadata extraction."""
+"""Call the legacy v1.1 metadata extraction pipeline.
+
+Warning: Imports and paths in this historical module are intentionally stale
+after its move to ``metadata_extraction_v1_1`` and must be repaired before use.
+"""
 
 from __future__ import annotations
 
