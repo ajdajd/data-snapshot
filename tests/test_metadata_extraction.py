@@ -93,6 +93,14 @@ def test_extract_metadata_uses_pydantic_and_snapshot_only(tmp_path: Path) -> Non
     assert '"format": "uri"' not in serialized_schema
     assert "Validation rules:" in serialized_schema
     assert output_schema["required"] == list(output_schema["properties"])
+    pending: list[object] = [output_schema]
+    while pending:
+        value = pending.pop()
+        if isinstance(value, dict):
+            assert "$ref" not in value or len(value) == 1
+            pending.extend(value.values())
+        elif isinstance(value, list):
+            pending.extend(value)
     assert responses.request["service_tier"] == "flex"
     assert responses.request["prompt_cache_key"] == "metadata-extraction-v1-3"
     request_input = responses.request["input"]

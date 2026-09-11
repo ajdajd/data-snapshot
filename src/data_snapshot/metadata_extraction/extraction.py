@@ -266,15 +266,42 @@ def _contains_schema_keyword(value: Any, keyword: str) -> bool:
     return False
 
 
+def _inline_ref_siblings(value: Any, root: dict[str, Any]) -> Any:
+    """Inline local references that have sibling schema keywords."""
+    if isinstance(value, list):
+        return [_inline_ref_siblings(item, root) for item in value]
+    if not isinstance(value, dict):
+        return value
+
+    ref = value.get("$ref")
+    if isinstance(ref, str) and len(value) > 1:
+        if not ref.startswith("#/"):
+            raise ValueError(f"Unsupported JSON Schema reference: {ref}")
+        resolved: Any = root
+        for part in ref[2:].split("/"):
+            key = part.replace("~1", "/").replace("~0", "~")
+            if not isinstance(resolved, dict) or key not in resolved:
+                raise ValueError(f"Unresolved JSON Schema reference: {ref}")
+            resolved = resolved[key]
+        if not isinstance(resolved, dict):
+            raise ValueError(f"JSON Schema reference is not an object: {ref}")
+        value = {**resolved, **value}
+        value.pop("$ref")
+
+    return {key: _inline_ref_siblings(item, root) for key, item in value.items()}
+
+
 @cache
 def _response_format() -> dict[str, Any]:
     """Build the strict response format from the canonical Pydantic model."""
-    schema = DataSnapshotMetadata.model_json_schema(mode="validation")
+    canonical_schema = DataSnapshotMetadata.model_json_schema(mode="validation")
+    schema = _openai_compatible_schema(canonical_schema)
+    schema = _inline_ref_siblings(schema, schema)
     return {
         "type": "json_schema",
         "name": "data_snapshot_metadata_v1_3",
         "strict": True,
-        "schema": _openai_compatible_schema(schema),
+        "schema": schema,
     }
 
 
