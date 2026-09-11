@@ -49,8 +49,10 @@ def test_default_config_uses_luna_flex_and_prompt_caching() -> None:
     config = load_extraction_config()
 
     assert config["model"] == "gpt-5.6-luna"
+    assert config["max_output_tokens"] == 8000
     assert config["service_tier"] == "flex"
     assert config["prompt_cache_key"] == "metadata-extraction-v1-3"
+    assert config["reasoning"] == {"effort": "medium"}
 
 
 def test_extract_metadata_uses_pydantic_and_snapshot_only(tmp_path: Path) -> None:
@@ -111,6 +113,10 @@ def test_extract_metadata_uses_pydantic_and_snapshot_only(tmp_path: Path) -> Non
         if item["type"] == "input_text"
     )
     assert image_path.name not in prompt_text
+    user_text = request_input[1]["content"][0]["text"]
+    assert "## Field-boundary guidance" in user_text
+    assert "## Model-facing Schema v1.3 reference" in user_text
+    assert json.dumps(output_schema, ensure_ascii=False, indent=2) in user_text
     assert request_input[1]["content"][1]["image_url"].startswith(
         "data:image/png;base64,"
     )

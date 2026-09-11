@@ -160,7 +160,7 @@ def extract_metadata(
         config = load_extraction_config(config_path)
         model = config.pop("model")
         system_prompt = (_PROMPT_DIR / "system.md").read_text(encoding="utf-8")
-        user_prompt = (_PROMPT_DIR / "user.md").read_text(encoding="utf-8")
+        user_prompt = _production_user_prompt()
         if user_prompt_addendum:
             user_prompt = f"{user_prompt.rstrip()}\n\n{user_prompt_addendum.strip()}\n"
         image_url = _image_data_url(image_path)
@@ -309,6 +309,20 @@ def _response_format() -> dict[str, Any]:
         "strict": True,
         "schema": schema,
     }
+
+
+@cache
+def _production_user_prompt() -> str:
+    """Build the production prompt with the model-facing response schema."""
+    prompt = (_PROMPT_DIR / "user.md").read_text(encoding="utf-8").rstrip()
+    schema = json.dumps(_response_format()["schema"], ensure_ascii=False, indent=2)
+    return (
+        f"{prompt}\n\n"
+        "## Model-facing Schema v1.3 reference\n\n"
+        "Use this schema as field-level extraction guidance. The API response "
+        "format remains the authoritative output contract.\n\n"
+        f"```json\n{schema}\n```\n"
+    )
 
 
 def _create_openai_client() -> Any:
