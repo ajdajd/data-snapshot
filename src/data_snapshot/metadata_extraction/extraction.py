@@ -128,6 +128,8 @@ def extract_metadata(
     image_path: str | Path,
     config_path: str | Path = _DEFAULT_CONFIG_PATH,
     client: Any | None = None,
+    *,
+    user_prompt_addendum: str | None = None,
 ) -> ExtractionResult:
     """Extract validated Schema v1.3 metadata from one snapshot image.
 
@@ -143,6 +145,8 @@ def extract_metadata(
     client : Any | None, optional
         OpenAI-compatible client used for offline tests. A client using
         ``OPENAI_API_KEY`` is created when omitted.
+    user_prompt_addendum : str | None, optional
+        Additional user-prompt guidance for controlled calibration runs.
 
     Returns
     -------
@@ -157,6 +161,8 @@ def extract_metadata(
         model = config.pop("model")
         system_prompt = (_PROMPT_DIR / "system.md").read_text(encoding="utf-8")
         user_prompt = (_PROMPT_DIR / "user.md").read_text(encoding="utf-8")
+        if user_prompt_addendum:
+            user_prompt = f"{user_prompt.rstrip()}\n\n{user_prompt_addendum.strip()}\n"
         image_url = _image_data_url(image_path)
         api_client = client if client is not None else _create_openai_client()
 

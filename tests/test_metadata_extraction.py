@@ -137,6 +137,34 @@ def test_extract_metadata_returns_api_failure_details(tmp_path: Path) -> None:
     assert result.elapsed_seconds is not None
 
 
+def test_extract_metadata_appends_calibration_guidance(tmp_path: Path) -> None:
+    """Calibration guidance is appended without replacing production prompts."""
+    image_path = tmp_path / "snapshot.png"
+    config_path = tmp_path / "config.json"
+    _write_image(image_path)
+    _write_config(config_path)
+    response = SimpleNamespace(
+        id="resp_test",
+        status="completed",
+        output_text=DataSnapshotMetadata().model_dump_json(),
+        usage=None,
+    )
+    responses = FakeResponses(response)
+
+    result = extract_metadata(
+        image_path,
+        config_path=config_path,
+        client=SimpleNamespace(responses=responses),
+        user_prompt_addendum="CALIBRATION GUIDANCE",
+    )
+
+    assert result.error is None
+    assert responses.request is not None
+    user_text = responses.request["input"][1]["content"][0]["text"]
+    assert user_text.startswith("Inspect the attached data snapshot")
+    assert user_text.endswith("CALIBRATION GUIDANCE\n")
+
+
 def test_extract_metadata_rejects_missing_structured_output(tmp_path: Path) -> None:
     """An incomplete response is returned as a retryable extraction failure."""
     image_path = tmp_path / "snapshot.png"
