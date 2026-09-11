@@ -83,7 +83,7 @@ def test_markdown_renders_every_example_as_a_json_value() -> None:
 def _v111_fields() -> dict[str, tuple[str, list[str]]]:
     """Read historical definitions and example text for fidelity checks."""
     path = Path(__file__).resolve().parents[1] / (
-        "src/data_snapshot/metadata_extraction/schema/"
+        "src/data_snapshot/metadata_extraction_v1_1/schema/"
         "Data Snapshot Metadata Schema v1.1.1.md"
     )
     fields = {}

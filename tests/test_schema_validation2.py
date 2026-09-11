@@ -201,7 +201,7 @@ def test_validation2_output_omits_rationale_and_evidence_source() -> None:
 def test_model_facing_schema_preserves_inventory_without_outcome_cues() -> None:
     """The model-facing schema preserves fields while omitting outcome cues."""
     canonical_path = (
-        ROOT / "src/data_snapshot/metadata_extraction/schema/"
+        ROOT / "src/data_snapshot/metadata_extraction_v1_1/schema/"
         "Data Snapshot Metadata Schema v1.1.1.md"
     )
     model_facing_path = (
