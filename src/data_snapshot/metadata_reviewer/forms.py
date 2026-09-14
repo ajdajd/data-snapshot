@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Callable
 from enum import Enum
@@ -46,95 +47,107 @@ def render_metadata_form(working: Record, generated: Record) -> None:
         ("Overview", "Structure", "Coverage", "Context")
     )
     with overview:
-        _text(working, generated, "title", "Title")
-        _text(working, generated, "document_label", "Document label")
-        _text_list(working, generated, "subject_domains", "Subject domains")
-        _text(
-            working,
-            generated,
-            "subject_summary",
-            "Subject summary",
-            multiline=True,
-        )
-        _text_list(working, generated, "panel_titles", "Panel titles")
-        _text(working, generated, "population_group", "Population group")
+        with st.container(
+            height=760, border=True, key="metadata_reviewer_editor_overview"
+        ):
+            _text(working, generated, "title", "Title")
+            _text(working, generated, "document_label", "Document label")
+            _text_list(working, generated, "subject_domains", "Subject domains")
+            _text(
+                working,
+                generated,
+                "subject_summary",
+                "Subject summary",
+                multiline=True,
+            )
+            _text_list(working, generated, "panel_titles", "Panel titles")
+            _text(working, generated, "population_group", "Population group")
 
     with structure:
-        _object_list(
-            working,
-            generated,
-            "variables",
-            "Variables",
-            "Variable",
-            _render_variable,
-        )
-        _object_list(
-            working,
-            generated,
-            "dimensions",
-            "Dimensions",
-            "Dimension",
-            _render_dimension,
-        )
-        _object_list(
-            working,
-            generated,
-            "visualization_types",
-            "Visualization types",
-            "Visualization type",
-            _normalized_renderer(VisualizationTypeValue),
-        )
+        with st.container(
+            height=760, border=True, key="metadata_reviewer_editor_structure"
+        ):
+            _object_list(
+                working,
+                generated,
+                "variables",
+                "Variables",
+                "Variable",
+                _render_variable,
+            )
+            _object_list(
+                working,
+                generated,
+                "dimensions",
+                "Dimensions",
+                "Dimension",
+                _render_dimension,
+            )
+            _object_list(
+                working,
+                generated,
+                "visualization_types",
+                "Visualization types",
+                "Visualization type",
+                _normalized_renderer(VisualizationTypeValue),
+            )
 
     with coverage:
-        _optional_object(
-            working,
-            generated,
-            "temporal_coverage",
-            "Temporal coverage",
-            _render_temporal_coverage,
-        )
-        _optional_object(
-            working,
-            generated,
-            "geographic_coverage",
-            "Geographic coverage",
-            _render_geographic_coverage,
-        )
+        with st.container(
+            height=760, border=True, key="metadata_reviewer_editor_coverage"
+        ):
+            _optional_object(
+                working,
+                generated,
+                "temporal_coverage",
+                "Temporal coverage",
+                _render_temporal_coverage,
+            )
+            _optional_object(
+                working,
+                generated,
+                "geographic_coverage",
+                "Geographic coverage",
+                _render_geographic_coverage,
+            )
 
     with context:
-        _text_list(working, generated, "comparisons", "Comparisons")
-        _optional_object(
-            working, generated, "provenance", "Provenance", _render_provenance
-        )
-        _object_list(
-            working,
-            generated,
-            "languages",
-            "Languages",
-            "Language",
-            _render_language,
-        )
-        _text_list(
-            working,
-            generated,
-            "interpretive_notes",
-            "Interpretive notes",
-            multiline=True,
-        )
-        _optional_object(working, generated, "project", "Project", _render_project)
-        _text_list(working, generated, "intervention_types", "Intervention types")
-        _optional_object(
-            working, generated, "financing", "Financing", _render_financing
-        )
-        _text_list(working, generated, "analysis_methods", "Analysis methods")
-        _object_list(
-            working,
-            generated,
-            "data_collection_methods",
-            "Data collection methods",
-            "Method",
-            _render_coded_term,
-        )
+        with st.container(
+            height=760, border=True, key="metadata_reviewer_editor_context"
+        ):
+            _text_list(working, generated, "comparisons", "Comparisons")
+            _optional_object(
+                working, generated, "provenance", "Provenance", _render_provenance
+            )
+            _object_list(
+                working,
+                generated,
+                "languages",
+                "Languages",
+                "Language",
+                _render_language,
+            )
+            _text_list(
+                working,
+                generated,
+                "interpretive_notes",
+                "Interpretive notes",
+                multiline=True,
+            )
+            _optional_object(working, generated, "project", "Project", _render_project)
+            _text_list(working, generated, "intervention_types", "Intervention types")
+            _optional_object(
+                working, generated, "financing", "Financing", _render_financing
+            )
+            _text_list(working, generated, "analysis_methods", "Analysis methods")
+            _object_list(
+                working,
+                generated,
+                "data_collection_methods",
+                "Data collection methods",
+                "Method",
+                _render_coded_term,
+            )
 
 
 def clear_form_widget_state() -> None:
@@ -740,8 +753,10 @@ def _field_header(label: str, path: str, value: Any, reference: Any) -> None:
 def _render_json_value(value: Any, empty_message: str) -> None:
     if value is None:
         st.caption(empty_message)
-    else:
+    elif isinstance(value, (dict, list)):
         st.json(value, expanded=2)
+    else:
+        st.code(json.dumps(value, ensure_ascii=False), language="json", wrap_lines=True)
 
 
 @lru_cache(maxsize=1)

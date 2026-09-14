@@ -51,6 +51,16 @@ def test_edit_highlight_and_dirty_navigation_guard(tmp_path: Path) -> None:
     )
     assert any(caption.value.startswith("The primary title") for caption in app.caption)
     assert len(app.get("popover")) >= 2
+    assert json.dumps("Generated alpha") in [value.value for value in app.get("code")]
+    assert len(app.get("tab_container")) == 2
+    editor_keys = {value.key for value in app.get("flex_container")}
+    assert {
+        "metadata_reviewer_editor_overview",
+        "metadata_reviewer_editor_structure",
+        "metadata_reviewer_editor_coverage",
+        "metadata_reviewer_editor_context",
+        "metadata_reviewer_editor_generated",
+    } <= editor_keys
 
     app.text_input(key="metadata_reviewer_widget:alpha:title").set_value(
         "Reviewed alpha"

@@ -108,17 +108,19 @@ def main(args: Sequence[str] | None = None) -> None:
                 item.snapshot_path, caption=item.snapshot_path.name, width="stretch"
             )
     with metadata_column:
-        with st.container(height=760, border=True, key="metadata_reviewer_editor"):
-            status_placeholder = st.empty()
-            validation_placeholder = st.empty()
-            editing_tab, generated_tab = st.tabs(("Edit gold", "Generated reference"))
-            with editing_tab:
-                render_metadata_form(working, generated)
-            with generated_tab:
+        status_placeholder = st.empty()
+        validation_placeholder = st.empty()
+        editing_tab, generated_tab = st.tabs(("Edit gold", "Generated reference"))
+        with editing_tab:
+            render_metadata_form(working, generated)
+        with generated_tab:
+            with st.container(
+                height=760, border=True, key="metadata_reviewer_editor_generated"
+            ):
                 st.json(generated, expanded=2)
 
-            _render_record_status(status_placeholder, item, working, generated)
-            _render_validation_status(validation_placeholder, working)
+        _render_record_status(status_placeholder, item, working, generated)
+        _render_validation_status(validation_placeholder, working)
 
     dirty = not metadata_values_equal(working, baseline)
     with toolbar_placeholder.container():
