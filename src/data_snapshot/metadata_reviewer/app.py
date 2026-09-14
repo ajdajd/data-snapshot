@@ -56,7 +56,7 @@ def main(args: Sequence[str] | None = None) -> None:
 
     paths = _parse_args(args)
     st.set_page_config(page_title="Metadata Reviewer", layout="wide")
-    st.title("Data Snapshot Metadata Reviewer")
+    st.markdown("### Data Snapshot Metadata Reviewer")
 
     try:
         discovery = discover_review_items(
@@ -180,10 +180,9 @@ def _render_toolbar(
     source = item.snapshot_path.parent.parent.name
     artifact_type = item.snapshot_path.parent.name
     status = "Unsaved edits" if dirty else "Reviewed" if item.reviewed else "Unreviewed"
-    st.markdown(f"**{item.snapshot_id}**")
     st.caption(
-        f"{source} / {artifact_type} · {index + 1} of {len(discovery.items)} · "
-        f"{reviewed_count} reviewed · {status}"
+        f"**{item.snapshot_id}** · {source} / {artifact_type} · "
+        f"{index + 1} of {len(discovery.items)} · {reviewed_count} reviewed · {status}"
     )
 
     previous_column, save_column, next_column, _ = st.columns((1, 2, 1, 5))
