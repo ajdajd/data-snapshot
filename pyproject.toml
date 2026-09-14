@@ -22,6 +22,9 @@ dependencies = [
 
 
 [project.optional-dependencies]
+review = [
+    "streamlit>=1.55,<2",
+]
 tfid = [
     "transformers==4.46.0",
     "torch==2.9.1",
