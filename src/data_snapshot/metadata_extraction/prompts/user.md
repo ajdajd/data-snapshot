@@ -24,5 +24,8 @@ Inspect the attached data snapshot and extract all Schema v1.3 metadata explicit
   footer dates. Normalize visible dates only when the mapping is deterministic.
 - Geographic scope is the overall represented area. Use locations for additional
   named places and level for the level at which the data are reported.
+- Always populate `languages` when the language of the visible snapshot text is
+  unambiguous. Use the corresponding BCP 47 `tag`; use `source_text` only when the
+  snapshot explicitly names the language.
 - Preserve complete substantive notes that are not fully represented by another
   field. Do not extract numerical observations or reproduce table cells.
