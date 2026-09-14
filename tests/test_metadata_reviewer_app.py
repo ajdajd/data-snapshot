@@ -53,6 +53,15 @@ def test_edit_highlight_and_dirty_navigation_guard(tmp_path: Path) -> None:
     assert any(caption.value.startswith("The primary title") for caption in app.caption)
     assert len(app.get("popover")) >= 2
     assert json.dumps("Generated alpha") in [value.value for value in app.get("code")]
+    generated_record = json.dumps({"title": "Generated alpha"})
+    popover_json = [
+        value for value in app.get("json") if value.proto.body != generated_record
+    ]
+    assert popover_json
+    assert all(
+        value.proto.expanded and not value.proto.max_expand_depth
+        for value in popover_json
+    )
     assert len(app.get("tab_container")) == 2
     editor_keys = {value.key for value in app.get("flex_container")}
     assert {

@@ -754,7 +754,7 @@ def _render_json_value(value: Any, empty_message: str) -> None:
     if value is None:
         st.caption(empty_message)
     elif isinstance(value, (dict, list)):
-        st.json(value, expanded=2)
+        st.json(value, expanded=True)
     else:
         st.code(json.dumps(value, ensure_ascii=False), language="json", wrap_lines=True)
 
