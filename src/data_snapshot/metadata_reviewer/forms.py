@@ -58,7 +58,6 @@ def render_metadata_form(working: Record, generated: Record) -> None:
                 generated,
                 "subject_summary",
                 "Subject summary",
-                multiline=True,
             )
             _text_list(working, generated, "panel_titles", "Panel titles")
             _text(working, generated, "population_group", "Population group")
@@ -447,15 +446,12 @@ def _text(
     field: str,
     label: str,
     path: str = "",
-    *,
-    multiline: bool = False,
 ) -> None:
     field_path = _field_path(path, field)
     key = _widget_key(field_path)
     current = st.session_state.get(key, record.get(field) or "")
-    widget = st.text_area if multiline else st.text_input
     _field_header(label, field_path, current or None, generated.get(field))
-    value = widget(
+    value = st.text_input(
         label,
         value=current,
         key=key,
@@ -475,7 +471,11 @@ def _integer(
     key = _widget_key(field_path)
     current = st.session_state.get(key, record.get(field))
     text = "" if current is None else str(current)
-    _field_header(label, field_path, current, generated.get(field))
+    try:
+        comparison_value = int(text) if text else None
+    except ValueError:
+        comparison_value = current
+    _field_header(label, field_path, comparison_value, generated.get(field))
     value = st.text_input(
         label,
         value=text,

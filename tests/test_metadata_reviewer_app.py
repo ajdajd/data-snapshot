@@ -47,6 +47,7 @@ def test_edit_highlight_and_dirty_navigation_guard(tmp_path: Path) -> None:
         "title": "Generated alpha"
     }
     assert app.caption[0].value.startswith("**alpha** · unhcr / figure · 1 of 2")
+    assert app.text_input(key="metadata_reviewer_widget:alpha:subject_summary")
     assert app.text_input(
         key="metadata_reviewer_widget:alpha:temporal_coverage.period.source_text"
     )
@@ -77,6 +78,8 @@ def test_edit_highlight_and_dirty_navigation_guard(tmp_path: Path) -> None:
     ).run()
     assert not app.exception
     assert any(item.value == ":orange[**Title**]" for item in app.get("markdown"))
+    assert any(item.value == "**Multiplier exponent**" for item in app.get("markdown"))
+    assert any(item.value == "**Position index**" for item in app.get("markdown"))
     assert "Unsaved edits" in app.caption[0].value
 
     app.button(key="review_next").click().run()
