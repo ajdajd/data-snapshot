@@ -297,6 +297,9 @@ class TemporalRelation(str, Enum):
     AS_OF = "as_of"
 
 
+# Developer note: These application-owned precision levels correspond to the
+# ISO 8601 forms selected by the normalization profile.
+# Reference: https://www.iso.org/iso-8601-date-and-time-format.html
 class TemporalPrecision(str, Enum):
     """Describe the precision of normalized temporal bounds."""
 
@@ -306,6 +309,14 @@ class TemporalPrecision(str, Enum):
     DATETIME = "datetime"
 
 
+# Developer note: This application vocabulary combines SDMX statistical
+# operations, DDI summary-statistic types, quantile forms, and forms retained
+# from schema evidence. It is not a verbatim copy of either external vocabulary.
+# References:
+# - SDMX CL_STATISTICAL_OPERATION:
+#   https://sdmx.org/wp-content/uploads/CL_STATISTICAL_OPERATION-1.0.docx
+# - DDI Summary Statistic Type 2.1:
+#   https://rdf-vocabulary.ddialliance.org/ddi-cv/SummaryStatisticType/2.1.0/SummaryStatisticType.html
 class StatisticalFormValue(str, Enum):
     """Enumerate approved normalized statistical forms."""
 
@@ -356,6 +367,10 @@ class StatisticalFormValue(str, Enum):
     CHANGE = "change"
 
 
+# Developer note: This application-owned vocabulary is grounded where possible
+# in Vega-Lite marks and extended with visualization types observed in schema
+# evidence.
+# Reference: https://vega.github.io/vega-lite/docs/mark.html
 class VisualizationTypeValue(str, Enum):
     """Enumerate approved normalized visualization types."""
 
@@ -389,6 +404,9 @@ class VisualizationTypeValue(str, Enum):
     COMPOSITE_FIGURE = "composite_figure"
 
 
+# Developer note: This application vocabulary aligns regular frequencies with
+# SDMX CL_FREQ and adds local values for non-frequency granularities.
+# Reference: https://sdmx.org/sdmx_cdcl/
 class TemporalGranularityValue(str, Enum):
     """Enumerate approved normalized temporal granularities."""
 
@@ -405,6 +423,13 @@ class TemporalGranularityValue(str, Enum):
     IRREGULAR = "irregular"
 
 
+# Developer note: This application-owned vocabulary implements the geographic
+# level design informed by DDI geographic levels and ISO 3166-2 subdivisions.
+# References:
+# - DDI Lifecycle 3.3 GeographicLevel:
+#   https://docs.ddialliance.org/DDI-Lifecycle/3.3/
+# - ISO 3166:
+#   https://www.iso.org/iso-3166-country-codes.html
 class GeographicLevelValue(str, Enum):
     """Enumerate approved normalized geographic levels."""
 
