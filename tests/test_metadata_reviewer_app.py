@@ -42,14 +42,21 @@ def test_edit_highlight_and_dirty_navigation_guard(tmp_path: Path) -> None:
     app = AppTest.from_file(runner, default_timeout=30).run()
     assert not app.exception
     assert app.session_state["metadata_reviewer_item_id"] == "alpha"
+    assert not app.toggle
+    assert app.session_state["metadata_reviewer_working"] == {
+        "title": "Generated alpha"
+    }
+    assert app.text_input(
+        key="metadata_reviewer_widget:alpha:temporal_coverage.period.source_text"
+    )
+    assert any(caption.value.startswith("The primary title") for caption in app.caption)
+    assert len(app.get("popover")) >= 2
 
     app.text_input(key="metadata_reviewer_widget:alpha:title").set_value(
         "Reviewed alpha"
     ).run()
     assert not app.exception
-    assert app.text_input(key="metadata_reviewer_widget:alpha:title").label == (
-        ":orange[Title]"
-    )
+    assert any(item.value == ":orange[**Title**]" for item in app.get("markdown"))
     assert "Unsaved edits" in app.caption[0].value
 
     app.button(key="review_next").click().run()

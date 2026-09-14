@@ -65,11 +65,16 @@ The generated and gold roots must not overlap.
 1. The app opens the first snapshot without a gold file.
 2. If gold exists, it becomes the editable working record. Otherwise the
    generated metadata pre-fills the form.
-3. Keep the snapshot visible while editing the grouped metadata sections.
-4. Add, remove, reorder, or edit nested values as needed.
-5. Orange labels identify values that differ from the immutable generated
+3. Scroll the editor independently while the snapshot remains visible.
+4. All nested structures and fields are displayed, including blank placeholders
+   for metadata that was missing from the generated record. A blank placeholder
+   is not added to the working record until a value is entered.
+5. Add, remove, reorder, or edit nested values as needed. Each field shows its
+   canonical definition. Use **?** for the generated value and **ⓘ** for schema
+   examples.
+6. Orange labels identify values that differ from the immutable generated
    reference. The full generated JSON remains available in its own tab.
-6. Select **Save Gold & Next**. The app validates the entire working record
+7. Select **Save Gold & Next**. The app validates the entire working record
    with the canonical `DataSnapshotMetadata` Pydantic model before saving.
 
 Saving without edits is intentional: it records that the generated metadata is

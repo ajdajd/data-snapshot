@@ -2,18 +2,21 @@
 
 from __future__ import annotations
 
-import json
+import re
 from collections.abc import Callable
 from enum import Enum
-from typing import Any
+from functools import lru_cache
+from typing import Any, get_args
 
 import streamlit as st
+from pydantic import BaseModel
 
 from data_snapshot.metadata_reviewer.storage import metadata_values_equal
 from data_snapshot.metadata_schema import (
     AnalyticalRole,
     AxisDimension,
     AxisPosition,
+    DataSnapshotMetadata,
     GeographicLevelValue,
     PresentationRole,
     StatisticalFormValue,
@@ -438,11 +441,12 @@ def _text(
     key = _widget_key(field_path)
     current = st.session_state.get(key, record.get(field) or "")
     widget = st.text_area if multiline else st.text_input
+    _field_header(label, field_path, current or None, generated.get(field))
     value = widget(
-        _changed_label(label, current or None, generated.get(field)),
+        label,
         value=current,
         key=key,
-        help=_reference_help(generated.get(field)),
+        label_visibility="collapsed",
     )
     _set_optional(record, field, value)
 
@@ -458,11 +462,12 @@ def _integer(
     key = _widget_key(field_path)
     current = st.session_state.get(key, record.get(field))
     text = "" if current is None else str(current)
+    _field_header(label, field_path, current, generated.get(field))
     value = st.text_input(
-        _changed_label(label, current, generated.get(field)),
+        label,
         value=text,
         key=key,
-        help=_reference_help(generated.get(field)),
+        label_visibility="collapsed",
     )
     if not value:
         record.pop(field, None)
@@ -486,14 +491,15 @@ def _enum(
     options = [None, *(member.value for member in enum_type)]
     current = st.session_state.get(key, record.get(field))
     if current not in options:
-        current = None
+        options.append(current)
+    _field_header(label, field_path, current, generated.get(field))
     value = st.selectbox(
-        _changed_label(label, current, generated.get(field)),
+        label,
         options,
         index=options.index(current),
         format_func=lambda item: "—" if item is None else str(item),
         key=key,
-        help=_reference_help(generated.get(field)),
+        label_visibility="collapsed",
     )
     _set_optional(record, field, value)
 
@@ -509,12 +515,15 @@ def _enum_list(
     field_path = _field_path(path, field)
     key = _widget_key(field_path)
     current = st.session_state.get(key, record.get(field) or [])
+    options = [member.value for member in enum_type]
+    options.extend(item for item in current if item not in options)
+    _field_header(label, field_path, current or None, generated.get(field))
     value = st.multiselect(
-        _changed_label(label, current or None, generated.get(field)),
-        [member.value for member in enum_type],
+        label,
+        options,
         default=current,
         key=key,
-        help=_reference_help(generated.get(field)),
+        label_visibility="collapsed",
     )
     _set_optional(record, field, value or None)
 
@@ -529,9 +538,11 @@ def _text_list(
     multiline: bool = False,
 ) -> None:
     field_path = _field_path(path, field)
-    items = record.get(field) or []
+    stored_items = record.get(field) or []
+    placeholder = not stored_items
+    items = stored_items if stored_items else [""]
     generated_items = generated.get(field) or []
-    st.markdown(f"#### {_changed_label(label, items or None, generated.get(field))}")
+    _field_header(label, field_path, record.get(field), generated.get(field))
     for index, item in enumerate(items):
         item_path = f"{field_path}[{index}]"
         key = _widget_key(item_path)
@@ -549,29 +560,36 @@ def _text_list(
             ),
             value=current,
             key=key,
-            help=_reference_help(reference),
         )
         items[index] = value
         if up_column.button(
-            "↑", key=_widget_key(f"{item_path}:up"), disabled=index == 0
+            "↑",
+            key=_widget_key(f"{item_path}:up"),
+            disabled=placeholder or index == 0,
         ):
             _move_item(record, field, index, index - 1, field_path)
         if down_column.button(
             "↓",
             key=_widget_key(f"{item_path}:down"),
-            disabled=index == len(items) - 1,
+            disabled=placeholder or index == len(items) - 1,
         ):
             _move_item(record, field, index, index + 1, field_path)
-        if remove_column.button("×", key=_widget_key(f"{item_path}:remove")):
+        if remove_column.button(
+            "×", key=_widget_key(f"{item_path}:remove"), disabled=placeholder
+        ):
             _remove_item(record, field, index, field_path)
+    if placeholder:
+        _set_optional(record, field, items if items[0] else None)
+    else:
+        record[field] = items
     if st.button(
         f"Add {label[:-1].lower() if label.endswith('s') else 'item'}",
         key=_widget_key(f"{field_path}:add"),
+        disabled=placeholder and not items[0],
     ):
         items.append("")
         record[field] = items
         _reset_list_widgets(field_path)
-    _set_optional(record, field, items or None)
 
 
 def _object_list(
@@ -584,9 +602,11 @@ def _object_list(
     path: str = "",
 ) -> None:
     field_path = _field_path(path, field)
-    items = record.get(field) or []
+    stored_items = record.get(field) or []
+    placeholder = not stored_items
+    items = stored_items if stored_items else [{}]
     generated_items = generated.get(field) or []
-    st.markdown(f"#### {_changed_label(label, items or None, generated.get(field))}")
+    _field_header(label, field_path, record.get(field), generated.get(field))
     for index, item in enumerate(items):
         reference = generated_items[index] if index < len(generated_items) else {}
         item_path = f"{field_path}[{index}]"
@@ -594,31 +614,42 @@ def _object_list(
             _changed_label(
                 f"{item_label} {index + 1}",
                 item,
-                reference if reference else None,
+                reference if reference else {} if placeholder else None,
             ),
-            expanded=len(items) <= 2,
+            expanded=True,
         ):
             up_column, down_column, remove_column, _ = st.columns((1, 1, 1, 7))
             if up_column.button(
                 "Move up",
                 key=_widget_key(f"{item_path}:up"),
-                disabled=index == 0,
+                disabled=placeholder or index == 0,
             ):
                 _move_item(record, field, index, index - 1, field_path)
             if down_column.button(
                 "Move down",
                 key=_widget_key(f"{item_path}:down"),
-                disabled=index == len(items) - 1,
+                disabled=placeholder or index == len(items) - 1,
             ):
                 _move_item(record, field, index, index + 1, field_path)
-            if remove_column.button("Remove", key=_widget_key(f"{item_path}:remove")):
+            if remove_column.button(
+                "Remove",
+                key=_widget_key(f"{item_path}:remove"),
+                disabled=placeholder,
+            ):
                 _remove_item(record, field, index, field_path)
             renderer(item, reference, item_path)
-    if st.button(f"Add {item_label.lower()}", key=_widget_key(f"{field_path}:add")):
+    if placeholder:
+        _set_optional(record, field, items if items[0] else None)
+    else:
+        record[field] = items
+    if st.button(
+        f"Add {item_label.lower()}",
+        key=_widget_key(f"{field_path}:add"),
+        disabled=placeholder and not items[0],
+    ):
         items.append({})
         record[field] = items
         _reset_list_widgets(field_path)
-    _set_optional(record, field, items or None)
 
 
 def _optional_object(
@@ -630,25 +661,13 @@ def _optional_object(
     path: str = "",
 ) -> None:
     field_path = _field_path(path, field)
-    key = _widget_key(f"{field_path}:included")
-    current = record.get(field)
+    existing = record.get(field)
+    current = existing if isinstance(existing, dict) else {}
     reference = generated.get(field)
-    included = st.toggle(
-        _changed_label(label, current, reference),
-        value=current is not None,
-        key=key,
-        help=_reference_help(reference),
-    )
-    if not included:
-        if current is not None:
-            record.pop(field, None)
-            _clear_widget_prefix(f"{field_path}.")
-        return
-    if not isinstance(current, dict):
-        current = {}
-        record[field] = current
+    _field_header(label, field_path, existing, reference)
     with st.container(border=True):
         renderer(current, reference if isinstance(reference, dict) else {}, field_path)
+    _set_optional(record, field, current or None)
 
 
 def _move_item(
@@ -694,13 +713,68 @@ def _widget_key(path: str) -> str:
     return f"metadata_reviewer_widget:{snapshot_id}:{path}"
 
 
+def _field_header(label: str, path: str, value: Any, reference: Any) -> None:
+    description, examples = _field_information().get(_schema_path(path), (None, None))
+    label_column, generated_column, examples_column = st.columns(
+        (8, 1, 1), vertical_alignment="center"
+    )
+    label_column.markdown(_changed_label(f"**{label}**", value, reference))
+    with generated_column.popover(
+        "?",
+        help="Generated value",
+        key=_widget_key(f"{path}:generated"),
+    ):
+        st.markdown("**Generated value**")
+        _render_json_value(reference, "Missing or null")
+    with examples_column.popover(
+        "ⓘ",
+        help="Schema examples",
+        key=_widget_key(f"{path}:examples"),
+    ):
+        st.markdown("**Schema examples**")
+        _render_json_value(examples, "No examples supplied")
+    if description:
+        st.caption(description)
+
+
+def _render_json_value(value: Any, empty_message: str) -> None:
+    if value is None:
+        st.caption(empty_message)
+    else:
+        st.json(value, expanded=2)
+
+
+@lru_cache(maxsize=1)
+def _field_information() -> dict[str, tuple[str | None, list[Any] | None]]:
+    information: dict[str, tuple[str | None, list[Any] | None]] = {}
+
+    def visit(model: type[BaseModel], prefix: str = "") -> None:
+        for name, field in model.model_fields.items():
+            path = _field_path(prefix, name)
+            information[path] = (field.description, field.examples)
+            nested_model = _nested_model(field.annotation)
+            if nested_model is not None:
+                visit(nested_model, path)
+
+    visit(DataSnapshotMetadata)
+    return information
+
+
+def _nested_model(annotation: Any) -> type[BaseModel] | None:
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        return annotation
+    for argument in get_args(annotation):
+        nested_model = _nested_model(argument)
+        if nested_model is not None:
+            return nested_model
+    return None
+
+
+def _schema_path(path: str) -> str:
+    return re.sub(r"\[[0-9]+\]", "", path)
+
+
 def _changed_label(label: str, value: Any, reference: Any) -> str:
     if metadata_values_equal(value, reference):
         return label
     return f":orange[{label}]"
-
-
-def _reference_help(value: Any) -> str:
-    if value is None:
-        return "Generated: missing"
-    return "Generated: " + json.dumps(value, ensure_ascii=False, separators=(",", ":"))
