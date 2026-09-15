@@ -942,7 +942,7 @@ def test_exported_temporal_constraints_match_python() -> None:
     with pytest.raises(ValidationError, match="requires source text or a bound"):
         TemporalExpression()
     assert not validator.is_valid({})
-    for relation in [None, "point", "as_of", "interval", "open_interval"]:
+    for relation in [None, "point", "interval", "open_ended_interval"]:
         for precision in [None, "year", "day"]:
             for start in [None, "2020"]:
                 for end in [None, "2021"]:
@@ -965,6 +965,45 @@ def test_exported_temporal_constraints_match_python() -> None:
                         )
                         is valid
                     ), data
+
+
+def test_temporal_relations_are_distinct_and_source_supported() -> None:
+    """Reject ambiguous legacy relations and constrain open-ended periods."""
+    assert {relation.value for relation in metadata_models.TemporalRelation} == {
+        "point",
+        "interval",
+        "open_ended_interval",
+    }
+    for bound in ({"start": "2015"}, {"end": "2020"}):
+        expression = {
+            **bound,
+            "relation": "open_ended_interval",
+            "precision": "year",
+        }
+        TemporalExpression.model_validate(expression)
+    with pytest.raises(ValidationError, match="exactly one bound"):
+        TemporalExpression.model_validate(
+            {
+                "start": "2015",
+                "end": "2020",
+                "relation": "open_ended_interval",
+                "precision": "year",
+            }
+        )
+    for removed_relation in ("as_of", "open_interval"):
+        with pytest.raises(ValidationError, match="Input should be"):
+            TemporalExpression.model_validate(
+                {
+                    "start": "2020",
+                    "relation": removed_relation,
+                    "precision": "year",
+                }
+            )
+
+    description = TemporalExpression.model_fields["relation"].description
+    assert description is not None
+    assert "explicitly supports only one temporal boundary" in description
+    assert "failed to identify the other boundary" in description
 
 
 def test_reference_explains_constraints_and_mapping_locations() -> None:

@@ -57,6 +57,7 @@ result, and does not propose another validation run.
 | 14 | Semantic representability regression matrix (skipped) | None because the dedicated matrix was not added. | Focused tests cover implemented behavior changes without creating a separate 35-concept matrix. |
 | 15 | Resolve the `location_type` physical-versus-administrative inconsistency | Clarifying the scope could affect whether administrative-unit information is judged representable by the existing field, without adding a new field. | Determines whether values such as `District` belong in location type, geographic level, or both, and prevents contradictory extraction guidance. |
 | 16 | Rename temporal `granularity` to `reporting_interval` and narrow its vocabulary | The clearer name and regular-interval vocabulary could change how a validation model interprets the existing temporal concept, but they add no field-level concept. | Makes the extraction target explicit, separates observation spacing from coverage and publication cadence, and removes ambiguous non-interval values. |
+| 17 | Simplify and clarify temporal relations | Removing `as_of` and clarifying open-ended periods could reduce ambiguity in how a validation model interprets point dates and one-bound periods; no field-level concept is added. | Uses `point` for source expressions such as “as of,” and reserves `open_ended_interval` for an explicitly supported one-bound period. |
 
 ## 1. Simplify fields without a normalization vocabulary
 
@@ -867,7 +868,7 @@ The removed values mixed different temporal concepts into one enum:
 - `multi_year` described an interval imprecisely and could be confused with the
   total span in `period`. A multi-year series still uses `period` for its bounds
   and, when supported, one of the regular interval values for its observations.
-- `instantaneous` duplicated a point or as-of expression in `period`; a
+- `instantaneous` duplicated a point expression in `period`; a
   one-time observation omits `reporting_interval`.
 - `event_based` and `irregular` did not state a regular distance between
   successive time points. They had no demonstrated need in the reviewed
@@ -889,10 +890,55 @@ new standalone field was needed. No rerun is planned.
 **Metadata Extraction impact.** The extractor should populate
 `reporting_interval` when an explicit interval label or successive
 represented-data time points support a regular spacing. It should use `period`
-for an overall range or one-time/as-of observation and should not derive this
+for an overall range or one-time observation and should not derive this
 field from how often the document is published. The smaller enum removes
 several ambiguous choices and allows omission when no regular interval is
 supported.
+
+## 17. Simplify and clarify temporal relations
+
+**Status:** Implemented and verified.
+
+Remove `as_of` from `TemporalRelation`. It had the same structure as `point`:
+both required `start` and prohibited `end`. The schema did not define a stable
+distinction between them, and `source_text` already preserves wording such as
+“as of 31 December 2023.” Such an expression now uses `point` when it identifies
+the represented-data state at one date.
+
+Rename `open_interval` to `open_ended_interval`. The old name could be read as
+describing endpoint exclusion, while the implemented meaning is a period with
+only one supported temporal boundary. The approved definition is:
+
+> A period for which the snapshot explicitly supports only one temporal
+> boundary. Use `start` for expressions such as “since 2015” and `end` for
+> expressions such as “through 2020.” Do not use this relation merely because
+> extraction failed to identify the other boundary.
+
+The final relation vocabulary is:
+
+- `point`: one represented-data time point, encoded with `start` only;
+- `interval`: a bounded period, encoded with `start` and `end`; and
+- `open_ended_interval`: an explicitly one-bound period, encoded with exactly
+  one of `start` or `end`.
+
+These relations remain an application-owned normalization vocabulary. The
+open-start and open-end semantics are consistent with EDTF, but the schema does
+not serialize EDTF strings or distinguish an endpoint that is open from one
+that is merely unknown. When the snapshot does not establish an open-ended
+period, preserve its complete wording in `source_text` without manufacturing a
+normalized relation or bound.
+
+**Schema Validation impact.** Validation 3 evaluated v1.2 with `as_of` and
+`open_interval`. A comparable run could interpret the smaller, defined
+vocabulary more consistently, but the represented `time_period` concept and
+field inventory are unchanged. This does not revise the completed conclusion,
+and no rerun is planned.
+
+**Metadata Extraction impact.** The extractor has fewer overlapping choices.
+It uses `point` for a single date even when the source says “as of,” and uses
+`open_ended_interval` only when the snapshot supports a beginning without an
+end or an end without a beginning. A missed boundary is not evidence of an
+open-ended period.
 
 ## Final Schema v1.3 contract
 
@@ -922,7 +968,8 @@ source. Country identity uses `iso3_code`; location type includes physical and
 administrative kinds and remains distinct from geographic reporting level.
 Temporal coverage uses `reporting_interval` for regular spacing between
 represented-data time points; overall bounds and one-time observations remain
-in `period`.
+in `period`. Temporal relations distinguish a point, a bounded interval, and an
+explicitly one-bound `open_ended_interval`.
 
 The Pydantic models are canonical. The v1.3 JSON Schema is the model-facing
 interoperability artifact, and the generated Markdown is the human reference.
@@ -940,8 +987,10 @@ remain unchanged. No Schema Validation 4 artifacts or claims were introduced.
 
 The final checks produced these results:
 
-- `86 passed` in the focused metadata-schema test suite.
-- `139 passed, 6 skipped` in the full repository test suite.
+- `87 passed` in the focused metadata-schema test suite.
+- `141 passed` across all tests outside `tests/test_adapters.py`. Full-suite
+  collection requires the optional `doclayout_yolo` dependency, which is not
+  installed in the local development environment.
 - Generated JSON Schema and Markdown matched fresh generator output.
 - Black formatting and `git diff --check` completed without errors.
 - The frozen v1.2 documentation and Schema Validation 3 materials had no diff.

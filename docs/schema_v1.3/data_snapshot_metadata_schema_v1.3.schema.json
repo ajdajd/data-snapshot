@@ -2469,37 +2469,6 @@
           "if": {
             "properties": {
               "relation": {
-                "const": "as_of"
-              }
-            },
-            "required": [
-              "relation"
-            ]
-          },
-          "then": {
-            "anyOf": [
-              {
-                "properties": {
-                  "start": {
-                    "not": {
-                      "type": "null"
-                    }
-                  },
-                  "end": {
-                    "type": "null"
-                  }
-                },
-                "required": [
-                  "start"
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "relation": {
                 "const": "interval"
               }
             },
@@ -2534,7 +2503,7 @@
           "if": {
             "properties": {
               "relation": {
-                "const": "open_interval"
+                "const": "open_ended_interval"
               }
             },
             "required": [
@@ -2774,12 +2743,11 @@
             }
           ],
           "default": null,
-          "description": "Relationship between normalized bounds.",
+          "description": "Relationship between normalized bounds. `point` represents a single represented-data time point and requires `start` only. `interval` represents a bounded period and requires `start` and `end`. `open_ended_interval` represents a period for which the snapshot explicitly supports only one temporal boundary. Use `start` for expressions such as “since 2015” and `end` for expressions such as “through 2020.” Do not use `open_ended_interval` merely because extraction failed to identify the other boundary.",
           "examples": [
             "interval",
             "point",
-            "as_of",
-            "open_interval"
+            "open_ended_interval"
           ]
         },
         "precision": {
@@ -2806,7 +2774,7 @@
       "x-validation-rules": [
         "At least one of source_text, start, or end must be non-null.",
         "Normalized bounds require relation and precision; source-only expressions omit both.",
-        "point and as_of require start only; interval requires both bounds; open_interval requires exactly one bound.",
+        "point requires start only; interval requires both bounds; open_ended_interval requires exactly one bound.",
         "Bounds must match the declared precision. Python additionally validates calendar dates and chronological ordering."
       ]
     },
@@ -2822,12 +2790,11 @@
       "type": "string"
     },
     "TemporalRelation": {
-      "description": "Describe how normalized temporal bounds form an expression.",
+      "description": "Describe how normalized temporal bounds form an expression.\n\n`point` represents a single time point and requires `start` only.\n`interval` represents a bounded period and requires `start` and `end`.\n`open_ended_interval` represents a period for which the snapshot\nexplicitly supports only one temporal boundary.",
       "enum": [
         "point",
         "interval",
-        "open_interval",
-        "as_of"
+        "open_ended_interval"
       ],
       "title": "TemporalRelation",
       "type": "string"

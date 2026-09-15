@@ -2932,7 +2932,7 @@ Represent source-visible time with optional normalized bounds.
 
 - Normalized bounds require relation and precision; source-only expressions omit both.
 
-- point and as_of require start only; interval requires both bounds; open_interval requires exactly one bound.
+- point requires start only; interval requires both bounds; open_ended_interval requires exactly one bound.
 
 - Bounds must match the declared precision. Python additionally validates calendar dates and chronological ordering.
 
@@ -3009,7 +3009,7 @@ Normalized end.
 
 **Definition**
 
-Relationship between normalized bounds.
+Relationship between normalized bounds. `point` represents a single represented-data time point and requires `start` only. `interval` represents a bounded period and requires `start` and `end`. `open_ended_interval` represents a period for which the snapshot explicitly supports only one temporal boundary. Use `start` for expressions such as “since 2015” and `end` for expressions such as “through 2020.” Do not use `open_ended_interval` merely because extraction failed to identify the other boundary.
 
 **Examples**
 
@@ -3022,11 +3022,7 @@ Relationship between normalized bounds.
 ```
 
 ```json
-"as_of"
-```
-
-```json
-"open_interval"
+"open_ended_interval"
 ```
 
 
@@ -3065,7 +3061,7 @@ Describe the precision of normalized temporal bounds.
 
 Describe how normalized temporal bounds form an expression.
 
-`point`, `interval`, `open_interval`, `as_of`
+`point`, `interval`, `open_ended_interval`
 
 ### Unit
 

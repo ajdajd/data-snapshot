@@ -166,9 +166,8 @@ def _temporal_schema(schema: dict[str, Any]) -> None:
     ]
     for relation, alternatives in {
         "point": [("start",)],
-        "as_of": [("start",)],
         "interval": [("start", "end")],
-        "open_interval": [("start",), ("end",)],
+        "open_ended_interval": [("start",), ("end",)],
     }.items():
         branches = []
         for names in alternatives:
@@ -212,7 +211,7 @@ def _temporal_schema(schema: dict[str, Any]) -> None:
     schema["x-validation-rules"] = [
         "At least one of source_text, start, or end must be non-null.",
         "Normalized bounds require relation and precision; source-only expressions omit both.",
-        "point and as_of require start only; interval requires both bounds; open_interval requires exactly one bound.",
+        "point requires start only; interval requires both bounds; open_ended_interval requires exactly one bound.",
         "Bounds must match the declared precision. Python additionally validates calendar dates and chronological ordering.",
     ]
 
@@ -288,13 +287,21 @@ class AxisPosition(str, Enum):
     RIGHT = "right"
 
 
+# Developer note: This application-owned relation vocabulary uses the
+# open-start and open-end semantics described by EDTF for its open-ended value.
+# Reference: https://www.loc.gov/standards/datetime/
 class TemporalRelation(str, Enum):
-    """Describe how normalized temporal bounds form an expression."""
+    """Describe how normalized temporal bounds form an expression.
+
+    `point` represents a single time point and requires `start` only.
+    `interval` represents a bounded period and requires `start` and `end`.
+    `open_ended_interval` represents a period for which the snapshot
+    explicitly supports only one temporal boundary.
+    """
 
     POINT = "point"
     INTERVAL = "interval"
-    OPEN_INTERVAL = "open_interval"
-    AS_OF = "as_of"
+    OPEN_ENDED_INTERVAL = "open_ended_interval"
 
 
 # Developer note: These application-owned precision levels correspond to the
@@ -1199,9 +1206,9 @@ class TemporalExpression(_SchemaModel):
         examples=["2020", "2024-03"], default=None, description="Normalized end."
     )
     relation: TemporalRelation | None = Field(
-        examples=["interval", "point", "as_of", "open_interval"],
+        examples=["interval", "point", "open_ended_interval"],
         default=None,
-        description="Relationship between normalized bounds.",
+        description="Relationship between normalized bounds. `point` represents a single represented-data time point and requires `start` only. `interval` represents a bounded period and requires `start` and `end`. `open_ended_interval` represents a period for which the snapshot explicitly supports only one temporal boundary. Use `start` for expressions such as “since 2015” and `end` for expressions such as “through 2020.” Do not use `open_ended_interval` merely because extraction failed to identify the other boundary.",
     )
     precision: TemporalPrecision | None = Field(
         examples=["year", "month", "day", "datetime"],
@@ -1222,14 +1229,14 @@ class TemporalExpression(_SchemaModel):
             raise ValueError(
                 "Normalized temporal bounds require relation and precision."
             )
-        if self.relation in {TemporalRelation.POINT, TemporalRelation.AS_OF}:
+        if self.relation is TemporalRelation.POINT:
             if self.start is None or self.end is not None:
-                raise ValueError("point and as_of require start only.")
+                raise ValueError("point requires start only.")
         elif self.relation is TemporalRelation.INTERVAL:
             if self.start is None or self.end is None:
                 raise ValueError("interval requires start and end.")
         elif len(bounds) != 1:
-            raise ValueError("open_interval requires exactly one bound.")
+            raise ValueError("open_ended_interval requires exactly one bound.")
         for bound in bounds:
             _validate_temporal_value(bound, self.precision)
         if self.start is not None and self.end is not None:
