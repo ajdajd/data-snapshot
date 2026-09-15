@@ -6,13 +6,6 @@ from data_snapshot.utils import load_json
 from data_snapshot.annotation.labelstudio_adapter import (
     convert_labelstudio_export_to_eval_v13,
 )
-from data_snapshot.inference.doclayoutyolo import (
-    DocLayoutYOLOConfig,
-    run_doclayout_yolo_adapter_directory,
-)
-from data_snapshot.inference.tfid import TFIDConfig, run_tfid_adapter_directory
-from data_snapshot.inference.yolo26 import YOLO26Config, run_yolo26_adapter_directory
-from data_snapshot.inference.yolo11 import YOLO11Config, run_yolo11_adapter_directory
 
 INPUT_PDF_DIR = ROOT / "tests/data/pdf_input"
 
@@ -38,6 +31,11 @@ def test_labelstudio():
 
 @pytest.mark.skip(reason="For debugging purposes only.")
 def test_doclayoutyolo():
+    from data_snapshot.inference.doclayoutyolo import (
+        DocLayoutYOLOConfig,
+        run_doclayout_yolo_adapter_directory,
+    )
+
     ref_path = ROOT / "tests/data/doclayoutyolo_ref.json"
     test_path = ROOT / "tests/data/doclayoutyolo_test.json"
 
@@ -61,6 +59,8 @@ def test_doclayoutyolo():
 
 @pytest.mark.skip(reason="For debugging purposes only.")
 def test_tfid():
+    from data_snapshot.inference.tfid import TFIDConfig, run_tfid_adapter_directory
+
     ref_path = ROOT / "tests/data/tfid_ref.json"
     test_path = ROOT / "tests/data/tfid_test.json"
 
@@ -84,6 +84,11 @@ def test_tfid():
 
 @pytest.mark.skip(reason="For debugging purposes only.")
 def test_yolo26():
+    from data_snapshot.inference.yolo26 import (
+        YOLO26Config,
+        run_yolo26_adapter_directory,
+    )
+
     ref_path = ROOT / "tests/data/yolo26_ref.json"
     test_path = ROOT / "tests/data/yolo26_test.json"
 
@@ -108,6 +113,11 @@ def test_yolo26():
 
 @pytest.mark.skip(reason="For debugging purposes only.")
 def test_yolo11():
+    from data_snapshot.inference.yolo11 import (
+        YOLO11Config,
+        run_yolo11_adapter_directory,
+    )
+
     ref_path = ROOT / "tests/data/yolo11_ref.json"
     test_path = ROOT / "tests/data/yolo11_test.json"
 

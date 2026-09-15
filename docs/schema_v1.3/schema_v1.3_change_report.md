@@ -988,9 +988,7 @@ remain unchanged. No Schema Validation 4 artifacts or claims were introduced.
 The final checks produced these results:
 
 - `87 passed` in the focused metadata-schema test suite.
-- `141 passed` across all tests outside `tests/test_adapters.py`. Full-suite
-  collection requires the optional `doclayout_yolo` dependency, which is not
-  installed in the local development environment.
+- `141 passed, 5 skipped` in the full repository test suite.
 - Generated JSON Schema and Markdown matched fresh generator output.
 - Black formatting and `git diff --check` completed without errors.
 - The frozen v1.2 documentation and Schema Validation 3 materials had no diff.
