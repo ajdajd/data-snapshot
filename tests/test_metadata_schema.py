@@ -1018,6 +1018,20 @@ def test_reference_explains_constraints_and_mapping_locations() -> None:
         "CL_UNIT_MULT",
     ]:
         assert text in reference
+    relationship_section = reference.split("\n## Standards relationship labels\n", 1)[
+        1
+    ].split("\n## Snapshot fields\n", 1)[0]
+    for relationship in (
+        "exact",
+        "close",
+        "standard_broader",
+        "standard_narrower",
+        "related_structural",
+    ):
+        assert relationship_section.count(f"`{relationship}`") == 1
+    assert "do not assert validation or automatic conversion behavior" in (
+        relationship_section
+    )
     schema = DataSnapshotMetadata.model_json_schema()
     assert "x-standards" not in schema["properties"]["financing"]
     definitions = schema["$defs"]

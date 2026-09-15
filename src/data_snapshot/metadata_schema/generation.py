@@ -54,6 +54,32 @@ _EXAMPLE_GUIDANCE = (
     "example.org are illustrative placeholders."
 )
 
+_STANDARDS_RELATIONSHIPS = (
+    (
+        "exact",
+        "The standard term has the same essential meaning and intended use as "
+        "the local field.",
+    ),
+    (
+        "close",
+        "The meanings substantially overlap, with a bounded difference in scope "
+        "or application.",
+    ),
+    (
+        "standard_broader",
+        "The standard term covers the local field plus other meanings.",
+    ),
+    (
+        "standard_narrower",
+        "The standard term covers only part of the local field.",
+    ),
+    (
+        "related_structural",
+        "The standard offers a useful relationship or modeling pattern but is "
+        "not a semantic equivalent.",
+    ),
+)
+
 
 @cache
 def _metadata_schema() -> dict[str, Any]:
@@ -107,6 +133,18 @@ def render_markdown_reference() -> str:
         "## Validation and serialization",
         "",
         *[f"- {rule}" for rule in schema.get("x-validation-rules", [])],
+        "",
+        "## Standards relationship labels",
+        "",
+        (
+            "The `Standards / code list` entries use the following labels to "
+            "describe reviewed semantic alignments. These labels do not assert "
+            "validation or automatic conversion behavior."
+        ),
+        "",
+        "| Label | Meaning |",
+        "|---|---|",
+        *[f"| `{label}` | {meaning} |" for label, meaning in _STANDARDS_RELATIONSHIPS],
         "",
         "## Snapshot fields",
         "",

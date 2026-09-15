@@ -14,6 +14,18 @@ Schema version: `1.3`
 - Missing and null values are equivalent. Serialize records with exclude_none=True to omit unavailable values.
 - External registry membership, source-grounding, and semantic correctness are not validated. Unpinned code-list metadata identifies a syntax authority only.
 
+## Standards relationship labels
+
+The `Standards / code list` entries use the following labels to describe reviewed semantic alignments. These labels do not assert validation or automatic conversion behavior.
+
+| Label | Meaning |
+|---|---|
+| `exact` | The standard term has the same essential meaning and intended use as the local field. |
+| `close` | The meanings substantially overlap, with a bounded difference in scope or application. |
+| `standard_broader` | The standard term covers the local field plus other meanings. |
+| `standard_narrower` | The standard term covers only part of the local field. |
+| `related_structural` | The standard offers a useful relationship or modeling pattern but is not a semantic equivalent. |
+
 ## Snapshot fields
 
 Fields are grouped by the v1.3 semantic modules.
