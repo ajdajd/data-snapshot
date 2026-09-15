@@ -36,11 +36,11 @@ Each block is one possible field value. Examples for different fields are indepe
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `title` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [http://purl.org/dc/terms/title](http://purl.org/dc/terms/title) (exact), [https://schema.org/name](https://schema.org/name) (exact) |
-| `document_label` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/label.html](https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/label.html) (close), [https://schema.org/identifier](https://schema.org/identifier) (standard_broader) |
-| `subject_domains` | `array[string] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/subject](http://purl.org/dc/terms/subject) (standard_broader), [https://schema.org/about](https://schema.org/about) (standard_broader) |
-| `subject_summary` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [https://schema.org/abstract](https://schema.org/abstract) (close), [http://purl.org/dc/terms/description](http://purl.org/dc/terms/description) (standard_broader) |
-| `panel_titles` | `array[string] \| null` | no | `null` | minItems: 1 | [https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/fig-group.html](https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/fig-group.html) (close), [https://schema.org/hasPart](https://schema.org/hasPart) (related_structural) |
+| `title` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [http://purl.org/dc/terms/title](http://purl.org/dc/terms/title) (exact)<br>[https://schema.org/name](https://schema.org/name) (exact) |
+| `document_label` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/label.html](https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/label.html) (close)<br>[https://schema.org/identifier](https://schema.org/identifier) (standard_broader) |
+| `subject_domains` | `array[string] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/subject](http://purl.org/dc/terms/subject) (standard_broader)<br>[https://schema.org/about](https://schema.org/about) (standard_broader) |
+| `subject_summary` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [https://schema.org/abstract](https://schema.org/abstract) (close)<br>[http://purl.org/dc/terms/description](http://purl.org/dc/terms/description) (standard_broader) |
+| `panel_titles` | `array[string] \| null` | no | `null` | minItems: 1 | [https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/fig-group.html](https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/fig-group.html) (close)<br>[https://schema.org/hasPart](https://schema.org/hasPart) (related_structural) |
 
 #### Field definitions and examples
 
@@ -187,9 +187,9 @@ Populate only when panel titles are explicitly present.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `variables` | `array[Variable] \| null` | no | `null` | minItems: 1 | [https://schema.org/variableMeasured](https://schema.org/variableMeasured) (close), [https://ddialliance.org/Specification/DDI-Lifecycle/3.3/](https://ddialliance.org/Specification/DDI-Lifecycle/3.3/) (close) |
-| `dimensions` | `array[Dimension] \| null` | no | `null` | minItems: 1 | [https://sdmx.org/](https://sdmx.org/) (close), [https://ddialliance.org/Specification/DDI-Lifecycle/3.3/](https://ddialliance.org/Specification/DDI-Lifecycle/3.3/) (close) |
-| `population_group` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html](https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html) (close), [https://schema.org/populationType](https://schema.org/populationType) (close) |
+| `variables` | `array[Variable] \| null` | no | `null` | minItems: 1 | [https://schema.org/variableMeasured](https://schema.org/variableMeasured) (close)<br>[https://ddialliance.org/Specification/DDI-Lifecycle/3.3/](https://ddialliance.org/Specification/DDI-Lifecycle/3.3/) (close) |
+| `dimensions` | `array[Dimension] \| null` | no | `null` | minItems: 1 | [https://sdmx.org/](https://sdmx.org/) (close)<br>[https://ddialliance.org/Specification/DDI-Lifecycle/3.3/](https://ddialliance.org/Specification/DDI-Lifecycle/3.3/) (close) |
+| `population_group` | `string \| null` | no | `null` | minLength: 1; pattern: \S | [https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html](https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html) (close)<br>[https://schema.org/populationType](https://schema.org/populationType) (close) |
 
 #### Field definitions and examples
 
@@ -422,7 +422,7 @@ The human population, beneficiary group, or demographic group that is the primar
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `temporal_coverage` | `TemporalCoverage \| null` | no | `null` |  | [https://schema.org/temporalCoverage](https://schema.org/temporalCoverage) (exact), [http://purl.org/dc/terms/temporal](http://purl.org/dc/terms/temporal) (close) |
+| `temporal_coverage` | `TemporalCoverage \| null` | no | `null` |  | [https://schema.org/temporalCoverage](https://schema.org/temporalCoverage) (exact)<br>[http://purl.org/dc/terms/temporal](http://purl.org/dc/terms/temporal) (close) |
 
 #### Field definitions and examples
 
@@ -506,7 +506,7 @@ When the represented data apply and the interval between successive represented-
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `geographic_coverage` | `GeographicCoverage \| null` | no | `null` |  | [https://schema.org/spatialCoverage](https://schema.org/spatialCoverage) (exact), [http://purl.org/dc/terms/spatial](http://purl.org/dc/terms/spatial) (exact) |
+| `geographic_coverage` | `GeographicCoverage \| null` | no | `null` |  | [https://schema.org/spatialCoverage](https://schema.org/spatialCoverage) (exact)<br>[http://purl.org/dc/terms/spatial](http://purl.org/dc/terms/spatial) (exact) |
 
 #### Field definitions and examples
 
@@ -706,7 +706,7 @@ Populate only when the snapshot explicitly presents a comparative relationship. 
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `visualization_types` | `array[VisualizationTypeTerm] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/type](http://purl.org/dc/terms/type) (standard_broader), [https://schema.org/additionalType](https://schema.org/additionalType) (standard_broader) |
+| `visualization_types` | `array[VisualizationTypeTerm] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/type](http://purl.org/dc/terms/type) (standard_broader)<br>[https://schema.org/additionalType](https://schema.org/additionalType) (standard_broader) |
 
 #### Field definitions and examples
 
@@ -809,8 +809,8 @@ null
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
 | `provenance` | `Provenance \| null` | no | `null` |  |  |
-| `languages` | `array[Language] \| null` | no | `null` | minItems: 1 | [https://schema.org/inLanguage](https://schema.org/inLanguage) (exact), [http://purl.org/dc/terms/language](http://purl.org/dc/terms/language) (exact) |
-| `interpretive_notes` | `array[string] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/description](http://purl.org/dc/terms/description) (standard_broader), [https://schema.org/description](https://schema.org/description) (standard_broader) |
+| `languages` | `array[Language] \| null` | no | `null` | minItems: 1 | [https://schema.org/inLanguage](https://schema.org/inLanguage) (exact)<br>[http://purl.org/dc/terms/language](http://purl.org/dc/terms/language) (exact) |
+| `interpretive_notes` | `array[string] \| null` | no | `null` | minItems: 1 | [http://purl.org/dc/terms/description](http://purl.org/dc/terms/description) (standard_broader)<br>[https://schema.org/description](https://schema.org/description) (standard_broader) |
 
 #### Field definitions and examples
 
@@ -967,7 +967,7 @@ Populate only when such notes are explicitly present.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `project` | `Project \| null` | no | `null` |  | [https://schema.org/Project](https://schema.org/Project) (standard_narrower), [https://iatistandard.org/en/iati-standard/203/activity-standard/](https://iatistandard.org/en/iati-standard/203/activity-standard/) (close) |
+| `project` | `Project \| null` | no | `null` |  | [https://schema.org/Project](https://schema.org/Project) (standard_narrower)<br>[https://iatistandard.org/en/iati-standard/203/activity-standard/](https://iatistandard.org/en/iati-standard/203/activity-standard/) (close) |
 | `intervention_types` | `array[string] \| null` | no | `null` | minItems: 1 |  |
 | `financing` | `Financing \| null` | no | `null` |  |  |
 
@@ -1152,8 +1152,8 @@ Project-financing measures, funders, and instruments.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `analysis_methods` | `array[string] \| null` | no | `null` | minItems: 1 | [https://schema.org/measurementTechnique](https://schema.org/measurementTechnique) (related_structural), [http://www.w3.org/ns/prov#Activity](http://www.w3.org/ns/prov#Activity) (related_structural) |
-| `data_collection_methods` | `array[CodedTerm] \| null` | no | `null` | minItems: 1 | [https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/](https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/) (exact), [https://schema.org/measurementMethod](https://schema.org/measurementMethod) (close) |
+| `analysis_methods` | `array[string] \| null` | no | `null` | minItems: 1 | [https://schema.org/measurementTechnique](https://schema.org/measurementTechnique) (related_structural)<br>[http://www.w3.org/ns/prov#Activity](http://www.w3.org/ns/prov#Activity) (related_structural) |
+| `data_collection_methods` | `array[CodedTerm] \| null` | no | `null` | minItems: 1 | [https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/](https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/) (exact)<br>[https://schema.org/measurementMethod](https://schema.org/measurementMethod) (close) |
 
 #### Field definitions and examples
 
@@ -2650,7 +2650,7 @@ Separate derivation sources from credited agents.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `sources` | `array[EntityReference] \| null` | no | `null` | minItems: 1 | [http://www.w3.org/ns/prov#wasDerivedFrom](http://www.w3.org/ns/prov#wasDerivedFrom) (related_structural), [http://purl.org/dc/terms/source](http://purl.org/dc/terms/source) (close) |
+| `sources` | `array[EntityReference] \| null` | no | `null` | minItems: 1 | [http://www.w3.org/ns/prov#wasDerivedFrom](http://www.w3.org/ns/prov#wasDerivedFrom) (related_structural)<br>[http://purl.org/dc/terms/source](http://purl.org/dc/terms/source) (close) |
 | `attributions` | `array[Attribution] \| null` | no | `null` | minItems: 1 | [http://www.w3.org/ns/prov#wasAttributedTo](http://www.w3.org/ns/prov#wasAttributedTo) (related_structural) |
 
 #### Field definitions and examples
@@ -2858,7 +2858,7 @@ Group represented-data time and reporting interval.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
-| `period` | `TemporalExpression \| null` | no | `null` |  | [https://schema.org/temporalCoverage](https://schema.org/temporalCoverage) (exact), [http://purl.org/dc/terms/temporal](http://purl.org/dc/terms/temporal) (close) |
+| `period` | `TemporalExpression \| null` | no | `null` |  | [https://schema.org/temporalCoverage](https://schema.org/temporalCoverage) (exact)<br>[http://purl.org/dc/terms/temporal](http://purl.org/dc/terms/temporal) (close) |
 | `reporting_interval` | `ReportingIntervalTerm \| null` | no | `null` |  |  |
 
 #### Field definitions and examples

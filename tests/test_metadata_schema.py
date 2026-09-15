@@ -1032,6 +1032,11 @@ def test_reference_explains_constraints_and_mapping_locations() -> None:
     assert "do not assert validation or automatic conversion behavior" in (
         relationship_section
     )
+    document_label_row = next(
+        line for line in reference.splitlines() if line.startswith("| `document_label`")
+    )
+    assert ") (close)<br>[https://schema.org/identifier]" in document_label_row
+    assert ") (close), [https://schema.org/identifier]" not in document_label_row
     schema = DataSnapshotMetadata.model_json_schema()
     assert "x-standards" not in schema["properties"]["financing"]
     definitions = schema["$defs"]

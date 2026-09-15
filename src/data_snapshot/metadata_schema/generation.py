@@ -216,14 +216,14 @@ def _object_table(schema: dict[str, Any], detail_heading_level: int = 3) -> list
         "|---|---|---:|---|---|---|",
     ]
     for name, field_schema in schema.get("properties", {}).items():
-        standards = ", ".join(
+        standards = [
             f"[{mapping['term']}]({mapping['term']}) ({mapping['relationship']})"
             for mapping in field_schema.get("x-standards", [])
-        )
+        ]
         code_list = field_schema.get("x-code-list")
         if code_list:
             release = code_list.get("release", "not pinned; syntax only")
-            standards += ("; " if standards else "") + (
+            standards.append(
                 f"[{code_list['authority']} {code_list['identifier']}]"
                 f"({code_list['uri']}); release: {release}"
             )
@@ -253,7 +253,7 @@ def _object_table(schema: dict[str, Any], detail_heading_level: int = 3) -> list
                     "yes" if name in required else "no",
                     default,
                     _cell("; ".join(constraints)),
-                    standards,
+                    "<br>".join(standards),
                 )
             )
             + " |"
