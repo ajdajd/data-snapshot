@@ -10,6 +10,12 @@ To ensure consistency and maintainability across the codebase, all contributors 
 
 - **Formatter**: Mandatory use of **Black**.
 - **Line Length**: Default Black behavior (88 characters).
+- **Codex command**: In the Codex sandbox, invoke the locked formatter as
+  `.venv/bin/black` directly and pass exactly one file per invocation. Do not
+  use `uv run` for Black and do not pass multiple files or directories; `uv`
+  accesses its read-only shared cache, while Black's multi-file process pool
+  does not shut down reliably in the sandbox. For a repository-wide check, use
+  `git ls-files -z '*.py' | xargs -0 -n 1 .venv/bin/black --check`.
 
 ## 2. Documentation
 
@@ -34,3 +40,5 @@ To ensure consistency and maintainability across the codebase, all contributors 
 ## 5. Development Environment
 
 - **uv**: All commands and script executions must be performed using `uv run` (e.g., `uv run python -m data_snapshot.evaluation.evaluate_model`). Never use bare `python` without the `uv run` prefix.
+- **Black exception**: The direct `.venv/bin/black` command above is the only
+  exception to the `uv run` requirement.
