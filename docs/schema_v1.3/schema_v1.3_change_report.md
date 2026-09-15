@@ -1,6 +1,7 @@
 # Data Snapshot Metadata Schema v1.3 Change Report
 
 **Date:** September 11, 2026
+**Last updated:** September 15, 2026
 **Status:** Implemented and verified; item 13 is deferred to v1.4
 **Baseline:** Frozen Data Snapshot Metadata Schema v1.2
 **Release:** Data Snapshot Metadata Schema v1.3
@@ -55,6 +56,7 @@ result, and does not propose another validation run.
 | 13 | Align standards claims with actual validation strength | Could change whether syntax-only support is judged adequate for normalized identifiers and codes, but is unlikely to affect the underlying concept inventory. | v1.3 accepts values that pass syntax and relationship checks. Offline normalization and registry membership validation are deferred to v1.4. |
 | 14 | Semantic representability regression matrix (skipped) | None because the dedicated matrix was not added. | Focused tests cover implemented behavior changes without creating a separate 35-concept matrix. |
 | 15 | Resolve the `location_type` physical-versus-administrative inconsistency | Clarifying the scope could affect whether administrative-unit information is judged representable by the existing field, without adding a new field. | Determines whether values such as `District` belong in location type, geographic level, or both, and prevents contradictory extraction guidance. |
+| 16 | Rename temporal `granularity` to `reporting_interval` and narrow its vocabulary | The clearer name and regular-interval vocabulary could change how a validation model interprets the existing temporal concept, but they add no field-level concept. | Makes the extraction target explicit, separates observation spacing from coverage and publication cadence, and removes ambiguous non-interval values. |
 
 ## 1. Simplify fields without a normalization vocabulary
 
@@ -137,7 +139,7 @@ The implementation covers every retained normalization structure:
 | Structure | Deterministic paired examples | Examples intentionally left source-only |
 |---|---|---|
 | Temporal expression | `2015–2020` with year bounds and interval semantics; `January 2024` with month precision | `FY2023`, because fiscal-year bounds depend on the applicable calendar |
-| Temporal granularity | Annual, monthly, quarterly, and daily | None among the legacy examples |
+| Reporting interval | Annual, monthly, quarterly, and daily | None among the legacy examples |
 | Place and geographic level | ISO alpha-3 country codes for named countries; M49 codes for exact regions; `Country` and `Facility` levels | `Province` and `District`, because their administrative levels vary by jurisdiction; `Latin America`, because M49 `419` denotes Latin America **and the Caribbean** |
 | Language | English, French, and Arabic with their BCP 47 primary-language tags | None among the legacy examples |
 | Currency and unit | USD, EUR, and JPY currency codes; UN/CEFACT codes for percent and kilometre | `USD` and `People` as unit expressions, because no deterministic unit-code mapping was approved for those examples |
@@ -554,7 +556,7 @@ The rule applies as follows:
 | Plain semantic text approved under item 1 | Not applicable; the field stores the semantic answer directly. | Return the directly supported semantic answer, such as `Agriculture`, without pretending it was transcribed. |
 | Statistical form | Preserve an explicit word or symbol such as `Average` or `%`. | Use only the closed `normalized_value` when the form is directly supported but not explicitly named. |
 | Visualization type | Preserve explicit wording such as `Bar Graph`. | Use only the closed `normalized_value` when the form is inferred from the visual design. |
-| Temporal granularity | Preserve explicit wording such as `Annual`. | Use only the closed `normalized_value` when the granularity is supported by the time sequence or structure. |
+| Reporting interval | Preserve explicit wording such as `Annual`. | Use only the closed `normalized_value` when the interval is supported by the time sequence or structure. |
 | Geographic level | Preserve explicit wording such as `Province`. | Use only the closed `normalized_value` when the level is supported by the snapshot but not explicitly named. Do not use unsupported model-world knowledge. |
 | Language | Preserve a language label only when it is itself displayed, such as a language selector reading `English`. | Use the BCP 47 `tag` when the language is identified from the displayed content. |
 | Place | Preserve the displayed place expression, such as `The Philippines`. | Use the preferred `name` and applicable codes when the place is directly supported visually or by trusted metadata but not textually named. |
@@ -584,7 +586,7 @@ patterns in addition to the plain text fields approved in item 1:
 
 | Pattern | Properties | Uses |
 |---|---|---|
-| Purpose-specific normalized term | `source_text`, closed-enum `normalized_value` | `StatisticalFormTerm`, `VisualizationTypeTerm`, `TemporalGranularityTerm`, and `GeographicLevelTerm` |
+| Purpose-specific normalized term | `source_text`, closed-enum `normalized_value` | `StatisticalFormTerm`, `VisualizationTypeTerm`, `ReportingIntervalTerm`, and `GeographicLevelTerm` |
 | Shared coded term | `source_text`, `code`, `scheme`, `uri` | Dimension categories, attribution roles, location types, financing instruments, and data-collection methods |
 
 The four normalized term models do not inherit `code`, `scheme`, or `uri`.
@@ -827,6 +829,71 @@ rule: attach `District` to a named location when it expresses what that place
 is; use `geographic_coverage.level` when district is the level at which data are
 reported; populate both only when each assertion is independently supported.
 
+## 16. Clarify the temporal reporting interval
+
+**Status:** Implemented and verified.
+
+Rename `temporal_coverage.granularity` to
+`temporal_coverage.reporting_interval`. Rename its supporting types from
+`TemporalGranularityTerm` and `TemporalGranularityValue` to
+`ReportingIntervalTerm` and `ReportingIntervalValue`.
+
+The approved field definition is:
+
+> The interval between successive time points represented by the data, such as
+> hourly, daily, monthly, quarterly, or annual. This describes the spacing of
+> the represented data, not the document's publication schedule or the overall
+> period covered.
+
+The previous name was technically defensible: SDMX uses `FREQ` for observation
+frequency, and DDI describes time-method dimensions that include time
+intervals. In this schema, however, `granularity` did not tell a reader which
+temporal property it measured. `reporting_interval` states the intended
+question more directly while the definition prevents “reporting” from being
+misread as the parent document's publication schedule.
+
+The normalized vocabulary now contains only regular intervals:
+
+- `hourly`
+- `daily`
+- `weekly`
+- `monthly`
+- `quarterly`
+- `semiannual`
+- `annual`
+
+The removed values mixed different temporal concepts into one enum:
+
+- `multi_year` described an interval imprecisely and could be confused with the
+  total span in `period`. A multi-year series still uses `period` for its bounds
+  and, when supported, one of the regular interval values for its observations.
+- `instantaneous` duplicated a point or as-of expression in `period`; a
+  one-time observation omits `reporting_interval`.
+- `event_based` and `irregular` did not state a regular distance between
+  successive time points. They had no demonstrated need in the reviewed
+  snapshots and are omitted rather than treated as intervals.
+
+This change preserves all v1.1.1 examples for the concept: `Annual`, `Monthly`,
+`Quarterly`, and `Daily`. The source-visible wording remains in `source_text`,
+and each example carries its deterministic normalized value. The SDMX
+`CL_FREQ` reference remains a developer note on the enum rather than a
+model-facing description.
+
+**Schema Validation impact.** Validation 3 evaluated the frozen v1.2
+`granularity` field and its broader enum. In a comparable run, the clearer name
+and narrower vocabulary could help the model distinguish a represented-data
+interval from total coverage or publication cadence. The change does not add a
+new metadata concept and would not be expected to alter the conclusion that no
+new standalone field was needed. No rerun is planned.
+
+**Metadata Extraction impact.** The extractor should populate
+`reporting_interval` when an explicit interval label or successive
+represented-data time points support a regular spacing. It should use `period`
+for an overall range or one-time/as-of observation and should not derive this
+field from how often the document is published. The smaller enum removes
+several ambiguous choices and allows omission when no regular interval is
+supported.
+
 ## Final Schema v1.3 contract
 
 Schema v1.3 uses plain strings for the six semantic field groups without a
@@ -853,6 +920,9 @@ and uses root `null` when no type can be supported. Identifier enrichment
 requires snapshot evidence, trusted metadata, or a configured and verified
 source. Country identity uses `iso3_code`; location type includes physical and
 administrative kinds and remains distinct from geographic reporting level.
+Temporal coverage uses `reporting_interval` for regular spacing between
+represented-data time points; overall bounds and one-time observations remain
+in `period`.
 
 The Pydantic models are canonical. The v1.3 JSON Schema is the model-facing
 interoperability artifact, and the generated Markdown is the human reference.
@@ -870,8 +940,8 @@ remain unchanged. No Schema Validation 4 artifacts or claims were introduced.
 
 The final checks produced these results:
 
-- `85 passed` in the focused metadata-schema test suite.
-- `128 passed, 5 skipped` in the full repository test suite.
+- `86 passed` in the focused metadata-schema test suite.
+- `139 passed, 6 skipped` in the full repository test suite.
 - Generated JSON Schema and Markdown matched fresh generator output.
 - Black formatting and `git diff --check` completed without errors.
 - The frozen v1.2 documentation and Schema Validation 3 materials had no diff.

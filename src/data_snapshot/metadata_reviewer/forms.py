@@ -20,8 +20,8 @@ from data_snapshot.metadata_schema import (
     DataSnapshotMetadata,
     GeographicLevelValue,
     PresentationRole,
+    ReportingIntervalValue,
     StatisticalFormValue,
-    TemporalGranularityValue,
     TemporalPrecision,
     TemporalRelation,
     VisualizationTypeValue,
@@ -284,9 +284,9 @@ def _render_temporal_coverage(record: Record, generated: Record, path: str) -> N
     _optional_object(
         record,
         generated,
-        "granularity",
-        "Granularity",
-        _normalized_renderer(TemporalGranularityValue),
+        "reporting_interval",
+        "Reporting interval",
+        _normalized_renderer(ReportingIntervalValue),
         path,
     )
 

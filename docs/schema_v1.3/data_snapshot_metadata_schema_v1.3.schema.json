@@ -2049,6 +2049,95 @@
         "At least one non-null value is required: sources, attributions."
       ]
     },
+    "ReportingIntervalTerm": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "normalized_value": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "normalized_value"
+          ]
+        }
+      ],
+      "description": "Represent a known or source-only reporting interval.\n\nParameters\n----------\nsource_text : str | None\n    Exact source-visible expression of the reporting interval.\nnormalized_value : ReportingIntervalValue | None\n    Approved normalized reporting interval.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact text visible in the snapshot that explicitly states the reporting interval.",
+          "examples": [
+            "Annual",
+            "Monthly",
+            "Quarterly",
+            "Daily"
+          ],
+          "title": "Source Text"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReportingIntervalValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Approved normalized reporting interval.",
+          "examples": [
+            "annual",
+            "monthly",
+            "quarterly"
+          ]
+        }
+      },
+      "title": "ReportingIntervalTerm",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, normalized_value."
+      ]
+    },
+    "ReportingIntervalValue": {
+      "description": "Enumerate approved normalized reporting intervals.",
+      "enum": [
+        "hourly",
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "semiannual",
+        "annual"
+      ],
+      "title": "ReportingIntervalValue",
+      "type": "string"
+    },
     "StatisticalFormTerm": {
       "additionalProperties": false,
       "anyOf": [
@@ -2194,18 +2283,18 @@
         },
         {
           "properties": {
-            "granularity": {
+            "reporting_interval": {
               "not": {
                 "type": "null"
               }
             }
           },
           "required": [
-            "granularity"
+            "reporting_interval"
           ]
         }
       ],
-      "description": "Group represented-data time and granularity.\n\nParameters\n----------\nperiod : TemporalExpression | None\n    Represented-data temporal expression.\ngranularity : TemporalGranularityTerm | None\n    Reporting interval or temporal resolution.",
+      "description": "Group represented-data time and reporting interval.\n\nParameters\n----------\nperiod : TemporalExpression | None\n    Represented-data temporal expression.\nreporting_interval : ReportingIntervalTerm | None\n    Interval between successive represented-data time points.",
       "properties": {
         "period": {
           "anyOf": [
@@ -2247,17 +2336,17 @@
             }
           ]
         },
-        "granularity": {
+        "reporting_interval": {
           "anyOf": [
             {
-              "$ref": "#/$defs/TemporalGranularityTerm"
+              "$ref": "#/$defs/ReportingIntervalTerm"
             },
             {
               "type": "null"
             }
           ],
           "default": null,
-          "description": "The temporal resolution at which the represented data are reported.",
+          "description": "The interval between successive time points represented by the data, such as hourly, daily, monthly, quarterly, or annual. This describes the spacing of the represented data, not the document's publication schedule or the overall period covered.",
           "examples": [
             {
               "normalized_value": "annual",
@@ -2281,7 +2370,7 @@
       "title": "TemporalCoverage",
       "type": "object",
       "x-validation-rules": [
-        "At least one non-null value is required: period, granularity."
+        "At least one non-null value is required: period, reporting_interval."
       ]
     },
     "TemporalExpression": {
@@ -2720,99 +2809,6 @@
         "point and as_of require start only; interval requires both bounds; open_interval requires exactly one bound.",
         "Bounds must match the declared precision. Python additionally validates calendar dates and chronological ordering."
       ]
-    },
-    "TemporalGranularityTerm": {
-      "additionalProperties": false,
-      "anyOf": [
-        {
-          "properties": {
-            "source_text": {
-              "not": {
-                "type": "null"
-              }
-            }
-          },
-          "required": [
-            "source_text"
-          ]
-        },
-        {
-          "properties": {
-            "normalized_value": {
-              "not": {
-                "type": "null"
-              }
-            }
-          },
-          "required": [
-            "normalized_value"
-          ]
-        }
-      ],
-      "description": "Represent a known or source-only temporal granularity.\n\nParameters\n----------\nsource_text : str | None\n    Exact source-visible expression of the temporal granularity.\nnormalized_value : TemporalGranularityValue | None\n    Approved normalized temporal granularity.",
-      "properties": {
-        "source_text": {
-          "anyOf": [
-            {
-              "minLength": 1,
-              "pattern": "\\S",
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Exact text visible in the snapshot that explicitly states the temporal granularity.",
-          "examples": [
-            "Annual",
-            "Monthly",
-            "Quarterly",
-            "Daily"
-          ],
-          "title": "Source Text"
-        },
-        "normalized_value": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/TemporalGranularityValue"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Approved normalized temporal granularity.",
-          "examples": [
-            "annual",
-            "monthly",
-            "quarterly"
-          ]
-        }
-      },
-      "title": "TemporalGranularityTerm",
-      "type": "object",
-      "x-validation-rules": [
-        "At least one non-null value is required: source_text, normalized_value."
-      ]
-    },
-    "TemporalGranularityValue": {
-      "description": "Enumerate approved normalized temporal granularities.",
-      "enum": [
-        "hourly",
-        "daily",
-        "weekly",
-        "monthly",
-        "quarterly",
-        "semiannual",
-        "annual",
-        "instantaneous",
-        "event_based",
-        "multi_year",
-        "irregular"
-      ],
-      "title": "TemporalGranularityValue",
-      "type": "string"
     },
     "TemporalPrecision": {
       "description": "Describe the precision of normalized temporal bounds.",
@@ -3336,7 +3332,7 @@
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Represent canonical semantic metadata for one data snapshot.\n\nParameters\n----------\ntitle : str | None\n    Primary title, caption, or heading.\ndocument_label : str | None\n    Label assigned within the parent source document.\nsubject_domains : list[str] | None\n    Broad thematic, policy, or sectoral domains.\nsubject_summary : str | None\n    Concise analytical summary.\npanel_titles : list[str] | None\n    Ordered explicit panel titles.\nvariables : list[Variable] | None\n    Measured concepts and their qualifiers.\ndimensions : list[Dimension] | None\n    Classificatory dimensions and visible organization.\npopulation_group : str | None\n    Human population represented by the data.\nvisualization_types : list[VisualizationTypeTerm] | None\n    Visible visualization forms.\ntemporal_coverage : TemporalCoverage | None\n    Represented-data time and granularity.\ngeographic_coverage : GeographicCoverage | None\n    Geographic scope, locations, and level.\ncomparisons : list[str] | None\n    Explicit comparisons or named comparators.\nprovenance : Provenance | None\n    Derivation sources and artifact attributions.\nlanguages : list[Language] | None\n    Languages used within the snapshot.\ninterpretive_notes : list[str] | None\n    Complete source-visible interpretive statements.\nproject : Project | None\n    Associated project or operational context.\nintervention_types : list[str] | None\n    Represented interventions or activities.\nfinancing : Financing | None\n    Project-financing context.\nanalysis_methods : list[str] | None\n    Explicit analytical methods.\ndata_collection_methods : list[CodedTerm] | None\n    Explicit data-collection methods.",
+  "description": "Represent canonical semantic metadata for one data snapshot.\n\nParameters\n----------\ntitle : str | None\n    Primary title, caption, or heading.\ndocument_label : str | None\n    Label assigned within the parent source document.\nsubject_domains : list[str] | None\n    Broad thematic, policy, or sectoral domains.\nsubject_summary : str | None\n    Concise analytical summary.\npanel_titles : list[str] | None\n    Ordered explicit panel titles.\nvariables : list[Variable] | None\n    Measured concepts and their qualifiers.\ndimensions : list[Dimension] | None\n    Classificatory dimensions and visible organization.\npopulation_group : str | None\n    Human population represented by the data.\nvisualization_types : list[VisualizationTypeTerm] | None\n    Visible visualization forms.\ntemporal_coverage : TemporalCoverage | None\n    Represented-data time and reporting interval.\ngeographic_coverage : GeographicCoverage | None\n    Geographic scope, locations, and level.\ncomparisons : list[str] | None\n    Explicit comparisons or named comparators.\nprovenance : Provenance | None\n    Derivation sources and artifact attributions.\nlanguages : list[Language] | None\n    Languages used within the snapshot.\ninterpretive_notes : list[str] | None\n    Complete source-visible interpretive statements.\nproject : Project | None\n    Associated project or operational context.\nintervention_types : list[str] | None\n    Represented interventions or activities.\nfinancing : Financing | None\n    Project-financing context.\nanalysis_methods : list[str] | None\n    Explicit analytical methods.\ndata_collection_methods : list[CodedTerm] | None\n    Explicit data-collection methods.",
   "properties": {
     "title": {
       "anyOf": [
@@ -3823,7 +3819,7 @@
         }
       ],
       "default": null,
-      "description": "When the represented data apply and their granularity.",
+      "description": "When the represented data apply and the interval between successive represented-data time points.",
       "examples": [
         {
           "period": {
@@ -3848,25 +3844,25 @@
           }
         },
         {
-          "granularity": {
+          "reporting_interval": {
             "normalized_value": "annual",
             "source_text": "Annual"
           }
         },
         {
-          "granularity": {
+          "reporting_interval": {
             "normalized_value": "monthly",
             "source_text": "Monthly"
           }
         },
         {
-          "granularity": {
+          "reporting_interval": {
             "normalized_value": "quarterly",
             "source_text": "Quarterly"
           }
         },
         {
-          "granularity": {
+          "reporting_interval": {
             "normalized_value": "daily",
             "source_text": "Daily"
           }

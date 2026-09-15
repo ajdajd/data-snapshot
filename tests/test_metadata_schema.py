@@ -23,9 +23,9 @@ from data_snapshot.metadata_schema import (
     Language,
     Identifier,
     Place,
+    ReportingIntervalTerm,
     StatisticalFormTerm,
     TemporalExpression,
-    TemporalGranularityTerm,
     Unit,
     Variable,
     VisualizationTypeTerm,
@@ -111,7 +111,6 @@ def test_uncontested_descriptions_match_v111_verbatim() -> None:
         "category_dimension": ("Dimension", "name"),
         "category_labels": ("Dimension", "categories"),
         "population_group": ("DataSnapshotMetadata", "population_group"),
-        "temporal_granularity": ("TemporalCoverage", "granularity"),
         "geographic_scope": ("GeographicCoverage", "scope"),
         "geographic_granularity": ("GeographicCoverage", "level"),
         "geographic_role": ("GeographicLocation", "role"),
@@ -160,7 +159,11 @@ def test_uncontested_examples_preserve_all_v111_text_in_order() -> None:
             (),
         ),
         "time_period": ("TemporalCoverage", "period", ("source_text",)),
-        "temporal_granularity": ("TemporalCoverage", "granularity", ("source_text",)),
+        "temporal_granularity": (
+            "TemporalCoverage",
+            "reporting_interval",
+            ("source_text",),
+        ),
         "geographic_scope": ("GeographicCoverage", "scope", ("source_text",)),
         "geographic_entities": ("GeographicCoverage", "locations", (0, "name")),
         "geographic_granularity": ("GeographicCoverage", "level", ("source_text",)),
@@ -266,6 +269,30 @@ def test_worked_examples_pair_only_deterministic_normalization() -> None:
     ]
 
 
+def test_reporting_interval_is_regular_observation_spacing() -> None:
+    """Keep reporting interval distinct from coverage and publication cadence."""
+    field = metadata_models.TemporalCoverage.model_fields["reporting_interval"]
+    assert field.description == (
+        "The interval between successive time points represented by the data, such "
+        "as hourly, daily, monthly, quarterly, or annual. This describes the "
+        "spacing of the represented data, not the document's publication schedule "
+        "or the overall period covered."
+    )
+    assert {value.value for value in metadata_models.ReportingIntervalValue} == {
+        "hourly",
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "semiannual",
+        "annual",
+    }
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        metadata_models.TemporalCoverage.model_validate(
+            {"period": {"source_text": "2024"}, "granularity": "annual"}
+        )
+
+
 def test_visualization_fallback_distinguishes_source_only_from_unknown() -> None:
     """Preserve unfamiliar labels and use root null when no type is supported."""
     examples = DataSnapshotMetadata.model_fields["visualization_types"].examples
@@ -347,7 +374,7 @@ def test_representative_record_preserves_nested_relationships() -> None:
                     "relation": "interval",
                     "precision": "year",
                 },
-                "granularity": {
+                "reporting_interval": {
                     "source_text": "Annual",
                     "normalized_value": "annual",
                 },
@@ -494,7 +521,7 @@ def test_normalized_terms_expose_only_source_and_closed_value() -> None:
     for model in [
         StatisticalFormTerm,
         VisualizationTypeTerm,
-        TemporalGranularityTerm,
+        ReportingIntervalTerm,
         GeographicLevelTerm,
     ]:
         assert set(model.model_fields) == {"source_text", "normalized_value"}

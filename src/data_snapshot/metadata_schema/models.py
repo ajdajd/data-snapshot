@@ -404,11 +404,11 @@ class VisualizationTypeValue(str, Enum):
     COMPOSITE_FIGURE = "composite_figure"
 
 
-# Developer note: This application vocabulary aligns regular frequencies with
-# SDMX CL_FREQ and adds local values for non-frequency granularities.
+# Developer note: This interval vocabulary aligns regular frequencies with
+# SDMX CL_FREQ.
 # Reference: https://sdmx.org/sdmx_cdcl/
-class TemporalGranularityValue(str, Enum):
-    """Enumerate approved normalized temporal granularities."""
+class ReportingIntervalValue(str, Enum):
+    """Enumerate approved normalized reporting intervals."""
 
     HOURLY = "hourly"
     DAILY = "daily"
@@ -417,10 +417,6 @@ class TemporalGranularityValue(str, Enum):
     QUARTERLY = "quarterly"
     SEMIANNUAL = "semiannual"
     ANNUAL = "annual"
-    INSTANTANEOUS = "instantaneous"
-    EVENT_BASED = "event_based"
-    MULTI_YEAR = "multi_year"
-    IRREGULAR = "irregular"
 
 
 # Developer note: This application-owned vocabulary implements the geographic
@@ -606,26 +602,26 @@ class VisualizationTypeTerm(_NormalizedTerm):
     )
 
 
-class TemporalGranularityTerm(_NormalizedTerm):
-    """Represent a known or source-only temporal granularity.
+class ReportingIntervalTerm(_NormalizedTerm):
+    """Represent a known or source-only reporting interval.
 
     Parameters
     ----------
     source_text : str | None
-        Exact source-visible expression of the temporal granularity.
-    normalized_value : TemporalGranularityValue | None
-        Approved normalized temporal granularity.
+        Exact source-visible expression of the reporting interval.
+    normalized_value : ReportingIntervalValue | None
+        Approved normalized reporting interval.
     """
 
     source_text: NonEmptyText | None = Field(
         default=None,
-        description="Exact text visible in the snapshot that explicitly states the temporal granularity.",
+        description="Exact text visible in the snapshot that explicitly states the reporting interval.",
         examples=["Annual", "Monthly", "Quarterly", "Daily"],
     )
-    normalized_value: TemporalGranularityValue | None = Field(
+    normalized_value: ReportingIntervalValue | None = Field(
         examples=["annual", "monthly", "quarterly"],
         default=None,
-        description="Approved normalized temporal granularity.",
+        description="Approved normalized reporting interval.",
     )
 
 
@@ -1279,18 +1275,18 @@ def _temporal_sort_value(
 
 
 class TemporalCoverage(_SchemaModel):
-    """Group represented-data time and granularity.
+    """Group represented-data time and reporting interval.
 
     Parameters
     ----------
     period : TemporalExpression | None
         Represented-data temporal expression.
-    granularity : TemporalGranularityTerm | None
-        Reporting interval or temporal resolution.
+    reporting_interval : ReportingIntervalTerm | None
+        Interval between successive represented-data time points.
     """
 
     model_config = ConfigDict(
-        json_schema_extra=_content_schema("period", "granularity")
+        json_schema_extra=_content_schema("period", "reporting_interval")
     )
 
     period: TemporalExpression | None = Field(
@@ -1317,7 +1313,7 @@ class TemporalCoverage(_SchemaModel):
             ("http://purl.org/dc/terms/temporal", "close"),
         ),
     )
-    granularity: TemporalGranularityTerm | None = Field(
+    reporting_interval: ReportingIntervalTerm | None = Field(
         examples=[
             {"source_text": "Annual", "normalized_value": "annual"},
             {"source_text": "Monthly", "normalized_value": "monthly"},
@@ -1325,13 +1321,15 @@ class TemporalCoverage(_SchemaModel):
             {"source_text": "Daily", "normalized_value": "daily"},
         ],
         default=None,
-        description="The temporal resolution at which the represented data are reported.",
+        description="The interval between successive time points represented by the data, such as hourly, daily, monthly, quarterly, or annual. This describes the spacing of the represented data, not the document's publication schedule or the overall period covered.",
     )
 
     @model_validator(mode="after")
     def _validate_content(self) -> TemporalCoverage:
-        if self.period is None and self.granularity is None:
-            raise ValueError("Temporal coverage must contain period or granularity.")
+        if self.period is None and self.reporting_interval is None:
+            raise ValueError(
+                "Temporal coverage must contain period or reporting_interval."
+            )
         return self
 
 
@@ -1736,7 +1734,7 @@ class DataSnapshotMetadata(_SchemaModel):
     visualization_types : list[VisualizationTypeTerm] | None
         Visible visualization forms.
     temporal_coverage : TemporalCoverage | None
-        Represented-data time and granularity.
+        Represented-data time and reporting interval.
     geographic_coverage : GeographicCoverage | None
         Geographic scope, locations, and level.
     comparisons : list[str] | None
@@ -1965,32 +1963,32 @@ class DataSnapshotMetadata(_SchemaModel):
                 }
             },
             {
-                "granularity": {
+                "reporting_interval": {
                     "source_text": "Annual",
                     "normalized_value": "annual",
                 }
             },
             {
-                "granularity": {
+                "reporting_interval": {
                     "source_text": "Monthly",
                     "normalized_value": "monthly",
                 }
             },
             {
-                "granularity": {
+                "reporting_interval": {
                     "source_text": "Quarterly",
                     "normalized_value": "quarterly",
                 }
             },
             {
-                "granularity": {
+                "reporting_interval": {
                     "source_text": "Daily",
                     "normalized_value": "daily",
                 }
             },
         ],
         default=None,
-        description="When the represented data apply and their granularity.",
+        description="When the represented data apply and the interval between successive represented-data time points.",
         json_schema_extra=_standards(
             ("https://schema.org/temporalCoverage", "exact"),
             ("http://purl.org/dc/terms/temporal", "close"),

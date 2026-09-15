@@ -144,7 +144,7 @@ inferred from visual form, structure, or context rather than transcribed. A
 
 The four specialized normalized-term models constrain `normalized_value` to an
 approved enum: `StatisticalFormTerm`, `VisualizationTypeTerm`,
-`TemporalGranularityTerm`, and `GeographicLevelTerm`. They accept either an
+`ReportingIntervalTerm`, and `GeographicLevelTerm`. They accept either an
 explicit source label, a normalized value inferred from the snapshot, or both.
 For visualization types, preserve an explicitly written unfamiliar label as a
 source-only term. Return `visualization_types=null` when neither a listed type

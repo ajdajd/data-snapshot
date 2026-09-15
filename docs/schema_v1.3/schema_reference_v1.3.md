@@ -418,7 +418,7 @@ The human population, beneficiary group, or demographic group that is the primar
 
 **Definition**
 
-When the represented data apply and their granularity.
+When the represented data apply and the interval between successive represented-data time points.
 
 **Examples**
 
@@ -455,7 +455,7 @@ When the represented data apply and their granularity.
 
 ```json
 {
-  "granularity": {
+  "reporting_interval": {
     "normalized_value": "annual",
     "source_text": "Annual"
   }
@@ -464,7 +464,7 @@ When the represented data apply and their granularity.
 
 ```json
 {
-  "granularity": {
+  "reporting_interval": {
     "normalized_value": "monthly",
     "source_text": "Monthly"
   }
@@ -473,7 +473,7 @@ When the represented data apply and their granularity.
 
 ```json
 {
-  "granularity": {
+  "reporting_interval": {
     "normalized_value": "quarterly",
     "source_text": "Quarterly"
   }
@@ -482,7 +482,7 @@ When the represented data apply and their granularity.
 
 ```json
 {
-  "granularity": {
+  "reporting_interval": {
     "normalized_value": "daily",
     "source_text": "Daily"
   }
@@ -2704,6 +2704,71 @@ Agents explicitly credited for the snapshot artifact; include a role when it is 
 ```
 
 
+### ReportingIntervalTerm
+
+Represent a known or source-only reporting interval.
+
+- At least one non-null value is required: source_text, normalized_value.
+
+| Field | Type | Required | Default | Constraints | Standards / code list |
+|---|---|---:|---|---|---|
+| `source_text` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
+| `normalized_value` | `ReportingIntervalValue \| null` | no | `null` |  |  |
+
+#### Field definitions and examples
+
+##### `source_text`
+
+**Definition**
+
+Exact text visible in the snapshot that explicitly states the reporting interval.
+
+**Examples**
+
+```json
+"Annual"
+```
+
+```json
+"Monthly"
+```
+
+```json
+"Quarterly"
+```
+
+```json
+"Daily"
+```
+
+
+##### `normalized_value`
+
+**Definition**
+
+Approved normalized reporting interval.
+
+**Examples**
+
+```json
+"annual"
+```
+
+```json
+"monthly"
+```
+
+```json
+"quarterly"
+```
+
+
+### ReportingIntervalValue
+
+Enumerate approved normalized reporting intervals.
+
+`hourly`, `daily`, `weekly`, `monthly`, `quarterly`, `semiannual`, `annual`
+
 ### StatisticalFormTerm
 
 Represent a known or source-only statistical form.
@@ -2775,14 +2840,14 @@ Enumerate approved normalized statistical forms.
 
 ### TemporalCoverage
 
-Group represented-data time and granularity.
+Group represented-data time and reporting interval.
 
-- At least one non-null value is required: period, granularity.
+- At least one non-null value is required: period, reporting_interval.
 
 | Field | Type | Required | Default | Constraints | Standards / code list |
 |---|---|---:|---|---|---|
 | `period` | `TemporalExpression \| null` | no | `null` |  | [https://schema.org/temporalCoverage](https://schema.org/temporalCoverage) (exact), [http://purl.org/dc/terms/temporal](http://purl.org/dc/terms/temporal) (close) |
-| `granularity` | `TemporalGranularityTerm \| null` | no | `null` |  |  |
+| `reporting_interval` | `ReportingIntervalTerm \| null` | no | `null` |  |  |
 
 #### Field definitions and examples
 
@@ -2822,11 +2887,11 @@ This field describes **when the represented data apply**. It does not describe w
 ```
 
 
-##### `granularity`
+##### `reporting_interval`
 
 **Definition**
 
-The temporal resolution at which the represented data are reported.
+The interval between successive time points represented by the data, such as hourly, daily, monthly, quarterly, or annual. This describes the spacing of the represented data, not the document's publication schedule or the overall period covered.
 
 **Examples**
 
@@ -2989,71 +3054,6 @@ Precision of normalized bounds.
 "datetime"
 ```
 
-
-### TemporalGranularityTerm
-
-Represent a known or source-only temporal granularity.
-
-- At least one non-null value is required: source_text, normalized_value.
-
-| Field | Type | Required | Default | Constraints | Standards / code list |
-|---|---|---:|---|---|---|
-| `source_text` | `string \| null` | no | `null` | minLength: 1; pattern: \S |  |
-| `normalized_value` | `TemporalGranularityValue \| null` | no | `null` |  |  |
-
-#### Field definitions and examples
-
-##### `source_text`
-
-**Definition**
-
-Exact text visible in the snapshot that explicitly states the temporal granularity.
-
-**Examples**
-
-```json
-"Annual"
-```
-
-```json
-"Monthly"
-```
-
-```json
-"Quarterly"
-```
-
-```json
-"Daily"
-```
-
-
-##### `normalized_value`
-
-**Definition**
-
-Approved normalized temporal granularity.
-
-**Examples**
-
-```json
-"annual"
-```
-
-```json
-"monthly"
-```
-
-```json
-"quarterly"
-```
-
-
-### TemporalGranularityValue
-
-Enumerate approved normalized temporal granularities.
-
-`hourly`, `daily`, `weekly`, `monthly`, `quarterly`, `semiannual`, `annual`, `instantaneous`, `event_based`, `multi_year`, `irregular`
 
 ### TemporalPrecision
 
