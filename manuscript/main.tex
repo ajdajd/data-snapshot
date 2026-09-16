@@ -53,11 +53,11 @@ Developing an operational metadata schema for a multimodal artifact class requir
 
 Metadata provides the descriptive foundation that enables digital resources to be organized, discovered, exchanged, and reused~\citep{gilliland2008}. Well-designed metadata schemas support consistent annotation, interoperability, retrieval, provenance tracking, and downstream analytical workflows across heterogeneous information systems~\citep{metadatainteroperability2006}. For mature domains, such schemas typically emerge through years of community collaboration, iterative refinement, and the gradual convergence of expert knowledge into widely adopted metadata standards~\citep{caplan2003}.
 
-Recent advances in document understanding and multimodal information systems have made it increasingly feasible to extract analytical artifacts embedded within documents---such as statistical tables, charts, maps, dashboards, and monitoring frameworks---as standalone information objects that can be indexed, retrieved, and managed independently of their source documents~\citep{wang2025,dy2026}. As these artifacts become standalone information objects, they require metadata describing their analytical content, structure, and context, rather than solely the bibliographic properties of the documents from which they originate~\citep{gilliland2008}. Existing metadata vocabularies may provide applicable terms, but an artifact class may still require a dedicated profile that selects, supplements, constrains, and documents those terms for operational use~\citep{greenberg2005,coyle2009applicationprofiles}.
+Recent advances in document understanding and multimodal information systems have made it increasingly feasible to extract analytical artifacts embedded within documents---such as statistical tables, charts, maps, dashboards, and monitoring frameworks---as standalone information objects that can be indexed, retrieved, and managed independently of their source documents~\citep{wang2025,dy2026}. These artifacts require metadata describing their analytical content, structure, and context rather than only the source documents' bibliographic properties~\citep{gilliland2008}. Existing metadata vocabularies may provide applicable terms, but an artifact class may still require a dedicated profile that selects, supplements, constrains, and documents those terms for operational use~\citep{greenberg2005,coyle2009applicationprofiles}.
 
 Our broader research investigates one such class of artifacts, which we refer to as \emph{data snapshots}: semantically meaningful analytical artifacts extracted from institutional documents and managed as independent information objects~\citep{dy2026}. Developing a metadata extraction and retrieval pipeline for these artifacts required a metadata schema capable of describing the snapshots themselves rather than only their source documents.
 
-At the outset of this work, no dedicated operational metadata schema or directly adoptable metadata profile had been identified for data snapshots as defined here. Before metadata could be extracted systematically, the relevant descriptive requirements therefore had to be identified, consolidated, and organized into an artifact-specific specification. This raised a more fundamental question: how can an operational metadata schema be systematically developed when representative artifacts must provide the evidence for determining what the schema should describe?
+At the outset of this work, no dedicated operational metadata schema or directly adoptable metadata profile had been identified for data snapshots as defined here. Before metadata could be extracted systematically, the relevant descriptive requirements therefore had to be identified, consolidated, and organized into an artifact-specific specification. This requirement raised the central question addressed here: how can an operational metadata schema be systematically developed when representative artifacts must provide the evidence for determining what the schema should describe?
 
 Metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding provide complementary foundations for this task~\citep{coyle2009applicationprofiles,sadruddin2025schemadiscovery,giglou2023llms4ol,zhang2024edc,ding2026vrdu}. These areas contribute methods for defining operational metadata terms, discovering and consolidating candidate concepts, and interpreting visually rich artifacts. The present work adapts and integrates these methods for a setting in which multimodal artifacts supply the initial evidence and an operational metadata schema is the required endpoint.
 
@@ -75,7 +75,7 @@ The case study documents one complete execution of the methodology and provides 
 
 \section{Related work}
 
-The proposed methodology adapts established ideas from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. It integrates these strands into a workflow for deriving an operational metadata schema from the multimodal artifacts it is intended to describe. Specifically, the methodology connects independently gathered artifact evidence to a shared concept inventory and, ultimately, an operational metadata schema, then evaluates that schema against held-out artifacts while preserving traceability to the source evidence.
+The proposed methodology adapts established ideas from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. It integrates these strands into a workflow for deriving an operational metadata schema from the multimodal artifacts.
 
 \subsection{Metadata standards and schema development}
 
@@ -105,7 +105,7 @@ Multimodal document-understanding research provides the capabilities required to
 
 \subsection{Positioning of this work}
 
-Taken together, the reviewed literature provides human-in-the-loop schema discovery, staged ontology construction, task decomposition, open schema induction and canonicalization, and multimodal artifact interpretation. This paper adapts these strands into an artifact-driven architecture for metadata schema development. The architecture analyzes snapshots independently before introducing a shared vocabulary; retains local observations rather than immediately absorbing them into an evolving schema; aggregates evidence in deterministic field profiles; separates canonical concept synthesis, expert refinement, and concept coverage assessment; translates the refined concept inventory into an operational metadata schema; and evaluates that schema against held-out artifacts. Each transformation remains traceable to the artifacts that motivated it.
+Taken together, the reviewed literature provides human-in-the-loop schema discovery, staged ontology construction, task decomposition, open schema induction and canonicalization, and multimodal artifact interpretation. This paper adapts these strands into an artifact-driven architecture for metadata schema development. The architecture analyzes snapshots independently before introducing a shared vocabulary; retains local observations rather than immediately absorbing them into an evolving schema; aggregates evidence in deterministic field profiles; separates canonical metadata concept synthesis, expert concept refinement, and concept coverage assessment; translates the refined concept inventory into an operational metadata schema; and evaluates that schema against held-out artifacts. Each transformation remains traceable to the artifacts that motivated it.
 
 Table~\ref{tab:positioning} summarizes the methodological contributions adopted from each literature group and the corresponding differences in this work.
 
@@ -133,7 +133,7 @@ Table~\ref{tab:positioning} summarizes the methodological contributions adopted 
 
 \section{Conceptual framework}
 
-This paper addresses the problem of developing metadata schemas for multimodal analytical artifact types that lack a dedicated operational metadata specification. Before presenting the proposed methodology, we establish the conceptual framework that underpins the remainder of the paper. In particular, we distinguish among \emph{metadata}, \emph{metadata concept inventory}, and \emph{metadata schema}. We then define how \emph{metadata schema development} is used in this paper and formulate the problem addressed by the methodology.
+Before presenting the proposed methodology, we establish the conceptual framework that underpins the remainder of the paper. In particular, we distinguish among \emph{metadata}, \emph{metadata concept inventory}, and \emph{metadata schema}. We then define how \emph{metadata schema development} is used in this paper and formulate the problem addressed by the methodology.
 
 \subsection{Data snapshots as independent information objects}
 
@@ -168,7 +168,7 @@ Figure~\ref{fig:conceptual_relationship} summarizes the relationships among thes
 
 \subsection{Scope}
 
-The proposed methodology addresses the development of an operational metadata schema for a class of multimodal analytical artifacts that lacks a dedicated operational schema or directly adoptable metadata profile. Existing standards and vocabularies may still provide applicable terms. The task is to identify, consolidate, define, and operationalize descriptive requirements grounded in representative artifacts.
+The proposed methodology addresses the development of an operational metadata schema for a class of multimodal analytical artifacts that lacks a dedicated schema or directly adoptable metadata profile. Existing standards and vocabularies may still provide applicable terms. The task is to identify, consolidate, define, and operationalize descriptive requirements grounded in representative artifacts.
 
 As illustrated in Figure~\ref{fig:conceptual_relationship}, schema design produces the operational representation to be evaluated. Schema validation completes the methodology by assessing that representation against held-out artifacts and incorporating justified revisions. The endpoint is therefore an operational metadata schema accompanied by held-out validation evidence and a record of human adjudication decisions. Metadata extraction and downstream applications fall outside the scope of this work, as do subsequent activities that adapt the schema to specific technical or interoperability requirements.
 
@@ -191,9 +191,9 @@ The following section presents the proposed methodology.
 \section{Methodology}
 \label{sec:methodology}
 
-This section presents a reusable methodology for developing an operational metadata schema for multimodal analytical artifacts that lack a dedicated operational metadata schema or directly adoptable metadata profile. The methodology decomposes schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support selected discovery, consolidation, and assessment tasks, while human experts retain responsibility for conceptual and operational decisions.
+This section presents a reusable methodology for developing an operational metadata schema for multimodal analytical artifacts that lack a dedicated schema or directly adoptable metadata profile. It decomposes schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support selected discovery, consolidation, and assessment tasks, while human experts retain responsibility for conceptual and operational decisions.
 
-The stages separate artifact-level discovery, evidence aggregation, concept synthesis, expert refinement, concept coverage assessment, metadata schema design and specification, and schema validation. This decomposition makes each transformation independently reviewable and preserves traceability from the operational schema to the artifacts that motivated it. Table~\ref{tab:methodology_summary} summarizes the workflow.
+The stages separate artifact-level discovery, field profile aggregation, canonical metadata concept synthesis, expert concept refinement, concept coverage assessment, metadata schema design and specification, and schema validation. This decomposition makes each transformation independently reviewable and preserves traceability from the operational schema to the artifacts that motivated it. Table~\ref{tab:methodology_summary} summarizes the workflow.
 
 \begin{table}[!ht]
     \centering
@@ -268,17 +268,17 @@ The methodology progressively transforms artifact-level observations into a shar
 
 \subsection{Metadata discovery}
 
-The objective of metadata discovery is to identify candidate descriptive properties evidenced in representative analytical artifacts. At this stage, the emphasis is placed on discovery breadth rather than semantic precision. The stage therefore retains potentially useful metadata observations even when they may later prove redundant, ambiguous, or outside the scope of the final schema.
+The objective of metadata discovery is to identify candidate descriptive properties evidenced in representative analytical artifacts. This stage emphasizes discovery breadth rather than semantic precision and therefore retains potentially useful metadata observations even when they may later prove redundant, ambiguous, or outside the final schema's scope.
 
 This stage begins with a representative sample of multimodal analytical artifacts drawn from the target domain. The methodology assumes that the sample captures the diversity of artifact types, reporting styles, and semantic content expected in downstream applications.
 
-Each artifact is processed independently using a multimodal LLM, which proposes candidate metadata fields from the visual and textual content of the artifact rather than selecting from a predefined vocabulary. Independent processing serves two complementary purposes. First, it prevents early convergence toward a shared vocabulary, allowing diverse local semantic interpretations to emerge before consolidation. Second, it minimizes bias introduced by previously processed artifacts, allowing each artifact to reveal its own descriptive characteristics. Consistent with the emphasis on discovery breadth, redundancy and semantic overlap are intentional. Candidate metadata fields are therefore expected to include synonymous terminology, differing levels of abstraction, and concepts that may ultimately be excluded from the final schema.
+Each artifact is processed independently using a multimodal LLM, which proposes candidate metadata fields from the artifact's visual and textual content rather than selecting from a predefined vocabulary. Independent processing prevents early convergence toward a shared vocabulary and limits influence from previously processed artifacts. Redundancy and semantic overlap are therefore intentional: candidate fields may use synonymous terms, reflect different levels of abstraction, or represent concepts later excluded from the final schema.
 
 Metadata observations are generated without human curation or filtering to preserve discovery breadth and reduce the risk of prematurely excluding useful concepts. Human involvement is therefore limited to defining the discovery objective, selecting representative artifacts, and designing the prompting strategy. The output of this stage is a collection of metadata observations describing the sampled artifacts. These observations serve as the input to field profile aggregation.
 
 \subsection{Field profile aggregation}
 
-The objective of field profile aggregation is to consolidate the metadata observations produced during metadata discovery into \emph{metadata field profiles}. Rather than reasoning over individual observations, subsequent stages operate on these profiles. This reduces the amount of context presented to later stages and establishes metadata field profiles as the primary units of semantic reasoning.
+Field profile aggregation consolidates the observations produced during metadata discovery into \emph{metadata field profiles}. Subsequent stages operate on these profiles rather than individual observations, reducing the context they must process and establishing the profiles as the primary units of semantic reasoning.
 
 This stage groups metadata observations referring to the same candidate metadata field into a single metadata field profile using deterministic exact-name matching, without semantic normalization or canonicalization (e.g., "geographic location" and "geographic locations" remain separate profiles). Each profile aggregates representative supporting evidence—including frequent values, example descriptions, occurrence statistics, and explanatory reasoning—and provides a compact representation for subsequent concept synthesis.
 
@@ -286,7 +286,7 @@ The output of this stage is a collection of metadata field profiles that represe
 
 \subsection{Canonical metadata concept synthesis}
 
-The objective of canonical metadata concept synthesis is to transform the metadata field profiles into a \emph{candidate metadata concept inventory}. Whereas metadata discovery emphasizes broad semantic exploration, concept synthesis identifies shared concepts across multiple field profiles and reduces terminological redundancy.
+Canonical metadata concept synthesis transforms the metadata field profiles into a \emph{candidate metadata concept inventory}. Whereas metadata discovery emphasizes broad semantic exploration, concept synthesis identifies shared concepts across profiles and reduces terminological redundancy.
 
 Unlike field profile aggregation, which groups observations using exact field names, this stage consolidates profiles that represent the same underlying metadata concept. Distinct concepts, including infrequently occurring ones, are retained so that consolidation does not remove potentially important descriptive requirements.
 
@@ -296,7 +296,7 @@ An LLM synthesizes the candidate inventory from the aggregated field profiles. E
 
 \subsection{Expert concept refinement}
 
-The objective of expert concept refinement is to transform the candidate metadata concept inventory into a refined inventory suitable for schema design. Whereas concept synthesis emphasizes semantic abstraction, expert refinement establishes conceptual boundaries, scope, and internal consistency. This stage finalizes the canonical metadata vocabulary.
+Expert concept refinement transforms the candidate metadata concept inventory into a refined inventory suitable for schema design. Whereas concept synthesis emphasizes semantic abstraction, expert refinement establishes conceptual boundaries, scope, and internal consistency, thereby finalizing the canonical metadata vocabulary.
 
 Refinement proceeds through an iterative review in which candidate metadata concepts are evaluated individually and in relation to the inventory as a whole. Typical activities include merging semantically equivalent concepts, splitting concepts that capture multiple ideas, renaming concepts, excluding concepts outside the intended metadata scope, refining definitions and examples, and clarifying boundaries between related concepts.
 
@@ -306,7 +306,7 @@ Human judgment governs this stage. An LLM may propose alternative names, identif
 
 \subsection{Concept coverage assessment}
 
-The objective of concept coverage assessment is to evaluate how the refined metadata concept inventory represents the metadata field profiles produced during discovery. This stage uses evidence from the development collection to assess how well the inventory organizes the discovered metadata space. Its outputs support human review and any further refinement before schema design.
+Concept coverage assessment evaluates how the refined metadata concept inventory represents the metadata field profiles produced during discovery. Using evidence from the development collection, it characterizes how the inventory organizes the discovered metadata space and supports human review and any further refinement before schema design.
 
 The assessment assigns each metadata field profile to one of the concepts in the refined inventory through constrained classification. An LLM or another suitable classifier may perform this assignment. The resulting mappings support quantitative analysis across the representative collection.
 
@@ -324,7 +324,7 @@ Accordingly, similarity-based analyses are optional decision-support mechanisms 
 
 \subsection{Metadata schema design and specification}
 
-The objective of metadata schema design and specification is to transform the refined metadata concept inventory into an operational metadata schema. Whereas concept refinement establishes a coherent representation of the metadata space, this stage determines how the concepts should be represented as fields suitable for annotation, storage, retrieval, and downstream metadata extraction.
+Metadata schema design and specification transforms the refined metadata concept inventory into an operational metadata schema. Whereas concept refinement establishes a coherent representation of the metadata space, this stage determines how to represent the concepts as fields suitable for annotation, storage, retrieval, and downstream metadata extraction.
 
 Design proceeds iteratively. Typical activities include representing conceptually distinct concepts within a single field when operationally appropriate, introducing fields required for practical use, excluding concepts whose implementation cost outweighs their operational value, refining field names and definitions, organizing fields into coherent modules, and developing annotation guidance, examples, and scope notes.
 
@@ -337,7 +337,7 @@ The output is an operational metadata schema comprising fields, definitions, org
 \subsection{Schema validation}
 \label{sec:schema_validation_methodology}
 
-The objective of schema validation is to evaluate the operational metadata schema against artifacts that were not used during its initial development. Unlike concept coverage assessment, which examines the refined concept inventory against field profiles from the development collection, schema validation occurs after schema design and tests the operational fields, definitions, and scope against held-out evidence.
+Schema validation evaluates the operational metadata schema against artifacts not used during its initial development. Unlike concept coverage assessment, which examines the refined concept inventory against field profiles from the development collection, schema validation occurs after schema design and tests the operational fields, definitions, and scope against held-out evidence.
 
 Schema validation may combine complementary forms of assessment. Open residual discovery generates metadata observations from held-out artifacts and identifies observations that do not fit the schema well. Confirmatory coverage assessment examines each held-out artifact for metadata that is important to interpretation or discovery but lacks an adequate schema field. Together, these assessments test both broad residual coverage and consequential omissions.
 
@@ -348,7 +348,7 @@ The output of this stage is a body of validation evidence, a record of human adj
 \section{Case study: Developing the Data Snapshot Metadata Schema}
 \label{sec:case_study}
 
-This section applies the proposed methodology to the development of the Data Snapshot Metadata Schema. It describes the artifact class, the case study dataset, the execution of the workflow, the resulting operational schema, and two complementary schema-validation exercises. The intermediate knowledge artifacts and validation evidence provide the empirical basis for the analyses in the following section.
+This section applies the proposed methodology to develop the Data Snapshot Metadata Schema. It describes the artifact class, dataset, workflow execution, resulting operational schema, and two complementary schema-validation exercises. The intermediate knowledge artifacts and validation evidence provide the empirical basis for the subsequent analysis.
 
 \subsection{Artifact type}
 
@@ -360,7 +360,7 @@ Prior work treats data snapshots as independent information objects to support r
 
 \subsection{Case study dataset}
 
-Representative data snapshots were sampled from three institutional document corpora spanning humanitarian reporting, academic policy research, and development project operations, previously introduced in \cite{dy2026}. Together, these corpora span substantially different document structures, visualization conventions, and reporting styles, providing a diverse collection of analytical artifacts for metadata discovery.
+Representative data snapshots were sampled from three institutional document corpora introduced in \cite{dy2026}, spanning humanitarian reporting, academic policy research, and development project operations. The corpora differ substantially in document structure, visualization conventions, and reporting style, providing a diverse collection of analytical artifacts for metadata discovery.
 
 Within these corpora, data snapshots were extracted from document layout regions classified as either figures or tables. To ensure balanced coverage, sampling was stratified by corpus and artifact category, as summarized in Table~\ref{tab:composition}. Equal representation of figures and tables reduced bias toward the structural characteristics of either visualization type.
 
@@ -385,9 +385,9 @@ Although the dataset is not intended to be statistically representative of insti
 
 \subsection{Workflow execution}
 
-The development stages were executed using the 210-snapshot case study dataset. Metadata discovery processed each snapshot independently. Subsequent stages aggregated the observations, synthesized and refined a shared concept inventory, assessed concept coverage, and translated the refined inventory into an operational metadata schema. Figure~\ref{fig:artifact_evolution} illustrates the intermediate knowledge artifacts produced during this process.
+We executed the development stages using the 210-snapshot case study dataset. Metadata discovery processed each snapshot independently; subsequent stages aggregated the observations, synthesized and refined a shared concept inventory, assessed concept coverage, and translated the refined inventory into an operational metadata schema. Figure~\ref{fig:artifact_evolution} shows the intermediate knowledge artifacts produced during this process.
 
-Metadata discovery and canonical concept synthesis used GPT-5.5, while concept coverage assessment used GPT-5.4 mini for constrained classification. Field profile aggregation was implemented deterministically in Python and required no LLM inference. Expert concept refinement and metadata schema design were performed through iterative human review of the intermediate knowledge artifacts. Complete prompts, model configurations, and implementation details for the LLM-supported development stages are provided in Appendices~\ref{appendix:discovery}--\ref{appendix:validation}.
+Metadata discovery and canonical metadata concept synthesis used GPT-5.5, while concept coverage assessment used GPT-5.4 mini for constrained classification. Field profile aggregation was implemented deterministically in Python and required no LLM inference. Expert concept refinement and metadata schema design and specification were performed through iterative human review of the intermediate knowledge artifacts. Complete prompts, model configurations, and implementation details for the LLM-supported development stages are provided in Appendices~\ref{appendix:discovery}--\ref{appendix:validation}.
 
 \begin{figure}[!ht]
     \centering
@@ -398,7 +398,7 @@ Metadata discovery and canonical concept synthesis used GPT-5.5, while concept c
 
 \subsection{Resulting metadata schema}
 
-Metadata schema design produced an initial operational Data Snapshot Metadata Schema, comprising 36 metadata fields organized into nine semantic modules (Table~\ref{tab:schema}). Together, these modules define an operational specification for describing data snapshots as independent information objects. The schema translates the refined metadata concept inventory into fields, definitions, and annotation guidance for subsequent metadata workflows. The complete reference specification, incorporating the documentation revisions arising from schema validation, is reproduced in Appendix~\ref{appendix:schema}. Three data snapshots with sample metadata records are provided in Appendix~\ref{appendix:sample_metadata}.
+Metadata schema design produced an initial operational Data Snapshot Metadata Schema comprising 36 metadata fields organized into nine semantic modules (Table~\ref{tab:schema}). Together, these modules define an operational specification for describing data snapshots as independent information objects. The schema translates the refined metadata concept inventory into fields, definitions, and annotation guidance for subsequent metadata workflows. Appendix~\ref{appendix:schema} reproduces the complete reference specification, including the documentation revisions arising from schema validation. Appendix~\ref{appendix:sample_metadata} provides three data snapshots with sample metadata records.
 
 A central design decision was the separation of metadata describing the snapshot from analytical content to be extracted from it. This boundary keeps the metadata record focused on the identity, interpretation, organization, and management of the snapshot rather than reproducing all values contained in the artifact.
 
@@ -485,13 +485,13 @@ Because both exercises used the same held-out collection, they provide complemen
 
 The model configurations, prompts, structured outputs, and human-adjudication procedures for both exercises are documented in Appendix~\ref{appendix:schema_validation}.
 
-The resulting schema, intermediate knowledge artifacts, and held-out validation evidence document one complete execution of the methodology. The following section analyzes how the successive semantic transformations contributed to that result.
+The resulting schema, intermediate knowledge artifacts, and held-out validation evidence document one complete execution of the methodology. The following section examines the contribution of each semantic transformation.
 
 \section{Analysis of semantic transformations}
 
-The case study produced a sequence of explicit artifacts spanning metadata observations, metadata field profiles, candidate and refined metadata concept inventories, concept coverage evidence, the operational metadata schema, and held-out validation evidence. Together, these artifacts document how the development collection was transformed into a metadata schema and how that schema was subsequently evaluated.
+The case study produced a sequence of explicit artifacts: metadata observations, metadata field profiles, candidate and refined metadata concept inventories, concept coverage evidence, the operational metadata schema, and held-out validation evidence. Together, they document the transformation of the development collection into a metadata schema and the subsequent evaluation of that schema.
 
-This section examines what each semantic transformation contributed to the development process. The analysis focuses on how the intermediate representations reduced semantic complexity, preserved supporting evidence, and structured the contributions of the LLM and human expert. It then considers what the held-out validation evidence supports about the resulting field inventory.
+This section examines how the intermediate representations reduced semantic complexity, preserved supporting evidence, and structured the respective contributions of the LLM and human expert. It then considers what the held-out validation evidence supports about the resulting field inventory.
 
 The analysis is organized around six questions:
 
@@ -506,11 +506,11 @@ The analysis is organized around six questions:
 
 \subsection{Independent semantic discovery}
 
-The first stage sought to characterize the semantic space of the target artifact type through independent metadata discovery. Each development snapshot was analyzed independently, allowing candidate descriptions to emerge without influence from a vocabulary established from previously processed snapshots. This design prioritized artifact-level evidence before vocabulary normalization or concept consolidation.
+Independent metadata discovery first characterized the semantic space of the target artifact type. Each development snapshot was analyzed separately, allowing candidate descriptions to emerge without influence from a vocabulary established from previously processed snapshots. This design prioritized artifact-level evidence before vocabulary normalization or concept consolidation.
 
 Metadata discovery produced 3,041 metadata observations representing candidate metadata fields across the 210 development snapshots (Table~\ref{tab:discovery_productivity}). Consistent with the prompting objective of identifying 10--15 reusable metadata fields per artifact, each snapshot yielded approximately 14--15 candidate metadata fields. The narrow distribution indicates that the multimodal LLM consistently satisfied this objective across diverse visualization types and document collections.
 
-Multimodal reasoning contributed at this stage by interpreting textual, visual, and structural evidence together. Rather than extracting values for predefined fields, the model proposed descriptive dimensions supported by titles, labels, legends, table structure, visual encodings, and the supplied document context. The outputs remained candidate observations whose relevance and scope were evaluated in later transformations.
+At this stage, multimodal reasoning combined textual, visual, and structural evidence. Rather than extracting values for predefined fields, the model proposed descriptive dimensions supported by titles, labels, legends, table structure, visual encodings, and the supplied document context. The outputs remained candidate observations whose relevance and scope were evaluated in later transformations.
 
 \begin{table}[!ht]
     \centering
@@ -555,7 +555,7 @@ Taken together, these observations characterize independent metadata discovery a
 
 Metadata discovery produces localized observations that preserve semantic diversity but are too numerous and fragmented for direct expert comparison. Metadata field profiles bridge this gap by aggregating observations that share the same candidate field into a single evidence-bearing representation.
 
-Aggregating the 3,041 metadata observations resulted in 833 metadata field profiles, reducing the number of semantic units requiring subsequent analysis by approximately 73\% (Table~\ref{tab:aggregation_summary}). Importantly, aggregation did not perform any semantic abstraction. Aggregation simply combined repeated occurrences of identical candidate metadata fields while preserving the supporting evidence associated with each field, including representative observed values, descriptive summaries, explanatory reasoning, and occurrence statistics.
+Aggregating the 3,041 metadata observations resulted in 833 metadata field profiles, reducing the number of semantic units requiring subsequent analysis by approximately 73\% (Table~\ref{tab:aggregation_summary}). This operation performed no semantic abstraction: it combined repeated occurrences of identical candidate metadata fields while preserving representative observed values, descriptive summaries, explanatory reasoning, and occurrence statistics.
 
 \begin{table}[!ht]
     \centering
@@ -789,7 +789,7 @@ The refined inventory provided the conceptual foundation for metadata schema des
     
     Rename &
     \texttt{financial\_metric} \newline \quad $\rightarrow$ \texttt{financial\_measure} &
-    Improved terminology clarity and consistency throughout the deployed schema. \\
+    Improved terminology clarity and consistency throughout the operational schema. \\
     
     \midrule
     
@@ -814,7 +814,7 @@ Metadata schema design completed the transition from a refined concept inventory
 
 The two validation exercises examined whether the operational schema remained adequate when applied beyond the 210-snapshot development collection (Table~\ref{tab:schema_validation_results}). Validation 1 retained an open discovery mode and produced 578 candidate-field proposals. Human adjudication showed that semantic difference alone did not justify a field: many proposals described parent documents, analytical values, specialized details, or structural relationships rather than missing top-level snapshot metadata.
 
-The documentation-only revision following Validation 1 records an additional outcome of validation. Candidate proposals exposed cases in which an existing field covered the relevant concept but its definition, examples, or boundary with document-level metadata required clarification. These findings warranted documentation changes without changing the field inventory. Other proposals concerned relationships or component structure that could not be represented faithfully by adding another flat field.
+The documentation-only revision following Validation 1 records another validation outcome. Candidate proposals exposed cases in which an existing field covered the relevant concept but its definition, examples, or boundary with document-level metadata required clarification. These findings warranted documentation changes without changing the field inventory. Other proposals concerned relationships or component structure that could not be represented faithfully by adding another flat field.
 
 Validation 2 narrowed the assessment to omissions with material consequences for interpretation or discovery. This reduced the positive review set to six possible gaps across five snapshots. Human adjudication again accepted no new field and classified two candidates as representation limitations. The result distinguishes vocabulary coverage from representational adequacy: an existing concept may be present while a flat schema remains unable to preserve relationships among panels, variables, or hierarchical table structures.
 
@@ -832,7 +832,7 @@ Metadata field profiles then aggregate these observations without removing their
 
 This sequence distinguishes conceptual consolidation from operational representation. A concept may remain distinct because it captures a meaningful descriptive requirement, yet be combined with another concept in the schema when a separate field offers limited practical value. Conversely, a distinction removed during concept refinement may be restored when it supports annotation or retrieval, as occurred with \texttt{panel\_title}. The schema is therefore an operationalization of the concept inventory rather than a direct encoding of it.
 
-The intermediate knowledge artifacts also make the development process inspectable. Schema fields can be related to refined concepts, field profiles, and artifact-level observations, enabling reviewers to examine both the resulting decision and its supporting evidence. This traceability does not eliminate expert judgment, but it makes the basis for revision more explicit than a workflow that produces the schema in a single inference step.
+The intermediate knowledge artifacts also make the development process inspectable. Schema fields can be related to refined concepts, field profiles, and artifact-level observations, enabling reviewers to examine each decision and its supporting evidence. This traceability does not eliminate expert judgment, but it makes the basis for revision more explicit than a single-step inference workflow.
 
 \subsection{Human--LLM collaboration across semantic transformations}
 
@@ -840,7 +840,7 @@ The case study supports a division of responsibility in which multimodal LLMs pe
 
 Human review governed the decisions for which semantic similarity was insufficient. These included defining the boundary between metadata and analytical content, deciding whether concepts should be merged or retained, determining whether a concept warranted an independent field, and adjudicating proposed schema gaps. Such decisions depend on the intended scope and use of the metadata schema. Candidate frequency and model-generated rationales provided evidence, but neither constituted an acceptance criterion.
 
-The contribution of the intermediate artifacts is therefore not automation of schema design, but reorganization of the expert task. Independent observations expose the breadth of the descriptive space; field profiles assemble evidence across artifacts; candidate concepts reduce the number of units requiring comparison; and validation outputs focus review on possible gaps. The case study shows that this arrangement can support one complete development process. It does not establish that the workflow is faster or more reliable than expert-only or alternative human--AI approaches, which were not evaluated here.
+The intermediate artifacts therefore reorganize rather than automate the expert task. Independent observations expose the breadth of the descriptive space; field profiles assemble evidence across artifacts; candidate concepts reduce the number of units requiring comparison; and validation outputs focus review on possible gaps. The case study shows that this arrangement can support one complete development process. It does not establish that the workflow is faster or more reliable than expert-only or alternative human--AI approaches, which were not evaluated here.
 
 \subsection{Schema validation as part of development}
 
@@ -858,7 +858,7 @@ Future work should apply the methodology to substantially different artifact cla
 
 Future work should also formally align the resulting schema with relevant metadata standards and application-profile practices, introduce normalized value representations and controlled vocabularies where appropriate, and adopt a canonical machine-readable implementation from which human-readable documentation and interoperability artifacts can be generated. A post-study implementation using Pydantic and generated JSON Schema is examined in Appendix~\ref{appendix:post_study_validation_comparison}. This follow-on comparison also motivates controlled study of how schema content and presentation affect LLM-assisted validation.
 
-The broader methodological implication is that metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, multimodal LLMs support artifact interpretation and semantic comparison, deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope and operational form. The Data Snapshot Metadata Schema provides one complete case through which to examine this architecture.
+More broadly, metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, multimodal LLMs support artifact interpretation, LLMs support semantic comparison, deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope and operational form. The Data Snapshot Metadata Schema provides one complete case through which to examine this architecture.
 
 \section{Limitations}
 
@@ -1266,7 +1266,7 @@ Canonical metadata concept synthesis was performed using GPT-5.5 through the Ope
 
 The metadata field profiles produced during field profile aggregation were exported as a CSV file and provided to GPT-5.5 together with the system and user prompts reproduced below. Concept synthesis was performed in a single inference using the \texttt{client.responses.create} interface.
 
-The response consisted of a markdown table containing canonical metadata concepts, definitions, rationales, and representative discovered metadata fields. This candidate metadata concept inventory subsequently underwent iterative expert refinement.
+The response consisted of a Markdown table containing canonical metadata concepts, definitions, rationales, and representative discovered metadata fields. This candidate metadata concept inventory subsequently underwent iterative expert refinement.
 
 \subsection{Prompt design rationale}
 
@@ -1579,7 +1579,7 @@ Concept coverage assessment was performed using GPT-5.4 mini through the OpenAI 
 
 \subsection{Implementation}
 
-Concept coverage assessment iterated over each metadata field profile produced during field profile aggregation. For each profile, GPT-5.4 mini received the system and user prompts reproduced below together with: (1) the refined metadata concept inventory represented in markdown, (2) the metadata field name, and (3) representative descriptions and observed values associated with the field profile.
+Concept coverage assessment iterated over each metadata field profile produced during field profile aggregation. For each profile, GPT-5.4 mini received the system and user prompts reproduced below together with: (1) the refined metadata concept inventory represented in Markdown, (2) the metadata field name, and (3) representative descriptions and observed values associated with the field profile.
 
 Classification outputs were constrained using a Pydantic enumeration containing every canonical concept together with the historical \texttt{not\_in\_ontology} category. Consequently, every metadata field profile was assigned to exactly one concept or to \texttt{not\_in\_ontology} when no concept adequately described the field.
 
