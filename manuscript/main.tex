@@ -45,7 +45,7 @@ District of Columbia, USA \\
 
 \begin{abstract}
 
-Developing an operational metadata schema for a multimodal artifact class requires identifying its descriptive requirements before metadata extraction can begin. We present an artifact-driven, human-in-the-loop methodology that adapts principles from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. The methodology decomposes schema development into explicit, evidence-preserving semantic transformations connected by intermediate knowledge artifacts. Multimodal large language models support artifact interpretation, concept synthesis, and constrained semantic comparison, while human experts determine conceptual boundaries, operational fields, and schema revisions. We apply the methodology to 210 data snapshots extracted from institutional documents, producing the 36-field Data Snapshot Metadata Schema, which is subsequently evaluated against a separate collection of 202 snapshots. The contribution is a structured adaptation of established methods to the input and output conditions of this problem: multimodal artifacts as evidence and an operational metadata schema as the endpoint. The source code is available at https://www.github.com/ajdajd/placeholder_repo.
+Developing an operational metadata schema for a multimodal artifact class requires identifying its descriptive requirements before metadata extraction can begin. We present an artifact-driven, human-in-the-loop methodology that adapts principles from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. The methodology decomposes schema development into explicit, evidence-preserving semantic transformations connected by intermediate knowledge artifacts. Multimodal large language models support artifact interpretation, concept synthesis, and constrained semantic comparison, while human experts determine conceptual boundaries, operational fields, and schema revisions. We apply the methodology to 210 data snapshots extracted from institutional documents, producing the 36-field Data Snapshot Metadata Schema, which is subsequently evaluated against a separate collection of 202 snapshots. The contribution is a structured adaptation of established methods to the input and output conditions of this problem: multimodal artifacts as evidence and an operational metadata schema as the endpoint. The source code is available at https://www.github.com/ajdajd/placeholderrepo.
 
 \end{abstract}
 
@@ -856,7 +856,7 @@ The methodology may be useful when a class of multimodal artifacts lacks a direc
 
 Future work should apply the methodology to substantially different artifact classes, compare it with expert-only and alternative human--AI workflows, and examine agreement among multiple experts during concept refinement and gap adjudication. Further work could also evaluate decision-support mechanisms for larger concept inventories and structured representations for relationships that cannot be expressed adequately through a flat field inventory.
 
-Future work should also formally align the resulting schema with relevant metadata standards and application-profile practices, introduce normalized value representations and controlled vocabularies where appropriate, and investigate machine-readable implementations and richer relational structures.
+Future work should also formally align the resulting schema with relevant metadata standards and application-profile practices, introduce normalized value representations and controlled vocabularies where appropriate, and adopt a canonical machine-readable implementation from which human-readable documentation and interoperability artifacts can be generated. A post-study implementation using Pydantic and generated JSON Schema is examined in Appendix~\ref{appendix:post_study_validation_comparison}. This follow-on comparison also motivates controlled study of how schema content and presentation affect LLM-assisted validation.
 
 The broader methodological implication is that metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, multimodal LLMs support artifact interpretation and semantic comparison, deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope and operational form. The Data Snapshot Metadata Schema provides one complete case through which to examine this architecture.
 
@@ -2894,9 +2894,133 @@ This appendix illustrates the Data Snapshot Metadata Schema through three exampl
 
 \clearpage
 
-\section{Appendix: Schema Validation 2 and 3 results}
-\label{appendix:tbd}
+\section{Appendix: Post-study comparison of schema-validation outputs}
+\label{appendix:post_study_validation_comparison}
 
-[TODO: Create an appendix for the observed results between Schema Validation 2 and 3 where the shift in schema format, from Markdown to JSON, resulted into substantially more raised gaps.]
+This appendix reports a follow-on diagnostic conducted after the schema-development study described in the main paper. The diagnostic is included to document an observed change in LLM screening behavior when a later machine-readable schema implementation was evaluated. It is outside the evidentiary boundary of the reported case study: it does not change the paper's schema endpoint, the results of Schema Validations 1 and 2, or the conclusions drawn from those exercises.
+
+Schema Validation 2 evaluated the flat Markdown schema described in this paper. Schema Validation 3 applied the same assessment to a later machine-readable implementation, using its generated JSON Schema as the model-facing representation. In that implementation, Pydantic models served as the canonical source for the JSON Schema and human-readable documentation. The machine-readable implementation also differed structurally from the flat Markdown schema: it organized the fields into nested structures, normalized selected value representations, specified explicit constraints, and encoded relationships among variables, dimensions, provenance, temporal and geographic coverage, projects, and financing.
+
+\subsection{Comparison design and claim boundary}
+
+Both exercises used the same 202 snapshots, associated parent-document metadata, one-snapshot-per-request design, GPT-5.5 model configuration, and materiality-focused candidate threshold. The response contract remained substantively equivalent, but Schema Validation 3 replaced references to the closest flat fields with exact nested schema paths. Table~\ref{tab:validation2_validation3_design} distinguishes these retained conditions from the changes introduced in the follow-on exercise.
+
+\begin{table}[H]
+    \centering
+    \caption{Conditions retained and changed between Schema Validations 2 and 3.}
+    \label{tab:validation2_validation3_design}
+    \renewcommand{\arraystretch}{1.15}
+    \small
+    \begin{tabularx}{\textwidth}{>{\RaggedRight\arraybackslash}p{0.23\textwidth} >{\RaggedRight\arraybackslash}X >{\RaggedRight\arraybackslash}X}
+        \toprule
+        \textbf{Dimension} & \textbf{Schema Validation 2} & \textbf{Schema Validation 3} \\
+        \midrule
+        Substantive evidence & Same 202 held-out snapshots & Same 202 snapshots \\
+        Assessment configuration & GPT-5.5; medium reasoning; Flex; one snapshot per request & Same configuration \\
+        Assessment threshold & Critical or possibly critical reusable omission with material impact & Same threshold \\
+        Schema content & Flat 36-field specification described in this paper & Nested and normalized machine-readable contract \\
+        Canonical representation & Markdown specification & Pydantic models \\
+        Model-facing representation & History-neutral flat Markdown schema & Generated JSON Schema \\
+        Candidate references & Closest flat schema fields & Exact nested schema paths \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+These changes prevent causal attribution. The comparison cannot determine whether differences in model output arose from schema content, Markdown versus JSON Schema, the amount and explicitness of schema context, path-based reporting, or nondeterministic model behavior. Schema Validation 3 is therefore treated as a repeated assessment under the later machine-readable schema implementation, not as an experiment isolating a representation-format effect.
+
+\subsection{Observed screening results}
+
+The raw screening outputs differed substantially (Table~\ref{tab:validation2_validation3_results}). Schema Validation 2 produced six candidate records across five positive snapshots. Schema Validation 3 produced 36 candidate records across 31 positive snapshots. Its 202 calls used approximately 2.2 times as many input tokens because the generated JSON Schema supplied a larger and more explicit contract.
+
+\begin{table}[H]
+    \centering
+    \caption{Observed model outputs and adjudicated field-level outcomes.}
+    \label{tab:validation2_validation3_results}
+    \renewcommand{\arraystretch}{1.1}
+    \small
+    \begin{tabular}{lrr}
+        \toprule
+        \textbf{Measure} & \textbf{Validation 2} & \textbf{Validation 3} \\
+        \midrule
+        No-gap snapshots & 197 & 171 \\
+        Possible-gap snapshots & 5 & 28 \\
+        Critical-gap snapshots & 0 & 3 \\
+        Positive snapshots & 5 & 31 \\
+        Candidate records & 6 & 36 \\
+        Total input tokens & 2,450,382 & 5,396,754 \\
+        Total output tokens & 92,709 & 150,326 \\
+        Accepted new standalone fields & 0 & 0 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+The paired snapshot-level results also changed. Of the 197 snapshots assessed as having no critical gap in Validation 2, Validation 3 assessed 168 as no-gap, 27 as possible-gap, and two as critical-gap cases. Of the five Validation 2 possible-gap snapshots, Validation 3 assessed three as no-gap, one as possible, and one as critical. In total, 33 of 202 snapshots changed assessment category. These changes describe model screening behavior; they do not by themselves establish schema regressions.
+
+The 36 Validation 3 candidates were concentrated in seven review families (Table~\ref{tab:validation3_candidate_families}). The three largest families accounted for 26 candidates. This concentration shows that the increase was driven primarily by repeated pressure on a small number of structural and scope boundaries rather than by 36 distinct missing metadata subjects.
+
+\begin{table}[H]
+    \centering
+    \caption{Candidate families produced by Schema Validation 3.}
+    \label{tab:validation3_candidate_families}
+    \renewcommand{\arraystretch}{1.1}
+    \small
+    \begin{tabularx}{\textwidth}{>{\RaggedRight\arraybackslash}X r >{\RaggedRight\arraybackslash}p{0.49\textwidth}}
+        \toprule
+        \textbf{Candidate family} & \textbf{Count} & \textbf{Primary concern} \\
+        \midrule
+        Cartographic representation & 12 & Map scales and numerical coordinate extents \\
+        Hierarchy and internal structure & 7 & Deeper table hierarchies, conditional structures, and diagram flows \\
+        Scoped metadata associations & 7 & Per-variable, per-note, or per-panel association of existing concepts \\
+        Value and observation semantics & 5 & Value status, respondent groups, observational units, and collection responsibility \\
+        Visual-axis encoding & 3 & Distinct axes, truncated marks, and nonzero axis ranges \\
+        Cross-snapshot relationships & 1 & Reference to a related snapshot \\
+        Source-visible label representation & 1 & Icon-only column labels \\
+        \midrule
+        \textbf{Total} & \textbf{36} & \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+Human adjudication produced a substantially narrower result (Table~\ref{tab:validation3_adjudication}). Thirteen candidates concerned extraction or internal visual structure, and eleven lacked sufficient evidence, generalizability, or materiality. Seven were already represented adequately by the machine-readable schema. No candidate was accepted as a new standalone metadata field.
+
+\begin{table}[H]
+    \centering
+    \caption{Human dispositions for the 36 Schema Validation 3 candidates.}
+    \label{tab:validation3_adjudication}
+    \renewcommand{\arraystretch}{1.1}
+    \small
+    \begin{tabularx}{0.82\textwidth}{>{\RaggedRight\arraybackslash}X r}
+        \toprule
+        \textbf{Human disposition} & \textbf{Candidates} \\
+        \midrule
+        Covered adequately by the machine-readable schema & 7 \\
+        Extraction or internal visual structure & 13 \\
+        Insufficient evidence, generalizability, or materiality & 11 \\
+        Outside the snapshot-metadata boundary & 1 \\
+        Documentation or representation concern & 3 \\
+        Meaningful representation gap & 1 \\
+        \midrule
+        \textbf{Total} & \textbf{36} \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+The one accepted representation gap concerned a multi-axis graph. The machine-readable schema evaluated in Validation 3 could identify a general axis role but could not associate each variable with the distinct axis required to interpret it. This finding concerned a relationship among existing concepts rather than a missing metadata subject and was addressed after the run through a bounded structural refinement of the variable representation. Two panel-association candidates reproduced the concern already identified in Validation 2. Proposals for deeper recursive hierarchies did not overturn the nonrecursive grouping boundary adopted in the machine-readable schema.
+
+\subsection{Interpretation of the divergence}
+
+Several features of the later instrument plausibly contributed to the larger review set. First, the machine-readable contract made structural ownership and constraints explicit. A model could therefore identify that a concept existed while questioning whether it could be attached to a particular variable, panel, note, or category. Second, the generated JSON Schema provided substantially more input context than the flat Markdown schema. This increased the number of explicit structures and boundaries against which each snapshot could be compared. Third, exact nested-path reporting encouraged candidates to be localized to relationship and cardinality boundaries rather than expressed only as absent flat fields.
+
+The candidate composition provides additional evidence about the nature of the divergence. Many proposals concerned map calibration, coordinate bounds, recursive table structure, conditional denominators, axis ranges, or diagram flows. These features could support reconstruction of internal snapshot content, but they fall outside the intended role of a snapshot-level metadata schema. The more explicit schema therefore surfaced additional pressure at the boundary between metadata description and visual-content extraction.
+
+These observations remain explanatory hypotheses rather than isolated effects. Individual LLM calls are nondeterministic, and neither exercise repeated the full assessment sufficiently to characterize run-to-run variance. Because schema semantics and model-facing representation changed together, the observed difference cannot establish that JSON Schema is intrinsically more or less suitable than Markdown for LLM-assisted validation.
+
+\subsection{Implications and future evaluation}
+
+The adjudicated outcomes are more consistent than the raw screening counts. Validation 2 and Validation 3 both accepted no new standalone metadata field. The later exercise reproduced one previously identified panel concern, retained the chosen boundary for hierarchical structure, and identified one additional structural association within the existing variable concept. The larger candidate set therefore does not indicate that the later schema omitted more accepted metadata concepts.
+
+The later machine-readable implementation nevertheless indicates a practical direction for schema maintenance. A canonical Pydantic model can make types, nesting, cardinalities, and constraints machine-enforceable while generating JSON Schema and human-readable documentation as derivatives. This avoids maintaining Markdown as an independent authoritative schema while preserving a readable reference for human review. These implementation benefits are separate from the unresolved question of how representation affects LLM assessment behavior.
+
+A causal evaluation would need to vary schema semantics and model-facing presentation independently. One design would present both the schema as described in this paper and the later machine-readable schema in comparable Markdown and JSON Schema forms, repeat each condition across multiple model runs, and apply the same human-adjudication procedure. Such a study could distinguish effects associated with schema content, serialization format, and model variability. The present appendix documents the motivating observation but does not answer that causal question.
 
 \end{document}
