@@ -491,7 +491,7 @@ The resulting schema, intermediate knowledge artifacts, and held-out validation 
 
 The case study produced a sequence of explicit artifacts: metadata observations, metadata field profiles, candidate and refined metadata concept inventories, concept coverage evidence, the operational metadata schema, and held-out validation evidence. Together, they document the transformation of the development collection into a metadata schema and the subsequent evaluation of that schema.
 
-This section examines how the intermediate representations reduced semantic complexity, preserved supporting evidence, and structured the respective contributions of the LLM and human expert. It then considers what the held-out validation evidence supports about the resulting field inventory.
+This section examines how the intermediate knowledge artifacts reduced semantic complexity, preserved supporting evidence, and structured the respective contributions of the LLM and human expert. It then considers what the held-out validation evidence supports about the resulting field inventory.
 
 The analysis is organized around six questions:
 
@@ -858,7 +858,7 @@ Future work should apply the methodology to substantially different artifact cla
 
 Future work should also formally align the resulting schema with relevant metadata standards and application-profile practices, introduce normalized value representations and controlled vocabularies where appropriate, and adopt a canonical machine-readable implementation from which human-readable documentation and interoperability artifacts can be generated. A post-study implementation using Pydantic and generated JSON Schema is examined in Appendix~\ref{appendix:post_study_validation_comparison}. This follow-on comparison also motivates controlled study of how schema content and presentation affect LLM-assisted validation.
 
-More broadly, metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, multimodal LLMs support artifact interpretation, LLMs support semantic comparison, deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope and operational form. The Data Snapshot Metadata Schema provides one complete case through which to examine this architecture.
+More broadly, metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, multimodal LLMs support artifact interpretation and semantic comparison, deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope and operational form. The Data Snapshot Metadata Schema provides one complete case through which to examine this architecture.
 
 \section{Limitations}
 
@@ -883,12 +883,12 @@ The workflow assigns artifact interpretation, semantic synthesis, and constraine
 The methodological contribution is the adaptation and integration of established principles from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding into an evidence-preserving sequence that transforms artifact-level observations into an operational metadata schema and then evaluates that schema against held-out artifacts. The Data Snapshot Metadata Schema provides a case through which this architecture is examined; evaluating its transfer to other artifact classes and development settings remains future work.
 
 \subsubsection*{Acknowledgments}
-This work is supported by the “Artificial intelligence for understanding data use and enhancing knowledge discovery” project funded by the World Bank-UNHC Joint Data Center on Forced Displacement - RA-P503405-RESE-TF0C7575.
+This work is supported by the “Artificial intelligence for understanding data use and enhancing knowledge discovery” project funded by the World Bank-UNHCR Joint Data Center on Forced Displacement - RA-P503405-RESE-TF0C7575.
 
 \subsubsection*{Disclaimer and disclosure of AI use} 
 The findings, interpretations, and conclusions expressed in this paper are entirely those of the authors. They do not necessarily represent the views of the International Bank for Reconstruction and Development/World Bank and its affiliated organizations, or those of the Executive Directors of the World Bank or the governments they represent.
 
-This work used AI tools at various stages, including open source AI models for layout detection. In addition, NotebookLM and ChatGPT were employed to enhance the manuscript’s readability. We also thank Rafael Sevilla Macalaba for providing technical advice and suggestions to strengthen the implementation and manuscript.
+This work used AI tools at various stages, including OpenAI models at multiple stages of the methodology. In addition, NotebookLM and ChatGPT were employed to enhance the manuscript’s readability. We also thank Rafael Sevilla Macalaba for providing technical advice and suggestions to strengthen the implementation and manuscript.
 
 \bibliographystyle{iclr2026_conference}
 \bibliography{references}
@@ -1591,7 +1591,7 @@ Unlike the previous workflow stages, concept coverage assessment was designed as
 
 Several design principles were incorporated into the prompt. First, the model prioritized semantic meaning over lexical similarity by considering the field name together with representative descriptions and observed values. Second, concept definitions and examples provided contextual guidance but were treated as illustrative rather than exhaustive. Third, the prompt prohibited proposing or modifying concepts so that the assessment characterized the refined inventory rather than extending it. Finally, \texttt{not\_in\_ontology} allowed intentionally excluded fields to be classified without forcing inappropriate assignments.
 
-The resulting classifications constitute concept coverage evidence describing how well the refined inventory accounts for the metadata field profiles produced during discovery.
+The resulting classifications constitute concept coverage evidence describing how well the refined inventory accounts for the metadata field profiles produced during field profile aggregation.
 
 \subsection{System prompt}
 
