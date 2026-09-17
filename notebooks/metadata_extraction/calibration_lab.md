@@ -1025,3 +1025,109 @@ only rejects exposing them to the extractor in the tested forms before the
 102-snapshot reviewed reference set exists. A future paired evaluation can revisit
 examples against that reference set with replicated runs and field-family-level
 scoring.
+
+#### How examples were supplied
+
+The examples experiments did not put a separate examples section in the system or
+user prompt. At request construction time, the extractor generated the canonical
+Pydantic validation schema and appended each selected field's examples to that
+same field's `description`. The examples were serialized with `json.dumps`, so a
+field such as:
+
+```json
+{
+  "description": "Exact UN/CEFACT Recommendation 20 common code.",
+  "examples": ["P1", "KMT"]
+}
+```
+
+became the following model-facing Structured Outputs schema fragment:
+
+```json
+{
+  "description": "Exact UN/CEFACT Recommendation 20 common code.\n\nExamples: [\"P1\", \"KMT\"]"
+}
+```
+
+The OpenAI-compatible adapter then removed the original `examples` keyword. C9A
+and C9B appended every available example list in this way. C9C used the same
+representation only for the preregistered geographic-name and category-group
+paths. C9 used the normal example-free schema. None of these C9x runs rendered a
+second schema copy in the user prompt.
+
+#### Why examples may have hurt extraction
+
+Structured Outputs constrains the response shape, but it does not establish that
+every populated value is semantically correct or that every visually supported
+field is found. The following mechanisms are plausible interpretations of C9x,
+not separately proven causal effects:
+
+1. A JSON example embedded in a field description is salient and can look like a
+   miniature output template. It may anchor the model on a demonstrated value or
+   representation instead of the full visible evidence.
+2. Examples show possible values but rarely define the decision boundary: when a
+   field applies, when every visible item should be enumerated, and how it differs
+   from neighboring fields. The concise field-boundary rules address those
+   questions more directly.
+3. Field-local examples can improve the emphasized representation while drawing
+   attention away from global completeness. C9A/C9C showed narrow gains in
+   normalized names or category grouping alongside losses in axes, multipliers,
+   and geographic coverage.
+4. Full examples add competing context. C9A and C9B each used roughly 34,000 more
+   input tokens across nine snapshots than C9. This cannot be the only explanation,
+   because targeted C9C was close to C9's input size and still underperformed.
+5. An anti-copy instruction does not erase the examples' priming effect and adds
+   another constraint for the model to reconcile. C9B did not provide a net
+   safeguard in this sample.
+
+The experiment does not prove that examples inherently reduce quality. Each
+treatment has only one run, and earlier calibration demonstrated substantial
+run-to-run variation. The supported conclusion is that these example-bearing
+representations produced some legitimate local gains but did not deliver a
+reliable net improvement over the example-free control. Production therefore
+keeps the examples out until the reviewed 102-snapshot set supports replicated,
+field-level evaluation.
+
+## Final experiment summary
+
+The rows below follow execution order. **C2** and **C8E** are bolded because they
+were the two successive production configurations selected during calibration.
+
+| Experiment | Segment — what was tested | What changed | Finding |
+| --- | --- | --- | --- |
+| C0 | C0–C4 — prompt construction, schema visibility, examples, and field-boundary guidance | Initial six-snapshot production baseline | Established the first valid reference outputs and cost baseline. |
+| C0R | C0–C4 — prompt construction, schema visibility, examples, and field-boundary guidance | Repeated C0 without changing the request | None of the six records matched exactly; medium-effort run-to-run variation was material. |
+| C1 | C0–C4 — prompt construction, schema visibility, examples, and field-boundary guidance | Duplicated the OpenAI-compatible response schema in the user prompt | Roughly doubled cost without a consistent quality gain and lost several useful assignments. |
+| C1A | C0–C4 — prompt construction, schema visibility, examples, and field-boundary guidance | Duplicated the canonical Pydantic schema, including examples, in the user prompt | Changed structural choices but introduced field-placement errors and was the most expensive early treatment. |
+| **C2** | **C0–C4 — prompt construction, schema visibility, examples, and field-boundary guidance** | **Added concise field-boundary rules to the C1-compatible schema reference** | **Best early balance of evidence fidelity and field placement; promoted as the first calibrated production configuration.** |
+| C3 | C0–C4 — prompt construction, schema visibility, examples, and field-boundary guidance | Added curated positive and negative examples to C2 | Fixed isolated details but introduced new structural errors; did not beat C2. |
+| C4 | C0–C4 — prompt construction, schema visibility, examples, and field-boundary guidance | Repeated C2 byte-for-byte | Confirmed useful C2 tendencies but not deterministic outputs; C2 remained preferred. |
+| C5L | C5 — reasoning-level quality, reliability, latency, and cost | Ran the C2 prompt at low reasoning effort | Lower quality and one first-pass validation failure; modest savings did not justify adoption. |
+| C5H | C5 — reasoning-level quality, reliability, latency, and cost | Ran the C2 prompt at high reasoning effort | Slower and more expensive than medium without a quality gain. |
+| C5X-8k | C5 — reasoning-level quality, reliability, latency, and cost | Ran xhigh with the common 8,000-token output ceiling | Three table calls exhausted the combined reasoning/output budget; the pilot was confounded rather than evidence against xhigh. |
+| C5X | C5 — reasoning-level quality, reliability, latency, and cost | Repeated xhigh with a 32,000-token ceiling | Completed successfully and scored slightly above medium, but cost, latency, and reasoning use were much higher; medium remained production choice. |
+| C6 | C6 — generalization on a fresh 12-snapshot set and targeted prompt repair | Applied the selected medium/C2 configuration to two new snapshots per source/type stratum | Exposed recurring language omissions and confirmed that country-at-a-glance composites were a difficult special case. |
+| C6R | C6 — generalization on a fresh 12-snapshot set and targeted prompt repair | Added an explicit language rule and reran four selected C6 snapshots | Recovered `languages` on all four targets; other differences still reflected ordinary run-to-run variation. |
+| C7 | C7–C8 — schema-example visibility versus explicit completeness instructions | Appended the first canonical example to each field description | Produced only narrow normalization gains and did not justify example augmentation. |
+| C7A | C7–C8 — schema-example visibility versus explicit completeness instructions | Appended all canonical examples to each field description | Strongly increased normalization fields but also overpopulated or misplaced metadata, especially on composites. |
+| C8 | C7–C8 — schema-example visibility versus explicit completeness instructions | Added direct field-by-field traversal with unsupported fields left null | Recovered the explicit six-series dual-axis assignments and normalization fields, but encouraged unsupported assignments on composites. |
+| C8A | C7–C8 — schema-example visibility versus explicit completeness instructions | Rephrased completeness as an outcome-first success criterion | More conservative, avoiding composite overassignment but missing the legitimate dual-axis case. |
+| C8B | C7–C8 — schema-example visibility versus explicit completeness instructions | Added a concise final schema re-scan | Recovered the legitimate dual-axis case, but still showed unsupported assignments and weaker normalization in one run. |
+| C7B | C7–C8 — schema-example visibility versus explicit completeness instructions | Limited complete examples to normalization-related descriptions | Reduced C7A's diffuse pressure but did not reliably recover codes, axes, or the originally missing fields. |
+| C8BR | C8x — completeness wording, schema duplication, and run-to-run variation on nine non-composites | Repeated C8B while retaining the user-prompt schema copy | Did not reproduce the original coverage; reinforced substantial run-to-run variation. |
+| C8C | C8x — completeness wording, schema duplication, and run-to-run variation on nine non-composites | Combined field traversal with the final re-scan and retained the schema copy | Produced mixed coverage and did not establish that the combined wording was better. |
+| C8D | C8x — completeness wording, schema duplication, and run-to-run variation on nine non-composites | Removed the user-prompt schema copy from C8C | Cut cost substantially and recovered detailed axes in this run, but added an unsupported duplicate variable. |
+| **C8E** | **C8x — completeness wording, schema duplication, and run-to-run variation on nine non-composites** | **Used C8B's concise re-scan without the user-prompt schema copy** | **Most balanced finalization run; retained useful geography and supported coarser axes while avoiding redundant schema tokens. Promoted as production.** |
+| C8DR | C8x — completeness wording, schema duplication, and run-to-run variation on nine non-composites | Repeated C8D without the schema copy | Did not reproduce C8D's lift; no evidence to replace C8E and further confirmation of nondeterminism. |
+| C9 | C9x — runtime field-description examples on top of C8E | Ran a contemporaneous example-free production control | Strongest overall coverage in the segment, including axes, multipliers, and geographic locations. |
+| C9A | C9x — runtime field-description examples on top of C8E | Appended all Pydantic examples as JSON to their field descriptions | Produced legitimate local gains, but lost important axes, multipliers, and geography; no net improvement. |
+| C9B | C9x — runtime field-description examples on top of C8E | Added an anti-copy instruction to the C9A treatment | Did not protect against omissions or misplaced variables and erased several example-related gains. |
+| C9C | C9x — runtime field-description examples on top of C8E | Limited examples to geographic-name and category-group descriptions | Reproduced two narrow gains but again lost broader supported coverage; examples were not promoted. |
+
+The current production setting is **C8E**: `gpt-5.6-luna` at medium reasoning
+effort, Flex service tier, prompt caching, and the Pydantic-derived Schema v1.3
+Structured Outputs contract. The model receives only the snapshot image as source
+evidence. The system prompt supplies the evidence and metadata boundaries plus
+C8B's concise final schema re-scan; the user prompt supplies C2's field-boundary
+guidance. Unsupported fields remain null. The schema is not duplicated in the
+user prompt, and canonical Pydantic examples are not exposed to the model.
