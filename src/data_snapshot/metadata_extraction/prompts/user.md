@@ -29,3 +29,12 @@ Inspect the attached data snapshot and extract all Schema v1.3 metadata explicit
   snapshot explicitly names the language.
 - Preserve complete substantive notes that are not fully represented by another
   field. Do not extract numerical observations or reproduce table cells.
+
+## Model-facing Schema v1.3 reference
+
+Use this schema as field-level extraction guidance. The API response format remains
+the authoritative output contract.
+
+```json
+{{MODEL_FACING_SCHEMA}}
+```

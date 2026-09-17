@@ -18,6 +18,7 @@ from data_snapshot.metadata_schema import DataSnapshotMetadata
 _PACKAGE_DIR = Path(__file__).parent
 _DEFAULT_CONFIG_PATH = _PACKAGE_DIR / "config" / "default.json"
 _PROMPT_DIR = _PACKAGE_DIR / "prompts"
+_MODEL_FACING_SCHEMA_PLACEHOLDER = "{{MODEL_FACING_SCHEMA}}"
 _PIPELINE_OWNED_CONFIG_FIELDS = {
     "input",
     "instructions",
@@ -390,18 +391,16 @@ def _production_user_prompt(
 ) -> str:
     """Build the production prompt with the model-facing response schema."""
     prompt = (_PROMPT_DIR / "user.md").read_text(encoding="utf-8").rstrip()
+    if prompt.count(_MODEL_FACING_SCHEMA_PLACEHOLDER) != 1:
+        raise ValueError(
+            "The user prompt must contain exactly one model-facing schema placeholder."
+        )
     schema = json.dumps(
         _response_format(schema_example_mode)["schema"],
         ensure_ascii=False,
         indent=2,
     )
-    return (
-        f"{prompt}\n\n"
-        "## Model-facing Schema v1.3 reference\n\n"
-        "Use this schema as field-level extraction guidance. The API response "
-        "format remains the authoritative output contract.\n\n"
-        f"```json\n{schema}\n```\n"
-    )
+    return prompt.replace(_MODEL_FACING_SCHEMA_PLACEHOLDER, schema) + "\n"
 
 
 def _create_openai_client() -> Any:
