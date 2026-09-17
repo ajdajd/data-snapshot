@@ -253,6 +253,7 @@ def test_response_format_can_append_schema_examples_by_mode() -> None:
     first_schema = _response_format("first")["schema"]
     all_schema = _response_format("all")["schema"]
     normalization_schema = _response_format("normalization")["schema"]
+    targeted_schema = _response_format("c9_targeted")["schema"]
     default_description = default_schema["$defs"]["Unit"]["properties"]["code"][
         "description"
     ]
@@ -266,6 +267,12 @@ def test_response_format_can_append_schema_examples_by_mode() -> None:
     normalization_name_description = normalization_schema["$defs"]["Variable"][
         "properties"
     ]["name"]["description"]
+    targeted_place_description = targeted_schema["$defs"]["Place"]["properties"][
+        "name"
+    ]["description"]
+    targeted_unit_description = targeted_schema["$defs"]["Unit"]["properties"]["code"][
+        "description"
+    ]
 
     assert default_description == "Exact UN/CEFACT Recommendation 20 common code."
     assert first_description == f'{default_description}\n\nExample: "P1"'
@@ -275,9 +282,14 @@ def test_response_format_can_append_schema_examples_by_mode() -> None:
         normalization_name_description
         == default_schema["$defs"]["Variable"]["properties"]["name"]["description"]
     )
+    assert targeted_place_description.endswith(
+        'Examples: ["Kenya", "Sub-Saharan Africa", "Philippines"]'
+    )
+    assert targeted_unit_description == default_description
     assert '"examples"' not in json.dumps(first_schema)
     assert '"examples"' not in json.dumps(all_schema)
     assert '"examples"' not in json.dumps(normalization_schema)
+    assert '"examples"' not in json.dumps(targeted_schema)
 
 
 def test_extract_metadata_rejects_missing_structured_output(tmp_path: Path) -> None:

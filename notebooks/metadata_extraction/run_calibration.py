@@ -126,7 +126,13 @@ C8C_SYSTEM_GUIDANCE = (
     "when visible evidence reasonably supports a field, prefer populating it rather "
     "than omitting it."
 )
+C9_ANTI_COPY_GUIDANCE = (
+    "Examples are illustrative, not default values. Populate a field only when "
+    "supported by visible evidence; never copy an example merely to complete the "
+    "schema."
+)
 C8_FINALIZATION_EXPERIMENTS = {"c8br", "c8c", "c8d", "c8dr", "c8e"}
+C9_EXPERIMENTS = {"c9", "c9a", "c9b", "c9c"}
 TARGETED_EXPERIMENTS = {
     "c7",
     "c7a",
@@ -135,6 +141,7 @@ TARGETED_EXPERIMENTS = {
     "c8a",
     "c8b",
     *C8_FINALIZATION_EXPERIMENTS,
+    *C9_EXPERIMENTS,
 }
 
 EXPERIMENTS = {
@@ -255,6 +262,38 @@ EXPERIMENTS = {
         "completeness_guidance": C8B_SYSTEM_GUIDANCE,
         "include_schema_reference": False,
     },
+    "c9": {
+        "label": "C9",
+        "treatment": "Contemporaneous production control without examples",
+        "output_stem": "calibration9",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "include_schema_reference": False,
+    },
+    "c9a": {
+        "label": "C9A",
+        "treatment": "All canonical examples appended to schema descriptions",
+        "output_stem": "calibration9a",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "schema_example_mode": "all",
+        "include_schema_reference": False,
+    },
+    "c9b": {
+        "label": "C9B",
+        "treatment": "All canonical examples plus anti-copy instruction",
+        "output_stem": "calibration9b",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "schema_example_mode": "all",
+        "system_prompt_addendum": C9_ANTI_COPY_GUIDANCE,
+        "include_schema_reference": False,
+    },
+    "c9c": {
+        "label": "C9C",
+        "treatment": "Targeted geographic-name and category-group examples",
+        "output_stem": "calibration9c",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "schema_example_mode": "c9_targeted",
+        "include_schema_reference": False,
+    },
 }
 
 BOUNDARY_GUIDANCE = """## Field-boundary guidance
@@ -372,11 +411,12 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
     prompt_addendum = _prompt_addendum(experiment_name)
     schema_example_mode = str(experiment.get("schema_example_mode", "none"))
     completeness_guidance = experiment.get("completeness_guidance")
+    system_prompt_addendum = experiment.get("system_prompt_addendum")
     include_schema_reference = bool(experiment.get("include_schema_reference", True))
     data_root = (
         BATCH1_DATA_ROOT if experiment_name in TARGETED_EXPERIMENTS else DATA_ROOT
     )
-    if experiment_name in C8_FINALIZATION_EXPERIMENTS:
+    if experiment_name in C8_FINALIZATION_EXPERIMENTS | C9_EXPERIMENTS:
         snapshots = C8_FINALIZATION_SNAPSHOTS
     elif experiment_name in TARGETED_EXPERIMENTS:
         snapshots = TARGETED_CALIBRATION_SNAPSHOTS
@@ -423,6 +463,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
             data_root / relative_path,
             config_path=config_path,
             user_prompt_addendum=prompt_addendum,
+            system_prompt_addendum=system_prompt_addendum,
             completeness_guidance=completeness_guidance,
             schema_example_mode=schema_example_mode,
             include_schema_reference=include_schema_reference,
@@ -445,6 +486,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
             "schema_example_mode": schema_example_mode,
             "include_schema_reference": include_schema_reference,
             "completeness_guidance": completeness_guidance,
+            "system_prompt_addendum": system_prompt_addendum,
         }
         if result.metadata is not None:
             _append_jsonl(

@@ -56,14 +56,33 @@ _SUPPORTED_STRING_FORMATS = {
     "time",
     "uuid",
 }
-_SchemaExampleMode = Literal["none", "first", "all", "normalization"]
-_SCHEMA_EXAMPLE_MODES = {"none", "first", "all", "normalization"}
+_SchemaExampleMode = Literal[
+    "none",
+    "first",
+    "all",
+    "normalization",
+    "c9_targeted",
+]
+_SCHEMA_EXAMPLE_MODES = {
+    "none",
+    "first",
+    "all",
+    "normalization",
+    "c9_targeted",
+}
 _NORMALIZATION_EXAMPLE_PATHS = {
     ("$defs", "Currency", "properties", "code"),
     ("$defs", "GeographicLocation", "properties", "iso3_code"),
     ("$defs", "Place", "properties", "iso3_code"),
     ("$defs", "Unit", "properties", "code"),
     ("$defs", "Unit", "properties", "multiplier_exponent"),
+}
+_C9_TARGETED_EXAMPLE_PATHS = {
+    ("$defs", "CategoryGroup", "properties", "name"),
+    ("$defs", "CategoryGroup", "properties", "categories"),
+    ("$defs", "Dimension", "properties", "category_groups"),
+    ("$defs", "GeographicLocation", "properties", "name"),
+    ("$defs", "Place", "properties", "name"),
 }
 
 
@@ -172,7 +191,7 @@ def extract_metadata(
     completeness_guidance : str | None, optional
         Guidance rendered at the explicit completeness placeholder. Defaults to
         the production re-scan instruction; use ``None`` for historical controls.
-    schema_example_mode : {"none", "first", "all", "normalization"}, optional
+    schema_example_mode : {"none", "first", "all", "normalization", "c9_targeted"}, optional
         Whether model-facing schema descriptions include no examples, the
         first example, all examples, or all examples for selected
         normalization fields from the canonical Pydantic schema.
@@ -311,7 +330,7 @@ def _openai_compatible_schema(value: Any) -> Any:
 
 def _append_schema_examples_to_descriptions(
     value: Any,
-    mode: Literal["first", "all", "normalization"],
+    mode: Literal["first", "all", "normalization", "c9_targeted"],
     path: tuple[str, ...] = (),
 ) -> None:
     """Append canonical schema examples to their associated descriptions.
@@ -320,9 +339,9 @@ def _append_schema_examples_to_descriptions(
     ----------
     value : Any
         JSON-compatible schema value to transform in place.
-    mode : {"first", "all", "normalization"}
+    mode : {"first", "all", "normalization", "c9_targeted"}
         Whether to append the first example, the complete examples list, or
-        complete examples only for selected normalization fields.
+        complete examples only for a selected set of fields.
     path : tuple[str, ...], optional
         Location of ``value`` within the root schema.
     """
@@ -337,7 +356,11 @@ def _append_schema_examples_to_descriptions(
     if (
         isinstance(examples, list)
         and examples
-        and (mode != "normalization" or path in _NORMALIZATION_EXAMPLE_PATHS)
+        and (
+            mode not in {"normalization", "c9_targeted"}
+            or (mode == "normalization" and path in _NORMALIZATION_EXAMPLE_PATHS)
+            or (mode == "c9_targeted" and path in _C9_TARGETED_EXAMPLE_PATHS)
+        )
     ):
         selected: Any = examples[0] if mode == "first" else examples
         label = "Example" if mode == "first" else "Examples"

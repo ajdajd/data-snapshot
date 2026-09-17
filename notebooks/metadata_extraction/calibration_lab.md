@@ -909,3 +909,119 @@ marker with an empty string. No canonical Pydantic schema change is supported by
 these C8x results. C8DR did not provide evidence to replace this provisional
 choice. A genuine ranking of traversal, re-scan, and combined wording requires
 multiple paired replications or the reviewed 102-snapshot reference set.
+
+## C9x examples experiments
+
+### Preregistered design
+
+C9x evaluates whether exposing canonical Pydantic examples through their
+associated field descriptions improves metadata quality on top of the provisional
+C8E production configuration. The output schema remains supplied only through
+Structured Outputs; it is not duplicated in the user prompt. All runs use medium
+reasoning, Flex, prompt caching, and the same nine non-composite snapshots. The
+three country at-a-glance pages and reviewer-generated `gold` records remain
+outside the primary analysis.
+
+| Run | Examples treatment | Additional instruction |
+| --- | --- | --- |
+| C9 | None; contemporaneous production control | None |
+| C9A | All canonical examples appended as JSON to their field descriptions | None |
+| C9B | Same full-example schema as C9A | Examples are illustrative, not defaults; never copy an example without visible evidence |
+| C9C | Examples limited to field families showing credible gains in C9A/C9B | Retain the anti-copy instruction only if C9B reduces example-driven errors without erasing gains |
+
+C9C is adaptive but follows a predeclared selection rule: include a field family
+only when C9A or C9B shows at least one clear supported quality gain over C9 and
+does not introduce unsupported or misplaced values that outweigh that gain. Its
+exact selected schema paths and anti-copy choice must be recorded before C9C is
+executed.
+
+Primary evaluation concerns metadata quality rather than raw field count:
+normalization correctness, source fidelity, variable/dimension decomposition,
+field placement and relationships, manual correction effort, and unsupported
+additions. Omissions remain more costly than conspicuous overfills for the current
+102-snapshot manual-review workflow, but difficult-to-detect wrong values remain
+serious.
+
+### C9 through C9B results and C9C selection
+
+All three runs completed 9/9 requests without an API error.
+
+| Run | Input tokens | Cached input tokens | Output tokens | Reasoning tokens | Mean latency | Cost | Cumulative cost |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| C9 | 101,761 | 68,504 | 17,620 | 9,413 | 29.02 s | $0.015413490 | $0.657600205 |
+| C9A | 136,258 | 99,168 | 16,261 | 9,556 | 21.50 s | $0.015383855 | $0.672984060 |
+| C9B | 136,510 | 99,392 | 15,408 | 8,578 | 25.59 s | $0.014877795 | $0.687861855 |
+
+C9 was a strong contemporaneous control: it recovered all six explicit-series
+axis assignments, three Yemen multipliers, two separate Denar currency
+expressions, and the eight education and eight asylum locations. It did not add
+normalized names to the seven coastal-table locations.
+
+C9A's clearest supported gains were normalized names for all seven coastal
+locations and Russia, cleaner grouped-category structure in the credit table, and
+a more complete regression-variable rendition that restored `REG4N` and the
+visible `t` statistical form while avoiding `Number obs.` as a measured variable.
+Its important losses included the detailed six-series axis representation, all
+million multipliers, and most education and asylum geographic coverage. It also
+added empty dimensions to the Yemen and education records. Full examples therefore
+changed behavior but did not provide a general quality improvement.
+
+C9B recovered the two credit-table multipliers, but the anti-copy instruction did
+not yield a net safeguard. It omitted all dual-axis assignments, coastal
+geography, education locations, and asylum locations, while still adding an
+intercept as a measured variable and empty Yemen dimensions. The anti-copy
+instruction is therefore excluded from C9C.
+
+Before execution, C9C is fixed to the following example-bearing schema paths:
+
+- `$defs.CategoryGroup.properties.name`
+- `$defs.CategoryGroup.properties.categories`
+- `$defs.Dimension.properties.category_groups`
+- `$defs.GeographicLocation.properties.name`
+- `$defs.Place.properties.name`
+
+These paths isolate the two example families with the clearest directly related
+gains in C9A: normalized geographic names and grouped-category structure. C9C does
+not include normalization-code, unit, currency, temporal, variable, axis, or
+statistical-form examples because C9A/C9B did not show a consistent net benefit
+that could be attributed to those example families.
+
+### C9C result and C9x conclusion
+
+C9C completed 9/9 requests without an API error.
+
+| Run | Input tokens | Cached input tokens | Output tokens | Reasoning tokens | Mean latency | Cost | Cumulative cost |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| C9C | 102,895 | 69,512 | 14,777 | 8,359 | 26.12 s | $0.013733520 | $0.701595375 |
+
+The targeted treatment reproduced two narrow behaviors related to its selected
+example families. It normalized Russia's name, and the credit table represented
+the product/activity values only inside the appropriate `NATURAL PERSONS` and
+`CORPORATES` category groups instead of also duplicating them as ungrouped
+categories. These are legitimate supported improvements.
+
+Those gains did not generalize or outweigh the losses relative to C9. C9C did not
+emit normalized names for the seven coastal-table countries; it omitted that
+table's geographic coverage entirely. It also omitted all six explicit-series
+axis assignments, all three Yemen million multipliers, and all eight asylum
+locations. It retained only the two visible education-region labels rather than
+C9's eight constituent country locations. In the regression table it emitted the
+unsupported transcription `REGSN`, omitted visible `REG4N`, and treated
+`Intercept`, `R²`, and `Number obs.` as variables. It preserved the two Denar
+currency expressions and correctly emitted the visible `USD` currency code, but
+also misplaced `USD` in the UN/CEFACT unit-code field. None of these behaviors is
+attributable to the selected examples.
+
+The C9x result is therefore **no examples**. C9A showed that examples can change
+schema interpretation and sometimes improve particular records, but C9B did not
+make full examples safe and C9C did not make their gains reliable. With one run
+per treatment, some differences may be run-to-run variation; the evidence does
+not support promoting any example-bearing configuration. Production remains C8E:
+medium reasoning, Flex, prompt caching, the concise final schema re-scan, no
+user-prompt schema copy, and the example-free Structured Outputs schema.
+
+This conclusion does not claim that canonical Pydantic examples lack value. It
+only rejects exposing them to the extractor in the tested forms before the
+102-snapshot reviewed reference set exists. A future paired evaluation can revisit
+examples against that reference set with replicated runs and field-family-level
+scoring.
