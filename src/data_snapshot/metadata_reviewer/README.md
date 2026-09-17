@@ -73,7 +73,8 @@ The generated and gold roots must not overlap.
    canonical definition. Use **?** for the generated value and **ⓘ** for schema
    examples.
 6. Orange labels identify values that differ from the immutable generated
-   reference. The full generated JSON remains available in its own tab.
+   reference. The full generated JSON remains available in the
+   **Generated reference** view.
 7. Select **Save Gold & Next**. The app validates the entire working record
    with the canonical `DataSnapshotMetadata` Pydantic model before saving.
 

@@ -110,14 +110,21 @@ def main(args: Sequence[str] | None = None) -> None:
     with metadata_column:
         status_placeholder = st.empty()
         validation_placeholder = st.empty()
-        editing_tab, generated_tab = st.tabs(("Edit gold", "Generated reference"))
-        with editing_tab:
-            render_metadata_form(working, generated)
-        with generated_tab:
+        view = st.segmented_control(
+            "Reviewer view",
+            ("Edit gold", "Generated reference"),
+            default="Edit gold",
+            key=f"metadata_reviewer_widget:{item.snapshot_id}:view",
+            label_visibility="collapsed",
+            width="stretch",
+        )
+        if view == "Generated reference":
             with st.container(
                 height=760, border=True, key="metadata_reviewer_editor_generated"
             ):
                 st.json(generated, expanded=True)
+        else:
+            render_metadata_form(working, generated)
 
         _render_record_status(status_placeholder, item, working, generated)
         _render_validation_status(validation_placeholder, working)

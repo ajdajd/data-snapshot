@@ -48,43 +48,72 @@ def test_edit_highlight_and_dirty_navigation_guard(tmp_path: Path) -> None:
     }
     assert app.caption[0].value.startswith("**alpha** · unhcr / figure · 1 of 2")
     assert app.text_input(key="metadata_reviewer_widget:alpha:subject_summary")
-    assert app.text_input(
-        key="metadata_reviewer_widget:alpha:temporal_coverage.period.source_text"
-    )
     assert any(caption.value.startswith("The primary title") for caption in app.caption)
     assert len(app.get("popover")) >= 2
     assert json.dumps("Generated alpha") in [value.value for value in app.get("code")]
-    generated_record = json.dumps({"title": "Generated alpha"})
-    generated_json = next(
-        value for value in app.get("json") if value.proto.body == generated_record
-    )
-    assert generated_json.proto.expanded and not generated_json.proto.max_expand_depth
-    popover_json = [
-        value for value in app.get("json") if value.proto.body != generated_record
-    ]
+    popover_json = app.get("json")
     assert popover_json
     assert all(
         value.proto.expanded and not value.proto.max_expand_depth
         for value in popover_json
     )
-    assert len(app.get("tab_container")) == 2
+    assert not app.get("tab_container")
+    assert app.button_group(key="metadata_reviewer_widget:alpha:view").value == (
+        "Edit gold"
+    )
+    assert app.button_group(key="metadata_reviewer_widget:alpha:section").value == (
+        "Overview"
+    )
     editor_keys = {value.key for value in app.get("flex_container")}
-    assert {
-        "metadata_reviewer_editor_overview",
-        "metadata_reviewer_editor_structure",
-        "metadata_reviewer_editor_temporal",
-        "metadata_reviewer_editor_geographic",
-        "metadata_reviewer_editor_context",
-        "metadata_reviewer_editor_generated",
-    } <= editor_keys
+    assert "metadata_reviewer_editor_overview" in editor_keys
+    assert (
+        not {
+            "metadata_reviewer_editor_structure",
+            "metadata_reviewer_editor_temporal",
+            "metadata_reviewer_editor_geographic",
+            "metadata_reviewer_editor_context",
+            "metadata_reviewer_editor_generated",
+        }
+        & editor_keys
+    )
 
     app.text_input(key="metadata_reviewer_widget:alpha:title").set_value(
         "Reviewed alpha"
     ).run()
+    app.button_group(key="metadata_reviewer_widget:alpha:section").set_value(
+        "Temporal"
+    ).run()
+    assert app.text_input(
+        key="metadata_reviewer_widget:alpha:temporal_coverage.period.source_text"
+    )
+    assert app.session_state["metadata_reviewer_working"]["title"] == ("Reviewed alpha")
+
+    app.button_group(key="metadata_reviewer_widget:alpha:section").set_value(
+        "Structure"
+    ).run()
     assert not app.exception
-    assert any(item.value == ":orange[**Title**]" for item in app.get("markdown"))
     assert any(item.value == "**Multiplier exponent**" for item in app.get("markdown"))
     assert any(item.value == "**Position index**" for item in app.get("markdown"))
+
+    app.button_group(key="metadata_reviewer_widget:alpha:view").set_value(
+        "Generated reference"
+    ).run()
+    generated_record = json.dumps({"title": "Generated alpha"})
+    generated_json = next(
+        value for value in app.get("json") if value.proto.body == generated_record
+    )
+    assert generated_json.proto.expanded and not generated_json.proto.max_expand_depth
+    editor_keys = {value.key for value in app.get("flex_container")}
+    assert "metadata_reviewer_editor_generated" in editor_keys
+    assert "metadata_reviewer_editor_structure" not in editor_keys
+
+    app.button_group(key="metadata_reviewer_widget:alpha:view").set_value(
+        "Edit gold"
+    ).run()
+    app.button_group(key="metadata_reviewer_widget:alpha:section").set_value(
+        "Overview"
+    ).run()
+    assert any(item.value == ":orange[**Title**]" for item in app.get("markdown"))
     assert "Unsaved edits" in app.caption[0].value
 
     app.button(key="review_next").click().run()

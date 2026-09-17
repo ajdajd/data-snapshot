@@ -43,26 +43,15 @@ def render_metadata_form(working: Record, generated: Record) -> None:
         Immutable generated metadata used only for difference highlighting.
     """
 
-    overview, structure, temporal, geographic, context = st.tabs(
-        ("Overview", "Structure", "Temporal", "Geographic", "Context")
+    section = st.segmented_control(
+        "Metadata section",
+        ("Overview", "Structure", "Temporal", "Geographic", "Context"),
+        default="Overview",
+        key=_widget_key("section"),
+        label_visibility="collapsed",
+        width="stretch",
     )
-    with overview:
-        with st.container(
-            height=760, border=True, key="metadata_reviewer_editor_overview"
-        ):
-            _text(working, generated, "title", "Title")
-            _text(working, generated, "document_label", "Document label")
-            _text_list(working, generated, "subject_domains", "Subject domains")
-            _text(
-                working,
-                generated,
-                "subject_summary",
-                "Subject summary",
-            )
-            _text_list(working, generated, "panel_titles", "Panel titles")
-            _text(working, generated, "population_group", "Population group")
-
-    with structure:
+    if section == "Structure":
         with st.container(
             height=760, border=True, key="metadata_reviewer_editor_structure"
         ):
@@ -90,8 +79,7 @@ def render_metadata_form(working: Record, generated: Record) -> None:
                 "Visualization type",
                 _normalized_renderer(VisualizationTypeValue),
             )
-
-    with temporal:
+    elif section == "Temporal":
         with st.container(
             height=760, border=True, key="metadata_reviewer_editor_temporal"
         ):
@@ -102,8 +90,7 @@ def render_metadata_form(working: Record, generated: Record) -> None:
                 "Temporal coverage",
                 _render_temporal_coverage,
             )
-
-    with geographic:
+    elif section == "Geographic":
         with st.container(
             height=760, border=True, key="metadata_reviewer_editor_geographic"
         ):
@@ -114,8 +101,7 @@ def render_metadata_form(working: Record, generated: Record) -> None:
                 "Geographic coverage",
                 _render_geographic_coverage,
             )
-
-    with context:
+    elif section == "Context":
         with st.container(
             height=760, border=True, key="metadata_reviewer_editor_context"
         ):
@@ -152,6 +138,21 @@ def render_metadata_form(working: Record, generated: Record) -> None:
                 "Method",
                 _render_coded_term,
             )
+    else:
+        with st.container(
+            height=760, border=True, key="metadata_reviewer_editor_overview"
+        ):
+            _text(working, generated, "title", "Title")
+            _text(working, generated, "document_label", "Document label")
+            _text_list(working, generated, "subject_domains", "Subject domains")
+            _text(
+                working,
+                generated,
+                "subject_summary",
+                "Subject summary",
+            )
+            _text_list(working, generated, "panel_titles", "Panel titles")
+            _text(working, generated, "population_group", "Population group")
 
 
 def clear_form_widget_state() -> None:
