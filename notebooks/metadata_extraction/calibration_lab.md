@@ -813,3 +813,99 @@ quality-focused replication rather than a final winner.
    and winning C7x quality treatment only after both branches have independent
    evidence. Evaluate that combined prompt against the eventual reviewed gold
    set, with the at-a-glance family maintained as a separate challenge set.
+
+## C8x finalization experiments
+
+### Design
+
+The final C8x comparison used the same nine non-composite snapshots and continued
+to exclude the three country at-a-glance pages. Reviewer-generated `gold` records
+were not consulted. Four runs separated completeness wording from the redundant
+schema copy in the user prompt:
+
+- **C8BR:** exact repeat of C8B, including the user-prompt schema copy.
+- **C8C:** combined field traversal and final schema re-scan, including the
+  user-prompt schema copy.
+- **C8D:** exact C8C wording without the user-prompt schema copy.
+- **C8E:** exact C8B wording without the user-prompt schema copy. This conditional
+  branch was run because C8C and C8D produced a mixed coverage result.
+- **C8DR:** follow-up replication of C8D, requested after recognizing that the
+  original C8 traversal result and the first combined runs could be separated by
+  ordinary run-to-run variation.
+
+In C8D, C8E, and C8DR, the complete strict Pydantic-derived schema remained the
+authoritative `text.format` contract. Only its second, token-heavy rendering in
+the user message was removed.
+
+### Execution and cost
+
+All five runs completed 9/9 requests without an API error.
+
+| Run | User-prompt schema | Input tokens | Cached input tokens | Output tokens | Reasoning tokens | Mean latency | Experiment cost | Cumulative cost |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| C8BR | Yes | 232,162 | 68,504 | 14,461 | 7,240 | 15.49 s | $0.029818215 | $0.571002720 |
+| C8C | Yes | 232,540 | 68,840 | 13,791 | 6,870 | 15.44 s | $0.029424825 | $0.600427545 |
+| C8D | No | 102,139 | 77,445 | 15,328 | 7,808 | 15.93 s | $0.013057325 | $0.613484870 |
+| C8E | No | 101,761 | 77,067 | 16,135 | 8,376 | 16.98 s | $0.013537745 | $0.627022615 |
+| C8DR | No | 102,139 | 68,840 | 17,190 | 9,668 | 28.61 s | $0.015164100 | $0.642186715 |
+
+The original four finalization runs added **$0.085838110** to the calibration
+program; C8DR added **$0.015164100**, or approximately **$0.001684900** per
+snapshot. Removing the user copy reduced experiment cost by approximately 56%
+for C8C/C8D and 55% for C8BR/C8E. Final cumulative recorded calibration spend was
+**$0.642186715**, below the approved $5 guardrail.
+
+### Coverage and legitimacy review
+
+The same predeclared visible opportunities were checked. Exact counts are useful
+but not sufficient: the dual-axis chart can be represented either as six visible
+series variables or as two measures crossed with a sector dimension.
+
+| Run | Six explicit-series axis assignments | Million multipliers | Coastal normalized names | Separate Denar source text | Notable additional coverage or concern |
+| --- | ---: | ---: | ---: | ---: | --- |
+| C8, initial reference | 6 | 3 | 7 | 0 | Retained eight education locations; no asylum locations |
+| C8BR | 0 | 2 | 0 | 0 | Two coarser loan/share axis assignments; omitted both selected geographic sets |
+| C8C | 0 | 3 | 7 | 0 | No education or asylum geographic coverage |
+| C8D | 6 | 0 | 0 | 2 | Added an unsupported duplicate `Total loans` variable/axis; retained asylum geography |
+| C8E | 0 | 0 | 7 | 2 | Two supported coarser axis assignments; retained eight education and eight asylum locations |
+| C8DR | 0 | 0 | 0 | 0 | Retained eight asylum locations; no education locations; no explicit dual-axis assignments |
+
+C8E supplied the most balanced reviewable record among the finalization runs. Its
+two-variable representation of the dual-axis chart is less granular than C8B's
+original six-series representation, but it is supported by the image and avoids
+C8D's simultaneous aggregate-plus-series duplication. It also retained the
+coastal normalized names and both selected geographic location sets. Its visible
+weaknesses remain important: it missed all eight million multipliers and all
+tested ISO3, UN/CEFACT, and MKD codes, and it treated `schools` as a unit on the
+education chart. These omissions are candidates for a later normalization-focused
+branch, not evidence that duplicating the complete schema in the user prompt is
+helpful.
+
+The large differences between the original C8B run and C8BR, and between C8D and
+C8DR, confirm material run-to-run variation. C8DR did not reproduce either the
+original C8 traversal run's broad coverage or C8D's axis-assignment behavior. This
+does **not** establish that the combined instruction is worse: the experiment
+cannot separate treatment effects from nondeterminism with confidence. It only
+shows that the hoped-for combined lift has not been replicated. The
+schema-duplicated runs likewise did not show a consistent quality or coverage
+advantage over their schema-free counterparts, while their token and cost penalty
+was large and repeatable.
+
+### Final C8x decision
+
+Provisionally promote the **C8E configuration** for the current review workflow:
+
+1. Keep C8B's concise final schema re-scan instruction in the production system
+   prompt.
+2. Do not render the schema again in the production user prompt.
+3. Continue supplying the complete Pydantic-derived strict schema as the
+   authoritative Structured Outputs `text.format` contract.
+4. Keep medium reasoning effort, Flex service tier, and prompt caching.
+
+The user-prompt template retains an explicit
+`{{MODEL_FACING_SCHEMA_SECTION}}` marker so calibration runs can reproduce the
+with-schema treatment without a hidden runtime append. Production replaces the
+marker with an empty string. No canonical Pydantic schema change is supported by
+these C8x results. C8DR did not provide evidence to replace this provisional
+choice. A genuine ranking of traversal, re-scan, and combined wording requires
+multiple paired replications or the reviewed 102-snapshot reference set.

@@ -107,6 +107,9 @@ def test_extract_metadata_uses_pydantic_and_snapshot_only(tmp_path: Path) -> Non
     assert responses.request["service_tier"] == "flex"
     assert responses.request["prompt_cache_key"] == "metadata-extraction-v1-3"
     request_input = responses.request["input"]
+    system_text = request_input[0]["content"][0]["text"]
+    assert "Before returning, re-scan the image" in system_text
+    assert "{{COMPLETENESS_GUIDANCE}}" not in system_text
     prompt_text = " ".join(
         item["text"]
         for message in request_input
@@ -116,8 +119,8 @@ def test_extract_metadata_uses_pydantic_and_snapshot_only(tmp_path: Path) -> Non
     assert image_path.name not in prompt_text
     user_text = request_input[1]["content"][0]["text"]
     assert "## Field-boundary guidance" in user_text
-    assert "## Model-facing Schema v1.3 reference" in user_text
-    assert json.dumps(output_schema, ensure_ascii=False, indent=2) in user_text
+    assert "## Model-facing Schema v1.3 reference" not in user_text
+    assert json.dumps(output_schema, ensure_ascii=False, indent=2) not in user_text
     assert request_input[1]["content"][1]["image_url"].startswith(
         "data:image/png;base64,"
     )
@@ -193,7 +196,9 @@ def test_extract_metadata_applies_calibration_schema_and_system_modes(
         config_path=config_path,
         client=SimpleNamespace(responses=responses),
         system_prompt_addendum="CHECK EVERY FIELD",
+        completeness_guidance=None,
         schema_example_mode="first",
+        include_schema_reference=True,
     )
 
     assert result.error is None
@@ -203,10 +208,43 @@ def test_extract_metadata_applies_calibration_schema_and_system_modes(
     user_text = request_input[1]["content"][0]["text"]
     response_format = responses.request["text"]["format"]
     assert system_text.endswith("CHECK EVERY FIELD\n")
+    assert "Before returning, re-scan the image" not in system_text
     assert response_format == _response_format("first")
     assert (
         json.dumps(response_format["schema"], ensure_ascii=False, indent=2) in user_text
     )
+
+
+def test_extract_metadata_can_omit_user_prompt_schema_reference(
+    tmp_path: Path,
+) -> None:
+    """The user copy may be omitted without removing the output contract."""
+    image_path = tmp_path / "snapshot.png"
+    config_path = tmp_path / "config.json"
+    _write_image(image_path)
+    _write_config(config_path)
+    response = SimpleNamespace(
+        id="resp_test",
+        status="completed",
+        output_text=DataSnapshotMetadata().model_dump_json(),
+        usage=None,
+    )
+    responses = FakeResponses(response)
+
+    result = extract_metadata(
+        image_path,
+        config_path=config_path,
+        client=SimpleNamespace(responses=responses),
+        include_schema_reference=False,
+    )
+
+    assert result.error is None
+    assert responses.request is not None
+    user_text = responses.request["input"][1]["content"][0]["text"]
+    response_format = responses.request["text"]["format"]
+    assert "## Model-facing Schema v1.3 reference" not in user_text
+    assert "{{MODEL_FACING_SCHEMA_SECTION}}" not in user_text
+    assert response_format == _response_format()
 
 
 def test_response_format_can_append_schema_examples_by_mode() -> None:

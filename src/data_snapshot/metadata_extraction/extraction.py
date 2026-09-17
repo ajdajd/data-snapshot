@@ -18,7 +18,13 @@ from data_snapshot.metadata_schema import DataSnapshotMetadata
 _PACKAGE_DIR = Path(__file__).parent
 _DEFAULT_CONFIG_PATH = _PACKAGE_DIR / "config" / "default.json"
 _PROMPT_DIR = _PACKAGE_DIR / "prompts"
-_MODEL_FACING_SCHEMA_PLACEHOLDER = "{{MODEL_FACING_SCHEMA}}"
+_MODEL_FACING_SCHEMA_SECTION_PLACEHOLDER = "{{MODEL_FACING_SCHEMA_SECTION}}"
+_COMPLETENESS_GUIDANCE_PLACEHOLDER = "{{COMPLETENESS_GUIDANCE}}"
+_PRODUCTION_COMPLETENESS_GUIDANCE = (
+    "Before returning, re-scan the image against the entire schema and correct any "
+    "omissions of fields supported by visible evidence. Leave every unsupported "
+    "field null."
+)
 _PIPELINE_OWNED_CONFIG_FIELDS = {
     "input",
     "instructions",
@@ -141,7 +147,9 @@ def extract_metadata(
     *,
     user_prompt_addendum: str | None = None,
     system_prompt_addendum: str | None = None,
+    completeness_guidance: str | None = _PRODUCTION_COMPLETENESS_GUIDANCE,
     schema_example_mode: _SchemaExampleMode = "none",
+    include_schema_reference: bool = False,
 ) -> ExtractionResult:
     """Extract validated Schema v1.3 metadata from one snapshot image.
 
@@ -161,10 +169,16 @@ def extract_metadata(
         Additional user-prompt guidance for controlled calibration runs.
     system_prompt_addendum : str | None, optional
         Additional system-prompt guidance for controlled calibration runs.
+    completeness_guidance : str | None, optional
+        Guidance rendered at the explicit completeness placeholder. Defaults to
+        the production re-scan instruction; use ``None`` for historical controls.
     schema_example_mode : {"none", "first", "all", "normalization"}, optional
         Whether model-facing schema descriptions include no examples, the
         first example, all examples, or all examples for selected
         normalization fields from the canonical Pydantic schema.
+    include_schema_reference : bool, optional
+        Whether to render the response schema in the user prompt in addition
+        to supplying it as the authoritative Structured Outputs contract.
 
     Returns
     -------
@@ -178,12 +192,23 @@ def extract_metadata(
         config = load_extraction_config(config_path)
         model = config.pop("model")
         system_prompt = (_PROMPT_DIR / "system.md").read_text(encoding="utf-8")
+        if system_prompt.count(_COMPLETENESS_GUIDANCE_PLACEHOLDER) != 1:
+            raise ValueError(
+                "The system prompt must contain exactly one completeness placeholder."
+            )
+        system_prompt = system_prompt.replace(
+            _COMPLETENESS_GUIDANCE_PLACEHOLDER,
+            completeness_guidance.strip() if completeness_guidance else "",
+        )
         if system_prompt_addendum:
             system_prompt = (
                 f"{system_prompt.rstrip()}\n\n{system_prompt_addendum.strip()}\n"
             )
         response_format = _response_format(schema_example_mode)
-        user_prompt = _production_user_prompt(schema_example_mode)
+        user_prompt = _production_user_prompt(
+            schema_example_mode,
+            include_schema_reference,
+        )
         if user_prompt_addendum:
             user_prompt = f"{user_prompt.rstrip()}\n\n{user_prompt_addendum.strip()}\n"
         image_url = _image_data_url(image_path)
@@ -388,19 +413,33 @@ def _response_format(
 @cache
 def _production_user_prompt(
     schema_example_mode: _SchemaExampleMode = "none",
+    include_schema_reference: bool = False,
 ) -> str:
     """Build the production prompt with the model-facing response schema."""
     prompt = (_PROMPT_DIR / "user.md").read_text(encoding="utf-8").rstrip()
-    if prompt.count(_MODEL_FACING_SCHEMA_PLACEHOLDER) != 1:
+    if prompt.count(_MODEL_FACING_SCHEMA_SECTION_PLACEHOLDER) != 1:
         raise ValueError(
             "The user prompt must contain exactly one model-facing schema placeholder."
         )
-    schema = json.dumps(
-        _response_format(schema_example_mode)["schema"],
-        ensure_ascii=False,
-        indent=2,
+    schema_section = ""
+    if include_schema_reference:
+        schema = json.dumps(
+            _response_format(schema_example_mode)["schema"],
+            ensure_ascii=False,
+            indent=2,
+        )
+        schema_section = (
+            "## Model-facing Schema v1.3 reference\n\n"
+            "Use this schema as field-level extraction guidance. The API response "
+            "format remains the authoritative output contract.\n\n"
+            f"```json\n{schema}\n```"
+        )
+    return (
+        prompt.replace(
+            _MODEL_FACING_SCHEMA_SECTION_PLACEHOLDER, schema_section
+        ).rstrip()
+        + "\n"
     )
-    return prompt.replace(_MODEL_FACING_SCHEMA_PLACEHOLDER, schema) + "\n"
 
 
 def _create_openai_client() -> Any:

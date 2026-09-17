@@ -94,6 +94,17 @@ TARGETED_CALIBRATION_SNAPSHOTS = (
     ),
 )
 
+AT_A_GLANCE_SNAPSHOT_PATHS = {
+    "refugee/figure/189_multi-page_figure_001.png",
+    "refugee/figure/196_multi-page_figure_001.png",
+    "refugee/figure/197_multi-page_figure_000.png",
+}
+C8_FINALIZATION_SNAPSHOTS = tuple(
+    snapshot
+    for snapshot in TARGETED_CALIBRATION_SNAPSHOTS
+    if snapshot[2] not in AT_A_GLANCE_SNAPSHOT_PATHS
+)
+
 C8_SYSTEM_GUIDANCE = (
     "Go through all fields in the schema one by one. Populate every field supported "
     "by visible evidence, and leave every unsupported field null."
@@ -107,7 +118,24 @@ C8B_SYSTEM_GUIDANCE = (
     "omissions of fields supported by visible evidence. Leave every unsupported "
     "field null."
 )
-TARGETED_EXPERIMENTS = {"c7", "c7a", "c7b", "c8", "c8a", "c8b"}
+C8C_SYSTEM_GUIDANCE = (
+    "Go through all fields in the schema one by one and populate every field "
+    "supported by visible evidence. Leave every unsupported field null. Before "
+    "returning, re-scan the image against the entire schema and correct any "
+    "supported-field omissions. Do not add fields merely for completeness, but "
+    "when visible evidence reasonably supports a field, prefer populating it rather "
+    "than omitting it."
+)
+C8_FINALIZATION_EXPERIMENTS = {"c8br", "c8c", "c8d", "c8dr", "c8e"}
+TARGETED_EXPERIMENTS = {
+    "c7",
+    "c7a",
+    "c7b",
+    "c8",
+    "c8a",
+    "c8b",
+    *C8_FINALIZATION_EXPERIMENTS,
+}
 
 EXPERIMENTS = {
     "c0r": {
@@ -180,19 +208,52 @@ EXPERIMENTS = {
         "label": "C8",
         "treatment": "Direct field-by-field completeness instruction",
         "output_stem": "calibration8",
-        "system_prompt_addendum": C8_SYSTEM_GUIDANCE,
+        "completeness_guidance": C8_SYSTEM_GUIDANCE,
     },
     "c8a": {
         "label": "C8A",
         "treatment": "Outcome-first completeness criterion",
         "output_stem": "calibration8a",
-        "system_prompt_addendum": C8A_SYSTEM_GUIDANCE,
+        "completeness_guidance": C8A_SYSTEM_GUIDANCE,
     },
     "c8b": {
         "label": "C8B",
         "treatment": "Final schema re-scan for supported-field omissions",
         "output_stem": "calibration8b",
-        "system_prompt_addendum": C8B_SYSTEM_GUIDANCE,
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+    },
+    "c8br": {
+        "label": "C8BR",
+        "treatment": "Control repeat of C8B on non-composite snapshots",
+        "output_stem": "calibration8b_repeat",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+    },
+    "c8c": {
+        "label": "C8C",
+        "treatment": "Combined field traversal and final schema re-scan",
+        "output_stem": "calibration8c",
+        "completeness_guidance": C8C_SYSTEM_GUIDANCE,
+    },
+    "c8d": {
+        "label": "C8D",
+        "treatment": "C8C without user-prompt schema duplication",
+        "output_stem": "calibration8d",
+        "completeness_guidance": C8C_SYSTEM_GUIDANCE,
+        "include_schema_reference": False,
+    },
+    "c8dr": {
+        "label": "C8DR",
+        "treatment": "Replication of C8D on non-composite snapshots",
+        "output_stem": "calibration8d_repeat",
+        "completeness_guidance": C8C_SYSTEM_GUIDANCE,
+        "include_schema_reference": False,
+    },
+    "c8e": {
+        "label": "C8E",
+        "treatment": "C8B without user-prompt schema duplication",
+        "output_stem": "calibration8e",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "include_schema_reference": False,
     },
 }
 
@@ -310,15 +371,17 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
     errors_path = OUTPUT_DIR / f"{output_stem}_errors.jsonl"
     prompt_addendum = _prompt_addendum(experiment_name)
     schema_example_mode = str(experiment.get("schema_example_mode", "none"))
-    system_prompt_addendum = experiment.get("system_prompt_addendum")
+    completeness_guidance = experiment.get("completeness_guidance")
+    include_schema_reference = bool(experiment.get("include_schema_reference", True))
     data_root = (
         BATCH1_DATA_ROOT if experiment_name in TARGETED_EXPERIMENTS else DATA_ROOT
     )
-    snapshots = (
-        TARGETED_CALIBRATION_SNAPSHOTS
-        if experiment_name in TARGETED_EXPERIMENTS
-        else CALIBRATION_SNAPSHOTS
-    )
+    if experiment_name in C8_FINALIZATION_EXPERIMENTS:
+        snapshots = C8_FINALIZATION_SNAPSHOTS
+    elif experiment_name in TARGETED_EXPERIMENTS:
+        snapshots = TARGETED_CALIBRATION_SNAPSHOTS
+    else:
+        snapshots = CALIBRATION_SNAPSHOTS
     baseline_results_path = (
         OUTPUT_DIR / "batch1_results.jsonl"
         if experiment_name in TARGETED_EXPERIMENTS
@@ -338,6 +401,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
     print(f"Cumulative cost: ${cumulative_cost:.9f}")
     print(f"Cost guardrail: ${MAX_CUMULATIVE_COST_USD:.2f}")
     print(f"Selected snapshots: {len(snapshots)}")
+    print(f"User-prompt schema reference: {include_schema_reference}")
     if dry_run:
         print(f"Already completed: {len(completed_paths)}")
         print("DRY_RUN_OK")
@@ -359,8 +423,9 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
             data_root / relative_path,
             config_path=config_path,
             user_prompt_addendum=prompt_addendum,
-            system_prompt_addendum=system_prompt_addendum,
+            completeness_guidance=completeness_guidance,
             schema_example_mode=schema_example_mode,
+            include_schema_reference=include_schema_reference,
         )
         call_cost = estimate_flex_cost_usd(result.usage)
         prior_run_cost += call_cost
@@ -378,7 +443,8 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
             "estimated_cost_usd": round(call_cost, 9),
             "reasoning_effort": reasoning_effort,
             "schema_example_mode": schema_example_mode,
-            "system_prompt_addendum": system_prompt_addendum,
+            "include_schema_reference": include_schema_reference,
+            "completeness_guidance": completeness_guidance,
         }
         if result.metadata is not None:
             _append_jsonl(

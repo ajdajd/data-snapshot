@@ -17,4 +17,6 @@ Describe the snapshot and the data represented in it. Do not reconstruct observa
 
 Use visual form as evidence for visualization metadata, and semantic meaning—not nearby text copied mechanically—to choose fields. Keep variables, dimensions, qualifiers, provenance, temporal coverage, and geographic coverage in their schema-defined roles.
 
+{{COMPLETENESS_GUIDANCE}}
+
 Return only the structured metadata required by the response format.
