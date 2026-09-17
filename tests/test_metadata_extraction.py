@@ -10,6 +10,7 @@ from data_snapshot.metadata_extraction import (
     extract_metadata,
     load_extraction_config,
 )
+from data_snapshot.metadata_extraction.extraction import _response_format
 from data_snapshot.metadata_schema import DataSnapshotMetadata
 
 
@@ -169,6 +170,76 @@ def test_extract_metadata_appends_calibration_guidance(tmp_path: Path) -> None:
     user_text = responses.request["input"][1]["content"][0]["text"]
     assert user_text.startswith("Inspect the attached data snapshot")
     assert user_text.endswith("CALIBRATION GUIDANCE\n")
+
+
+def test_extract_metadata_applies_calibration_schema_and_system_modes(
+    tmp_path: Path,
+) -> None:
+    """Calibration modes alter only the requested schema and system message."""
+    image_path = tmp_path / "snapshot.png"
+    config_path = tmp_path / "config.json"
+    _write_image(image_path)
+    _write_config(config_path)
+    response = SimpleNamespace(
+        id="resp_test",
+        status="completed",
+        output_text=DataSnapshotMetadata().model_dump_json(),
+        usage=None,
+    )
+    responses = FakeResponses(response)
+
+    result = extract_metadata(
+        image_path,
+        config_path=config_path,
+        client=SimpleNamespace(responses=responses),
+        system_prompt_addendum="CHECK EVERY FIELD",
+        schema_example_mode="first",
+    )
+
+    assert result.error is None
+    assert responses.request is not None
+    request_input = responses.request["input"]
+    system_text = request_input[0]["content"][0]["text"]
+    user_text = request_input[1]["content"][0]["text"]
+    response_format = responses.request["text"]["format"]
+    assert system_text.endswith("CHECK EVERY FIELD\n")
+    assert response_format == _response_format("first")
+    assert (
+        json.dumps(response_format["schema"], ensure_ascii=False, indent=2) in user_text
+    )
+
+
+def test_response_format_can_append_schema_examples_by_mode() -> None:
+    """Schema calibration modes preserve descriptions and remove example keys."""
+    default_schema = _response_format()["schema"]
+    first_schema = _response_format("first")["schema"]
+    all_schema = _response_format("all")["schema"]
+    normalization_schema = _response_format("normalization")["schema"]
+    default_description = default_schema["$defs"]["Unit"]["properties"]["code"][
+        "description"
+    ]
+    first_description = first_schema["$defs"]["Unit"]["properties"]["code"][
+        "description"
+    ]
+    all_description = all_schema["$defs"]["Unit"]["properties"]["code"]["description"]
+    normalization_description = normalization_schema["$defs"]["Unit"]["properties"][
+        "code"
+    ]["description"]
+    normalization_name_description = normalization_schema["$defs"]["Variable"][
+        "properties"
+    ]["name"]["description"]
+
+    assert default_description == "Exact UN/CEFACT Recommendation 20 common code."
+    assert first_description == f'{default_description}\n\nExample: "P1"'
+    assert all_description == (f'{default_description}\n\nExamples: ["P1", "KMT"]')
+    assert normalization_description == all_description
+    assert (
+        normalization_name_description
+        == default_schema["$defs"]["Variable"]["properties"]["name"]["description"]
+    )
+    assert '"examples"' not in json.dumps(first_schema)
+    assert '"examples"' not in json.dumps(all_schema)
+    assert '"examples"' not in json.dumps(normalization_schema)
 
 
 def test_extract_metadata_rejects_missing_structured_output(tmp_path: Path) -> None:

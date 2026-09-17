@@ -14,6 +14,9 @@ from data_snapshot.metadata_schema import DataSnapshotMetadata
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_ROOT = PROJECT_ROOT / "notebooks" / "metadata_extraction" / "data" / "snapshots"
+BATCH1_DATA_ROOT = (
+    PROJECT_ROOT / "notebooks" / "metadata_extraction" / "data" / "batch1"
+)
 OUTPUT_DIR = PROJECT_ROOT / "notebooks" / "metadata_extraction" / "outputs"
 CONFIG_PATH = (
     PROJECT_ROOT
@@ -55,6 +58,56 @@ CALIBRATION_SNAPSHOTS = (
         "unhcr/table/rpublique_dmocratique_du_congo_-_points_saillants_de_protection_-_aot_2024_table_000.png",
     ),
 )
+
+TARGETED_CALIBRATION_SNAPSHOTS = (
+    ("prwp", "figure", "prwp/figure/document_11958451_figure_004.png"),
+    ("prwp", "figure", "prwp/figure/document_14861148_figure_004.png"),
+    ("prwp", "table", "prwp/table/document_437268_table_005.png"),
+    ("prwp", "table", "prwp/table/document_14861148_table_002.png"),
+    ("refugee", "figure", "refugee/figure/189_multi-page_figure_001.png"),
+    ("refugee", "figure", "refugee/figure/196_multi-page_figure_001.png"),
+    ("refugee", "figure", "refugee/figure/197_multi-page_figure_000.png"),
+    (
+        "refugee",
+        "table",
+        "refugee/table/060_Yemen-Emergency-COVID-19-Project_table_003.png",
+    ),
+    (
+        "unhcr",
+        "figure",
+        "unhcr/figure/education_underattack_updatesept23_figure_003.png",
+    ),
+    (
+        "unhcr",
+        "figure",
+        "unhcr/figure/rbsa_population_data_analysis_sep_2022_figure_009.png",
+    ),
+    (
+        "unhcr",
+        "table",
+        "unhcr/table/pays_cotiers_-_aperu-en_31_july_2022_v2_table_001.png",
+    ),
+    (
+        "unhcr",
+        "table",
+        "unhcr/table/unhcr_global_report_2020_-_east_and_horn_of_africa_and_the_great_lakes_table_002.png",
+    ),
+)
+
+C8_SYSTEM_GUIDANCE = (
+    "Go through all fields in the schema one by one. Populate every field supported "
+    "by visible evidence, and leave every unsupported field null."
+)
+C8A_SYSTEM_GUIDANCE = (
+    "Populate every schema field supported by visible evidence. Success means that "
+    "no supported field is omitted and every unsupported field is null."
+)
+C8B_SYSTEM_GUIDANCE = (
+    "Before returning, re-scan the image against the entire schema and correct any "
+    "omissions of fields supported by visible evidence. Leave every unsupported "
+    "field null."
+)
+TARGETED_EXPERIMENTS = {"c7", "c7a", "c7b", "c8", "c8a", "c8b"}
 
 EXPERIMENTS = {
     "c0r": {
@@ -104,6 +157,42 @@ EXPERIMENTS = {
         "treatment": "C2 prompt at xhigh reasoning effort with 32k output budget",
         "output_stem": "calibration5_xhigh_32k",
         "config_path": C5_CONFIG_DIR / "c5_xhigh.json",
+    },
+    "c7": {
+        "label": "C7",
+        "treatment": "First canonical example appended to each schema description",
+        "output_stem": "calibration7",
+        "schema_example_mode": "first",
+    },
+    "c7a": {
+        "label": "C7A",
+        "treatment": "All canonical examples appended to each schema description",
+        "output_stem": "calibration7a",
+        "schema_example_mode": "all",
+    },
+    "c7b": {
+        "label": "C7B",
+        "treatment": "All examples appended only to normalization descriptions",
+        "output_stem": "calibration7b",
+        "schema_example_mode": "normalization",
+    },
+    "c8": {
+        "label": "C8",
+        "treatment": "Direct field-by-field completeness instruction",
+        "output_stem": "calibration8",
+        "system_prompt_addendum": C8_SYSTEM_GUIDANCE,
+    },
+    "c8a": {
+        "label": "C8A",
+        "treatment": "Outcome-first completeness criterion",
+        "output_stem": "calibration8a",
+        "system_prompt_addendum": C8A_SYSTEM_GUIDANCE,
+    },
+    "c8b": {
+        "label": "C8B",
+        "treatment": "Final schema re-scan for supported-field omissions",
+        "output_stem": "calibration8b",
+        "system_prompt_addendum": C8B_SYSTEM_GUIDANCE,
     },
 }
 
@@ -220,7 +309,22 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
     results_path = OUTPUT_DIR / f"{output_stem}_results.jsonl"
     errors_path = OUTPUT_DIR / f"{output_stem}_errors.jsonl"
     prompt_addendum = _prompt_addendum(experiment_name)
-    _validate_inputs(config_path)
+    schema_example_mode = str(experiment.get("schema_example_mode", "none"))
+    system_prompt_addendum = experiment.get("system_prompt_addendum")
+    data_root = (
+        BATCH1_DATA_ROOT if experiment_name in TARGETED_EXPERIMENTS else DATA_ROOT
+    )
+    snapshots = (
+        TARGETED_CALIBRATION_SNAPSHOTS
+        if experiment_name in TARGETED_EXPERIMENTS
+        else CALIBRATION_SNAPSHOTS
+    )
+    baseline_results_path = (
+        OUTPUT_DIR / "batch1_results.jsonl"
+        if experiment_name in TARGETED_EXPERIMENTS
+        else BASELINE_RESULTS_PATH
+    )
+    _validate_inputs(config_path, data_root, snapshots, baseline_results_path)
     with config_path.open(encoding="utf-8") as file:
         reasoning_effort = json.load(file)["reasoning"]["effort"]
     prior_run_cost = _jsonl_cost(results_path) + _jsonl_cost(errors_path)
@@ -233,7 +337,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
     print(f"Prior experiment cost: ${prior_run_cost:.9f}")
     print(f"Cumulative cost: ${cumulative_cost:.9f}")
     print(f"Cost guardrail: ${MAX_CUMULATIVE_COST_USD:.2f}")
-    print(f"Selected snapshots: {len(CALIBRATION_SNAPSHOTS)}")
+    print(f"Selected snapshots: {len(snapshots)}")
     if dry_run:
         print(f"Already completed: {len(completed_paths)}")
         print("DRY_RUN_OK")
@@ -241,7 +345,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     had_error = False
-    for source, artifact_type, relative_path in CALIBRATION_SNAPSHOTS:
+    for source, artifact_type, relative_path in snapshots:
         if relative_path in completed_paths:
             print(f"SKIP {relative_path}")
             continue
@@ -252,9 +356,11 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
 
         print(f"RUN {relative_path}", flush=True)
         result = extract_metadata(
-            DATA_ROOT / relative_path,
+            data_root / relative_path,
             config_path=config_path,
             user_prompt_addendum=prompt_addendum,
+            system_prompt_addendum=system_prompt_addendum,
+            schema_example_mode=schema_example_mode,
         )
         call_cost = estimate_flex_cost_usd(result.usage)
         prior_run_cost += call_cost
@@ -271,6 +377,8 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
             "usage": result.usage,
             "estimated_cost_usd": round(call_cost, 9),
             "reasoning_effort": reasoning_effort,
+            "schema_example_mode": schema_example_mode,
+            "system_prompt_addendum": system_prompt_addendum,
         }
         if result.metadata is not None:
             _append_jsonl(
@@ -315,7 +423,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
 
 def _prompt_addendum(experiment_name: str) -> str | None:
     """Build the prompt treatment for an experiment."""
-    if experiment_name == "c0r":
+    if experiment_name == "c0r" or experiment_name in TARGETED_EXPERIMENTS:
         return None
     guidance: str | None = None
     if experiment_name in {"c1", "c2", "c3", "c4", "c5l", "c5h", "c5x"}:
@@ -339,10 +447,15 @@ def _prompt_addendum(experiment_name: str) -> str | None:
     return f"{guidance}\n\n{schema_reference}" if guidance else schema_reference
 
 
-def _validate_inputs(config_path: Path) -> None:
+def _validate_inputs(
+    config_path: Path,
+    data_root: Path,
+    snapshots: tuple[tuple[str, str, str], ...],
+    baseline_results_path: Path,
+) -> None:
     """Verify the baseline, configuration, and selected images exist."""
-    required_paths = [BASELINE_RESULTS_PATH, config_path]
-    required_paths.extend(DATA_ROOT / item[2] for item in CALIBRATION_SNAPSHOTS)
+    required_paths = [baseline_results_path, config_path]
+    required_paths.extend(data_root / item[2] for item in snapshots)
     missing_paths = [path for path in required_paths if not path.is_file()]
     if missing_paths:
         formatted = "\n".join(str(path) for path in missing_paths)

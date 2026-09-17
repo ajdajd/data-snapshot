@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from data_snapshot.metadata_schema import DataSnapshotMetadata
 
@@ -48,6 +48,15 @@ _SUPPORTED_STRING_FORMATS = {
     "ipv6",
     "time",
     "uuid",
+}
+_SchemaExampleMode = Literal["none", "first", "all", "normalization"]
+_SCHEMA_EXAMPLE_MODES = {"none", "first", "all", "normalization"}
+_NORMALIZATION_EXAMPLE_PATHS = {
+    ("$defs", "Currency", "properties", "code"),
+    ("$defs", "GeographicLocation", "properties", "iso3_code"),
+    ("$defs", "Place", "properties", "iso3_code"),
+    ("$defs", "Unit", "properties", "code"),
+    ("$defs", "Unit", "properties", "multiplier_exponent"),
 }
 
 
@@ -130,6 +139,8 @@ def extract_metadata(
     client: Any | None = None,
     *,
     user_prompt_addendum: str | None = None,
+    system_prompt_addendum: str | None = None,
+    schema_example_mode: _SchemaExampleMode = "none",
 ) -> ExtractionResult:
     """Extract validated Schema v1.3 metadata from one snapshot image.
 
@@ -147,6 +158,12 @@ def extract_metadata(
         ``OPENAI_API_KEY`` is created when omitted.
     user_prompt_addendum : str | None, optional
         Additional user-prompt guidance for controlled calibration runs.
+    system_prompt_addendum : str | None, optional
+        Additional system-prompt guidance for controlled calibration runs.
+    schema_example_mode : {"none", "first", "all", "normalization"}, optional
+        Whether model-facing schema descriptions include no examples, the
+        first example, all examples, or all examples for selected
+        normalization fields from the canonical Pydantic schema.
 
     Returns
     -------
@@ -160,7 +177,12 @@ def extract_metadata(
         config = load_extraction_config(config_path)
         model = config.pop("model")
         system_prompt = (_PROMPT_DIR / "system.md").read_text(encoding="utf-8")
-        user_prompt = _production_user_prompt()
+        if system_prompt_addendum:
+            system_prompt = (
+                f"{system_prompt.rstrip()}\n\n{system_prompt_addendum.strip()}\n"
+            )
+        response_format = _response_format(schema_example_mode)
+        user_prompt = _production_user_prompt(schema_example_mode)
         if user_prompt_addendum:
             user_prompt = f"{user_prompt.rstrip()}\n\n{user_prompt_addendum.strip()}\n"
         image_url = _image_data_url(image_path)
@@ -169,7 +191,7 @@ def extract_metadata(
         started_at = time.perf_counter()
         response = api_client.responses.create(
             model=model,
-            text={"format": _response_format()},
+            text={"format": response_format},
             input=[
                 {
                     "role": "system",
@@ -261,6 +283,48 @@ def _openai_compatible_schema(value: Any) -> Any:
     return result
 
 
+def _append_schema_examples_to_descriptions(
+    value: Any,
+    mode: Literal["first", "all", "normalization"],
+    path: tuple[str, ...] = (),
+) -> None:
+    """Append canonical schema examples to their associated descriptions.
+
+    Parameters
+    ----------
+    value : Any
+        JSON-compatible schema value to transform in place.
+    mode : {"first", "all", "normalization"}
+        Whether to append the first example, the complete examples list, or
+        complete examples only for selected normalization fields.
+    path : tuple[str, ...], optional
+        Location of ``value`` within the root schema.
+    """
+    if isinstance(value, list):
+        for index, item in enumerate(value):
+            _append_schema_examples_to_descriptions(item, mode, (*path, str(index)))
+        return
+    if not isinstance(value, dict):
+        return
+
+    examples = value.get("examples")
+    if (
+        isinstance(examples, list)
+        and examples
+        and (mode != "normalization" or path in _NORMALIZATION_EXAMPLE_PATHS)
+    ):
+        selected: Any = examples[0] if mode == "first" else examples
+        label = "Example" if mode == "first" else "Examples"
+        guidance = f"{label}: {json.dumps(selected, ensure_ascii=False)}"
+        description = value.get("description")
+        value["description"] = (
+            f"{description}\n\n{guidance}" if description else guidance
+        )
+
+    for key, item in value.items():
+        _append_schema_examples_to_descriptions(item, mode, (*path, key))
+
+
 def _contains_schema_keyword(value: Any, keyword: str) -> bool:
     """Return whether nested JSON Schema data contain a named keyword."""
     if isinstance(value, dict):
@@ -298,9 +362,18 @@ def _inline_ref_siblings(value: Any, root: dict[str, Any]) -> Any:
 
 
 @cache
-def _response_format() -> dict[str, Any]:
+def _response_format(
+    schema_example_mode: _SchemaExampleMode = "none",
+) -> dict[str, Any]:
     """Build the strict response format from the canonical Pydantic model."""
+    if schema_example_mode not in _SCHEMA_EXAMPLE_MODES:
+        raise ValueError(f"Unknown schema example mode: {schema_example_mode}")
     canonical_schema = DataSnapshotMetadata.model_json_schema(mode="validation")
+    if schema_example_mode != "none":
+        _append_schema_examples_to_descriptions(
+            canonical_schema,
+            schema_example_mode,
+        )
     schema = _openai_compatible_schema(canonical_schema)
     schema = _inline_ref_siblings(schema, schema)
     return {
@@ -312,10 +385,16 @@ def _response_format() -> dict[str, Any]:
 
 
 @cache
-def _production_user_prompt() -> str:
+def _production_user_prompt(
+    schema_example_mode: _SchemaExampleMode = "none",
+) -> str:
     """Build the production prompt with the model-facing response schema."""
     prompt = (_PROMPT_DIR / "user.md").read_text(encoding="utf-8").rstrip()
-    schema = json.dumps(_response_format()["schema"], ensure_ascii=False, indent=2)
+    schema = json.dumps(
+        _response_format(schema_example_mode)["schema"],
+        ensure_ascii=False,
+        indent=2,
+    )
     return (
         f"{prompt}\n\n"
         "## Model-facing Schema v1.3 reference\n\n"

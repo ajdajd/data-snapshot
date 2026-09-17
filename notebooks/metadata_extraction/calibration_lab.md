@@ -468,3 +468,348 @@ snapshot, and is projected to cost about 2.1-2.3 times as much on unseen images.
 That is not yet a material enough quality benefit for the full run. Xhigh remains a
 reasonable targeted second pass for difficult snapshots if later validation shows
 a specific medium-effort failure pattern.
+
+## C7-C8: schema-example visibility and completeness instructions
+
+### Motivation
+
+The production adapter removes Pydantic `examples` because they are not part of the
+OpenAI-compatible response schema. C1A exposed the complete canonical schema and
+examples as a separate JSON prompt block, but did not attach examples to field
+descriptions in the authoritative response contract. C7 and C7A test whether
+placing examples directly beside their field definitions changes extraction
+behavior without editing the canonical Pydantic models.
+
+The production results also showed repeated omission of supported normalization
+fields and `axis_assignments`. C8, C8A, and C8B hold the schema fixed and compare
+three short system-level completeness instructions: explicit field-by-field
+traversal, an outcome-first success criterion, and a final schema re-scan.
+
+### Fixed conditions and cost guardrail
+
+All experiments use GPT-5.6 Luna, medium reasoning, Flex service tier, the
+production evidence and field-boundary prompts, and the same 12 batch-1 snapshots.
+The treatments do not receive filename, directory, or source-document metadata.
+Results and errors are written to separate JSONL files and remain resumable. The
+runner checks cumulative recorded calibration spend before every request and stops
+at the approved $5 limit.
+
+The 12 images were chosen from batch 1 before any C7-C8 calls by inspecting the
+images for assessable opportunities. They cover UN/CEFACT unit codes, ISO 4217
+currency codes, SDMX unit multipliers, ISO 3166-1 alpha-3 country codes, one
+explicit left/right dual-axis chart, and negative controls where normalization or
+axis assignments should remain absent.
+
+| Source | Type | Snapshot |
+| --- | --- | --- |
+| PRWP | Figure | `document_11958451_figure_004.png` |
+| PRWP | Figure | `document_14861148_figure_004.png` |
+| PRWP | Table | `document_437268_table_005.png` |
+| PRWP | Table | `document_14861148_table_002.png` |
+| Refugee | Figure | `189_multi-page_figure_001.png` |
+| Refugee | Figure | `196_multi-page_figure_001.png` |
+| Refugee | Figure | `197_multi-page_figure_000.png` |
+| Refugee | Table | `060_Yemen-Emergency-COVID-19-Project_table_003.png` |
+| UNHCR | Figure | `education_underattack_updatesept23_figure_003.png` |
+| UNHCR | Figure | `rbsa_population_data_analysis_sep_2022_figure_009.png` |
+| UNHCR | Table | `pays_cotiers_-_aperu-en_31_july_2022_v2_table_001.png` |
+| UNHCR | Table | `unhcr_global_report_2020_-_east_and_horn_of_africa_and_the_great_lakes_table_002.png` |
+
+### Treatments
+
+| Experiment | Treatment | Results |
+| --- | --- | --- |
+| C7 | Append the first canonical example to each associated schema description | `outputs/calibration7_results.jsonl` |
+| C7A | Append the complete canonical examples list to each associated schema description | `outputs/calibration7a_results.jsonl` |
+| C7B | Append complete examples only to selected normalization-field descriptions | `outputs/calibration7b_results.jsonl` |
+| C8 | “Go through all fields in the schema one by one. Populate every field supported by visible evidence, and leave every unsupported field null.” | `outputs/calibration8_results.jsonl` |
+| C8A | “Populate every schema field supported by visible evidence. Success means that no supported field is omitted and every unsupported field is null.” | `outputs/calibration8a_results.jsonl` |
+| C8B | “Before returning, re-scan the image against the entire schema and correct any omissions of fields supported by visible evidence. Leave every unsupported field null.” | `outputs/calibration8b_results.jsonl` |
+
+The existing `batch1_results.jsonl` records are the no-treatment production
+baseline for the same images. Reviewer-generated records labeled as `gold` are
+excluded: they are not treated as ground truth, and confidence in their true- and
+false-negative classifications is currently limited. Findings below are therefore
+bounded, image-based human judgments about visible opportunities and regressions.
+C7B was conditional on a useful but mixed C7/C7A result. That condition was met,
+so the normalization-only branch was run. A combined schema-example and
+completeness treatment remains deferred because the individual example branches
+did not establish a clean benefit.
+
+### Results
+
+#### C7: first example per field
+
+C7 completed all 12 snapshots successfully for **$0.045027030**, bringing
+cumulative recorded calibration spend to **$0.314012695**. Relative to the
+no-treatment batch-1 records, attaching one example produced only a narrow gain in
+the targeted normalization fields: it added the valid percent unit code `P1` to
+two variables in `document_14861148_table_002.png`. It did not add the expected
+ISO country codes, USD codes, unit multipliers, or left/right assignments in the
+other assessable images. Several non-target fields also varied in both directions,
+including omitted geography and changed variable decomposition. Because this is a
+single nondeterministic replicate, those differences are signals rather than
+attributable effects. The initial result does not support adopting first-example
+augmentation by itself.
+
+#### C7A: all examples per field
+
+C7A completed all 12 snapshots successfully for **$0.050744370**, bringing
+cumulative recorded calibration spend to **$0.364757065**. Unlike C7, it produced
+a large normalization response: 37 populated unit multipliers and 60 currency
+codes across the selected records, including multiplier 6 for visible millions
+and `USD` for visible US-dollar expressions. It still produced no ISO alpha-3
+country codes and no UN/CEFACT unit codes in this replicate.
+
+The gain came with a material boundary warning. C7A added five `axis_assignments`
+to an at-a-glance composite even though those assignments describe separate or
+shared-axis panels rather than distinct axes of the same graph. It also propagated
+`USD` and multiplier 6 broadly across a dense page, increasing the need for
+variable-by-variable visual review. Thus all-example augmentation appears much
+more behaviorally potent than first-example augmentation, but the current result
+does not establish that its added fields are uniformly precise. It is a plausible
+motivation for a narrower C7B treatment if the instruction-only experiments cannot
+recover normalization without this overpopulation tendency.
+
+#### C8: direct field-by-field traversal
+
+C8 completed all 12 snapshots successfully for **$0.044734425**, bringing
+cumulative recorded calibration spend to **$0.409491490**. The instruction
+recovered all six expected left/right assignments in the explicit dual-axis PRWP
+chart. It also populated five assessable multipliers and 35 currency codes,
+including billion-scale exponent 9 and million-scale exponent 6. This shows that
+the model can produce several normalization fields without receiving schema
+examples when prompted to check field coverage explicitly.
+
+However, C8 still produced no ISO alpha-3 country codes or UN/CEFACT unit codes.
+It also added four inappropriate x/y assignments to grouped panels in the Rwanda
+at-a-glance composite, where `axis_assignments` should be reserved for distinct
+axes within the same graph. The direct traversal wording therefore improved the
+intended dual-axis case but also encouraged some unsupported structural filling.
+
+#### C8A: outcome-first success criterion
+
+C8A completed all 12 snapshots successfully for **$0.045351955**, bringing
+cumulative recorded calibration spend to **$0.454843445**. It was more
+conservative than C8: no `axis_assignments` were populated, so it avoided C8's
+composite-page overassignment but also missed the explicit PRWP dual-axis case.
+It populated three million-scale multipliers and 12 currency codes, while again
+producing no ISO alpha-3 or UN/CEFACT unit codes. The result does not show that the
+abstract success criterion reliably induces a full schema traversal; its
+conservatism traded away a clearly supported target field.
+
+#### C8B: final schema re-scan
+
+C8B completed all 12 snapshots successfully for **$0.043227330**, bringing
+cumulative recorded calibration spend to **$0.498070775**. Like C8, it recovered
+all six expected left/right assignments in the explicit dual-axis chart. It
+populated six million-scale multipliers and four currency codes, but no ISO
+alpha-3 or UN/CEFACT unit codes. It also added five unsupported axis assignments:
+four in the Rwanda at-a-glance composite and one in a simple UNHCR chart. The
+final re-scan wording therefore retained C8's positive dual-axis behavior but
+showed a stronger unsupported-axis tendency and weaker currency normalization.
+
+#### C7B: normalization-only examples
+
+The mixed C7A result triggered the planned conditional branch. C7B appended the
+complete examples list only to `Unit.code`, `Unit.multiplier_exponent`,
+`Currency.code`, and the `iso3_code` fields on places. It did not expose examples
+on axis assignments or unrelated fields. C7B completed all 12 snapshots
+successfully for **$0.043113730**, bringing cumulative recorded calibration spend
+to **$0.541184505**.
+
+C7B populated 11 multipliers and eight currency codes, a smaller and less diffuse
+normalization response than C7A. It still produced no ISO alpha-3 or UN/CEFACT
+unit codes, missed the explicit dual-axis chart, and added one unsupported y-axis
+assignment to a simple chart. Narrowing the examples reduced C7A's structural
+pressure but did not solve the originally reported omissions.
+
+### Original aggregate comparison (all 12 images)
+
+All six runs returned 12 Schema v1.3-valid records. The counts below are raw
+populated-field counts, not precision or recall scores. They are sensitive to each
+run's variable decomposition, especially on dense at-a-glance pages. The two axis
+columns instead apply the schema boundary directly to the deliberately selected
+charts.
+
+This table is retained as the chronological record of the first analysis. Its
+interpretation is superseded below by the review-oriented split, which excludes
+at-a-glance composites and evaluates C8x for coverage and C7x for quality.
+
+| Run | Unit codes | Multipliers | Currency codes | ISO3 codes | Supported dual-axis assignments | Unsupported axis assignments | Cost |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Batch-1 baseline | 0 | 0 | 4 | 0 | 0 | 2 | n/a |
+| C7, first example | 2 | 0 | 1 | 0 | 0 | 0 | $0.045027030 |
+| C7A, all examples | 0 | 37 | 60 | 0 | 0 | 5 | $0.050744370 |
+| C7B, normalization examples | 0 | 11 | 8 | 0 | 0 | 1 | $0.043113730 |
+| C8, direct traversal | 0 | 5 | 35 | 0 | 6 | 4 | $0.044734425 |
+| C8A, success criterion | 0 | 3 | 12 | 0 | 0 | 0 | $0.045351955 |
+| C8B, final re-scan | 0 | 6 | 4 | 0 | 6 | 5 | $0.043227330 |
+
+| Run | Input tokens | Output tokens | Reasoning tokens | Mean latency |
+| --- | ---: | ---: | ---: | ---: |
+| C7 | 352,033 | 22,543 | 11,438 | 20.32 s |
+| C7A | 411,577 | 24,904 | 10,407 | 18.37 s |
+| C7B | 321,373 | 23,043 | 9,611 | 15.62 s |
+| C8 | 320,041 | 25,931 | 8,818 | 17.74 s |
+| C8A | 320,017 | 26,961 | 9,777 | 17.13 s |
+| C8B | 320,077 | 23,418 | 9,122 | 15.46 s |
+
+The six experiments added **$0.272198840** to the calibration program. The
+cumulative recorded total, including earlier experiments, is **$0.541184505**,
+well below the approved $5 guardrail. The initial sandboxed C7 attempt recorded 12
+zero-token `APIConnectionError` entries before external API access was enabled;
+they incurred no estimated cost and are not included in the successful-run table.
+
+### Initial combined conclusion
+
+This conclusion is retained for auditability but is superseded by the reframed
+analysis below. It treated coverage and quality as one objective and weighted
+overfilling more heavily than is appropriate for the planned manual review.
+
+Do not adopt C7, C7A, or C7B as the production schema treatment. Examples clearly
+change model behavior, but one example was too weak, all examples were too broad,
+and normalization-only examples still failed to recover country and unit codes.
+The example variants also altered variable decomposition enough to complicate
+their apparent normalization gains.
+
+C8 is the strongest completeness-instruction candidate in this set. It is the
+only wording that combined correct extraction of the explicit dual-axis case with
+substantial currency and multiplier completion. C8A was too conservative, while
+C8B added more unsupported axes and fewer currency codes. C8 should still be
+treated as a calibration finding rather than a general accuracy estimate: it
+produced four unsupported assignments on the known difficult at-a-glance page,
+and none of the six treatments solved ISO3 or UN/CEFACT unit-code completion.
+
+The next clean experiment, if those remaining normalization fields are important
+enough to pursue, is a direct normalization instruction that explicitly names the
+four code systems and states that deterministic normalization from visible labels
+is allowed. That should be tested separately before combining it with C8. No
+canonical Pydantic schema edit is supported by these results; the fields and their
+descriptions were already present, and the observed differences came from
+model-facing runtime treatments.
+
+### Reframed analysis for the 102-snapshot manual review
+
+#### Decision context
+
+The immediate objective is to create useful first-pass metadata for personal
+review of 102 snapshots. In that workflow, a visibly populated but unsupported or
+misplaced field is usually easier to find and remove than a missing field is to
+notice and reconstruct. Overfilling remains a tracked error, but underfilling is
+assigned the greater practical cost at this stage. Precision and recall can be
+rebalanced after review produces a trustworthy gold set.
+
+The reviewer-generated records currently labeled `gold` remain excluded from this
+analysis. The following three dense country at-a-glance composites are also
+excluded from the primary C7x and C8x comparisons because their multiple panels,
+shared labels, and dense layout form a distinct extraction problem:
+
+- `refugee/figure/189_multi-page_figure_001.png`
+- `refugee/figure/196_multi-page_figure_001.png`
+- `refugee/figure/197_multi-page_figure_000.png`
+
+Their outputs are retained, but they do not determine the conclusions below.
+
+#### C8x: supported-field coverage
+
+Because no trusted gold set exists yet, C8x coverage is evaluated only on
+predeclared, visibly assessable opportunities in the remaining nine images. Raw
+field count is not treated as recall. Each counted addition was checked against
+the image and its schema placement.
+
+| High-confidence opportunity | Available | Baseline | C8 | C8A | C8B |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Left/right assignments in the explicit dual-axis chart | 6 | 0 | 6 | 0 | 6 |
+| Million-scale multipliers on visibly million-denominated variables | 8 | 0 | 3 | 3 | 6 |
+| Normalized place names in the provenance-by-host-country table | 7 | 0 | 7 | 0 | 7 |
+| Separate `Denar` currency source text on applicable variables | 5 | 0 | 0 | 0 | 5 |
+| ISO3 codes for conservative visible country opportunities | 17 | 0 | 0 | 0 | 0 |
+| UN/CEFACT percent codes on explicit percentage variables | 7 | 0 | 0 | 0 | 0 |
+| ISO 4217 `MKD` codes on explicit denar variables | 5 | 0 | 0 | 0 | 0 |
+
+The multiplier opportunities comprise three loan-series variables in the
+dual-axis chart, two denar-million variables in the credit table, and three
+dollar-million variables in the Yemen table. The conservative ISO3 set comprises
+Russia, Yemen, eight countries explicitly represented in the Central Sahel
+legend, and seven fully named countries in the provenance-by-host-country table;
+custom abbreviations in the asylum-country chart are not counted.
+
+C8 produced 16 supported additions in these checks: six axis assignments, three
+multipliers, and seven normalized place names. No clear overfill was found within
+these targeted opportunities. C8A produced only the three Yemen multipliers and
+also omitted the education figure's existing geographic coverage, making it too
+conservative for the review workflow.
+
+C8B produced 24 supported additions: six axis assignments, six multipliers, seven
+normalized place names, and five correctly separated `Denar` currency expressions.
+It also produced two conspicuous overfills outside the at-a-glance family: a
+left-y assignment on a single-axis education chart and `schools` as an explicit
+unit where the chart only names the measured concept. Its use of `Central Sahel`
+as geographic-level `source_text` is an additional placement-quality issue. C8B
+also omitted the visibly present environmental and social risk variable from the
+Yemen table. These issues remain important, but under the current review-cost
+preference C8B provides the strongest coverage result, followed by C8; C8A is not
+competitive.
+
+Combining C8's initial traversal with C8B's final re-scan is therefore a coherent
+next branch. A candidate C8C instruction is:
+
+> Go through all fields in the schema one by one and populate every field supported
+> by visible evidence. Leave every unsupported field null. Before returning,
+> re-scan the image against the entire schema and correct any supported-field
+> omissions. Do not add fields merely for completeness, but when visible evidence
+> reasonably supports a field, prefer populating it rather than omitting it.
+
+The final sentence preserves the evidence boundary while still favoring supported
+overfill over silent omission. C8C should be judged on the same non-composite,
+opportunity-level checks rather than on total populated fields.
+
+#### C7x: metadata quality
+
+C7x is now assessed separately. Its primary question is whether placing examples
+beside schema descriptions improves the correctness and usefulness of metadata
+that the model returns. Coverage differences are secondary observations. Quality
+includes normalization correctness, source fidelity, semantic decomposition,
+field placement, relationships among fields, and ease of manual correction.
+
+| Run | Supported quality gains on the nine-image set | Important quality concerns |
+| --- | --- | --- |
+| C7, first example | Correct `P1` on two percentage variables; corrected the regression-title OCR; detailed six-series decomposition of the dual-axis chart; added normalized place names and provenance/host roles | Dropped visible `t` statistical forms; read `REG5N` as `REGSN`; omitted education geography and donor categories; omitted some useful column content |
+| C7A, all examples | Correct million multipliers on the dual-axis and Yemen images; retained regression `t` forms; correctly recovered `REG5N`; added useful region normalization | Added intercept, R-squared, and observation count as measured variables; invented a contiguous temporal `source_text`; flattened useful category grouping; omitted coastal-table geography/count metadata and donor categories; sometimes represented `USD` redundantly as unit and currency |
+| C7B, normalization examples | Correct million multipliers and denar currency on the credit table; strongest preservation of donor categories and pillar groups; retained detailed education geography; normalized the Yemen date; remained stable on the simple asylum-country chart | Read `Denar` as `Demar` in the dual-axis chart; added an unsupported single-axis assignment; represented approval date and risk rating as variables in the Yemen table; flattened credit-table grouping; misused geographic-level `source_text`; normalization gains were inconsistent |
+
+On this review-oriented reading, C7B is the most promising quality candidate, not
+because it has the most populated normalization fields, but because it generally
+retains richer reviewable structure while limiting C7A's broad example pressure.
+C7 and C7A each show real local gains, so neither demonstrates that examples are
+unhelpful. However, one nondeterministic run per treatment cannot attribute those
+differences confidently to the example strategy. The C7x results support further
+quality-focused replication rather than a final winner.
+
+#### Potential experiment branches
+
+1. **C8C: traversal plus final re-scan.** Combine C8 and C8B exactly as above and
+   evaluate it on the nine non-composite images. This is the primary coverage
+   branch.
+2. **C8D: explicit normalization checklist.** If C8C still omits ISO3,
+   UN/CEFACT, ISO 4217, and SDMX normalization, add a short instruction naming
+   those four systems and allowing deterministic normalization from visible
+   labels. Keep this separate from C8C initially so its effect is identifiable.
+3. **C7 replication branch.** Repeat C7, C7A, and C7B on the same nine images and
+   conduct a blinded paired review using a quality rubric with a lower penalty for
+   easy-to-delete overfill than for omission or hard-to-detect wrong metadata.
+   Replication should precede a new example design because current differences may
+   reflect run-to-run variation.
+4. **C7C: all examples with an anti-copy boundary.** If C7A's quality gains recur,
+   retain all examples but state explicitly that examples are illustrative, never
+   defaults, and must not be copied without image support. This tests whether its
+   useful detail can be retained while reducing example-driven misplacement.
+5. **C7D: selected quality-family examples.** If C7B remains strongest, extend its
+   targeted example set one family at a time to variable/dimension structure,
+   temporal representation, and geography. This avoids returning immediately to
+   examples on every schema field.
+6. **Combined production candidate.** Combine the winning C8x coverage treatment
+   and winning C7x quality treatment only after both branches have independent
+   evidence. Evaluate that combined prompt against the eventual reviewed gold
+   set, with the at-a-glance family maintained as a separate challenge set.
