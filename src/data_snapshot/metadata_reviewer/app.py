@@ -86,13 +86,17 @@ def main(args: Sequence[str] | None = None) -> None:
     if notice:
         st.toast(notice)
 
-    toolbar_placeholder = st.empty()
+    with st.container(key="metadata_reviewer_toolbar_slot"):
+        toolbar_placeholder = st.empty()
     guard_placeholder = st.empty()
     _render_warnings(discovery)
 
     st.markdown(
         """
         <style>
+        .st-key-metadata_reviewer_toolbar_slot {
+            min-height: 5.5rem;
+        }
         .st-key-metadata_reviewer_snapshot {
             position: sticky;
             top: 4rem;

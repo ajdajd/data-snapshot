@@ -65,6 +65,7 @@ def test_edit_highlight_and_dirty_navigation_guard(tmp_path: Path) -> None:
         "Overview"
     )
     editor_keys = {value.key for value in app.get("flex_container")}
+    assert "metadata_reviewer_toolbar_slot" in editor_keys
     assert "metadata_reviewer_editor_overview" in editor_keys
     assert (
         not {

@@ -328,7 +328,7 @@ def _render_geographic_coverage(record: Record, generated: Record, path: str) ->
 
 def _render_place(record: Record, generated: Record, path: str) -> None:
     _text(record, generated, "source_text", "Source text", path)
-    _text(record, generated, "name", "Preferred name", path)
+    _text(record, generated, "name", "Name", path)
     _text(record, generated, "iso3_code", "ISO3 code", path)
     _text(record, generated, "subdivision_code", "Subdivision code", path)
     _text(record, generated, "m49_code", "M49 code", path)
