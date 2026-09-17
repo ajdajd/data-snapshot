@@ -55,6 +55,10 @@ def test_edit_highlight_and_dirty_navigation_guard(tmp_path: Path) -> None:
     assert len(app.get("popover")) >= 2
     assert json.dumps("Generated alpha") in [value.value for value in app.get("code")]
     generated_record = json.dumps({"title": "Generated alpha"})
+    generated_json = next(
+        value for value in app.get("json") if value.proto.body == generated_record
+    )
+    assert generated_json.proto.expanded and not generated_json.proto.max_expand_depth
     popover_json = [
         value for value in app.get("json") if value.proto.body != generated_record
     ]
@@ -68,7 +72,8 @@ def test_edit_highlight_and_dirty_navigation_guard(tmp_path: Path) -> None:
     assert {
         "metadata_reviewer_editor_overview",
         "metadata_reviewer_editor_structure",
-        "metadata_reviewer_editor_coverage",
+        "metadata_reviewer_editor_temporal",
+        "metadata_reviewer_editor_geographic",
         "metadata_reviewer_editor_context",
         "metadata_reviewer_editor_generated",
     } <= editor_keys

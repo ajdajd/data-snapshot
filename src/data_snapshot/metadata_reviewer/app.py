@@ -117,7 +117,7 @@ def main(args: Sequence[str] | None = None) -> None:
             with st.container(
                 height=760, border=True, key="metadata_reviewer_editor_generated"
             ):
-                st.json(generated, expanded=2)
+                st.json(generated, expanded=True)
 
         _render_record_status(status_placeholder, item, working, generated)
         _render_validation_status(validation_placeholder, working)

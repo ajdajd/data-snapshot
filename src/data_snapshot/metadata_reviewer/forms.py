@@ -43,8 +43,8 @@ def render_metadata_form(working: Record, generated: Record) -> None:
         Immutable generated metadata used only for difference highlighting.
     """
 
-    overview, structure, coverage, context = st.tabs(
-        ("Overview", "Structure", "Coverage", "Context")
+    overview, structure, temporal, geographic, context = st.tabs(
+        ("Overview", "Structure", "Temporal", "Geographic", "Context")
     )
     with overview:
         with st.container(
@@ -91,9 +91,9 @@ def render_metadata_form(working: Record, generated: Record) -> None:
                 _normalized_renderer(VisualizationTypeValue),
             )
 
-    with coverage:
+    with temporal:
         with st.container(
-            height=760, border=True, key="metadata_reviewer_editor_coverage"
+            height=760, border=True, key="metadata_reviewer_editor_temporal"
         ):
             _optional_object(
                 working,
@@ -102,6 +102,11 @@ def render_metadata_form(working: Record, generated: Record) -> None:
                 "Temporal coverage",
                 _render_temporal_coverage,
             )
+
+    with geographic:
+        with st.container(
+            height=760, border=True, key="metadata_reviewer_editor_geographic"
+        ):
             _optional_object(
                 working,
                 generated,
