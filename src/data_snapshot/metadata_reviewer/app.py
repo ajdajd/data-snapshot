@@ -326,7 +326,11 @@ def _format_validation_error(error: ValidationError) -> str:
     lines = []
     for detail in error.errors(include_url=False):
         path = "".join(
-            f"[{part}]" if isinstance(part, int) else ("." if position else "") + part
+            (
+                f"[{part + 1}]"
+                if isinstance(part, int)
+                else ("." if position else "") + part
+            )
             for position, part in enumerate(detail["loc"])
         )
         lines.append(f"- `{path or '<record>'}`: {detail['msg']}")
