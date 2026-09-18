@@ -89,13 +89,12 @@ def main(args: Sequence[str] | None = None) -> None:
     with st.container(key="metadata_reviewer_toolbar_slot"):
         toolbar_placeholder = st.empty()
     guard_placeholder = st.empty()
-    _render_warnings(discovery)
 
     st.markdown(
         """
         <style>
         .st-key-metadata_reviewer_toolbar_slot {
-            min-height: 5.5rem;
+            min-height: 5.0rem;
         }
         .st-key-metadata_reviewer_snapshot {
             position: sticky;
@@ -196,7 +195,9 @@ def _render_toolbar(
         f"{index + 1} of {len(discovery.items)} · {reviewed_count} reviewed · {status}"
     )
 
-    previous_column, save_column, next_column, _ = st.columns((1, 2, 1, 5))
+    previous_column, save_column, next_column, _, warnings_column = st.columns(
+        (1, 2, 1, 4, 2)
+    )
     if previous_column.button(
         "Previous",
         disabled=index == 0 or _navigation_pending(),
@@ -219,6 +220,8 @@ def _render_toolbar(
         key="review_save",
     ):
         _save_and_move(item, working, min(index + 1, len(discovery.items) - 1))
+    with warnings_column.container(horizontal_alignment="right"):
+        _render_warnings(discovery)
 
 
 def _render_navigation_guard(
@@ -313,7 +316,8 @@ def _move_to(target: int) -> None:
 def _render_warnings(discovery: DiscoveryResult) -> None:
     if not discovery.warnings:
         return
-    with st.expander(f"Discovery warnings ({len(discovery.warnings)})"):
+    with st.popover(f"Warnings ({len(discovery.warnings)})"):
+        st.markdown("**Discovery warnings**")
         for warning in discovery.warnings:
             st.warning(warning)
 
