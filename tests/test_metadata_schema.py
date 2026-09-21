@@ -1,4 +1,4 @@
-"""Tests for Data Snapshot Metadata Schema v1.3."""
+"""Tests for Data Snapshot Metadata Schema v1.4."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ import data_snapshot.metadata_schema.generation as schema_generation
 import data_snapshot.metadata_schema as metadata_models
 from data_snapshot.metadata_schema import (
     Attribution,
-    AxisAssignment,
+    MultiAxisAssignment,
     CodedTerm,
     Currency,
     DataSnapshotMetadata,
@@ -104,20 +104,10 @@ def test_uncontested_descriptions_match_v111_verbatim() -> None:
     """Prevent shortening historical definitions that fit the approved design."""
     destinations = {
         "title": ("DataSnapshotMetadata", "title"),
-        "internal_identifier": ("DataSnapshotMetadata", "document_label"),
         "subject_domain": ("DataSnapshotMetadata", "subject_domains"),
         "subject_summary": ("DataSnapshotMetadata", "subject_summary"),
         "panel_title": ("DataSnapshotMetadata", "panel_titles"),
-        "category_dimension": ("Dimension", "name"),
-        "category_labels": ("Dimension", "categories"),
-        "population_group": ("DataSnapshotMetadata", "population_group"),
-        "geographic_scope": ("GeographicCoverage", "scope"),
-        "geographic_granularity": ("GeographicCoverage", "level"),
-        "geographic_role": ("GeographicLocation", "role"),
-        "unit_of_measure": ("Variable", "unit"),
         "currency": ("Variable", "currency"),
-        "measure_type": ("Variable", "statistical_forms"),
-        "comparison_group": ("DataSnapshotMetadata", "comparisons"),
         "language": ("DataSnapshotMetadata", "languages"),
         "project_name": ("Project", "name"),
         "project_identifier": ("Project", "identifiers"),
@@ -139,7 +129,7 @@ def test_uncontested_descriptions_match_v111_verbatim() -> None:
 
 
 def test_uncontested_examples_preserve_all_v111_text_in_order() -> None:
-    """Compare every original example at its v1.3 destination without sampling."""
+    """Compare every original example at its v1.4 destination without sampling."""
     # Grouped labels and provenance use the approved structural adaptations below.
     destinations = {
         "title": ("DataSnapshotMetadata", "title", ()),
@@ -308,6 +298,19 @@ def test_visualization_fallback_distinguishes_source_only_from_unknown() -> None
     description = DataSnapshotMetadata.model_fields["visualization_types"].description
     assert description is not None
     assert "return `null`; do not force a match" in description
+
+
+def test_composite_visualizations_include_overall_and_component_types() -> None:
+    """Document composite and component types as simultaneous values."""
+    examples = DataSnapshotMetadata.model_fields["visualization_types"].examples
+    assert [
+        {"normalized_value": "composite_figure"},
+        {"normalized_value": "line_chart"},
+        {"normalized_value": "map"},
+    ] in examples
+    description = DataSnapshotMetadata.model_fields["visualization_types"].description
+    assert description is not None
+    assert "Types are not mutually exclusive" in description
 
 
 def test_iso3_country_code_replaces_v12_alpha2_field() -> None:
@@ -529,33 +532,55 @@ def test_normalized_terms_expose_only_source_and_closed_value() -> None:
             model.model_validate({"source_text": "Visible label", "code": "X"})
 
 
+def test_variables_separate_analytical_axis_and_multi_axis_roles() -> None:
+    """Keep statistical roles separate from ordinary and multiple axes."""
+    outcome = Variable(name="Mortality", analytical_roles=["outcome"])
+    ordinary_axis = Variable(name="Year", axis_roles=["x_axis"])
+
+    assert outcome.analytical_roles[0].value == "outcome"
+    assert ordinary_axis.axis_roles[0].value == "x_axis"
+    with pytest.raises(ValidationError, match="Input should be"):
+        Variable(name="Year", analytical_roles=["x_axis"])
+    with pytest.raises(ValidationError, match="Input should be"):
+        Variable(name="Mortality", axis_roles=["outcome"])
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        Variable.model_validate(
+            {
+                "name": "Mortality",
+                "axis_assignments": [
+                    {"dimension": "y", "position": "left", "position_index": 1}
+                ],
+            }
+        )
+
+
 def test_variables_support_distinct_axes_on_any_plot_side() -> None:
     """Represent multiple x or y axes, including axes sharing one side."""
     variables = [
         Variable(
             name="Logs",
-            axis_assignments=[
+            multi_axis_assignments=[
                 {"dimension": "y", "position": "left", "position_index": 1}
             ],
         ),
         Variable(
             name="Sawnwood",
-            axis_assignments=[
+            multi_axis_assignments=[
                 {"dimension": "y", "position": "left", "position_index": 2}
             ],
         ),
         Variable(
             name="Alternate time",
-            axis_assignments=[
+            multi_axis_assignments=[
                 {"dimension": "x", "position": "top", "position_index": 1}
             ],
         ),
     ]
 
-    assert variables[1].axis_assignments[0].position_index == 2
-    assert variables[2].axis_assignments[0].position.value == "top"
+    assert variables[1].multi_axis_assignments[0].position_index == 2
+    assert variables[2].multi_axis_assignments[0].position.value == "top"
     with pytest.raises(ValidationError, match="x-axis position"):
-        AxisAssignment(dimension="x", position="left", position_index=1)
+        MultiAxisAssignment(dimension="x", position="left", position_index=1)
 
 
 def test_standard_formats_and_cross_field_constraints_are_enforced() -> None:
@@ -671,7 +696,7 @@ def test_generation_is_deterministic_and_matches_written_files(tmp_path: Path) -
     assert first_markdown == render_markdown_reference()
     schema = json.loads(first_json)
     assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
-    assert schema["x-schema-version"] == "1.3"
+    assert schema["x-schema-version"] == "1.4"
     assert len(schema["properties"]) == 20
     assert schema["properties"]["title"]["x-standards"]
     assert "source_document_title" not in first_json
@@ -700,7 +725,7 @@ def test_serialized_schema_is_cached_for_repeated_use() -> None:
     assert serialize_metadata_schema.cache_info().hits == 1
     assert schema_generation._metadata_schema.cache_info().misses == 1
     assert schema_generation._metadata_schema.cache_info().hits == 2
-    assert json.loads(first)["x-schema-version"] == "1.3"
+    assert json.loads(first)["x-schema-version"] == "1.4"
 
 
 @pytest.mark.parametrize(
@@ -860,6 +885,24 @@ def test_fractional_interval_ordering_is_exact_across_offsets() -> None:
         ({"variables": [{"unit": {"source_text": "%"}}]}, True),
         ({"variables": [{}]}, False),
         ({"variables": [{"analytical_roles": ["outcome"]}]}, False),
+        ({"variables": [{"axis_roles": ["x_axis"]}]}, False),
+        (
+            {
+                "variables": [
+                    {
+                        "multi_axis_assignments": [
+                            {
+                                "dimension": "y",
+                                "position": "left",
+                                "position_index": 1,
+                            }
+                        ]
+                    }
+                ]
+            },
+            False,
+        ),
+        ({"variables": [{"name": "Year", "axis_roles": ["x_axis"]}]}, True),
         (
             {
                 "variables": [

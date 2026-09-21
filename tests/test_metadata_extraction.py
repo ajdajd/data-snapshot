@@ -1,4 +1,4 @@
-"""Tests for the Schema v1.3 single-snapshot metadata extractor."""
+"""Tests for the Schema v1.4 single-snapshot metadata extractor."""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ def _write_config(path: Path, **overrides: object) -> None:
     config: dict[str, object] = {
         "model": "gpt-5.6-luna",
         "service_tier": "flex",
-        "prompt_cache_key": "metadata-extraction-v1-3",
+        "prompt_cache_key": "metadata-extraction-v1-4",
     }
     config.update(overrides)
     path.write_text(json.dumps(config), encoding="utf-8")
@@ -52,7 +52,7 @@ def test_default_config_uses_luna_flex_and_prompt_caching() -> None:
     assert config["model"] == "gpt-5.6-luna"
     assert config["max_output_tokens"] == 8000
     assert config["service_tier"] == "flex"
-    assert config["prompt_cache_key"] == "metadata-extraction-v1-3"
+    assert config["prompt_cache_key"] == "metadata-extraction-v1-4"
     assert config["reasoning"] == {"effort": "medium"}
 
 
@@ -105,7 +105,7 @@ def test_extract_metadata_uses_pydantic_and_snapshot_only(tmp_path: Path) -> Non
         elif isinstance(value, list):
             pending.extend(value)
     assert responses.request["service_tier"] == "flex"
-    assert responses.request["prompt_cache_key"] == "metadata-extraction-v1-3"
+    assert responses.request["prompt_cache_key"] == "metadata-extraction-v1-4"
     request_input = responses.request["input"]
     system_text = request_input[0]["content"][0]["text"]
     assert "Before returning, re-scan the image" in system_text
@@ -119,7 +119,7 @@ def test_extract_metadata_uses_pydantic_and_snapshot_only(tmp_path: Path) -> Non
     assert image_path.name not in prompt_text
     user_text = request_input[1]["content"][0]["text"]
     assert "## Field-boundary guidance" in user_text
-    assert "## Model-facing Schema v1.3 reference" not in user_text
+    assert "## Model-facing Schema v1.4 reference" not in user_text
     assert json.dumps(output_schema, ensure_ascii=False, indent=2) not in user_text
     assert request_input[1]["content"][1]["image_url"].startswith(
         "data:image/png;base64,"
@@ -242,7 +242,7 @@ def test_extract_metadata_can_omit_user_prompt_schema_reference(
     assert responses.request is not None
     user_text = responses.request["input"][1]["content"][0]["text"]
     response_format = responses.request["text"]["format"]
-    assert "## Model-facing Schema v1.3 reference" not in user_text
+    assert "## Model-facing Schema v1.4 reference" not in user_text
     assert "{{MODEL_FACING_SCHEMA_SECTION}}" not in user_text
     assert response_format == _response_format()
 

@@ -1,4 +1,4 @@
-"""Define the canonical Data Snapshot Metadata Schema v1.3 models."""
+"""Define the canonical Data Snapshot Metadata Schema v1.4 models."""
 
 from __future__ import annotations
 
@@ -136,14 +136,16 @@ def _variable_schema(schema: dict[str, Any]) -> None:
             "if": {
                 "anyOf": [
                     _populated("analytical_roles"),
-                    _populated("axis_assignments"),
+                    _populated("axis_roles"),
+                    _populated("multi_axis_assignments"),
                 ]
             },
             "then": _populated("name"),
         }
     ]
     schema["x-validation-rules"].append(
-        "Analytical roles and axis assignments require a non-null variable name."
+        "Analytical roles, axis roles, and multi-axis assignments require a "
+        "non-null variable name."
     )
 
 
@@ -254,19 +256,46 @@ class _SchemaModel(BaseModel):
 
 
 class PresentationRole(str, Enum):
-    """Identify a dimension's explicit table-presentation role."""
+    """Identify how a dimension organizes a table.
+
+    `row` means the dimension's categories vary downward through table rows.
+    `column` means they vary horizontally across table columns. The physical
+    placement of a label in the first column does not by itself make its
+    dimension a column dimension.
+    """
 
     ROW = "row"
     COLUMN = "column"
 
 
 class AnalyticalRole(str, Enum):
-    """Identify an explicitly stated analytical or axis role."""
+    """Identify an explicit role in a statistical analysis.
+
+    `outcome` is the dependent or response variable the analysis seeks to
+    explain or estimate. `predictor` is an explanatory or independent variable
+    used to explain or predict an outcome. `control` is a covariate included to
+    adjust an estimate rather than serving as the primary predictor.
+    `instrumental` is a variable explicitly identified as an instrument in an
+    instrumental-variable analysis. Assign these roles only when the analytical
+    table or its labels, title, notes, or caption support them; do not infer them
+    merely from table position.
+    """
 
     OUTCOME = "outcome"
     PREDICTOR = "predictor"
     INSTRUMENTAL = "instrumental"
     CONTROL = "control"
+
+
+class AxisRole(str, Enum):
+    """Identify a variable's ordinary Cartesian axis in a figure.
+
+    `x_axis` means the variable is encoded on the horizontal axis. `y_axis`
+    means it is encoded on the vertical axis. Use `MultiAxisAssignment` instead
+    when a graph contains distinct axes of the same dimension and the side or
+    outward position is needed to distinguish them.
+    """
+
     X_AXIS = "x_axis"
     Y_AXIS = "y_axis"
 
@@ -569,13 +598,13 @@ class StatisticalFormTerm(_NormalizedTerm):
 
     source_text: NonEmptyText | None = Field(
         default=None,
-        description="Exact text or symbol visible in the snapshot that explicitly expresses the statistical form.",
+        description="Exact text or symbol visible in the snapshot that explicitly expresses the mathematical or statistical form of the values, such as count, percentage, rate, index, sum, or mean. A percent sign may instead be recorded as the variable's unit when the snapshot does not support a more specific form.",
         examples=["Count", "Percentage", "Rate", "Index", "Average"],
     )
     normalized_value: StatisticalFormValue | None = Field(
         examples=["count", "percentage", "arithmetic_mean"],
         default=None,
-        description="Approved normalized statistical form.",
+        description="Approved mathematical or statistical form of the values. Use `rate` for a change, incidence, or other rate; use `percentage` for a share or proportion expressed per hundred. Do not select a form solely because the unit is `%`.",
     )
 
 
@@ -723,7 +752,7 @@ class Unit(_SchemaModel):
 
     source_text: NonEmptyText = Field(
         examples=["Percent", "USD", "People", "Kilometers"],
-        description="Exact text or symbol visible in the snapshot that explicitly expresses the unit.",
+        description="Exact text or symbol visible in the snapshot that states how quantitative values are expressed, such as `%`, `USD`, people, or kilometers. This is the displayed unit, not the mathematical or statistical form of the values; record forms such as rate, percentage share, index, sum, or mean in `statistical_forms` when supported.",
     )
     code: (
         Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z0-9]{1,3}$")]
@@ -877,7 +906,7 @@ class Language(_SchemaModel):
         return self
 
 
-class AxisAssignment(_SchemaModel):
+class MultiAxisAssignment(_SchemaModel):
     """Bind a variable to one distinct axis in a multi-axis graph.
 
     Parameters
@@ -928,7 +957,7 @@ class AxisAssignment(_SchemaModel):
     )
 
     @model_validator(mode="after")
-    def _validate_position(self) -> AxisAssignment:
+    def _validate_position(self) -> MultiAxisAssignment:
         positions = {
             AxisDimension.X: {AxisPosition.TOP, AxisPosition.BOTTOM},
             AxisDimension.Y: {AxisPosition.LEFT, AxisPosition.RIGHT},
@@ -953,8 +982,10 @@ class Variable(_SchemaModel):
     currency : Currency | None
         Applicable currency.
     analytical_roles : list[AnalyticalRole] | None
-        Explicit analytical or axis roles.
-    axis_assignments : list[AxisAssignment] | None
+        Explicit roles in a statistical analysis.
+    axis_roles : list[AxisRole] | None
+        Ordinary Cartesian axis roles in a figure.
+    multi_axis_assignments : list[MultiAxisAssignment] | None
         Explicit assignments to distinct axes in a multi-axis graph.
     statistical_forms : list[StatisticalFormTerm] | None
         Applicable statistical forms.
@@ -965,7 +996,7 @@ class Variable(_SchemaModel):
     name: NonEmptyText | None = Field(
         examples=["GDP Growth", "Inflation", "Literacy Rate", "Refugee Population"],
         default=None,
-        description="The primary variable, indicator, metric, or measured concept represented by the snapshot.\n\nThis field records the variable's name or measured concept, not a normalized analytical role. Use `dimensions[].name`, `dimensions[].categories`, and `dimensions[].presentation_roles` where those structural roles apply. Use `variables[].analytical_roles` for analytical roles and `variables[].axis_assignments` for distinct axes in a multi-axis graph.",
+        description="The measured quantity, indicator, metric, or outcome represented by the values. Use a variable for what is measured; use a dimension for categories that classify, group, or organize observations. For example, in a table of total loans by client sector, `Total loans` is a variable while `Corporates`, `Households`, and `Other clients` are categories of a client-sector dimension. Do not use `%`, `Value`, `Unknown`, or another unit or placeholder as the name.",
         json_schema_extra=_standards(("https://schema.org/variableMeasured", "close")),
     )
     unit: Unit | None = Field(
@@ -976,7 +1007,7 @@ class Variable(_SchemaModel):
             {"source_text": "Kilometers", "code": "KMT"},
         ],
         default=None,
-        description="The unit used to interpret reported quantitative values.",
+        description="How the variable's quantitative values are expressed, such as `%`, USD, people, or kilometers. The unit is distinct from `statistical_forms`, which describes whether values are a count, rate, percentage share, index, sum, mean, or another mathematical form.",
         json_schema_extra=_standards(
             ("https://schema.org/unitCode", "related_structural")
         ),
@@ -992,12 +1023,18 @@ class Variable(_SchemaModel):
         json_schema_extra=_standards(("https://schema.org/currency", "close")),
     )
     analytical_roles: list[AnalyticalRole] | None = Field(
-        examples=[["outcome"], ["predictor"], ["x_axis"]],
+        examples=[["outcome"], ["predictor"], ["control"], ["instrumental"]],
         default=None,
         min_length=1,
-        description="Explicit analytical or axis roles.",
+        description="Explicit roles in a statistical analysis or analytical table. Use `outcome` for the dependent or response variable, `predictor` for an explanatory or independent variable, `control` for an adjustment covariate, and `instrumental` only for a variable explicitly identified as an instrument. Do not derive these roles merely from row, column, or axis position.",
     )
-    axis_assignments: list[AxisAssignment] | None = Field(
+    axis_roles: list[AxisRole] | None = Field(
+        examples=[["x_axis"], ["y_axis"]],
+        default=None,
+        min_length=1,
+        description="Ordinary Cartesian axis roles in a figure. Use `x_axis` for a variable encoded on the horizontal axis and `y_axis` for one encoded on the vertical axis. Do not use this field for analytical-table roles or table row and column organization.",
+    )
+    multi_axis_assignments: list[MultiAxisAssignment] | None = Field(
         examples=[
             [
                 {
@@ -1016,7 +1053,7 @@ class Variable(_SchemaModel):
         ],
         default=None,
         min_length=1,
-        description="Explicit assignments to distinct Cartesian axes in a multi-axis graph.\n\nUse `analytical_roles` for a single or shared x- or y-axis. Use this field when variables are assigned to different axes of the same dimension. `position_index` is 1 for the axis nearest the plotting area on a given side and increases outward.",
+        description="Assignments to distinct Cartesian axes in a multi-axis graph. Use this field only when variables are assigned to different axes of the same dimension and the side or outward position distinguishes them. Use `axis_roles` for an ordinary single or shared x- or y-axis. `position_index` is 1 for the axis nearest the plotting area on a given side and increases outward.",
     )
     statistical_forms: list[StatisticalFormTerm] | None = Field(
         examples=[
@@ -1033,7 +1070,7 @@ class Variable(_SchemaModel):
         ],
         default=None,
         min_length=1,
-        description="The statistical form in which values are expressed.",
+        description="The mathematical or statistical form of the variable's values. A rate describes change, incidence, or another quantity relative to a base; a percentage describes a share or proportion per hundred. The displayed symbol `%` belongs in `unit`; select a statistical form only when the snapshot supports it.",
         json_schema_extra=_standards(("https://schema.org/statType", "close")),
     )
 
@@ -1049,10 +1086,13 @@ class Variable(_SchemaModel):
                 "A variable requires a name, unit, currency, or statistical forms."
             )
         if self.name is None and (
-            self.analytical_roles is not None or self.axis_assignments is not None
+            self.analytical_roles is not None
+            or self.axis_roles is not None
+            or self.multi_axis_assignments is not None
         ):
             raise ValueError(
-                "Analytical roles and axis assignments require a variable name."
+                "Analytical roles, axis roles, and multi-axis assignments require "
+                "a variable name."
             )
         return self
 
@@ -1106,7 +1146,7 @@ class Dimension(_SchemaModel):
     name: NonEmptyText | None = Field(
         examples=["Country", "Year", "Education Level", "Industry Sector", "Scenario"],
         default=None,
-        description="The conceptual variable or dimension used to organize, group, classify, or compare the represented values.",
+        description="The characteristic used to classify, group, or organize observations rather than the quantity being measured. Examples include year, country, sex, sector, and scenario. Repeated series or table headings that apply the same measure to different groups are normally dimension categories, not separate variables.",
     )
     categories: list[CodedTerm] | None = Field(
         examples=[
@@ -1129,7 +1169,7 @@ class Dimension(_SchemaModel):
         ],
         default=None,
         min_length=1,
-        description="The explicit category names or labels associated with a category dimension.",
+        description="The explicit labels or values belonging to the dimension, such as Male and Female for a sex dimension or Corporates and Households for a client-sector dimension.",
         json_schema_extra=_standards(
             ("http://www.w3.org/2004/02/skos/core#Concept", "related_structural")
         ),
@@ -1157,7 +1197,7 @@ class Dimension(_SchemaModel):
         examples=[["row"], ["column"]],
         default=None,
         min_length=1,
-        description="Explicit table-presentation roles.\n\n`row`: The conceptual variable represented by table rows.\n\n`column`: The conceptual variable represented by table columns.",
+        description="How the dimension organizes a table. `row` means its categories vary downward through rows; `column` means they vary horizontally across columns. Assign the role from the direction in which the categories vary, not from the physical cell containing the dimension label. Do not use these roles for figure axes.",
     )
 
     @model_validator(mode="after")
@@ -1373,12 +1413,12 @@ class Place(_SchemaModel):
     source_text: NonEmptyText | None = Field(
         examples=["Global", "Kenya", "Sub-Saharan Africa", "Latin America"],
         default=None,
-        description="Exact text visible in the snapshot that explicitly expresses the place. Omit it when the normalized place is inferred from structure or context.",
+        description="Exact place expression visible in the snapshot. Preserve the displayed wording here; omit it when the place is inferred from structure or context rather than transcribed.",
     )
     name: NonEmptyText | None = Field(
         examples=["Kenya", "Sub-Saharan Africa", "Philippines"],
         default=None,
-        description="Preferred place name.",
+        description="Preferred normalized name for the place represented by `source_text` or by an authoritative identifier. This may standardize spelling or abbreviations and need not appear verbatim in the snapshot.",
     )
     iso3_code: (
         Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z]{3}$")] | None
@@ -1471,7 +1511,7 @@ class GeographicLocation(Place):
             "Reporting location",
         ],
         default=None,
-        description="The semantic role played by geographic entities within the represented data.",
+        description="The relation of this location to the represented data, such as country of origin, host country, destination, or reporting location. Record only a relation supported by the snapshot; this field does not describe what kind of place it is or the level at which data are reported.",
     )
     type: CodedTerm | None = Field(
         examples=[
@@ -1514,7 +1554,7 @@ class GeographicCoverage(_SchemaModel):
             {"source_text": "Latin America", "name": "Latin America"},
         ],
         default=None,
-        description="The primary geographic area represented by the snapshot.",
+        description="The overall geographic coverage or focus of the snapshot. Use `locations` for additional places represented within that coverage. A scope may be a country, region, aggregate, or other area and does not by itself state the reporting level.",
         json_schema_extra=_standards(("https://schema.org/spatialCoverage", "exact")),
     )
     locations: list[GeographicLocation] | None = Field(
@@ -1526,7 +1566,7 @@ class GeographicCoverage(_SchemaModel):
         ],
         default=None,
         min_length=1,
-        description="Named geographic entities explicitly represented within the snapshot.\n\nUse this collection for additional named locations; record the overall coverage in `geographic_coverage.scope`.",
+        description="Additional named places represented within the snapshot. Record the overall coverage in `scope`, and use each location's `role` for its relation to the data. Assign identifiers to the place they identify; do not copy a parent area's code onto a child location.",
         json_schema_extra=_standards(
             ("https://schema.org/spatialCoverage", "related_structural")
         ),
@@ -1539,7 +1579,7 @@ class GeographicCoverage(_SchemaModel):
             {"source_text": "Facility", "normalized_value": "site"},
         ],
         default=None,
-        description="The administrative or spatial level at which data are reported.",
+        description="The geographic granularity at which observations are reported, such as country, province, district, or site. This describes the level of the data, not the overall coverage area, an individual place, or a location's semantic role.",
     )
 
     @model_validator(mode="after")
@@ -1766,10 +1806,10 @@ class DataSnapshotMetadata(_SchemaModel):
 
     model_config = ConfigDict(
         extra="forbid",
-        title="Data Snapshot Metadata Schema v1.3",
+        title="Data Snapshot Metadata Schema v1.4",
         json_schema_extra={
             "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "x-schema-version": "1.3",
+            "x-schema-version": "1.4",
             "x-status": "implementation",
             "x-validation-rules": [
                 "Python is the canonical validator. JSON Schema enforces exported structural rules; format assertions require a format-aware validator.",
@@ -1798,7 +1838,7 @@ class DataSnapshotMetadata(_SchemaModel):
     document_label: NonEmptyText | None = Field(
         examples=["Figure 3", "Table 4.2", "Annex B", "Exhibit 7"],
         default=None,
-        description="A document-assigned identifier used to reference the snapshot within the source document.",
+        description="An exact visible label assigned to the snapshot within its source document, such as `Table 3`, `Figure 4.2`, or `Annex B`. Do not use a title, caption, page number, filename, or identifier inferred from document position.",
         json_schema_extra=_standards(
             (
                 "https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/label.html",
@@ -1877,7 +1917,7 @@ class DataSnapshotMetadata(_SchemaModel):
         ],
         default=None,
         min_length=1,
-        description="Measured concepts and their applicable qualifiers.\n\nPopulate `name` when the measured concept can be identified from the snapshot. Otherwise return `null` rather than using a unit, `%`, `Value`, `Unknown`, or another placeholder as the name; retain the variable only when it contains a unit, currency, or statistical form. Analytical roles and axis assignments require a named measured concept. Repeat a shared unit, currency, multiplier, or statistical form on every variable to which it applies. Do not use a variable as a shared-default object.",
+        description="Measured quantities, indicators, metrics, or outcomes and their applicable qualifiers. Use variables for what is measured and dimensions for the characteristics that classify or organize observations. Populate `name` when the measured concept can be identified; otherwise omit it rather than using a unit, `%`, `Value`, `Unknown`, or another placeholder. Retain an unnamed variable only when it has a unit, currency, or statistical form. Analytical roles, axis roles, and multi-axis assignments require a named variable. Repeat shared qualifiers on every variable to which they apply.",
         json_schema_extra=_standards(
             ("https://schema.org/variableMeasured", "close"),
             ("https://ddialliance.org/Specification/DDI-Lifecycle/3.3/", "close"),
@@ -1899,7 +1939,7 @@ class DataSnapshotMetadata(_SchemaModel):
         ],
         default=None,
         min_length=1,
-        description="Classificatory dimensions and their visible organization.",
+        description="Characteristics that classify, group, or organize observations, together with their categories and table presentation. Use a dimension for year, geography, sex, sector, scenario, and similar groupings; use a variable for the quantity being measured.",
         json_schema_extra=_standards(
             ("https://sdmx.org/", "close"),
             ("https://ddialliance.org/Specification/DDI-Lifecycle/3.3/", "close"),
@@ -1914,7 +1954,7 @@ class DataSnapshotMetadata(_SchemaModel):
             "Technical education graduates",
         ],
         default=None,
-        description="The human population, beneficiary group, or demographic group that is the primary subject of the represented data. This field describes who the data are about, not how they are categorized or disaggregated.",
+        description="The human population, beneficiary group, or demographic group that is the primary subject of the represented data. This field describes who the data are about. Do not use it for companies, institutions, products, locations, or mixed entity classes, and do not repeat a population category used only to disaggregate observations.",
         json_schema_extra=_standards(
             (
                 "https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html",
@@ -1935,6 +1975,11 @@ class DataSnapshotMetadata(_SchemaModel):
             [{"source_text": "Map", "normalized_value": "map"}],
             [{"source_text": "Heatmap", "normalized_value": "heatmap"}],
             [
+                {"normalized_value": "composite_figure"},
+                {"normalized_value": "line_chart"},
+                {"normalized_value": "map"},
+            ],
+            [
                 {
                     "source_text": "Composite figure: line charts and map",
                     "normalized_value": "composite_figure",
@@ -1943,7 +1988,7 @@ class DataSnapshotMetadata(_SchemaModel):
         ],
         default=None,
         min_length=1,
-        description="The primary visualization used to encode the represented data.\n\nUse `normalized_value` when the visualization type is inferred from visual form. Use `source_text` only when wording in the snapshot explicitly names the visualization form; do not manufacture source wording from the visual design. Preserve an explicitly written unfamiliar type in `source_text` without a normalized value. If neither a listed normalized type nor an explicit unfamiliar source label is supported, return `null`; do not force a match to the closest vocabulary value. For a composite or multi-panel snapshot, record the overall visualization type when no single component type adequately describes the artifact. Use `panel_titles` for explicit panel headings.",
+        description="Visualization forms used to encode the represented data. Types are not mutually exclusive: for a composite or multi-panel artifact, record `composite_figure` and each identifiable component type, such as `line_chart` and `map`. Use `normalized_value` when a type is inferred from visual form. Use `source_text` only when wording in the snapshot explicitly names the form; do not manufacture source wording from the design. Preserve an explicitly written unfamiliar type in `source_text` without a normalized value. If neither a listed type nor an explicit unfamiliar label is supported, return `null`; do not force a match to the closest vocabulary value. Use `panel_titles` for explicit panel headings.",
         json_schema_extra=_standards(
             ("http://purl.org/dc/terms/type", "standard_broader"),
             ("https://schema.org/additionalType", "standard_broader"),
@@ -2035,7 +2080,7 @@ class DataSnapshotMetadata(_SchemaModel):
             {"level": {"source_text": "Facility", "normalized_value": "site"}},
         ],
         default=None,
-        description="Overall geographic scope, additional locations, and level.",
+        description="The snapshot's overall geographic scope, additional named locations, and reporting level. Keep these meanings separate: `scope` is the coverage area, `locations` are specific places represented within it, and `level` is the granularity at which observations are reported.",
         json_schema_extra=_standards(
             ("https://schema.org/spatialCoverage", "exact"),
             ("http://purl.org/dc/terms/spatial", "exact"),
@@ -2054,7 +2099,7 @@ class DataSnapshotMetadata(_SchemaModel):
         ],
         default=None,
         min_length=1,
-        description="The benchmark, comparator, reference group, cohort, scenario, or entity against which the represented data are compared.\n\nPopulate only when the snapshot explicitly presents a comparative relationship. This field captures the intended comparison or benchmark represented by the snapshot, not simply the categories used to organize the data.",
+        description="An explicit comparative relationship or named benchmark, comparator, reference group, cohort, scenario, or entity against which represented data are compared. Record the complete relation when visible, such as `Treatment vs Control`, or a named standalone benchmark. Do not use this field for totals, ordinary cross-tab categories, dimensions, or measures that merely appear together without an explicit comparison.",
     )
     provenance: Provenance | None = Field(
         examples=[

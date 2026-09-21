@@ -1,11 +1,11 @@
-"""Expose the canonical Data Snapshot Metadata Schema v1.3 API."""
+"""Expose the canonical Data Snapshot Metadata Schema v1.4 API."""
 
 from data_snapshot.metadata_schema.models import (
     AnalyticalRole,
     Attribution,
-    AxisAssignment,
     AxisDimension,
     AxisPosition,
+    AxisRole,
     CategoryGroup,
     CodedTerm,
     Currency,
@@ -19,6 +19,7 @@ from data_snapshot.metadata_schema.models import (
     GeographicLocation,
     Identifier,
     Language,
+    MultiAxisAssignment,
     Place,
     PresentationRole,
     Project,
@@ -40,9 +41,9 @@ from data_snapshot.metadata_schema.models import (
 __all__ = [
     "AnalyticalRole",
     "Attribution",
-    "AxisAssignment",
     "AxisDimension",
     "AxisPosition",
+    "AxisRole",
     "CategoryGroup",
     "CodedTerm",
     "Currency",
@@ -56,6 +57,7 @@ __all__ = [
     "GeographicLocation",
     "Identifier",
     "Language",
+    "MultiAxisAssignment",
     "Place",
     "PresentationRole",
     "Project",

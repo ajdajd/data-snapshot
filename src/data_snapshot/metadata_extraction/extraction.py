@@ -1,4 +1,4 @@
-"""Extract Schema v1.3 metadata from one data snapshot image."""
+"""Extract Schema v1.4 metadata from one data snapshot image."""
 
 from __future__ import annotations
 
@@ -93,7 +93,7 @@ class ExtractionResult:
     Attributes
     ----------
     metadata : DataSnapshotMetadata | None
-        Validated Schema v1.3 metadata, or ``None`` after a failure.
+        Validated Schema v1.4 metadata, or ``None`` after a failure.
     model : str | None
         Requested model, if the configuration loaded successfully.
     response_id : str | None
@@ -170,7 +170,7 @@ def extract_metadata(
     schema_example_mode: _SchemaExampleMode = "none",
     include_schema_reference: bool = False,
 ) -> ExtractionResult:
-    """Extract validated Schema v1.3 metadata from one snapshot image.
+    """Extract validated Schema v1.4 metadata from one snapshot image.
 
     Only the image and package prompts are sent to the model. Filenames,
     directory names, and source-document metadata are not included.
@@ -427,7 +427,7 @@ def _response_format(
     schema = _inline_ref_siblings(schema, schema)
     return {
         "type": "json_schema",
-        "name": "data_snapshot_metadata_v1_3",
+        "name": "data_snapshot_metadata_v1_4",
         "strict": True,
         "schema": schema,
     }
@@ -452,7 +452,7 @@ def _production_user_prompt(
             indent=2,
         )
         schema_section = (
-            "## Model-facing Schema v1.3 reference\n\n"
+            "## Model-facing Schema v1.4 reference\n\n"
             "Use this schema as field-level extraction guidance. The API response "
             "format remains the authoritative output contract.\n\n"
             f"```json\n{schema}\n```"

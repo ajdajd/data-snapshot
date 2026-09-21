@@ -1,4 +1,4 @@
-"""Generate JSON Schema and Markdown reference artifacts from v1.3 models."""
+"""Generate JSON Schema and Markdown reference artifacts from v1.4 models."""
 
 from __future__ import annotations
 
@@ -13,9 +13,9 @@ from data_snapshot.metadata_schema.models import DataSnapshotMetadata
 
 _ROOT = Path(__file__).resolve().parents[3]
 _DEFAULT_JSON_PATH = (
-    _ROOT / "docs/schema_v1.3/data_snapshot_metadata_schema_v1.3.schema.json"
+    _ROOT / "docs/schema_v1.4/data_snapshot_metadata_schema_v1.4.schema.json"
 )
-_DEFAULT_MARKDOWN_PATH = _ROOT / "docs/schema_v1.3/schema_reference_v1.3.md"
+_DEFAULT_MARKDOWN_PATH = _ROOT / "docs/schema_v1.4/schema_reference_v1.4.md"
 
 _SNAPSHOT_FIELD_MODULES = (
     (
@@ -120,7 +120,7 @@ def render_markdown_reference() -> str:
     """
     schema = _metadata_schema()
     lines = [
-        "# Data Snapshot Metadata Schema v1.3 Reference",
+        "# Data Snapshot Metadata Schema v1.4 Reference",
         "",
         "<!-- Generated from DataSnapshotMetadata. Do not edit manually. -->",
         "",
@@ -148,7 +148,7 @@ def render_markdown_reference() -> str:
         "",
         "## Snapshot fields",
         "",
-        "Fields are grouped by the v1.3 semantic modules.",
+        "Fields are grouped by the v1.4 semantic modules.",
         "",
         _EXAMPLE_GUIDANCE,
     ]

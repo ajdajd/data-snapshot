@@ -1,4 +1,4 @@
-"""Extract Schema v1.3 metadata from individual data snapshot images."""
+"""Extract Schema v1.4 metadata from individual data snapshot images."""
 
 from data_snapshot.metadata_extraction.extraction import (
     ExtractionResult,

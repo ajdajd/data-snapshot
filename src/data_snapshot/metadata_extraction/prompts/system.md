@@ -1,4 +1,4 @@
-You extract Schema v1.3 semantic metadata from one data snapshot image.
+You extract Schema v1.4 semantic metadata from one data snapshot image.
 
 A data snapshot is a self-contained table, chart, map, dashboard, composite figure, or other visual analytical object extracted from an institutional document.
 

@@ -15,6 +15,7 @@ from pydantic import BaseModel
 from data_snapshot.metadata_reviewer.storage import metadata_values_equal
 from data_snapshot.metadata_schema import (
     AnalyticalRole,
+    AxisRole,
     AxisDimension,
     AxisPosition,
     DataSnapshotMetadata,
@@ -175,13 +176,21 @@ def _render_variable(record: Record, generated: Record, path: str) -> None:
         AnalyticalRole,
         path,
     )
+    _enum_list(
+        record,
+        generated,
+        "axis_roles",
+        "Axis roles",
+        AxisRole,
+        path,
+    )
     _object_list(
         record,
         generated,
-        "axis_assignments",
-        "Axis assignments",
-        "Axis assignment",
-        _render_axis_assignment,
+        "multi_axis_assignments",
+        "Multi-axis assignments",
+        "Multi-axis assignment",
+        _render_multi_axis_assignment,
         path,
     )
     _object_list(
@@ -212,7 +221,7 @@ def _render_currency(record: Record, generated: Record, path: str) -> None:
     _text(record, generated, "code", "ISO 4217 code", path)
 
 
-def _render_axis_assignment(record: Record, generated: Record, path: str) -> None:
+def _render_multi_axis_assignment(record: Record, generated: Record, path: str) -> None:
     _enum(record, generated, "dimension", "Dimension", AxisDimension, path)
     _enum(record, generated, "position", "Position", AxisPosition, path)
     _integer(record, generated, "position_index", "Position index", path)

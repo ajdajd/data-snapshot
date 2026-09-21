@@ -1,4 +1,4 @@
-# Data Snapshot Metadata Schema v1.3
+# Data Snapshot Metadata Schema v1.4
 
 Pydantic models for the semantic metadata of a data snapshot: a table, chart,
 map, dashboard, or composite figure extracted from a document.
@@ -65,20 +65,28 @@ metadata = DataSnapshotMetadata(
 print(metadata.variables[0].currency.code)  # USD
 ```
 
-Variables own their units, currencies, analytical roles, multi-axis assignments,
-and statistical forms. Populate a variable name whenever the measured concept
-is identifiable. An unnamed variable may retain a visible unit, currency, or
-statistical form, but it cannot contain an analytical role or axis assignment.
+Variables own their units, currencies, analytical roles, axis roles, multi-axis
+assignments, and statistical forms. Populate a variable name whenever the
+measured concept is identifiable. An unnamed variable may retain a visible
+unit, currency, or statistical form, but it cannot contain a role or multi-axis
+assignment.
 Never use `%`, `Value`, `Unknown`, or another placeholder as a variable name.
 Repeat a qualifier that applies to multiple variables on each applicable
 variable.
 
-Dimensions own their categories and optional single-level category groups. An
-unnamed dimension is valid when it contains categories or category groups; a
-row or column role alone is insufficient. Provenance separates derivation
-sources from credited agents, and a credited agent does not require an explicit
-role. Panel titles remain an ordered flat collection, with visualization types
-at snapshot level.
+Use `analytical_roles` for supported roles in a statistical analysis:
+`outcome`, `predictor`, `control`, and `instrumental`. Use `axis_roles` for an
+ordinary x- or y-axis in a figure. Use `multi_axis_assignments` only when the
+side or outward position must distinguish multiple axes of the same dimension.
+
+Dimensions own categories and optional single-level category groups. Use a
+dimension for characteristics that classify or organize observations, such as
+year, country, or sector; use a variable for the quantity being measured. For
+table presentation, `row` means categories vary downward and `column` means
+they vary horizontally. An unnamed dimension is valid when it contains
+categories or category groups; a presentation role alone is insufficient.
+Provenance separates derivation sources from credited agents, and a credited
+agent does not require an explicit role.
 
 Within `geographic_coverage`, `locations[].type` describes what a named location
 is, such as a school or district. `level` describes the administrative or
@@ -88,12 +96,13 @@ alpha-3 country code such as `PHL`; World Bank aggregate and region codes do not
 belong in that field.
 
 Parent-document metadata is managed separately; `source_document_title` is not
-a v1.3 field. The models represent metadata, not extracted numerical observations.
+a v1.4 field. The models represent metadata, not extracted numerical observations.
 
 ## Developer notes
 
-- `visualization_types`: v1.3 does not separately encode component-to-type
-  relationships or panel count.
+- `visualization_types`: record `composite_figure` and the identifiable
+  component types for a composite artifact. Schema v1.4 does not encode which
+  component belongs to which panel or the panel count.
 
 ## Validating input
 
@@ -175,12 +184,13 @@ structure and membership in local enum vocabularies; it does not infer mappings.
 
 ## External registry validation
 
-Schema v1.3 validates the syntax and relationships of external codes and tags,
+Schema v1.4 validates the syntax and relationships of external codes and tags,
 but it does not perform registry membership checks or offline normalization. A
 well-formed but unassigned value can therefore pass Pydantic validation. The
-planned offline normalizer and its pinned reference data are deferred to v1.4;
-the affected fields and candidate machine-readable sources are recorded in the
-[v1.3 change report](../../../notebooks/metadata_extraction/0.0-schema_v1.3_change_report.md#13-align-standards-claims-with-actual-validation-strength).
+planned deterministic normalization stage remains downstream work; it is not
+part of the v1.4 schema contract. The affected fields and candidate
+machine-readable sources are recorded in the
+[v1.3 change report](../../../docs/schema_v1.3/schema_v1.3_change_report.md#13-align-standards-claims-with-actual-validation-strength).
 
 Identifier `value` data may come from the snapshot or trusted metadata.
 `scheme`, `issuer`, and `uri` may additionally come from configured and verified
@@ -237,8 +247,8 @@ uv run --locked python -m data_snapshot.metadata_schema.generation
 
 This overwrites the generated files:
 
-- [JSON Schema](../../../docs/schema_v1.3/data_snapshot_metadata_schema_v1.3.schema.json)
-- [Field reference](../../../docs/schema_v1.3/schema_reference_v1.3.md)
+- [JSON Schema](../../../docs/schema_v1.4/data_snapshot_metadata_schema_v1.4.schema.json)
+- [Field reference](../../../docs/schema_v1.4/schema_reference_v1.4.md)
 
 Check whether they match the models without writing files, in a **WSL terminal
 or PowerShell**:
@@ -253,12 +263,13 @@ output paths. Import these helpers from `data_snapshot.metadata_schema.generatio
 
 ## Further reading
 
-- [Field reference](../../../docs/schema_v1.3/schema_reference_v1.3.md): generated types, constraints, enums, and mappings.
-- [Schema v1.3 change report](../../../notebooks/metadata_extraction/0.0-schema_v1.3_change_report.md): decisions and expected extraction effects.
+- [Field reference](../../../docs/schema_v1.4/schema_reference_v1.4.md): generated types, constraints, enums, and mappings.
+- [Schema v1.4 change report](../../../docs/schema_v1.4/schema_v1.4_change_report.md): changes derived from Batch 1 annotation.
+- [Schema v1.3 change report](../../../docs/schema_v1.3/schema_v1.3_change_report.md): earlier decisions and expected extraction effects.
 
 The following v1.2 documents are frozen historical design inputs. They explain
-the baseline evaluated by Schema Validation 3 but do not override the v1.3
-models, generated artifacts, or decisions in the v1.3 change report.
+the baseline evaluated by Schema Validation 3 but do not override the current
+models and generated artifacts.
 
 - [Schema v1.2 concept design](../../../docs/schema_v1.2/2.0-concept_design.md): baseline concepts and relationships.
 - [Schema v1.2 normalization profile](../../../docs/schema_v1.2/3.0-normalization.md): baseline normalization policy.

@@ -1,0 +1,4461 @@
+{
+  "$defs": {
+    "AnalyticalRole": {
+      "description": "Identify an explicit role in a statistical analysis.\n\n`outcome` is the dependent or response variable the analysis seeks to\nexplain or estimate. `predictor` is an explanatory or independent variable\nused to explain or predict an outcome. `control` is a covariate included to\nadjust an estimate rather than serving as the primary predictor.\n`instrumental` is a variable explicitly identified as an instrument in an\ninstrumental-variable analysis. Assign these roles only when the analytical\ntable or its labels, title, notes, or caption support them; do not infer them\nmerely from table position.",
+      "enum": [
+        "outcome",
+        "predictor",
+        "instrumental",
+        "control"
+      ],
+      "title": "AnalyticalRole",
+      "type": "string"
+    },
+    "Attribution": {
+      "additionalProperties": false,
+      "description": "Represent a named agent and its optional explicit attribution role.\n\nParameters\n----------\nname : str\n    Source-visible credited-agent name.\nidentifiers : list[Identifier] | None\n    Assigned identifiers for the agent.\nrole : CodedTerm | None\n    Open, source-grounded attribution role, when explicit.",
+      "properties": {
+        "name": {
+          "description": "Source-visible entity name.",
+          "examples": [
+            "Map Design Unit",
+            "National Statistics Office"
+          ],
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Name",
+          "type": "string"
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Identifier"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Assigned entity identifiers.",
+          "examples": [
+            [
+              {
+                "scheme": "https://example.org/entities",
+                "value": "ENTITY-001"
+              }
+            ]
+          ],
+          "title": "Identifiers"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CodedTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit source-grounded agent role.",
+          "examples": [
+            {
+              "source_text": "Map maker"
+            },
+            {
+              "source_text": "Producer"
+            }
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Attribution",
+      "type": "object"
+    },
+    "AxisDimension": {
+      "description": "Identify a Cartesian axis dimension.",
+      "enum": [
+        "x",
+        "y"
+      ],
+      "title": "AxisDimension",
+      "type": "string"
+    },
+    "AxisPosition": {
+      "description": "Identify the side of a plot where an axis appears.",
+      "enum": [
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ],
+      "title": "AxisPosition",
+      "type": "string"
+    },
+    "AxisRole": {
+      "description": "Identify a variable's ordinary Cartesian axis in a figure.\n\n`x_axis` means the variable is encoded on the horizontal axis. `y_axis`\nmeans it is encoded on the vertical axis. Use `MultiAxisAssignment` instead\nwhen a graph contains distinct axes of the same dimension and the side or\noutward position is needed to distinguish them.",
+      "enum": [
+        "x_axis",
+        "y_axis"
+      ],
+      "title": "AxisRole",
+      "type": "string"
+    },
+    "CategoryGroup": {
+      "additionalProperties": false,
+      "description": "Represent one explicit nonrecursive category grouping.\n\nParameters\n----------\nname : str\n    Explicit group heading.\ncategories : list[CodedTerm]\n    Categories directly contained by the group.",
+      "properties": {
+        "name": {
+          "description": "Explicit category-group heading.",
+          "examples": [
+            "Violation of the right to liberty"
+          ],
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Name",
+          "type": "string"
+        },
+        "categories": {
+          "description": "Categories directly contained by the group.",
+          "examples": [
+            [
+              {
+                "source_text": "Arbitrary arrests"
+              },
+              {
+                "source_text": "Abductions"
+              }
+            ]
+          ],
+          "items": {
+            "$ref": "#/$defs/CodedTerm"
+          },
+          "minItems": 1,
+          "title": "Categories",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "categories"
+      ],
+      "title": "CategoryGroup",
+      "type": "object"
+    },
+    "CodedTerm": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "code"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scheme": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "scheme"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scheme": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "scheme"
+            ]
+          },
+          "then": {
+            "properties": {
+              "code": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "code"
+            ]
+          }
+        }
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "code"
+          ]
+        },
+        {
+          "properties": {
+            "uri": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "uri"
+          ]
+        }
+      ],
+      "description": "Represent source wording with optional exact vocabulary identifiers.\n\nParameters\n----------\nsource_text : str | None\n    Exact source-visible text or symbol that expresses the term.\ncode : str | None\n    Code in the named scheme.\nscheme : str | None\n    Code-list or vocabulary identifier.\nuri : AnyUrl | None\n    Authoritative URI for the represented concept.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact text or symbol visible in the snapshot that explicitly expresses the value represented by this object. Omit it when the value is inferred from visual form, structure, or context rather than transcribed.",
+          "examples": [
+            "Grant",
+            "District"
+          ],
+          "title": "Source Text"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code in the named scheme.",
+          "examples": [
+            "110"
+          ],
+          "title": "Code"
+        },
+        "scheme": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Code-list or vocabulary identifier.",
+          "examples": [
+            "IATI Finance Type"
+          ],
+          "title": "Scheme"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:(?://(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|:)*@)?(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*|\\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\\])(?::[0-9]*)?(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|/(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*)?|(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|)(?:\\?(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?(?:#(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Authoritative URI for the represented concept.",
+          "examples": [
+            "https://example.org/concepts/TERM-001"
+          ],
+          "title": "Uri"
+        }
+      },
+      "title": "CodedTerm",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one of source_text, code, or uri must be non-null.",
+        "Code and scheme must be non-null together."
+      ]
+    },
+    "Currency": {
+      "additionalProperties": false,
+      "description": "Represent a displayed currency and optional ISO 4217 code.\n\nParameters\n----------\nsource_text : str\n    Displayed currency expression.\ncode : str | None\n    Uppercase ISO 4217 alphabetic code.",
+      "properties": {
+        "source_text": {
+          "description": "Exact text or symbol visible in the snapshot that explicitly expresses the currency.",
+          "examples": [
+            "USD",
+            "EUR",
+            "JPY"
+          ],
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Source Text",
+          "type": "string"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Uppercase ISO 4217 alphabetic code.",
+          "examples": [
+            "USD",
+            "EUR",
+            "JPY"
+          ],
+          "title": "Code",
+          "x-code-list": {
+            "authority": "ISO",
+            "identifier": "ISO 4217",
+            "uri": "https://www.iso.org/iso-4217-currency-codes.html"
+          }
+        }
+      },
+      "required": [
+        "source_text"
+      ],
+      "title": "Currency",
+      "type": "object"
+    },
+    "Dimension": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "properties": {
+            "categories": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "categories"
+          ]
+        },
+        {
+          "properties": {
+            "category_groups": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "category_groups"
+          ]
+        }
+      ],
+      "description": "Represent a classificatory dimension and its visible organization.\n\nParameters\n----------\nname : str | None\n    Dimension name, when identifiable.\ncategories : list[CodedTerm] | None\n    Ordered ungrouped categories.\ncategory_groups : list[CategoryGroup] | None\n    One level of explicit category groups.\npresentation_roles : list[PresentationRole] | None\n    Explicit row and/or column roles.",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The characteristic used to classify, group, or organize observations rather than the quantity being measured. Examples include year, country, sex, sector, and scenario. Repeated series or table headings that apply the same measure to different groups are normally dimension categories, not separate variables.",
+          "examples": [
+            "Country",
+            "Year",
+            "Education Level",
+            "Industry Sector",
+            "Scenario"
+          ],
+          "title": "Name"
+        },
+        "categories": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/CodedTerm"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The explicit labels or values belonging to the dimension, such as Male and Female for a sex dimension or Corporates and Households for a client-sector dimension.",
+          "examples": [
+            [
+              {
+                "source_text": "Male"
+              },
+              {
+                "source_text": "Female"
+              }
+            ],
+            [
+              {
+                "source_text": "Agriculture"
+              },
+              {
+                "source_text": "Manufacturing"
+              },
+              {
+                "source_text": "Services"
+              }
+            ],
+            [
+              {
+                "source_text": "Kenya"
+              },
+              {
+                "source_text": "Uganda"
+              },
+              {
+                "source_text": "Tanzania"
+              }
+            ],
+            [
+              {
+                "source_text": "Low"
+              },
+              {
+                "source_text": "Medium"
+              },
+              {
+                "source_text": "High"
+              }
+            ]
+          ],
+          "title": "Categories",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "http://www.w3.org/2004/02/skos/core#Concept"
+            }
+          ]
+        },
+        "category_groups": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/CategoryGroup"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "One level of explicit category groups.",
+          "examples": [
+            [
+              {
+                "categories": [
+                  {
+                    "source_text": "Arbitrary arrests"
+                  },
+                  {
+                    "source_text": "Abductions"
+                  }
+                ],
+                "name": "Violation of the right to liberty"
+              }
+            ]
+          ],
+          "title": "Category Groups",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "http://www.w3.org/2004/02/skos/core#broader"
+            }
+          ]
+        },
+        "presentation_roles": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/PresentationRole"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "How the dimension organizes a table. `row` means its categories vary downward through rows; `column` means they vary horizontally across columns. Assign the role from the direction in which the categories vary, not from the physical cell containing the dimension label. Do not use these roles for figure axes.",
+          "examples": [
+            [
+              "row"
+            ],
+            [
+              "column"
+            ]
+          ],
+          "title": "Presentation Roles"
+        }
+      },
+      "title": "Dimension",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: name, categories, category_groups."
+      ]
+    },
+    "EntityReference": {
+      "additionalProperties": false,
+      "description": "Represent a named project, organization, source, or component.\n\nParameters\n----------\nname : str\n    Source-visible entity name.\nidentifiers : list[Identifier] | None\n    Assigned identifiers for the entity.",
+      "properties": {
+        "name": {
+          "description": "Source-visible entity name.",
+          "examples": [
+            "World Development Indicators",
+            "DHS",
+            "UNHCR Registration Data",
+            "National Census",
+            "Map Design Unit"
+          ],
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Name",
+          "type": "string"
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Identifier"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Assigned entity identifiers.",
+          "examples": [
+            [
+              {
+                "scheme": "https://example.org/entities",
+                "value": "ENTITY-001"
+              }
+            ]
+          ],
+          "title": "Identifiers"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "EntityReference",
+      "type": "object"
+    },
+    "Financing": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "measures": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "measures"
+          ]
+        },
+        {
+          "properties": {
+            "funders": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "funders"
+          ]
+        },
+        {
+          "properties": {
+            "instruments": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "instruments"
+          ]
+        }
+      ],
+      "description": "Group project-financing measures, funders, and instruments.\n\nParameters\n----------\nmeasures : list[str] | None\n    Financial quantities or funding-related measures.\nfunders : list[EntityReference] | None\n    Named funding sources.\ninstruments : list[CodedTerm] | None\n    Financing mechanisms.",
+      "properties": {
+        "measures": {
+          "anyOf": [
+            {
+              "items": {
+                "minLength": 1,
+                "pattern": "\\S",
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The financial quantity or funding-related measure represented by the snapshot.",
+          "examples": [
+            [
+              "Project Cost"
+            ],
+            [
+              "Disbursement"
+            ],
+            [
+              "Financing Gap"
+            ],
+            [
+              "Budget Allocation"
+            ]
+          ],
+          "title": "Measures"
+        },
+        "funders": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EntityReference"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The organization or funding source providing financial support.",
+          "examples": [
+            [
+              {
+                "name": "IDA"
+              }
+            ],
+            [
+              {
+                "name": "IBRD"
+              }
+            ],
+            [
+              {
+                "name": "Government"
+              }
+            ],
+            [
+              {
+                "name": "European Union"
+              }
+            ]
+          ],
+          "title": "Funders",
+          "x-standards": [
+            {
+              "relationship": "exact",
+              "term": "https://schema.org/funder"
+            }
+          ]
+        },
+        "instruments": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/CodedTerm"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The financing mechanism associated with the represented activity.",
+          "examples": [
+            [
+              {
+                "source_text": "Grant"
+              }
+            ],
+            [
+              {
+                "source_text": "Loan"
+              }
+            ],
+            [
+              {
+                "source_text": "Credit"
+              }
+            ],
+            [
+              {
+                "source_text": "Trust Fund"
+              }
+            ]
+          ],
+          "title": "Instruments",
+          "x-standards": [
+            {
+              "relationship": "close",
+              "term": "https://reference.iatistandard.org/en/iati-standard/203/codelists/financetype/"
+            }
+          ]
+        }
+      },
+      "title": "Financing",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: measures, funders, instruments."
+      ]
+    },
+    "GeographicCoverage": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "scope": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "scope"
+          ]
+        },
+        {
+          "properties": {
+            "locations": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "locations"
+          ]
+        },
+        {
+          "properties": {
+            "level": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "level"
+          ]
+        }
+      ],
+      "description": "Group overall geographic scope, locations, and reporting level.\n\nParameters\n----------\nscope : Place | None\n    Overall geographic coverage or focus.\nlocations : list[GeographicLocation] | None\n    Additional named locations.\nlevel : GeographicLevelTerm | None\n    Administrative, geographic, or reporting level.",
+      "properties": {
+        "scope": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Place"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The overall geographic coverage or focus of the snapshot. Use `locations` for additional places represented within that coverage. A scope may be a country, region, aggregate, or other area and does not by itself state the reporting level.",
+          "examples": [
+            {
+              "m49_code": "001",
+              "name": "Global",
+              "source_text": "Global"
+            },
+            {
+              "iso3_code": "KEN",
+              "name": "Kenya",
+              "source_text": "Kenya"
+            },
+            {
+              "m49_code": "202",
+              "name": "Sub-Saharan Africa",
+              "source_text": "Sub-Saharan Africa"
+            },
+            {
+              "name": "Latin America",
+              "source_text": "Latin America"
+            }
+          ],
+          "x-standards": [
+            {
+              "relationship": "exact",
+              "term": "https://schema.org/spatialCoverage"
+            }
+          ]
+        },
+        "locations": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/GeographicLocation"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Additional named places represented within the snapshot. Record the overall coverage in `scope`, and use each location's `role` for its relation to the data. Assign identifiers to the place they identify; do not copy a parent area's code onto a child location.",
+          "examples": [
+            [
+              {
+                "iso3_code": "UGA",
+                "name": "Uganda"
+              }
+            ],
+            [
+              {
+                "name": "Nairobi"
+              }
+            ],
+            [
+              {
+                "m49_code": "011",
+                "name": "West Africa"
+              }
+            ],
+            [
+              {
+                "iso3_code": "BFA",
+                "name": "Burkina Faso"
+              }
+            ]
+          ],
+          "title": "Locations",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "https://schema.org/spatialCoverage"
+            }
+          ]
+        },
+        "level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeographicLevelTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The geographic granularity at which observations are reported, such as country, province, district, or site. This describes the level of the data, not the overall coverage area, an individual place, or a location's semantic role.",
+          "examples": [
+            {
+              "normalized_value": "country",
+              "source_text": "Country"
+            },
+            {
+              "source_text": "Province"
+            },
+            {
+              "source_text": "District"
+            },
+            {
+              "normalized_value": "site",
+              "source_text": "Facility"
+            }
+          ]
+        }
+      },
+      "title": "GeographicCoverage",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: scope, locations, level."
+      ]
+    },
+    "GeographicLevelTerm": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "normalized_value": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "normalized_value"
+          ]
+        }
+      ],
+      "description": "Represent a known or source-only geographic reporting level.\n\nParameters\n----------\nsource_text : str | None\n    Exact source-visible expression of the geographic level.\nnormalized_value : GeographicLevelValue | None\n    Approved normalized geographic level.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact text visible in the snapshot that explicitly states the geographic level.",
+          "examples": [
+            "Country",
+            "Province",
+            "District",
+            "Facility"
+          ],
+          "title": "Source Text"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GeographicLevelValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Approved normalized geographic level.",
+          "examples": [
+            "country",
+            "administrative_area_1",
+            "site"
+          ]
+        }
+      },
+      "title": "GeographicLevelTerm",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, normalized_value."
+      ]
+    },
+    "GeographicLevelValue": {
+      "description": "Enumerate approved normalized geographic levels.",
+      "enum": [
+        "global",
+        "world_region",
+        "country",
+        "administrative_area_1",
+        "administrative_area_2",
+        "administrative_area_3",
+        "locality",
+        "site"
+      ],
+      "title": "GeographicLevelValue",
+      "type": "string"
+    },
+    "GeographicLocation": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "properties": {
+            "iso3_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "iso3_code"
+          ]
+        },
+        {
+          "properties": {
+            "subdivision_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "subdivision_code"
+          ]
+        },
+        {
+          "properties": {
+            "m49_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "m49_code"
+          ]
+        },
+        {
+          "properties": {
+            "identifiers": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "identifiers"
+          ]
+        }
+      ],
+      "description": "Represent an additional named location and its optional role and type.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\niso3_code : str | None\n    ISO 3166-1 alpha-3 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.\nrole : str | None\n    Explicit source-grounded geographic role.\ntype : CodedTerm | None\n    Physical or administrative type of the named location.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact place expression visible in the snapshot. Preserve the displayed wording here; omit it when the place is inferred from structure or context rather than transcribed.",
+          "examples": [
+            "Global",
+            "Kenya",
+            "Sub-Saharan Africa",
+            "Latin America"
+          ],
+          "title": "Source Text"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Preferred normalized name for the place represented by `source_text` or by an authoritative identifier. This may standardize spelling or abbreviations and need not appear verbatim in the snapshot.",
+          "examples": [
+            "Kenya",
+            "Sub-Saharan Africa",
+            "Philippines"
+          ],
+          "title": "Name"
+        },
+        "iso3_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 3166-1 alpha-3 code for a country or area. Do not use World Bank aggregate or region codes.",
+          "examples": [
+            "KEN",
+            "PHL"
+          ],
+          "title": "Iso3 Code",
+          "x-code-list": {
+            "authority": "ISO",
+            "identifier": "ISO 3166-1",
+            "uri": "https://www.iso.org/iso-3166-country-codes.html"
+          }
+        },
+        "subdivision_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{2}-[A-Z0-9]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 3166-2 subdivision code.",
+          "examples": [
+            "US-CA"
+          ],
+          "title": "Subdivision Code",
+          "x-code-list": {
+            "authority": "ISO",
+            "identifier": "ISO 3166-2",
+            "uri": "https://www.iso.org/iso-3166-country-codes.html"
+          }
+        },
+        "m49_code": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "UN M49 statistical-area code.",
+          "examples": [
+            "002",
+            "202"
+          ],
+          "title": "M49 Code",
+          "x-code-list": {
+            "authority": "United Nations",
+            "identifier": "M49",
+            "uri": "https://unstats.un.org/unsd/methodology/m49/"
+          }
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Identifier"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Other authoritative identifiers.",
+          "examples": [
+            [
+              {
+                "scheme": "ISO 3166-1 alpha-3",
+                "value": "KEN"
+              }
+            ]
+          ],
+          "title": "Identifiers"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The relation of this location to the represented data, such as country of origin, host country, destination, or reporting location. Record only a relation supported by the snapshot; this field does not describe what kind of place it is or the level at which data are reported.",
+          "examples": [
+            "Country of origin",
+            "Host country",
+            "Destination",
+            "Reporting location"
+          ],
+          "title": "Role"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CodedTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The physical or administrative type of a named geographic location represented in the snapshot. This field describes what the location is; use `geographic_coverage.level` for the administrative or spatial level at which the snapshot's data are reported.",
+          "examples": [
+            {
+              "source_text": "Refugee camp"
+            },
+            {
+              "source_text": "Hospital"
+            },
+            {
+              "source_text": "School"
+            },
+            {
+              "source_text": "District"
+            }
+          ]
+        }
+      },
+      "title": "GeographicLocation",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, name, iso3_code, subdivision_code, m49_code, identifiers."
+      ]
+    },
+    "Identifier": {
+      "additionalProperties": false,
+      "description": "Represent a verified identifier and its optional authority context.\n\nParameters\n----------\nvalue : str\n    Identifier exactly as assigned in source evidence or trusted metadata.\nscheme : str | None\n    Verified identifier scheme, when available.\nissuer : str | None\n    Verified issuing agent, when available.\nuri : AnyUrl | None\n    Verified authoritative absolute URI for the identifier.",
+      "properties": {
+        "value": {
+          "description": "Identifier exactly as assigned in the snapshot or trusted metadata. Do not infer or manufacture it from its apparent pattern or from model knowledge.",
+          "examples": [
+            "P171254",
+            "P178944"
+          ],
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Value",
+          "type": "string"
+        },
+        "scheme": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Identifier scheme explicitly supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not infer it from the identifier's apparent pattern or from model knowledge.",
+          "examples": [
+            "World Bank project ID"
+          ],
+          "title": "Scheme"
+        },
+        "issuer": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Issuing agent explicitly supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not infer it from model knowledge.",
+          "examples": [
+            "World Bank"
+          ],
+          "title": "Issuer"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "format": "uri",
+              "minLength": 1,
+              "pattern": "^[A-Za-z][A-Za-z0-9+.-]*:(?://(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|:)*@)?(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})*|\\[[A-Za-z0-9:.!$&'()*+,;=_~-]+\\])(?::[0-9]*)?(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|/(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*)?|(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])+(?:/(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])*)*|)(?:\\?(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?(?:#(?:(?:(?:[A-Za-z0-9._~!$&'()*+,;=-]|%[0-9A-Fa-f]{2})|[:@])|[/?])*)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Authoritative absolute URI supplied by the snapshot, trusted metadata, or configured and verified enrichment. Do not construct or infer it from model knowledge.",
+          "examples": [
+            "https://example.org/projects/P171254"
+          ],
+          "title": "Uri"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "Identifier",
+      "type": "object"
+    },
+    "Language": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "tag": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "tag"
+          ]
+        }
+      ],
+      "description": "Represent a snapshot language using source text and/or BCP 47.\n\nParameters\n----------\nsource_text : str | None\n    Displayed language label, when present.\ntag : str | None\n    Canonical BCP 47 language tag.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact text visible in the snapshot that explicitly names the language. Omit it when the language is inferred from the snapshot content.",
+          "examples": [
+            "English",
+            "French",
+            "Arabic"
+          ],
+          "title": "Source Text"
+        },
+        "tag": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "^(?:(?:[A-Za-z]{2,3}(?:-[A-Za-z]{3}){0,3}|[A-Za-z]{4}|[A-Za-z]{5,8})(?:-[A-Za-z]{4})?(?:-(?:[A-Za-z]{2}|[0-9]{3}))?(?:-(?:[A-Za-z0-9]{5,8}|[0-9][A-Za-z0-9]{3}))*(?:-[0-9A-WY-Za-wy-z](?:-[A-Za-z0-9]{2,8})+)*(?:-[xX](?:-[A-Za-z0-9]{1,8})+)?|[xX](?:-[A-Za-z0-9]{1,8})+|en-GB-oed|i-ami|i-bnn|i-default|i-enochian|i-hak|i-klingon|i-lux|i-mingo|i-navajo|i-pwn|i-tao|i-tay|i-tsu|sgn-BE-FR|sgn-BE-NL|sgn-CH-DE|art-lojban|cel-gaulish|no-bok|no-nyn|zh-guoyu|zh-hakka|zh-min|zh-min-nan|zh-xiang)$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Canonical BCP 47 language tag.",
+          "examples": [
+            "en",
+            "fr",
+            "ar"
+          ],
+          "title": "Tag",
+          "x-code-list": {
+            "authority": "IETF/IANA",
+            "identifier": "BCP 47",
+            "uri": "https://www.iana.org/assignments/language-subtag-registry/"
+          }
+        }
+      },
+      "title": "Language",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, tag."
+      ]
+    },
+    "MultiAxisAssignment": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "dimension": {
+                "const": "x"
+              }
+            },
+            "required": [
+              "dimension"
+            ]
+          },
+          "then": {
+            "properties": {
+              "position": {
+                "enum": [
+                  "top",
+                  "bottom"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "dimension": {
+                "const": "y"
+              }
+            },
+            "required": [
+              "dimension"
+            ]
+          },
+          "then": {
+            "properties": {
+              "position": {
+                "enum": [
+                  "left",
+                  "right"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "description": "Bind a variable to one distinct axis in a multi-axis graph.\n\nParameters\n----------\ndimension : AxisDimension\n    Cartesian dimension of the axis.\nposition : AxisPosition\n    Side of the plot where the axis appears.\nposition_index : int\n    One-based order from the plotting area outward on that side.",
+      "properties": {
+        "dimension": {
+          "$ref": "#/$defs/AxisDimension",
+          "description": "Cartesian dimension of the assigned axis.",
+          "examples": [
+            "x",
+            "y"
+          ]
+        },
+        "position": {
+          "$ref": "#/$defs/AxisPosition",
+          "description": "Side of the plot where the assigned axis appears.",
+          "examples": [
+            "top",
+            "bottom",
+            "left",
+            "right"
+          ]
+        },
+        "position_index": {
+          "description": "One-based order from the plotting area outward among axes on the same side.",
+          "examples": [
+            1,
+            2
+          ],
+          "exclusiveMinimum": 0,
+          "title": "Position Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "dimension",
+        "position",
+        "position_index"
+      ],
+      "title": "MultiAxisAssignment",
+      "type": "object",
+      "x-validation-rules": [
+        "x axes use top or bottom; y axes use left or right."
+      ]
+    },
+    "Place": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "properties": {
+            "iso3_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "iso3_code"
+          ]
+        },
+        {
+          "properties": {
+            "subdivision_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "subdivision_code"
+          ]
+        },
+        {
+          "properties": {
+            "m49_code": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "m49_code"
+          ]
+        },
+        {
+          "properties": {
+            "identifiers": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "identifiers"
+          ]
+        }
+      ],
+      "description": "Represent a source-grounded place with optional standard identifiers.\n\nParameters\n----------\nsource_text : str | None\n    Displayed place expression.\nname : str | None\n    Preferred place name.\niso3_code : str | None\n    ISO 3166-1 alpha-3 country code.\nsubdivision_code : str | None\n    ISO 3166-2 subdivision code.\nm49_code : str | None\n    UN M49 statistical-area code.\nidentifiers : list[Identifier] | None\n    Other authoritative identifiers.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact place expression visible in the snapshot. Preserve the displayed wording here; omit it when the place is inferred from structure or context rather than transcribed.",
+          "examples": [
+            "Global",
+            "Kenya",
+            "Sub-Saharan Africa",
+            "Latin America"
+          ],
+          "title": "Source Text"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Preferred normalized name for the place represented by `source_text` or by an authoritative identifier. This may standardize spelling or abbreviations and need not appear verbatim in the snapshot.",
+          "examples": [
+            "Kenya",
+            "Sub-Saharan Africa",
+            "Philippines"
+          ],
+          "title": "Name"
+        },
+        "iso3_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 3166-1 alpha-3 code for a country or area. Do not use World Bank aggregate or region codes.",
+          "examples": [
+            "KEN",
+            "PHL"
+          ],
+          "title": "Iso3 Code",
+          "x-code-list": {
+            "authority": "ISO",
+            "identifier": "ISO 3166-1",
+            "uri": "https://www.iso.org/iso-3166-country-codes.html"
+          }
+        },
+        "subdivision_code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z]{2}-[A-Z0-9]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ISO 3166-2 subdivision code.",
+          "examples": [
+            "US-CA"
+          ],
+          "title": "Subdivision Code",
+          "x-code-list": {
+            "authority": "ISO",
+            "identifier": "ISO 3166-2",
+            "uri": "https://www.iso.org/iso-3166-country-codes.html"
+          }
+        },
+        "m49_code": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9]{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "UN M49 statistical-area code.",
+          "examples": [
+            "002",
+            "202"
+          ],
+          "title": "M49 Code",
+          "x-code-list": {
+            "authority": "United Nations",
+            "identifier": "M49",
+            "uri": "https://unstats.un.org/unsd/methodology/m49/"
+          }
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Identifier"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Other authoritative identifiers.",
+          "examples": [
+            [
+              {
+                "scheme": "ISO 3166-1 alpha-3",
+                "value": "KEN"
+              }
+            ]
+          ],
+          "title": "Identifiers"
+        }
+      },
+      "title": "Place",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, name, iso3_code, subdivision_code, m49_code, identifiers."
+      ]
+    },
+    "PresentationRole": {
+      "description": "Identify how a dimension organizes a table.\n\n`row` means the dimension's categories vary downward through table rows.\n`column` means they vary horizontally across table columns. The physical\nplacement of a label in the first column does not by itself make its\ndimension a column dimension.",
+      "enum": [
+        "row",
+        "column"
+      ],
+      "title": "PresentationRole",
+      "type": "string"
+    },
+    "Project": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "properties": {
+            "identifiers": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "identifiers"
+          ]
+        },
+        {
+          "properties": {
+            "components": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "components"
+          ]
+        }
+      ],
+      "description": "Represent project, program, operation, or initiative context.\n\nParameters\n----------\nname : str | None\n    Associated project-context name.\nidentifiers : list[Identifier] | None\n    Formal project or operation identifiers.\ncomponents : list[EntityReference] | None\n    Explicitly identified subordinate components.",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The project, program, operation, or initiative associated with the snapshot.",
+          "examples": [
+            "Niger - COVID-19 Emergency Response Project",
+            "Jordan Health Sector Reform Project",
+            "Lebanon - Health Resilience Project"
+          ],
+          "title": "Name",
+          "x-standards": [
+            {
+              "relationship": "exact",
+              "term": "https://schema.org/name"
+            }
+          ]
+        },
+        "identifiers": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Identifier"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The formal identifier assigned to the associated project or operation.",
+          "examples": [
+            [
+              {
+                "value": "P171254"
+              }
+            ],
+            [
+              {
+                "value": "P178944"
+              }
+            ]
+          ],
+          "title": "Identifiers",
+          "x-standards": [
+            {
+              "relationship": "standard_broader",
+              "term": "https://schema.org/identifier"
+            }
+          ]
+        },
+        "components": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EntityReference"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The project component, workstream, or results area represented by the snapshot.",
+          "examples": [
+            [
+              {
+                "name": "Component 3: Project management"
+              }
+            ],
+            [
+              {
+                "name": "Results Area 1"
+              }
+            ]
+          ],
+          "title": "Components",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "https://schema.org/hasPart"
+            }
+          ]
+        }
+      },
+      "title": "Project",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: name, identifiers, components."
+      ]
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "sources": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "sources"
+          ]
+        },
+        {
+          "properties": {
+            "attributions": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "attributions"
+          ]
+        }
+      ],
+      "description": "Separate derivation sources from credited agents.\n\nParameters\n----------\nsources : list[EntityReference] | None\n    Entities from which represented data derive.\nattributions : list[Attribution] | None\n    Agents explicitly credited for the snapshot artifact.",
+      "properties": {
+        "sources": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/EntityReference"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Represented-data derivation sources.",
+          "examples": [
+            [
+              {
+                "name": "World Development Indicators"
+              }
+            ],
+            [
+              {
+                "name": "DHS"
+              }
+            ],
+            [
+              {
+                "name": "UNHCR Registration Data"
+              }
+            ],
+            [
+              {
+                "name": "National Census"
+              }
+            ]
+          ],
+          "title": "Sources",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "http://www.w3.org/ns/prov#wasDerivedFrom"
+            },
+            {
+              "relationship": "close",
+              "term": "http://purl.org/dc/terms/source"
+            }
+          ]
+        },
+        "attributions": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Attribution"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Agents explicitly credited for the snapshot artifact; include a role when it is explicit.",
+          "examples": [
+            [
+              {
+                "name": "Map Design Unit",
+                "role": {
+                  "source_text": "Map maker"
+                }
+              }
+            ]
+          ],
+          "title": "Attributions",
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "http://www.w3.org/ns/prov#wasAttributedTo"
+            }
+          ]
+        }
+      },
+      "title": "Provenance",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: sources, attributions."
+      ]
+    },
+    "ReportingIntervalTerm": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "normalized_value": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "normalized_value"
+          ]
+        }
+      ],
+      "description": "Represent a known or source-only reporting interval.\n\nParameters\n----------\nsource_text : str | None\n    Exact source-visible expression of the reporting interval.\nnormalized_value : ReportingIntervalValue | None\n    Approved normalized reporting interval.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact text visible in the snapshot that explicitly states the reporting interval.",
+          "examples": [
+            "Annual",
+            "Monthly",
+            "Quarterly",
+            "Daily"
+          ],
+          "title": "Source Text"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReportingIntervalValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Approved normalized reporting interval.",
+          "examples": [
+            "annual",
+            "monthly",
+            "quarterly"
+          ]
+        }
+      },
+      "title": "ReportingIntervalTerm",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, normalized_value."
+      ]
+    },
+    "ReportingIntervalValue": {
+      "description": "Enumerate approved normalized reporting intervals.",
+      "enum": [
+        "hourly",
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "semiannual",
+        "annual"
+      ],
+      "title": "ReportingIntervalValue",
+      "type": "string"
+    },
+    "StatisticalFormTerm": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "normalized_value": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "normalized_value"
+          ]
+        }
+      ],
+      "description": "Represent a known or source-only statistical form.\n\nParameters\n----------\nsource_text : str | None\n    Exact source-visible expression of the statistical form.\nnormalized_value : StatisticalFormValue | None\n    Approved normalized statistical form.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact text or symbol visible in the snapshot that explicitly expresses the mathematical or statistical form of the values, such as count, percentage, rate, index, sum, or mean. A percent sign may instead be recorded as the variable's unit when the snapshot does not support a more specific form.",
+          "examples": [
+            "Count",
+            "Percentage",
+            "Rate",
+            "Index",
+            "Average"
+          ],
+          "title": "Source Text"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StatisticalFormValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Approved mathematical or statistical form of the values. Use `rate` for a change, incidence, or other rate; use `percentage` for a share or proportion expressed per hundred. Do not select a form solely because the unit is `%`.",
+          "examples": [
+            "count",
+            "percentage",
+            "arithmetic_mean"
+          ]
+        }
+      },
+      "title": "StatisticalFormTerm",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, normalized_value."
+      ]
+    },
+    "StatisticalFormValue": {
+      "description": "Enumerate approved normalized statistical forms.",
+      "enum": [
+        "observed_value",
+        "count",
+        "arithmetic_mean",
+        "geometric_mean",
+        "weighted_mean",
+        "weighted_value",
+        "median",
+        "sum",
+        "weighted_sum",
+        "minimum",
+        "maximum",
+        "range",
+        "interquartile_range",
+        "variance",
+        "standard_deviation",
+        "standard_error",
+        "mean_absolute_deviation",
+        "median_absolute_deviation",
+        "skewness",
+        "kurtosis",
+        "lower_bound",
+        "upper_bound",
+        "score",
+        "rank",
+        "index",
+        "rate",
+        "harmonic_mean",
+        "trimmed_mean",
+        "mode",
+        "coefficient_of_variation",
+        "valid_cases",
+        "invalid_cases",
+        "percentage_of_valid_cases",
+        "percentage_of_invalid_cases",
+        "quartile",
+        "quintile",
+        "decile",
+        "percentile",
+        "ratio",
+        "proportion",
+        "percentage",
+        "confidence_interval",
+        "coefficient",
+        "p_value",
+        "change"
+      ],
+      "title": "StatisticalFormValue",
+      "type": "string"
+    },
+    "TemporalCoverage": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "period": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "period"
+          ]
+        },
+        {
+          "properties": {
+            "reporting_interval": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "reporting_interval"
+          ]
+        }
+      ],
+      "description": "Group represented-data time and reporting interval.\n\nParameters\n----------\nperiod : TemporalExpression | None\n    Represented-data temporal expression.\nreporting_interval : ReportingIntervalTerm | None\n    Interval between successive represented-data time points.",
+      "properties": {
+        "period": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TemporalExpression"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The period or date range represented by the data.\n\nThis field describes **when the represented data apply**. It does not describe when the snapshot artifact or parent document was created, prepared, issued, published, revised, or retrieved. When an explicit artifact date appears only as part of a footer or provenance statement, preserve the complete statement in `interpretive_notes` rather than treating the date as `temporal_coverage.period`.",
+          "examples": [
+            {
+              "end": "2020",
+              "precision": "year",
+              "relation": "interval",
+              "source_text": "2015–2020",
+              "start": "2015"
+            },
+            {
+              "source_text": "FY2023"
+            },
+            {
+              "precision": "month",
+              "relation": "point",
+              "source_text": "January 2024",
+              "start": "2024-01"
+            }
+          ],
+          "x-standards": [
+            {
+              "relationship": "exact",
+              "term": "https://schema.org/temporalCoverage"
+            },
+            {
+              "relationship": "close",
+              "term": "http://purl.org/dc/terms/temporal"
+            }
+          ]
+        },
+        "reporting_interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReportingIntervalTerm"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The interval between successive time points represented by the data, such as hourly, daily, monthly, quarterly, or annual. This describes the spacing of the represented data, not the document's publication schedule or the overall period covered.",
+          "examples": [
+            {
+              "normalized_value": "annual",
+              "source_text": "Annual"
+            },
+            {
+              "normalized_value": "monthly",
+              "source_text": "Monthly"
+            },
+            {
+              "normalized_value": "quarterly",
+              "source_text": "Quarterly"
+            },
+            {
+              "normalized_value": "daily",
+              "source_text": "Daily"
+            }
+          ]
+        }
+      },
+      "title": "TemporalCoverage",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: period, reporting_interval."
+      ]
+    },
+    "TemporalExpression": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "relation": {
+                "type": "null"
+              },
+              "precision": {
+                "type": "null"
+              }
+            }
+          },
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "start": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "start"
+                ]
+              },
+              {
+                "properties": {
+                  "end": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "end"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "relation": {
+                "not": {
+                  "type": "null"
+                }
+              },
+              "precision": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "relation",
+              "precision"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "relation": {
+                "const": "point"
+              }
+            },
+            "required": [
+              "relation"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "start": {
+                    "not": {
+                      "type": "null"
+                    }
+                  },
+                  "end": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "start"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "relation": {
+                "const": "interval"
+              }
+            },
+            "required": [
+              "relation"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "start": {
+                    "not": {
+                      "type": "null"
+                    }
+                  },
+                  "end": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "start",
+                  "end"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "relation": {
+                "const": "open_ended_interval"
+              }
+            },
+            "required": [
+              "relation"
+            ]
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "start": {
+                    "not": {
+                      "type": "null"
+                    }
+                  },
+                  "end": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "start"
+                ]
+              },
+              {
+                "properties": {
+                  "end": {
+                    "not": {
+                      "type": "null"
+                    }
+                  },
+                  "start": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "end"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "precision": {
+                "const": "year"
+              }
+            },
+            "required": [
+              "precision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "start": {
+                "pattern": "^[0-9]{4}$"
+              },
+              "end": {
+                "pattern": "^[0-9]{4}$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "precision": {
+                "const": "month"
+              }
+            },
+            "required": [
+              "precision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "start": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])$"
+              },
+              "end": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "precision": {
+                "const": "day"
+              }
+            },
+            "required": [
+              "precision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "start": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$"
+              },
+              "end": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "precision": {
+                "const": "datetime"
+              }
+            },
+            "required": [
+              "precision"
+            ]
+          },
+          "then": {
+            "properties": {
+              "start": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9](?:[.,][0-9]+)?)?(?:Z|[+-][0-9]{2}:[0-5][0-9])$"
+              },
+              "end": {
+                "pattern": "^[0-9]{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9](?:[.,][0-9]+)?)?(?:Z|[+-][0-9]{2}:[0-5][0-9])$"
+              }
+            }
+          }
+        }
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "start": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "start"
+          ]
+        },
+        {
+          "properties": {
+            "end": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "end"
+          ]
+        }
+      ],
+      "description": "Represent source-visible time with optional normalized bounds.\n\nParameters\n----------\nsource_text : str | None\n    Complete time expression explicitly visible in the snapshot.\nstart : str | None\n    Normalized starting value.\nend : str | None\n    Normalized ending value.\nrelation : TemporalRelation | None\n    Relationship between the normalized bounds.\nprecision : TemporalPrecision | None\n    Precision shared by the normalized bounds.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact complete time expression visible in the snapshot. Omit it when normalized bounds are inferred from separate labels or structure rather than transcribed as one expression.",
+          "examples": [
+            "2015–2020",
+            "FY2023",
+            "January 2024"
+          ],
+          "title": "Source Text"
+        },
+        "start": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Normalized start.",
+          "examples": [
+            "2015",
+            "2024-01",
+            "2024-01-01T12:00:00.1Z"
+          ],
+          "title": "Start"
+        },
+        "end": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Normalized end.",
+          "examples": [
+            "2020",
+            "2024-03"
+          ],
+          "title": "End"
+        },
+        "relation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TemporalRelation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Relationship between normalized bounds. `point` represents a single represented-data time point and requires `start` only. `interval` represents a bounded period and requires `start` and `end`. `open_ended_interval` represents a period for which the snapshot explicitly supports only one temporal boundary. Use `start` for expressions such as “since 2015” and `end` for expressions such as “through 2020.” Do not use `open_ended_interval` merely because extraction failed to identify the other boundary.",
+          "examples": [
+            "interval",
+            "point",
+            "open_ended_interval"
+          ]
+        },
+        "precision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TemporalPrecision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Precision of normalized bounds.",
+          "examples": [
+            "year",
+            "month",
+            "day",
+            "datetime"
+          ]
+        }
+      },
+      "title": "TemporalExpression",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one of source_text, start, or end must be non-null.",
+        "Normalized bounds require relation and precision; source-only expressions omit both.",
+        "point requires start only; interval requires both bounds; open_ended_interval requires exactly one bound.",
+        "Bounds must match the declared precision. Python additionally validates calendar dates and chronological ordering."
+      ]
+    },
+    "TemporalPrecision": {
+      "description": "Describe the precision of normalized temporal bounds.",
+      "enum": [
+        "year",
+        "month",
+        "day",
+        "datetime"
+      ],
+      "title": "TemporalPrecision",
+      "type": "string"
+    },
+    "TemporalRelation": {
+      "description": "Describe how normalized temporal bounds form an expression.\n\n`point` represents a single time point and requires `start` only.\n`interval` represents a bounded period and requires `start` and `end`.\n`open_ended_interval` represents a period for which the snapshot\nexplicitly supports only one temporal boundary.",
+      "enum": [
+        "point",
+        "interval",
+        "open_ended_interval"
+      ],
+      "title": "TemporalRelation",
+      "type": "string"
+    },
+    "Unit": {
+      "additionalProperties": false,
+      "description": "Represent a displayed unit and its optional normalized qualifiers.\n\nParameters\n----------\nsource_text : str\n    Displayed unit expression.\ncode : str | None\n    Exact UN/CEFACT Recommendation 20 code.\nmultiplier_exponent : int | None\n    SDMX unit-multiplier exponent.",
+      "properties": {
+        "source_text": {
+          "description": "Exact text or symbol visible in the snapshot that states how quantitative values are expressed, such as `%`, `USD`, people, or kilometers. This is the displayed unit, not the mathematical or statistical form of the values; record forms such as rate, percentage share, index, sum, or mean in `statistical_forms` when supported.",
+          "examples": [
+            "Percent",
+            "USD",
+            "People",
+            "Kilometers"
+          ],
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Source Text",
+          "type": "string"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Z0-9]{1,3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact UN/CEFACT Recommendation 20 common code.",
+          "examples": [
+            "P1",
+            "KMT"
+          ],
+          "title": "Code",
+          "x-code-list": {
+            "authority": "UNECE",
+            "identifier": "Recommendation 20",
+            "uri": "https://unece.org/trade/uncefact/cl-recommendations"
+          }
+        },
+        "multiplier_exponent": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Base-10 SDMX unit-multiplier exponent.",
+          "examples": [
+            3,
+            6,
+            9
+          ],
+          "title": "Multiplier Exponent",
+          "x-code-list": {
+            "authority": "SDMX",
+            "identifier": "CL_UNIT_MULT",
+            "release": "1.1",
+            "uri": "https://registry.sdmx.org/items/codelist.html"
+          }
+        }
+      },
+      "required": [
+        "source_text"
+      ],
+      "title": "Unit",
+      "type": "object"
+    },
+    "Variable": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "analytical_roles": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "analytical_roles"
+                ]
+              },
+              {
+                "properties": {
+                  "axis_roles": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "axis_roles"
+                ]
+              },
+              {
+                "properties": {
+                  "multi_axis_assignments": {
+                    "not": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "required": [
+                  "multi_axis_assignments"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "name": {
+                "not": {
+                  "type": "null"
+                }
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        }
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "name": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "properties": {
+            "unit": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "unit"
+          ]
+        },
+        {
+          "properties": {
+            "currency": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "currency"
+          ]
+        },
+        {
+          "properties": {
+            "statistical_forms": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "statistical_forms"
+          ]
+        }
+      ],
+      "description": "Represent a measured variable and its applicable qualifiers.\n\nParameters\n----------\nname : str | None\n    Variable, indicator, metric, or measured concept, when identifiable.\nunit : Unit | None\n    Applicable unit.\ncurrency : Currency | None\n    Applicable currency.\nanalytical_roles : list[AnalyticalRole] | None\n    Explicit roles in a statistical analysis.\naxis_roles : list[AxisRole] | None\n    Ordinary Cartesian axis roles in a figure.\nmulti_axis_assignments : list[MultiAxisAssignment] | None\n    Explicit assignments to distinct axes in a multi-axis graph.\nstatistical_forms : list[StatisticalFormTerm] | None\n    Applicable statistical forms.",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The measured quantity, indicator, metric, or outcome represented by the values. Use a variable for what is measured; use a dimension for categories that classify, group, or organize observations. For example, in a table of total loans by client sector, `Total loans` is a variable while `Corporates`, `Households`, and `Other clients` are categories of a client-sector dimension. Do not use `%`, `Value`, `Unknown`, or another unit or placeholder as the name.",
+          "examples": [
+            "GDP Growth",
+            "Inflation",
+            "Literacy Rate",
+            "Refugee Population"
+          ],
+          "title": "Name",
+          "x-standards": [
+            {
+              "relationship": "close",
+              "term": "https://schema.org/variableMeasured"
+            }
+          ]
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Unit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "How the variable's quantitative values are expressed, such as `%`, USD, people, or kilometers. The unit is distinct from `statistical_forms`, which describes whether values are a count, rate, percentage share, index, sum, mean, or another mathematical form.",
+          "examples": [
+            {
+              "code": "P1",
+              "source_text": "Percent"
+            },
+            {
+              "source_text": "USD"
+            },
+            {
+              "source_text": "People"
+            },
+            {
+              "code": "KMT",
+              "source_text": "Kilometers"
+            }
+          ],
+          "x-standards": [
+            {
+              "relationship": "related_structural",
+              "term": "https://schema.org/unitCode"
+            }
+          ]
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Currency"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The currency denomination used for monetary values.",
+          "examples": [
+            {
+              "code": "USD",
+              "source_text": "USD"
+            },
+            {
+              "code": "EUR",
+              "source_text": "EUR"
+            },
+            {
+              "code": "JPY",
+              "source_text": "JPY"
+            }
+          ],
+          "x-standards": [
+            {
+              "relationship": "close",
+              "term": "https://schema.org/currency"
+            }
+          ]
+        },
+        "analytical_roles": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AnalyticalRole"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Explicit roles in a statistical analysis or analytical table. Use `outcome` for the dependent or response variable, `predictor` for an explanatory or independent variable, `control` for an adjustment covariate, and `instrumental` only for a variable explicitly identified as an instrument. Do not derive these roles merely from row, column, or axis position.",
+          "examples": [
+            [
+              "outcome"
+            ],
+            [
+              "predictor"
+            ],
+            [
+              "control"
+            ],
+            [
+              "instrumental"
+            ]
+          ],
+          "title": "Analytical Roles"
+        },
+        "axis_roles": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AxisRole"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Ordinary Cartesian axis roles in a figure. Use `x_axis` for a variable encoded on the horizontal axis and `y_axis` for one encoded on the vertical axis. Do not use this field for analytical-table roles or table row and column organization.",
+          "examples": [
+            [
+              "x_axis"
+            ],
+            [
+              "y_axis"
+            ]
+          ],
+          "title": "Axis Roles"
+        },
+        "multi_axis_assignments": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/MultiAxisAssignment"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Assignments to distinct Cartesian axes in a multi-axis graph. Use this field only when variables are assigned to different axes of the same dimension and the side or outward position distinguishes them. Use `axis_roles` for an ordinary single or shared x- or y-axis. `position_index` is 1 for the axis nearest the plotting area on a given side and increases outward.",
+          "examples": [
+            [
+              {
+                "dimension": "y",
+                "position": "left",
+                "position_index": 1
+              }
+            ],
+            [
+              {
+                "dimension": "y",
+                "position": "right",
+                "position_index": 1
+              }
+            ]
+          ],
+          "title": "Multi Axis Assignments"
+        },
+        "statistical_forms": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/StatisticalFormTerm"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The mathematical or statistical form of the variable's values. A rate describes change, incidence, or another quantity relative to a base; a percentage describes a share or proportion per hundred. The displayed symbol `%` belongs in `unit`; select a statistical form only when the snapshot supports it.",
+          "examples": [
+            [
+              {
+                "normalized_value": "count",
+                "source_text": "Count"
+              }
+            ],
+            [
+              {
+                "normalized_value": "percentage",
+                "source_text": "Percentage"
+              }
+            ],
+            [
+              {
+                "normalized_value": "rate",
+                "source_text": "Rate"
+              }
+            ],
+            [
+              {
+                "normalized_value": "index",
+                "source_text": "Index"
+              }
+            ],
+            [
+              {
+                "source_text": "Average"
+              }
+            ]
+          ],
+          "title": "Statistical Forms",
+          "x-standards": [
+            {
+              "relationship": "close",
+              "term": "https://schema.org/statType"
+            }
+          ]
+        }
+      },
+      "title": "Variable",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: name, unit, currency, statistical_forms.",
+        "Analytical roles, axis roles, and multi-axis assignments require a non-null variable name."
+      ]
+    },
+    "VisualizationTypeTerm": {
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "properties": {
+            "source_text": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "source_text"
+          ]
+        },
+        {
+          "properties": {
+            "normalized_value": {
+              "not": {
+                "type": "null"
+              }
+            }
+          },
+          "required": [
+            "normalized_value"
+          ]
+        }
+      ],
+      "description": "Represent a known or source-only visualization type.\n\nParameters\n----------\nsource_text : str | None\n    Exact source-visible name of the visualization type.\nnormalized_value : VisualizationTypeValue | None\n    Approved normalized visualization type.",
+      "properties": {
+        "source_text": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "pattern": "\\S",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Exact text visible in the snapshot that explicitly names the visualization type.",
+          "examples": [
+            "Bar chart",
+            "Line chart",
+            "Table",
+            "Map",
+            "Heatmap",
+            "Composite figure: line charts and map"
+          ],
+          "title": "Source Text"
+        },
+        "normalized_value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VisualizationTypeValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Approved normalized visualization type.",
+          "examples": [
+            "bar_chart",
+            "table",
+            "composite_figure"
+          ]
+        }
+      },
+      "title": "VisualizationTypeTerm",
+      "type": "object",
+      "x-validation-rules": [
+        "At least one non-null value is required: source_text, normalized_value."
+      ]
+    },
+    "VisualizationTypeValue": {
+      "description": "Enumerate approved normalized visualization types.",
+      "enum": [
+        "table",
+        "bar_chart",
+        "line_chart",
+        "area_chart",
+        "pie_chart",
+        "donut_chart",
+        "scatter_plot",
+        "bubble_chart",
+        "dot_plot",
+        "histogram",
+        "density_plot",
+        "heatmap",
+        "box_plot",
+        "violin_plot",
+        "error_bar",
+        "error_band",
+        "radar_chart",
+        "treemap",
+        "map",
+        "choropleth_map",
+        "symbol_map",
+        "network_diagram",
+        "flow_diagram",
+        "timeline",
+        "diagram",
+        "infographic",
+        "dashboard",
+        "composite_figure"
+      ],
+      "title": "VisualizationTypeValue",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Represent canonical semantic metadata for one data snapshot.\n\nParameters\n----------\ntitle : str | None\n    Primary title, caption, or heading.\ndocument_label : str | None\n    Label assigned within the parent source document.\nsubject_domains : list[str] | None\n    Broad thematic, policy, or sectoral domains.\nsubject_summary : str | None\n    Concise analytical summary.\npanel_titles : list[str] | None\n    Ordered explicit panel titles.\nvariables : list[Variable] | None\n    Measured concepts and their qualifiers.\ndimensions : list[Dimension] | None\n    Classificatory dimensions and visible organization.\npopulation_group : str | None\n    Human population represented by the data.\nvisualization_types : list[VisualizationTypeTerm] | None\n    Visible visualization forms.\ntemporal_coverage : TemporalCoverage | None\n    Represented-data time and reporting interval.\ngeographic_coverage : GeographicCoverage | None\n    Geographic scope, locations, and level.\ncomparisons : list[str] | None\n    Explicit comparisons or named comparators.\nprovenance : Provenance | None\n    Derivation sources and artifact attributions.\nlanguages : list[Language] | None\n    Languages used within the snapshot.\ninterpretive_notes : list[str] | None\n    Complete source-visible interpretive statements.\nproject : Project | None\n    Associated project or operational context.\nintervention_types : list[str] | None\n    Represented interventions or activities.\nfinancing : Financing | None\n    Project-financing context.\nanalysis_methods : list[str] | None\n    Explicit analytical methods.\ndata_collection_methods : list[CodedTerm] | None\n    Explicit data-collection methods.",
+  "properties": {
+    "title": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "pattern": "\\S",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The primary title, caption, or heading that identifies the data snapshot.",
+      "examples": [
+        "Inflation Rate by Country",
+        "Annual Government Expenditure",
+        "Monthly labor income in Afghanistan and remittances from abroad",
+        "Table 6: Determinants of illegal land reallocation at village level"
+      ],
+      "title": "Title",
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "http://purl.org/dc/terms/title"
+        },
+        {
+          "relationship": "exact",
+          "term": "https://schema.org/name"
+        }
+      ]
+    },
+    "document_label": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "pattern": "\\S",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "An exact visible label assigned to the snapshot within its source document, such as `Table 3`, `Figure 4.2`, or `Annex B`. Do not use a title, caption, page number, filename, or identifier inferred from document position.",
+      "examples": [
+        "Figure 3",
+        "Table 4.2",
+        "Annex B",
+        "Exhibit 7"
+      ],
+      "title": "Document Label",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/label.html"
+        },
+        {
+          "relationship": "standard_broader",
+          "term": "https://schema.org/identifier"
+        }
+      ]
+    },
+    "subject_domains": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The broad thematic, policy, or sectoral domain represented by the snapshot.",
+      "examples": [
+        [
+          "Education"
+        ],
+        [
+          "Health"
+        ],
+        [
+          "Macroeconomics"
+        ],
+        [
+          "Agriculture"
+        ],
+        [
+          "Forced Displacement"
+        ]
+      ],
+      "title": "Subject Domains",
+      "x-standards": [
+        {
+          "relationship": "standard_broader",
+          "term": "http://purl.org/dc/terms/subject"
+        },
+        {
+          "relationship": "standard_broader",
+          "term": "https://schema.org/about"
+        }
+      ]
+    },
+    "subject_summary": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "pattern": "\\S",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "A concise summary describing the primary analytical subject or purpose of the snapshot.",
+      "examples": [
+        "Trends in primary school enrollment",
+        "Distribution of humanitarian funding",
+        "Comparison of poverty rates across regions"
+      ],
+      "title": "Subject Summary",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://schema.org/abstract"
+        },
+        {
+          "relationship": "standard_broader",
+          "term": "http://purl.org/dc/terms/description"
+        }
+      ]
+    },
+    "panel_titles": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The title or heading of an individual panel within a multi-panel snapshot.\n\nPopulate only when panel titles are explicitly present.",
+      "examples": [
+        [
+          "(A) Poverty Rate"
+        ],
+        [
+          "(B) Literacy Rate"
+        ],
+        [
+          "Monthly Returns"
+        ]
+      ],
+      "title": "Panel Titles",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://jats.nlm.nih.gov/publishing/tag-library/1.3/element/fig-group.html"
+        },
+        {
+          "relationship": "related_structural",
+          "term": "https://schema.org/hasPart"
+        }
+      ]
+    },
+    "variables": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Variable"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Measured quantities, indicators, metrics, or outcomes and their applicable qualifiers. Use variables for what is measured and dimensions for the characteristics that classify or organize observations. Populate `name` when the measured concept can be identified; otherwise omit it rather than using a unit, `%`, `Value`, `Unknown`, or another placeholder. Retain an unnamed variable only when it has a unit, currency, or statistical form. Analytical roles, axis roles, and multi-axis assignments require a named variable. Repeat shared qualifiers on every variable to which they apply.",
+      "examples": [
+        [
+          {
+            "name": "GDP Growth"
+          }
+        ],
+        [
+          {
+            "name": "Inflation"
+          }
+        ],
+        [
+          {
+            "name": "Literacy Rate"
+          }
+        ],
+        [
+          {
+            "name": "Refugee Population"
+          }
+        ],
+        [
+          {
+            "name": null,
+            "unit": {
+              "source_text": "%"
+            }
+          }
+        ],
+        [
+          {
+            "currency": {
+              "code": "USD",
+              "source_text": "US$"
+            },
+            "name": "Revenue",
+            "unit": {
+              "multiplier_exponent": 6,
+              "source_text": "US$ millions"
+            }
+          },
+          {
+            "currency": {
+              "code": "USD",
+              "source_text": "US$"
+            },
+            "name": "Operating cost",
+            "unit": {
+              "multiplier_exponent": 6,
+              "source_text": "US$ millions"
+            }
+          }
+        ]
+      ],
+      "title": "Variables",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://schema.org/variableMeasured"
+        },
+        {
+          "relationship": "close",
+          "term": "https://ddialliance.org/Specification/DDI-Lifecycle/3.3/"
+        }
+      ]
+    },
+    "dimensions": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Dimension"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Characteristics that classify, group, or organize observations, together with their categories and table presentation. Use a dimension for year, geography, sex, sector, scenario, and similar groupings; use a variable for the quantity being measured.",
+      "examples": [
+        [
+          {
+            "name": "Country"
+          }
+        ],
+        [
+          {
+            "name": "Year"
+          }
+        ],
+        [
+          {
+            "name": "Education Level"
+          }
+        ],
+        [
+          {
+            "name": "Industry Sector"
+          }
+        ],
+        [
+          {
+            "name": "Scenario"
+          }
+        ],
+        [
+          {
+            "name": "Country",
+            "presentation_roles": [
+              "row"
+            ]
+          }
+        ],
+        [
+          {
+            "name": "Indicator",
+            "presentation_roles": [
+              "row"
+            ]
+          }
+        ],
+        [
+          {
+            "name": "Sector",
+            "presentation_roles": [
+              "row"
+            ]
+          }
+        ],
+        [
+          {
+            "name": "Year",
+            "presentation_roles": [
+              "column"
+            ]
+          }
+        ],
+        [
+          {
+            "name": "Region",
+            "presentation_roles": [
+              "column"
+            ]
+          }
+        ],
+        [
+          {
+            "name": "Funding Source",
+            "presentation_roles": [
+              "column"
+            ]
+          }
+        ]
+      ],
+      "title": "Dimensions",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://sdmx.org/"
+        },
+        {
+          "relationship": "close",
+          "term": "https://ddialliance.org/Specification/DDI-Lifecycle/3.3/"
+        }
+      ]
+    },
+    "population_group": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "pattern": "\\S",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The human population, beneficiary group, or demographic group that is the primary subject of the represented data. This field describes who the data are about. Do not use it for companies, institutions, products, locations, or mixed entity classes, and do not repeat a population category used only to disaggregate observations.",
+      "examples": [
+        "Refugees",
+        "Children under five",
+        "Female respondents",
+        "Host communities",
+        "Technical education graduates"
+      ],
+      "title": "Population Group",
+      "x-standards": [
+        {
+          "relationship": "close",
+          "term": "https://docs.ddialliance.org/DDI-Lifecycle/3.3/xmlschema/schemas/conceptualcomponent_xsd/elements/Universe.html"
+        },
+        {
+          "relationship": "close",
+          "term": "https://schema.org/populationType"
+        }
+      ]
+    },
+    "visualization_types": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/VisualizationTypeTerm"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Visualization forms used to encode the represented data. Types are not mutually exclusive: for a composite or multi-panel artifact, record `composite_figure` and each identifiable component type, such as `line_chart` and `map`. Use `normalized_value` when a type is inferred from visual form. Use `source_text` only when wording in the snapshot explicitly names the form; do not manufacture source wording from the design. Preserve an explicitly written unfamiliar type in `source_text` without a normalized value. If neither a listed type nor an explicit unfamiliar label is supported, return `null`; do not force a match to the closest vocabulary value. Use `panel_titles` for explicit panel headings.",
+      "examples": [
+        [
+          {
+            "normalized_value": "bar_chart"
+          }
+        ],
+        [
+          {
+            "normalized_value": "bar_chart",
+            "source_text": "Bar Graph"
+          }
+        ],
+        [
+          {
+            "source_text": "Waffle chart"
+          }
+        ],
+        null,
+        [
+          {
+            "normalized_value": "bar_chart",
+            "source_text": "Bar chart"
+          }
+        ],
+        [
+          {
+            "normalized_value": "line_chart",
+            "source_text": "Line chart"
+          }
+        ],
+        [
+          {
+            "normalized_value": "table",
+            "source_text": "Table"
+          }
+        ],
+        [
+          {
+            "normalized_value": "map",
+            "source_text": "Map"
+          }
+        ],
+        [
+          {
+            "normalized_value": "heatmap",
+            "source_text": "Heatmap"
+          }
+        ],
+        [
+          {
+            "normalized_value": "composite_figure"
+          },
+          {
+            "normalized_value": "line_chart"
+          },
+          {
+            "normalized_value": "map"
+          }
+        ],
+        [
+          {
+            "normalized_value": "composite_figure",
+            "source_text": "Composite figure: line charts and map"
+          }
+        ]
+      ],
+      "title": "Visualization Types",
+      "x-standards": [
+        {
+          "relationship": "standard_broader",
+          "term": "http://purl.org/dc/terms/type"
+        },
+        {
+          "relationship": "standard_broader",
+          "term": "https://schema.org/additionalType"
+        }
+      ]
+    },
+    "temporal_coverage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TemporalCoverage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "When the represented data apply and the interval between successive represented-data time points.",
+      "examples": [
+        {
+          "period": {
+            "end": "2020",
+            "precision": "year",
+            "relation": "interval",
+            "source_text": "2015–2020",
+            "start": "2015"
+          }
+        },
+        {
+          "period": {
+            "source_text": "FY2023"
+          }
+        },
+        {
+          "period": {
+            "precision": "month",
+            "relation": "point",
+            "source_text": "January 2024",
+            "start": "2024-01"
+          }
+        },
+        {
+          "reporting_interval": {
+            "normalized_value": "annual",
+            "source_text": "Annual"
+          }
+        },
+        {
+          "reporting_interval": {
+            "normalized_value": "monthly",
+            "source_text": "Monthly"
+          }
+        },
+        {
+          "reporting_interval": {
+            "normalized_value": "quarterly",
+            "source_text": "Quarterly"
+          }
+        },
+        {
+          "reporting_interval": {
+            "normalized_value": "daily",
+            "source_text": "Daily"
+          }
+        }
+      ],
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "https://schema.org/temporalCoverage"
+        },
+        {
+          "relationship": "close",
+          "term": "http://purl.org/dc/terms/temporal"
+        }
+      ]
+    },
+    "geographic_coverage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GeographicCoverage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The snapshot's overall geographic scope, additional named locations, and reporting level. Keep these meanings separate: `scope` is the coverage area, `locations` are specific places represented within it, and `level` is the granularity at which observations are reported.",
+      "examples": [
+        {
+          "scope": {
+            "m49_code": "001",
+            "name": "Global",
+            "source_text": "Global"
+          }
+        },
+        {
+          "scope": {
+            "iso3_code": "KEN",
+            "name": "Kenya",
+            "source_text": "Kenya"
+          }
+        },
+        {
+          "scope": {
+            "m49_code": "202",
+            "name": "Sub-Saharan Africa",
+            "source_text": "Sub-Saharan Africa"
+          }
+        },
+        {
+          "scope": {
+            "name": "Latin America",
+            "source_text": "Latin America"
+          }
+        },
+        {
+          "locations": [
+            {
+              "iso3_code": "UGA",
+              "name": "Uganda"
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "name": "Nairobi"
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "m49_code": "011",
+              "name": "West Africa"
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "iso3_code": "BFA",
+              "name": "Burkina Faso"
+            }
+          ]
+        },
+        {
+          "level": {
+            "normalized_value": "country",
+            "source_text": "Country"
+          }
+        },
+        {
+          "level": {
+            "source_text": "Province"
+          }
+        },
+        {
+          "level": {
+            "source_text": "District"
+          }
+        },
+        {
+          "level": {
+            "normalized_value": "site",
+            "source_text": "Facility"
+          }
+        }
+      ],
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "https://schema.org/spatialCoverage"
+        },
+        {
+          "relationship": "exact",
+          "term": "http://purl.org/dc/terms/spatial"
+        }
+      ]
+    },
+    "comparisons": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "An explicit comparative relationship or named benchmark, comparator, reference group, cohort, scenario, or entity against which represented data are compared. Record the complete relation when visible, such as `Treatment vs Control`, or a named standalone benchmark. Do not use this field for totals, ordinary cross-tab categories, dimensions, or measures that merely appear together without an explicit comparison.",
+      "examples": [
+        [
+          "Male vs Female"
+        ],
+        [
+          "Rural vs Urban"
+        ],
+        [
+          "Baseline vs Endline"
+        ],
+        [
+          "Treatment vs Control"
+        ],
+        [
+          "Before vs After"
+        ],
+        [
+          "Low-income vs Middle-income vs High-income"
+        ],
+        [
+          "Europe & Central Asia benchmark"
+        ],
+        [
+          "Sub-Saharan Africa benchmark"
+        ]
+      ],
+      "title": "Comparisons"
+    },
+    "provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Provenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The named dataset, survey, publication, organization, or credited agent from which the represented data originate or which is explicitly credited with producing the snapshot artifact.\n\nUse `sources` for represented-data derivation sources and `attributions` for credited agents; include an attribution role when it is explicit. Do not copy the parent document's authors or publisher into this field solely because they are associated with the document; the source or attribution must be explicitly relevant to the snapshot or its represented data.",
+      "examples": [
+        {
+          "sources": [
+            {
+              "name": "World Development Indicators"
+            }
+          ]
+        },
+        {
+          "sources": [
+            {
+              "name": "DHS"
+            }
+          ]
+        },
+        {
+          "sources": [
+            {
+              "name": "UNHCR Registration Data"
+            }
+          ]
+        },
+        {
+          "sources": [
+            {
+              "name": "National Census"
+            }
+          ]
+        },
+        {
+          "attributions": [
+            {
+              "name": "Map Design Unit",
+              "role": {
+                "source_text": "Map maker"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "languages": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/Language"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The language used within the snapshot.",
+      "examples": [
+        [
+          {
+            "source_text": "English",
+            "tag": "en"
+          }
+        ],
+        [
+          {
+            "source_text": "French",
+            "tag": "fr"
+          }
+        ],
+        [
+          {
+            "source_text": "Arabic",
+            "tag": "ar"
+          }
+        ]
+      ],
+      "title": "Languages",
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "https://schema.org/inLanguage"
+        },
+        {
+          "relationship": "exact",
+          "term": "http://purl.org/dc/terms/language"
+        }
+      ]
+    },
+    "interpretive_notes": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Explanatory, methodological, uncertainty, or provenance statements explicitly provided within the snapshot that aid interpretation or traceability.\n\nThis field may preserve complete notes containing sample-size statements, explanations of confidence intervals, standard errors or uncertainty bands, and footer statements that include an artifact date or production credit. It retains the statement as text; it does not create separate structured fields for sample size, uncertainty representation, or artifact publication date.\n\nPopulate only when such notes are explicitly present.",
+      "examples": [
+        [
+          "Values are provisional."
+        ],
+        [
+          "Estimates exclude informal employment."
+        ],
+        [
+          "Data collected using 2022 census boundaries."
+        ],
+        [
+          "Sample: 1,204 respondents."
+        ],
+        [
+          "Shaded areas show 95% confidence intervals."
+        ],
+        [
+          "Prepared by the Map Design Unit, March 2024."
+        ]
+      ],
+      "title": "Interpretive Notes",
+      "x-standards": [
+        {
+          "relationship": "standard_broader",
+          "term": "http://purl.org/dc/terms/description"
+        },
+        {
+          "relationship": "standard_broader",
+          "term": "https://schema.org/description"
+        }
+      ]
+    },
+    "project": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Project"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Associated project, program, operation, or initiative.",
+      "examples": [
+        {
+          "name": "Niger - COVID-19 Emergency Response Project"
+        },
+        {
+          "name": "Jordan Health Sector Reform Project"
+        },
+        {
+          "name": "Lebanon - Health Resilience Project"
+        }
+      ],
+      "x-standards": [
+        {
+          "relationship": "standard_narrower",
+          "term": "https://schema.org/Project"
+        },
+        {
+          "relationship": "close",
+          "term": "https://iatistandard.org/en/iati-standard/203/activity-standard/"
+        }
+      ]
+    },
+    "intervention_types": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The intervention, service, policy, or operational activity represented.",
+      "examples": [
+        [
+          "Cash Transfer"
+        ],
+        [
+          "Vaccination"
+        ],
+        [
+          "School Construction"
+        ]
+      ],
+      "title": "Intervention Types"
+    },
+    "financing": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Financing"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Project-financing measures, funders, and instruments.",
+      "examples": [
+        {
+          "measures": [
+            "Project Cost"
+          ]
+        },
+        {
+          "measures": [
+            "Disbursement"
+          ]
+        },
+        {
+          "measures": [
+            "Financing Gap"
+          ]
+        },
+        {
+          "measures": [
+            "Budget Allocation"
+          ]
+        },
+        {
+          "funders": [
+            {
+              "name": "IDA"
+            }
+          ]
+        },
+        {
+          "funders": [
+            {
+              "name": "IBRD"
+            }
+          ]
+        },
+        {
+          "funders": [
+            {
+              "name": "Government"
+            }
+          ]
+        },
+        {
+          "funders": [
+            {
+              "name": "European Union"
+            }
+          ]
+        },
+        {
+          "instruments": [
+            {
+              "source_text": "Grant"
+            }
+          ]
+        },
+        {
+          "instruments": [
+            {
+              "source_text": "Loan"
+            }
+          ]
+        },
+        {
+          "instruments": [
+            {
+              "source_text": "Credit"
+            }
+          ]
+        },
+        {
+          "instruments": [
+            {
+              "source_text": "Trust Fund"
+            }
+          ]
+        }
+      ]
+    },
+    "analysis_methods": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The analytical, statistical, or computational method used to produce the reported results.\n\nPopulate only when explicitly stated.",
+      "examples": [
+        [
+          "Difference-in-Differences"
+        ],
+        [
+          "Regression"
+        ],
+        [
+          "Tobit model"
+        ],
+        [
+          "Cost-Benefit Analysis"
+        ]
+      ],
+      "title": "Analysis Methods",
+      "x-standards": [
+        {
+          "relationship": "related_structural",
+          "term": "https://schema.org/measurementTechnique"
+        },
+        {
+          "relationship": "related_structural",
+          "term": "http://www.w3.org/ns/prov#Activity"
+        }
+      ]
+    },
+    "data_collection_methods": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/CodedTerm"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "The method or instrument used to collect the underlying data.\n\nPopulate only when explicitly stated.",
+      "examples": [
+        [
+          {
+            "source_text": "Household Survey"
+          }
+        ],
+        [
+          {
+            "source_text": "Administrative Records"
+          }
+        ],
+        [
+          {
+            "source_text": "Key Informant Interviews"
+          }
+        ],
+        [
+          {
+            "source_text": "Census"
+          }
+        ]
+      ],
+      "title": "Data Collection Methods",
+      "x-standards": [
+        {
+          "relationship": "exact",
+          "term": "https://docs.ddialliance.org/DDI-Lifecycle/3.3/model/composite-types/ModeOfCollectionType/"
+        },
+        {
+          "relationship": "close",
+          "term": "https://schema.org/measurementMethod"
+        }
+      ]
+    }
+  },
+  "title": "Data Snapshot Metadata Schema v1.4",
+  "type": "object",
+  "x-schema-version": "1.4",
+  "x-status": "implementation",
+  "x-validation-rules": [
+    "Python is the canonical validator. JSON Schema enforces exported structural rules; format assertions require a format-aware validator.",
+    "Python additionally applies NFC normalization, outer whitespace trimming, and stable exact deduplication.",
+    "Python additionally checks URI syntax before URL normalization, language-tag casing and uniqueness, calendar dates, and chronological ordering.",
+    "Missing and null values are equivalent. Serialize records with exclude_none=True to omit unavailable values.",
+    "External registry membership, source-grounding, and semantic correctness are not validated. Unpinned code-list metadata identifies a syntax authority only."
+  ]
+}
