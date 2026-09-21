@@ -151,9 +151,24 @@ C12_STRUCTURAL_PLACEMENT_GUIDANCE = """## Structural-placement check
   disambiguated.
 - Populate `comparisons` only for an explicit contrast or named comparator, not
   for totals, cross-tabulation categories, or measures that merely appear together."""
+C13_STRUCTURAL_PLACEMENT_GUIDANCE = """## Structural-placement check
+
+- Populate `presentation_roles` only for tables. Never assign `row` or `column`
+  to dimensions in charts or other figures. For tables, assign `row` and `column`
+  from the direction in which category values vary, not from the physical cell
+  containing the dimension label.
+- In charts, when repeated series apply the same measure to different groups,
+  represent the measure as a variable and the groups as categories of a dimension.
+  Do not apply this rule mechanically to tables; use the visible table structure
+  and schema definitions.
+- Use `axis_roles` for ordinary or shared chart axes. Use
+  `multi_axis_assignments` only when distinct axes of the same dimension must be
+  disambiguated.
+- Populate `comparisons` only for an explicit contrast or named comparator, not
+  for totals, cross-tabulation categories, or measures that merely appear together."""
 C8_FINALIZATION_EXPERIMENTS = {"c8br", "c8c", "c8d", "c8dr", "c8e"}
 C9_EXPERIMENTS = {"c9", "c9a", "c9b", "c9c"}
-GOLD_EXPERIMENTS = {"c10", "c11", "c12"}
+GOLD_EXPERIMENTS = {"c10", "c11", "c12", "c13"}
 TARGETED_EXPERIMENTS = {
     "c7",
     "c7a",
@@ -338,6 +353,15 @@ EXPERIMENTS = {
         "include_schema_reference": False,
         "extraction_profile": "defer_deterministic_enrichment",
         "user_prompt_addendum": C12_STRUCTURAL_PLACEMENT_GUIDANCE,
+    },
+    "c13": {
+        "label": "C13",
+        "treatment": "C10 with repaired structural-placement guidance",
+        "output_stem": "calibration13",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "include_schema_reference": False,
+        "extraction_profile": "full",
+        "user_prompt_addendum": C13_STRUCTURAL_PLACEMENT_GUIDANCE,
     },
 }
 
