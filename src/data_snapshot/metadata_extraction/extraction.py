@@ -63,12 +63,32 @@ _SchemaExampleMode = Literal[
     "normalization",
     "c9_targeted",
 ]
+_ExtractionProfile = Literal["full", "defer_deterministic_enrichment"]
 _SCHEMA_EXAMPLE_MODES = {
     "none",
     "first",
     "all",
     "normalization",
     "c9_targeted",
+}
+_EXTRACTION_PROFILES = {"full", "defer_deterministic_enrichment"}
+_DETERMINISTIC_ENRICHMENT_FIELDS = {
+    "Currency": {"code"},
+    "GeographicLocation": {
+        "identifiers",
+        "iso3_code",
+        "m49_code",
+        "name",
+        "subdivision_code",
+    },
+    "Place": {
+        "identifiers",
+        "iso3_code",
+        "m49_code",
+        "name",
+        "subdivision_code",
+    },
+    "Unit": {"code", "multiplier_exponent"},
 }
 _NORMALIZATION_EXAMPLE_PATHS = {
     ("$defs", "Currency", "properties", "code"),
@@ -169,6 +189,7 @@ def extract_metadata(
     completeness_guidance: str | None = _PRODUCTION_COMPLETENESS_GUIDANCE,
     schema_example_mode: _SchemaExampleMode = "none",
     include_schema_reference: bool = False,
+    extraction_profile: _ExtractionProfile = "full",
 ) -> ExtractionResult:
     """Extract validated Schema v1.4 metadata from one snapshot image.
 
@@ -198,6 +219,9 @@ def extract_metadata(
     include_schema_reference : bool, optional
         Whether to render the response schema in the user prompt in addition
         to supplying it as the authoritative Structured Outputs contract.
+    extraction_profile : {"full", "defer_deterministic_enrichment"}, optional
+        Whether to use the complete schema or omit fields reserved for later
+        deterministic enrichment from the model-facing response contract.
 
     Returns
     -------
@@ -223,10 +247,11 @@ def extract_metadata(
             system_prompt = (
                 f"{system_prompt.rstrip()}\n\n{system_prompt_addendum.strip()}\n"
             )
-        response_format = _response_format(schema_example_mode)
+        response_format = _response_format(schema_example_mode, extraction_profile)
         user_prompt = _production_user_prompt(
             schema_example_mode,
             include_schema_reference,
+            extraction_profile,
         )
         if user_prompt_addendum:
             user_prompt = f"{user_prompt.rstrip()}\n\n{user_prompt_addendum.strip()}\n"
@@ -385,6 +410,61 @@ def _contains_schema_keyword(value: Any, keyword: str) -> bool:
     return False
 
 
+def _apply_extraction_profile(
+    schema: dict[str, Any], profile: _ExtractionProfile
+) -> None:
+    """Remove deferred deterministic-enrichment fields from a schema in place.
+
+    Parameters
+    ----------
+    schema : dict[str, Any]
+        Canonical Pydantic JSON Schema to modify.
+    profile : {"full", "defer_deterministic_enrichment"}
+        Selected model-facing extraction profile.
+
+    Raises
+    ------
+    ValueError
+        If the profile is unknown or an expected schema definition is missing.
+    """
+    if profile not in _EXTRACTION_PROFILES:
+        raise ValueError(f"Unknown extraction profile: {profile}")
+    if profile == "full":
+        return
+
+    definitions = schema.get("$defs")
+    if not isinstance(definitions, dict):
+        raise ValueError("Canonical schema is missing $defs.")
+    for definition_name, field_names in _DETERMINISTIC_ENRICHMENT_FIELDS.items():
+        definition = definitions.get(definition_name)
+        if not isinstance(definition, dict):
+            raise ValueError(f"Canonical schema is missing {definition_name}.")
+        properties = definition.get("properties")
+        if not isinstance(properties, dict) or not field_names <= properties.keys():
+            raise ValueError(
+                f"Canonical schema has unexpected {definition_name} properties."
+            )
+        for field_name in field_names:
+            properties.pop(field_name)
+
+    for definition_name in ("Place", "GeographicLocation"):
+        definition = definitions[definition_name]
+        source_text = definition["properties"]["source_text"]
+        variants = source_text.pop("anyOf", None)
+        if not isinstance(variants, list):
+            raise ValueError(
+                f"Canonical {definition_name}.source_text is not nullable."
+            )
+        non_null = [item for item in variants if item.get("type") != "null"]
+        if len(non_null) != 1:
+            raise ValueError(
+                f"Canonical {definition_name}.source_text has an unexpected shape."
+            )
+        source_text.update(non_null[0])
+        source_text.pop("default", None)
+        definition["x-validation-rules"] = ["source_text must be non-null."]
+
+
 def _inline_ref_siblings(value: Any, root: dict[str, Any]) -> Any:
     """Inline local references that have sibling schema keywords."""
     if isinstance(value, list):
@@ -413,11 +493,13 @@ def _inline_ref_siblings(value: Any, root: dict[str, Any]) -> Any:
 @cache
 def _response_format(
     schema_example_mode: _SchemaExampleMode = "none",
+    extraction_profile: _ExtractionProfile = "full",
 ) -> dict[str, Any]:
     """Build the strict response format from the canonical Pydantic model."""
     if schema_example_mode not in _SCHEMA_EXAMPLE_MODES:
         raise ValueError(f"Unknown schema example mode: {schema_example_mode}")
     canonical_schema = DataSnapshotMetadata.model_json_schema(mode="validation")
+    _apply_extraction_profile(canonical_schema, extraction_profile)
     if schema_example_mode != "none":
         _append_schema_examples_to_descriptions(
             canonical_schema,
@@ -427,7 +509,11 @@ def _response_format(
     schema = _inline_ref_siblings(schema, schema)
     return {
         "type": "json_schema",
-        "name": "data_snapshot_metadata_v1_4",
+        "name": (
+            "data_snapshot_metadata_v1_4"
+            if extraction_profile == "full"
+            else "data_snapshot_metadata_v1_4_source_first"
+        ),
         "strict": True,
         "schema": schema,
     }
@@ -437,6 +523,7 @@ def _response_format(
 def _production_user_prompt(
     schema_example_mode: _SchemaExampleMode = "none",
     include_schema_reference: bool = False,
+    extraction_profile: _ExtractionProfile = "full",
 ) -> str:
     """Build the production prompt with the model-facing response schema."""
     prompt = (_PROMPT_DIR / "user.md").read_text(encoding="utf-8").rstrip()
@@ -447,7 +534,7 @@ def _production_user_prompt(
     schema_section = ""
     if include_schema_reference:
         schema = json.dumps(
-            _response_format(schema_example_mode)["schema"],
+            _response_format(schema_example_mode, extraction_profile)["schema"],
             ensure_ascii=False,
             indent=2,
         )

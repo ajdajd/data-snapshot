@@ -17,6 +17,7 @@ DATA_ROOT = PROJECT_ROOT / "notebooks" / "metadata_extraction" / "data" / "snaps
 BATCH1_DATA_ROOT = (
     PROJECT_ROOT / "notebooks" / "metadata_extraction" / "data" / "batch1"
 )
+GOLD_ROOT = PROJECT_ROOT / "notebooks" / "metadata_extraction" / "gold"
 OUTPUT_DIR = PROJECT_ROOT / "notebooks" / "metadata_extraction" / "outputs"
 CONFIG_PATH = (
     PROJECT_ROOT
@@ -104,6 +105,14 @@ C8_FINALIZATION_SNAPSHOTS = tuple(
     for snapshot in TARGETED_CALIBRATION_SNAPSHOTS
     if snapshot[2] not in AT_A_GLANCE_SNAPSHOT_PATHS
 )
+GOLD_CALIBRATION_SNAPSHOTS = tuple(
+    (
+        path.relative_to(GOLD_ROOT).parts[0],
+        path.relative_to(GOLD_ROOT).parts[1],
+        path.relative_to(GOLD_ROOT).with_suffix(".png").as_posix(),
+    )
+    for path in sorted(GOLD_ROOT.rglob("*.json"))
+)
 
 C8_SYSTEM_GUIDANCE = (
     "Go through all fields in the schema one by one. Populate every field supported "
@@ -131,8 +140,20 @@ C9_ANTI_COPY_GUIDANCE = (
     "supported by visible evidence; never copy an example merely to complete the "
     "schema."
 )
+C12_STRUCTURAL_PLACEMENT_GUIDANCE = """## Structural-placement check
+
+- When repeated groups use the same measure, represent the measure as a variable
+  and the groups as categories of a dimension rather than repeated variables.
+- For tables, assign `row` and `column` from the direction in which category values
+  vary, not from the physical cell containing the dimension label.
+- Use `axis_roles` for ordinary or shared chart axes. Use
+  `multi_axis_assignments` only when distinct axes of the same dimension must be
+  disambiguated.
+- Populate `comparisons` only for an explicit contrast or named comparator, not
+  for totals, cross-tabulation categories, or measures that merely appear together."""
 C8_FINALIZATION_EXPERIMENTS = {"c8br", "c8c", "c8d", "c8dr", "c8e"}
 C9_EXPERIMENTS = {"c9", "c9a", "c9b", "c9c"}
+GOLD_EXPERIMENTS = {"c10", "c11", "c12"}
 TARGETED_EXPERIMENTS = {
     "c7",
     "c7a",
@@ -294,6 +315,30 @@ EXPERIMENTS = {
         "schema_example_mode": "c9_targeted",
         "include_schema_reference": False,
     },
+    "c10": {
+        "label": "C10",
+        "treatment": "Schema v1.4 baseline with the unchanged C8E prompt",
+        "output_stem": "calibration10",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "include_schema_reference": False,
+    },
+    "c11": {
+        "label": "C11",
+        "treatment": "C10 with deterministic-enrichment fields deferred",
+        "output_stem": "calibration11",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "include_schema_reference": False,
+        "extraction_profile": "defer_deterministic_enrichment",
+    },
+    "c12": {
+        "label": "C12",
+        "treatment": "C11 with targeted structural-placement guidance",
+        "output_stem": "calibration12",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "include_schema_reference": False,
+        "extraction_profile": "defer_deterministic_enrichment",
+        "user_prompt_addendum": C12_STRUCTURAL_PLACEMENT_GUIDANCE,
+    },
 }
 
 BOUNDARY_GUIDANCE = """## Field-boundary guidance
@@ -413,10 +458,15 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
     completeness_guidance = experiment.get("completeness_guidance")
     system_prompt_addendum = experiment.get("system_prompt_addendum")
     include_schema_reference = bool(experiment.get("include_schema_reference", True))
+    extraction_profile = str(experiment.get("extraction_profile", "full"))
     data_root = (
-        BATCH1_DATA_ROOT if experiment_name in TARGETED_EXPERIMENTS else DATA_ROOT
+        BATCH1_DATA_ROOT
+        if experiment_name in TARGETED_EXPERIMENTS | GOLD_EXPERIMENTS
+        else DATA_ROOT
     )
-    if experiment_name in C8_FINALIZATION_EXPERIMENTS | C9_EXPERIMENTS:
+    if experiment_name in GOLD_EXPERIMENTS:
+        snapshots = GOLD_CALIBRATION_SNAPSHOTS
+    elif experiment_name in C8_FINALIZATION_EXPERIMENTS | C9_EXPERIMENTS:
         snapshots = C8_FINALIZATION_SNAPSHOTS
     elif experiment_name in TARGETED_EXPERIMENTS:
         snapshots = TARGETED_CALIBRATION_SNAPSHOTS
@@ -424,7 +474,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
         snapshots = CALIBRATION_SNAPSHOTS
     baseline_results_path = (
         OUTPUT_DIR / "batch1_results.jsonl"
-        if experiment_name in TARGETED_EXPERIMENTS
+        if experiment_name in TARGETED_EXPERIMENTS | GOLD_EXPERIMENTS
         else BASELINE_RESULTS_PATH
     )
     _validate_inputs(config_path, data_root, snapshots, baseline_results_path)
@@ -442,6 +492,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
     print(f"Cost guardrail: ${MAX_CUMULATIVE_COST_USD:.2f}")
     print(f"Selected snapshots: {len(snapshots)}")
     print(f"User-prompt schema reference: {include_schema_reference}")
+    print(f"Extraction profile: {extraction_profile}")
     if dry_run:
         print(f"Already completed: {len(completed_paths)}")
         print("DRY_RUN_OK")
@@ -467,6 +518,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
             completeness_guidance=completeness_guidance,
             schema_example_mode=schema_example_mode,
             include_schema_reference=include_schema_reference,
+            extraction_profile=extraction_profile,
         )
         call_cost = estimate_flex_cost_usd(result.usage)
         prior_run_cost += call_cost
@@ -475,7 +527,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
             "snapshot_file_name": Path(relative_path).name,
             "source": source,
             "artifact_type": artifact_type,
-            "schema_version": "1.3",
+            "schema_version": "1.4",
             "model": result.model,
             "response_id": result.response_id,
             "api_status": result.api_status,
@@ -485,6 +537,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
             "reasoning_effort": reasoning_effort,
             "schema_example_mode": schema_example_mode,
             "include_schema_reference": include_schema_reference,
+            "extraction_profile": extraction_profile,
             "completeness_guidance": completeness_guidance,
             "system_prompt_addendum": system_prompt_addendum,
         }
@@ -531,6 +584,8 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
 
 def _prompt_addendum(experiment_name: str) -> str | None:
     """Build the prompt treatment for an experiment."""
+    if experiment_name in GOLD_EXPERIMENTS:
+        return EXPERIMENTS[experiment_name].get("user_prompt_addendum")
     if experiment_name == "c0r" or experiment_name in TARGETED_EXPERIMENTS:
         return None
     guidance: str | None = None

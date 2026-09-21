@@ -292,6 +292,57 @@ def test_response_format_can_append_schema_examples_by_mode() -> None:
     assert '"examples"' not in json.dumps(targeted_schema)
 
 
+def test_response_format_can_defer_deterministic_enrichment() -> None:
+    """The source-first profile omits only deferred enrichment destinations."""
+    schema = _response_format("none", "defer_deterministic_enrichment")["schema"]
+
+    assert set(schema["$defs"]["Unit"]["properties"]) == {"source_text"}
+    assert set(schema["$defs"]["Currency"]["properties"]) == {"source_text"}
+    assert set(schema["$defs"]["Place"]["properties"]) == {"source_text"}
+    assert set(schema["$defs"]["GeographicLocation"]["properties"]) == {
+        "source_text",
+        "role",
+        "type",
+    }
+    assert schema["$defs"]["Place"]["properties"]["source_text"]["type"] == ("string")
+    assert "normalized_value" in schema["$defs"]["VisualizationTypeTerm"]["properties"]
+    assert "tag" in schema["$defs"]["Language"]["properties"]
+
+
+def test_extract_metadata_can_use_source_first_profile(tmp_path: Path) -> None:
+    """Extraction can use the reduced contract and validate canonical output."""
+    image_path = tmp_path / "snapshot.png"
+    config_path = tmp_path / "config.json"
+    _write_image(image_path)
+    _write_config(config_path)
+    metadata = DataSnapshotMetadata(
+        geographic_coverage={"scope": {"source_text": "Kenya"}}
+    )
+    responses = FakeResponses(
+        SimpleNamespace(
+            id="resp_test",
+            status="completed",
+            output_text=metadata.model_dump_json(),
+            usage=None,
+        )
+    )
+
+    result = extract_metadata(
+        image_path,
+        config_path=config_path,
+        client=SimpleNamespace(responses=responses),
+        extraction_profile="defer_deterministic_enrichment",
+    )
+
+    assert result.metadata == metadata
+    assert responses.request is not None
+    response_format = responses.request["text"]["format"]
+    assert response_format["name"] == "data_snapshot_metadata_v1_4_source_first"
+    assert set(response_format["schema"]["$defs"]["Place"]["properties"]) == {
+        "source_text"
+    }
+
+
 def test_extract_metadata_rejects_missing_structured_output(tmp_path: Path) -> None:
     """An incomplete response is returned as a retryable extraction failure."""
     image_path = tmp_path / "snapshot.png"

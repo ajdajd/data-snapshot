@@ -1088,6 +1088,123 @@ reliable net improvement over the example-free control. Production therefore
 keeps the examples out until the reviewed 102-snapshot set supports replicated,
 field-level evaluation.
 
+## C10-C12: Schema v1.4, deferred deterministic enrichment, and placement guidance
+
+### Purpose and controls
+
+C10-C12 used the same 20 Batch 1 snapshots for which reviewed metadata records
+were available. The three country-at-a-glance composites were not part of this
+set. Every run used `gpt-5.6-luna`, medium reasoning, Flex, prompt caching, no
+user-prompt schema copy, no Pydantic examples, and C8E's final schema re-scan.
+
+The reviewed records predate Schema v1.4 and still use the v1.3 names
+`analytical_roles: x_axis|y_axis` and `axis_assignments`. The comparison below
+therefore interpreted those fields as v1.4 `axis_roles` and
+`multi_axis_assignments` without modifying the reviewed files. Deterministic
+enrichment coverage was excluded from quality assessment.
+
+- **C10:** Schema v1.4 with the otherwise unchanged production extraction setup.
+- **C11:** C10 with deterministic-enrichment destinations omitted from the
+  model-facing response schema: unit code and multiplier, currency code, and
+  geographic preferred names and identifiers.
+- **C12:** C11 plus four focused structural-placement rules covering repeated
+  measures versus grouping dimensions, table direction, ordinary versus multiple
+  axes, and explicit comparisons.
+
+All three runs completed 20/20 requests without API or canonical-validation
+errors.
+
+| Run | Input tokens | Cached input | Output tokens | Mean latency | Cost | Mean cost per snapshot | Cumulative cost |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| C10 | 252,784 | 184,452 | 33,944 | 34.73 s | $0.030750920 | $0.001537546 | $0.732346295 |
+| C11 | 240,964 | 173,223 | 33,117 | 46.11 s | $0.030068555 | $0.001503428 | $0.762414850 |
+| C12 | 243,744 | 182,340 | 35,454 | 39.38 s | $0.030769800 | $0.001538490 | $0.793184650 |
+
+The new segment cost $0.091589275. C11 used 4.7% fewer input tokens and cost 2.2%
+less than C10, but this small difference is within the scale at which output-token
+and run-to-run variation matter.
+
+### Presence screen
+
+The following is a top-level field-presence screen against the reviewed records,
+not a semantic accuracy score. A true positive means only that the same top-level
+field is populated; wording, nesting, and field placement may still differ.
+
+| Run | Shared populated fields | Unsupported additions | Reviewed-field omissions |
+| --- | ---: | ---: | ---: |
+| C10 | 177 | 5 | 16 |
+| C11 | 172 | 6 | 21 |
+| C12 | 183 | 1 | 10 |
+
+C12 had the strongest top-level coverage, consistent with its usefulness as a
+recall-oriented annotation aid. Its deeper structural errors prevent interpreting
+that result as production superiority.
+
+### C10 finding: Schema v1.4 baseline
+
+C10 showed several intended Schema v1.4 behaviors without new prompt guidance. It
+represented the sectoral-loans chart as two measures crossed with a client-sector
+dimension, used ordinary axis roles on several charts, and retained good row and
+column structure on several tables. The descriptions alone did not eliminate the
+observed gaps: the credit-exposure table assigned both dimensions to columns, the
+Pakistan table omitted the disbursements variable and treated `Scalability` as a
+row dimension, and several supported axis roles and comparisons were absent.
+
+### C11 finding: deferred-enrichment profile
+
+C11 omitted every deferred destination as designed. C10 had populated only eight
+geographic preferred names and one currency code among those destinations; C11
+and C12 emitted none. The reduced contract therefore prevents reviewers from
+spending time on sparse, inconsistent deterministic enrichment while preserving
+the canonical Schema v1.4 destinations for a later post-processing stage.
+
+Semantic behavior was mixed rather than uniformly better or worse. C11 corrected
+both credit-exposure table roles to `row`, recovered the missing `Fraction`
+variable in the ZK plot, and added the French dangerous-places measure and its
+x-axis role. It also introduced regression-table artifacts (`REGSN`, `R²`, and
+`Number obs.` as variables), lost the education chart's time dimension and y-axis
+role, and had more top-level omissions than C10. One run per treatment cannot
+separate those differences from ordinary model variation. The supported C11
+conclusion is therefore architectural: the reduced profile is valid and cheaper,
+not proven semantically superior.
+
+### C12 finding: targeted structural-placement guidance
+
+C12 produced legitimate targeted gains. It recovered both left/right y-axis
+assignments in the sectoral-loans chart, retained the correct client-sector
+decomposition, restored the education chart's time and geographic-group
+dimensions, and preserved the correct `row` roles in the credit-exposure table.
+It also had the strongest top-level presence result.
+
+The wording overgeneralized. It assigned table-only `row` or `column` roles in
+three figures: the sectoral-loans time dimension, the French dangerous-places
+categories, and the asylum-country categories. It duplicated `Explanatory factor`
+across two dimensions in the wage table, changed Pakistan `Scalability` from a
+dimension into a variable, and turned the Central African Republic table's
+occupancy dimension into a variable while losing its column structure. The
+repeated-measure rule also changed the Yemen table to one amount variable crossed
+with a financing-source dimension; that representation is coherent but disagrees
+with the reviewed record and needs human adjudication rather than automatic credit.
+
+The comparison rule was conservative: C12 avoided C11's unsupported comparison
+between two education geographic series, but it did not recover any of the four
+comparison entries across the three reviewed records that contain them.
+
+### C10-C12 conclusion
+
+- C10 remains the clean Schema v1.4/full-contract control.
+- C11 successfully implements a source-first annotation profile and is a
+  defensible workflow simplification, but its semantic quality advantage is not
+  established by this single run.
+- C12 is not ready to replace the production prompt. It provides useful recall and
+  a real multi-axis gain, but the current table-direction wording causes systematic
+  placement errors in figures.
+
+No new prompt is promoted from this segment. A later revision should explicitly
+gate row/column roles to tables and test the axis guidance separately from the
+repeated-measure rule. Production code continues to default to the full Schema
+v1.4 response contract until the annotation-profile decision is made explicitly.
+
 ## Final experiment summary
 
 The rows below follow execution order. **C2** and **C8E** are bolded because they
@@ -1123,11 +1240,17 @@ were the two successive production configurations selected during calibration.
 | C9A | C9x — runtime field-description examples on top of C8E | Appended all Pydantic examples as JSON to their field descriptions | Produced legitimate local gains, but lost important axes, multipliers, and geography; no net improvement. |
 | C9B | C9x — runtime field-description examples on top of C8E | Added an anti-copy instruction to the C9A treatment | Did not protect against omissions or misplaced variables and erased several example-related gains. |
 | C9C | C9x — runtime field-description examples on top of C8E | Limited examples to geographic-name and category-group descriptions | Reproduced two narrow gains but again lost broader supported coverage; examples were not promoted. |
+| C10 | C10-C12 — Schema v1.4, deferred deterministic enrichment, and structural-placement prompting | Ran Schema v1.4 with the unchanged C8E prompt and complete response contract | Established the 20-snapshot Schema v1.4 baseline; descriptions improved several structures but did not resolve all placement gaps. |
+| C11 | C10-C12 — Schema v1.4, deferred deterministic enrichment, and structural-placement prompting | Removed deterministic-enrichment destinations from the model-facing response schema | Completed 20/20, omitted the intended fields, and modestly reduced tokens and cost; semantic differences were mixed and may reflect run variation. |
+| C12 | C10-C12 — Schema v1.4, deferred deterministic enrichment, and structural-placement prompting | Added four targeted structural-placement rules on top of C11 | Increased top-level coverage and recovered the legitimate dual-axis case, but overapplied table roles to figures and introduced other placement errors; not promoted. |
 
-The current production setting is **C8E**: `gpt-5.6-luna` at medium reasoning
-effort, Flex service tier, prompt caching, and the Pydantic-derived Schema v1.3
+The current production setting retains **C8E's prompt configuration**:
+`gpt-5.6-luna` at medium reasoning effort, Flex service tier, prompt caching, and
+the Pydantic-derived Schema v1.4
 Structured Outputs contract. The model receives only the snapshot image as source
 evidence. The system prompt supplies the evidence and metadata boundaries plus
 C8B's concise final schema re-scan; the user prompt supplies C2's field-boundary
 guidance. Unsupported fields remain null. The schema is not duplicated in the
-user prompt, and canonical Pydantic examples are not exposed to the model.
+user prompt, and canonical Pydantic examples are not exposed to the model. The
+default extraction profile remains the complete contract; C11's deferred profile
+is available only when selected explicitly.
