@@ -30,11 +30,11 @@ CONFIG_PATH = (
 C5_CONFIG_DIR = PROJECT_ROOT / "notebooks" / "metadata_extraction" / "config"
 BASELINE_RESULTS_PATH = OUTPUT_DIR / "calibration0_results.jsonl"
 MAX_CUMULATIVE_COST_USD = 5.0
-FLEX_INPUT_USD_PER_MILLION = 0.10
-FLEX_CACHED_INPUT_USD_PER_MILLION = 0.01
-FLEX_CACHE_WRITE_USD_PER_MILLION = 0.125
-FLEX_OUTPUT_USD_PER_MILLION = 0.60
-
+FLEX_PRICING_USD_PER_MILLION = {
+    "gpt-5.6-luna": (0.10, 0.01, 0.125, 0.60),
+    "gpt-5.6-terra": (1.00, 0.10, 1.25, 6.00),
+    "gpt-5.6-sol": (2.00, 0.20, 2.50, 10.00),
+}
 CALIBRATION_SNAPSHOTS = (
     ("prwp", "figure", "prwp/figure/document_11174028_figure_002.png"),
     ("prwp", "table", "prwp/table/document_11174028_table_007.png"),
@@ -168,7 +168,7 @@ C13_STRUCTURAL_PLACEMENT_GUIDANCE = """## Structural-placement check
   for totals, cross-tabulation categories, or measures that merely appear together."""
 C8_FINALIZATION_EXPERIMENTS = {"c8br", "c8c", "c8d", "c8dr", "c8e"}
 C9_EXPERIMENTS = {"c9", "c9a", "c9b", "c9c"}
-GOLD_EXPERIMENTS = {"c10", "c11", "c12", "c13"}
+GOLD_EXPERIMENTS = {"c10", "c11", "c12", "c13", "c14", "c15"}
 TARGETED_EXPERIMENTS = {
     "c7",
     "c7a",
@@ -363,6 +363,24 @@ EXPERIMENTS = {
         "extraction_profile": "full",
         "user_prompt_addendum": C13_STRUCTURAL_PLACEMENT_GUIDANCE,
     },
+    "c14": {
+        "label": "C14",
+        "treatment": "C10 with GPT-5.6 Terra at medium reasoning",
+        "output_stem": "calibration14_terra",
+        "config_path": C5_CONFIG_DIR / "c14_terra.json",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "include_schema_reference": False,
+        "extraction_profile": "full",
+    },
+    "c15": {
+        "label": "C15",
+        "treatment": "C10 with GPT-5.6 Sol at medium reasoning",
+        "output_stem": "calibration15_sol",
+        "config_path": C5_CONFIG_DIR / "c15_sol.json",
+        "completeness_guidance": C8B_SYSTEM_GUIDANCE,
+        "include_schema_reference": False,
+        "extraction_profile": "full",
+    },
 }
 
 BOUNDARY_GUIDANCE = """## Field-boundary guidance
@@ -420,21 +438,42 @@ CURATED_EXAMPLES = """## Generic boundary examples
    as a panel title."""
 
 
-def estimate_flex_cost_usd(usage: dict[str, Any] | None) -> float:
-    """Estimate one GPT-5.6 Luna Flex request cost from token usage.
+def estimate_flex_cost_usd(
+    usage: dict[str, Any] | None, model: str = "gpt-5.6-luna"
+) -> float:
+    """Estimate one GPT-5.6 Flex request cost from token usage.
 
     Parameters
     ----------
     usage : dict[str, Any] | None
         Responses API usage data.
-
+    model : str, optional
+        GPT-5.6 model name used for the request.
     Returns
     -------
     float
         Estimated cost in US dollars, or zero when usage is unavailable.
+
+    Raises
+    ------
+    ValueError
+        If the model has no configured Flex pricing.
     """
     if usage is None:
         return 0.0
+    pricing_model = next(
+        (
+            name
+            for name in FLEX_PRICING_USD_PER_MILLION
+            if model == name or model.startswith(f"{name}-")
+        ),
+        None,
+    )
+    if pricing_model is None:
+        raise ValueError(f"No Flex pricing configured for model: {model}")
+    input_rate, cached_rate, cache_write_rate, output_rate = (
+        FLEX_PRICING_USD_PER_MILLION[pricing_model]
+    )
     input_tokens = int(usage.get("input_tokens", 0))
     output_tokens = int(usage.get("output_tokens", 0))
     details = usage.get("input_tokens_details") or {}
@@ -442,10 +481,10 @@ def estimate_flex_cost_usd(usage: dict[str, Any] | None) -> float:
     cache_write_tokens = int(details.get("cache_write_tokens", 0))
     uncached_tokens = max(input_tokens - cached_tokens - cache_write_tokens, 0)
     return (
-        uncached_tokens * FLEX_INPUT_USD_PER_MILLION
-        + cached_tokens * FLEX_CACHED_INPUT_USD_PER_MILLION
-        + cache_write_tokens * FLEX_CACHE_WRITE_USD_PER_MILLION
-        + output_tokens * FLEX_OUTPUT_USD_PER_MILLION
+        uncached_tokens * input_rate
+        + cached_tokens * cached_rate
+        + cache_write_tokens * cache_write_rate
+        + output_tokens * output_rate
     ) / 1_000_000
 
 
@@ -503,14 +542,24 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
     )
     _validate_inputs(config_path, data_root, snapshots, baseline_results_path)
     with config_path.open(encoding="utf-8") as file:
-        reasoning_effort = json.load(file)["reasoning"]["effort"]
+        config = json.load(file)
+    configured_model = str(config["model"])
+    reasoning_effort = str(config["reasoning"]["effort"])
+    service_tier = str(config["service_tier"])
+    if service_tier != "flex":
+        raise ValueError(
+            "Calibration runner supports only explicitly approved Flex runs."
+        )
+    estimate_flex_cost_usd({}, configured_model)
     prior_run_cost = _jsonl_cost(results_path) + _jsonl_cost(errors_path)
     completed_paths = _successful_paths(results_path)
     cumulative_cost = _cumulative_cost()
 
     print(f"Experiment: {label}")
     print(f"Treatment: {experiment['treatment']}")
+    print(f"Model: {configured_model}")
     print(f"Reasoning effort: {reasoning_effort}")
+    print(f"Service tier: {service_tier}")
     print(f"Prior experiment cost: ${prior_run_cost:.9f}")
     print(f"Cumulative cost: ${cumulative_cost:.9f}")
     print(f"Cost guardrail: ${MAX_CUMULATIVE_COST_USD:.2f}")
@@ -544,7 +593,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
             include_schema_reference=include_schema_reference,
             extraction_profile=extraction_profile,
         )
-        call_cost = estimate_flex_cost_usd(result.usage)
+        call_cost = estimate_flex_cost_usd(result.usage, configured_model)
         prior_run_cost += call_cost
         common = {
             "snapshot_path": relative_path,
@@ -559,6 +608,7 @@ def run_calibration(experiment_name: str, *, dry_run: bool = False) -> int:
             "usage": result.usage,
             "estimated_cost_usd": round(call_cost, 9),
             "reasoning_effort": reasoning_effort,
+            "service_tier": service_tier,
             "schema_example_mode": schema_example_mode,
             "include_schema_reference": include_schema_reference,
             "extraction_profile": extraction_profile,
@@ -673,7 +723,9 @@ def _jsonl_cost(path: Path) -> float:
         total += (
             float(recorded_cost)
             if recorded_cost is not None
-            else estimate_flex_cost_usd(record.get("usage"))
+            else estimate_flex_cost_usd(
+                record.get("usage"), str(record.get("model", "gpt-5.6-luna"))
+            )
         )
     return total
 

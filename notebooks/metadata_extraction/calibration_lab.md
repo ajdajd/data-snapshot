@@ -1252,8 +1252,92 @@ variable. Its top-level presence screen was also slightly weaker than C10:
 
 Because C13 fixed the systematic C12 placement errors and added supported axis
 structure but lost other supported coverage in one nondeterministic run, it is a
-candidate rather than a promoted configuration. Repeat C13 byte-for-byte before
-deciding whether it replaces C10.
+candidate rather than a promoted configuration. The decision was to skip a repeat
+and retain C10.
+
+## C14-C15: model tier for annotation assistance
+
+### Purpose and controls
+
+C14 and C15 changed only the model relative to C10. Both used the full Schema
+v1.4 contract, C8E prompt, medium reasoning, prompt caching, no examples, and the
+same 20 reviewed Batch 1 snapshots. C14 used `gpt-5.6-terra`; C15 used
+`gpt-5.6-sol`. C13's structural addendum was not included. All C14 calls and 19
+C15 calls used Flex. The final C15 snapshot used standard processing after nine
+Flex capacity failures.
+
+Cost estimates use the short-context Flex rates in the
+[OpenAI pricing documentation](https://developers.openai.com/api/docs/pricing):
+Terra at $1.00/M uncached input, $0.10/M cached input, $1.25/M cache writes, and
+$6.00/M output; Sol at $2.00/M, $0.20/M, $2.50/M, and $10.00/M respectively.
+The standard-tier Sol fallback used $4.00/M uncached input, $0.40/M cached input,
+$5.00/M cache writes, and $20.00/M output. That one call was separately sanctioned
+and recorded at the applicable standard rates. The calibration runner remains
+Flex-only; any future non-Flex call requires separate authorization.
+
+| Run | Model | Successful records | Input tokens | Output tokens | Mean latency | Cost | Mean cost per success | Cost versus C10 per success |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| C10 | GPT-5.6 Luna | 20/20 | 252,784 | 33,944 | 34.73 s | $0.030750920 | $0.001537546 | 1.00x |
+| C14 | GPT-5.6 Terra | 20/20 | 252,784 | 28,400 | 12.71 s | $0.274245200 | $0.013712260 | 8.92x |
+| C15 | GPT-5.6 Sol | 20/20 | 252,784 | 40,262 | 30.62 s | $0.622152200 | $0.031107610 | 20.23x |
+
+C14 brought known cumulative calibration spend to $1.107824845. C15 brought it
+to $1.729977045, well below the $5 guardrail. C15 generated 33 retry records with
+the same zero-usage `429 rate_limit_exceeded` response. Nineteen snapshots
+completed on Flex; the UNHCR global-report table completed on the first standard-
+tier attempt for $0.137782000 after nine Flex attempts. The unsuccessful calls
+recorded no usage or estimated cost.
+
+### C14 finding: Terra medium
+
+Terra was 63.4% faster than Luna on mean successful-call latency and recovered
+the supported left/right y-axis assignments for the sectoral-loans chart. It also
+corrected both credit-exposure dimensions to `row`, preserved the Central African
+Republic table structure, and recovered the `Fraction` y-axis role.
+
+The overall recall tradeoff was unfavorable. Against the reviewed records, C14
+had 22 top-level omissions versus C10's 16. It omitted the supported French
+dangerous-places variable, the voting-registration variable, the asylum-chart
+x-axis role, the Pakistan disbursements variable and scalability dimension, and
+several table dimensions. It recovered no reviewed comparisons. The quality
+changes do not justify its 8.92x cost for this sample.
+
+### C15 finding: Sol medium
+
+The following presence screen uses all 20 completed snapshots. It is not a
+semantic accuracy score, and deterministic-normalization coverage remains outside
+the quality decision.
+
+| Run | Shared populated fields | Reviewed-record-absent additions | Reviewed-field omissions |
+| --- | ---: | ---: | ---: |
+| C10 | 177 | 5 | 16 |
+| C14 | 171 | 4 | 22 |
+| C15 | 184 | 7 | 9 |
+
+Sol produced the strongest recall in the model-tier comparison. It recovered all
+11 reviewed ordinary axis roles and both supported sectoral-loans multi-axis
+assignments, while assigning no table-only presentation roles to figures. It also
+recovered the Pakistan disbursements variable, the French dangerous-places
+variable, the education chart's geographic grouping, and the correct two-row
+structure of the credit-exposure table.
+
+The additional recall came with structural overfilling. In the wage table, Sol
+created nine variables instead of keeping the explanatory factors as dimension
+categories. It assigned all Yemen table dimensions to `row`, retained Pakistan
+`Scalability` as `row` rather than `column`, and still recovered none of the four
+reviewed comparison entries. Sol is therefore the leading model-tier candidate
+for recall-oriented annotation assistance, where overfill is easier to review
+than omission, but it is not a production replacement. Its mixed-tier 20.23x
+per-success cost and structural corrections must remain visible in that decision.
+
+### C14-C15 conclusion
+
+- C14 is not preferred over C10 for either production or annotation assistance.
+- C15 provides a meaningful recall and axis-assignment lift for annotation
+  assistance across all 20 records, with material structural overfill and one
+  standard-tier fallback after persistent Flex capacity failures.
+- C10 remains the production setting. Neither model-tier experiment changes the
+  production prompt or model.
 
 ## Final experiment summary
 
@@ -1294,7 +1378,9 @@ calibration.
 | **C10** | **C10-C13 — Schema v1.4, deterministic-enrichment profile, and structural-placement prompting** | **Ran Schema v1.4 with the unchanged C8E prompt and complete response contract** | **Established the 20-snapshot Schema v1.4 production baseline; descriptions improved several structures but did not resolve all placement gaps.** |
 | C11 | C10-C13 — Schema v1.4, deterministic-enrichment profile, and structural-placement prompting | Removed deterministic-enrichment destinations from the model-facing response schema | Completed 20/20, omitted the intended fields, and modestly reduced tokens and cost; semantic differences were mixed and may reflect run variation. |
 | C12 | C10-C13 — Schema v1.4, deterministic-enrichment profile, and structural-placement prompting | Added four targeted structural-placement rules on top of C11 | Increased top-level coverage and recovered the legitimate dual-axis case, but overapplied table roles to figures and introduced other placement errors; not promoted. |
-| C13 | C10-C13 — repaired structural-placement guidance on the production contract | Added table-only presentation-role and chart-only repeated-series boundaries to C10 while retaining the axis and comparison rules | Fixed C12's systematic placement errors and added supported axes, but lost some supported coverage; requires a repeat before promotion. |
+| C13 | C10-C13 — repaired structural-placement guidance on the production contract | Added table-only presentation-role and chart-only repeated-series boundaries to C10 while retaining the axis and comparison rules | Fixed C12's systematic placement errors and added supported axes, but lost some supported coverage; not promoted and C10 was retained. |
+| C14 | C14-C15 — model tier for annotation assistance | Replaced Luna with Terra at medium reasoning while retaining C10's full contract and prompt | Ran 8.92x costlier and much faster, but had lower recall and no clear quality advantage; not promoted. |
+| C15 | C14-C15 — model tier for annotation assistance | Replaced Luna with Sol at medium reasoning while retaining C10's full contract and prompt | Produced the strongest recall and complete reviewed axis coverage across all 20 records, but introduced structural overfill; one snapshot required a standard-tier fallback after persistent Flex capacity errors. |
 
 The current production setting is **C10**, which retains **C8E's prompt
 configuration**:
@@ -1307,4 +1393,4 @@ guidance. Unsupported fields remain null. The schema is not duplicated in the
 user prompt, and canonical Pydantic examples are not exposed to the model. The
 default extraction profile remains the complete contract; C11's deferred profile
 is experimental and available only when selected explicitly. C13 has not been
-promoted pending a confirmation repeat.
+promoted, and the C14-C15 model-tier experiments do not change production.
