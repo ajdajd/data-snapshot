@@ -366,7 +366,7 @@ LLM assistance may support standards discovery, comparison, and candidate mappin
 \section{Case study: Developing the Data Snapshot Metadata Schema}
 \label{sec:case_study}
 
-This section applies the proposed methodology to develop the Data Snapshot Metadata Schema. It describes the artifact class, dataset, workflow execution, resulting operational schema, and two complementary schema-validation exercises. The intermediate knowledge artifacts and validation evidence provide the empirical basis for the subsequent analysis.
+This section applies the proposed methodology to develop the Data Snapshot Metadata Schema. It describes the artifact class, dataset, workflow execution, initial schema design, two complementary schema-validation exercises, and standards-informed refinement. The intermediate knowledge artifacts, validation evidence, and standards crosswalk provide the empirical basis for the subsequent analysis.
 
 \subsection{Artifact type}
 
@@ -403,7 +403,7 @@ Although the dataset is not intended to be statistically representative of insti
 
 \subsection{Workflow execution}
 
-We executed the development stages using the 210-snapshot case study dataset. Metadata discovery processed each snapshot independently; subsequent stages aggregated the observations, synthesized and refined a shared concept inventory, assessed concept coverage, and translated the refined inventory into an operational metadata schema. Figure~\ref{fig:artifact_evolution} shows the intermediate knowledge artifacts produced during this process.
+We executed the development stages using the 210-snapshot case study dataset. Metadata discovery processed each snapshot independently; subsequent stages aggregated the observations, synthesized and refined a shared concept inventory, assessed concept coverage, and translated the refined inventory into an operational metadata schema. The schema was then evaluated against held-out snapshots and refined through comparison with relevant standards. Figure~\ref{fig:artifact_evolution} shows the intermediate knowledge artifacts produced during this process.
 
 Metadata discovery and canonical metadata concept synthesis used GPT-5.5, while concept coverage assessment used GPT-5.4 mini for constrained classification. Field profile aggregation was implemented deterministically in Python and required no LLM inference. Expert concept refinement and metadata schema design and specification were performed through iterative human review of the intermediate knowledge artifacts. Complete prompts, model configurations, and implementation details for the LLM-supported development stages are provided in Appendices~\ref{appendix:discovery}--\ref{appendix:validation}.
 
@@ -414,43 +414,11 @@ Metadata discovery and canonical metadata concept synthesis used GPT-5.5, while 
     \label{fig:artifact_evolution}
 \end{figure}
 
-\subsection{Resulting metadata schema}
+\subsection{Initial metadata schema}
 
-Metadata schema design produced an initial operational Data Snapshot Metadata Schema comprising 36 metadata fields organized into nine semantic modules (Table~\ref{tab:schema}). Together, these modules define an operational specification for describing data snapshots as independent information objects. The schema translates the refined metadata concept inventory into fields, definitions, and annotation guidance for subsequent metadata workflows. Appendix~\ref{appendix:schema} reproduces the complete reference specification, including the documentation revisions arising from schema validation. Appendix~\ref{appendix:sample_metadata} provides three data snapshots with sample metadata records.
+Metadata schema design produced an initial operational Data Snapshot Metadata Schema comprising 36 metadata fields organized into nine semantic modules. The schema translated the refined metadata concept inventory into fields, definitions, and annotation guidance for subsequent metadata workflows.
 
-A central design decision was the separation of metadata describing the snapshot from analytical content to be extracted from it. This boundary keeps the metadata record focused on the identity, interpretation, organization, and management of the snapshot rather than reproducing all values contained in the artifact.
-
-\begin{table}[!ht]
-    \centering
-    \caption{Semantic organization of the Data Snapshot Metadata Schema, showing the nine metadata modules, representative fields, and the number of fields in each module.}
-    \label{tab:schema}
-    
-    \begin{tabular}{llr}    
-        \toprule
-        \textbf{Semantic module} & \textbf{Representative fields} & \textbf{Fields} \\
-        \midrule
-        Identity \& Discovery & \makecell[l]{\texttt{title} \\ \texttt{subject\_domain} \\ \texttt{subject\_summary}} & 5 \\
-        \midrule
-        Subject \& Semantics & \makecell[l]{\texttt{variable\_name} \\ \texttt{population\_group}} & 4 \\
-        \midrule
-        Temporal Context & \makecell[l]{\texttt{time\_period} \\ \texttt{temporal\_granularity}} & 2 \\
-        \midrule
-        Spatial Context & \makecell[l]{\texttt{geographic\_scope} \\ \texttt{geographic\_entities}} & 5 \\
-        \midrule
-        Measurement Context & \makecell[l]{\texttt{unit\_of\_measure} \\ \texttt{measure\_type}} & 4 \\
-        \midrule
-        Structural Organization & \makecell[l]{\texttt{row\_dimension} \\ \texttt{visualization\_type}} & 3 \\
-        \midrule
-        Provenance \& Attribution & \makecell[l]{\texttt{data\_source} \\ \texttt{language}} & 4 \\
-        \midrule
-        Project \& Operational Context & \makecell[l]{\texttt{project\_name} \\ \texttt{financial\_measure}} & 7 \\
-        \midrule
-        Analytical \& Methodological Context & \makecell[l]{\texttt{analysis\_method} \\ \texttt{data\_collection\_method}} & 2 \\
-        \midrule
-        \textbf{Total} &  & \textbf{36} \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+A central design decision was the separation of metadata describing the snapshot from analytical content to be extracted from it. This boundary kept the metadata record focused on the identity, interpretation, organization, and management of the snapshot rather than reproducing all values contained in the artifact.
 
 \subsection{Schema validation}
 \label{sec:schema_validation_case_study}
@@ -503,15 +471,84 @@ Because both exercises used the same held-out collection, they provide complemen
 
 The model configurations, prompts, structured outputs, and human-adjudication procedures for both exercises are documented in Appendix~\ref{appendix:schema_validation}.
 
-The resulting schema, intermediate knowledge artifacts, and held-out validation evidence document one complete execution of the methodology. The following section examines the contribution of each semantic transformation.
+\subsection{Standards-informed schema refinement}
+\label{sec:standards_refinement_case_study}
+
+Following schema validation, the 36 fields were compared with authoritative metadata, statistical, provenance, research-data, publishing, and project-finance standards. The review included DCMI, Schema.org, DCAT, SDMX, DDI, PROV-O, JATS, SKOS, and IATI, together with applicable value and format standards. Codex (\texttt{gpt-5.6-sol}, high reasoning effort) supported standards discovery, comparison, and draft mappings using the validated schema, the validation findings, and authoritative standards documentation. The proposed mappings and refinements were reviewed before changes were incorporated into the schema.
+
+The crosswalk classified the relationship between each field and the reviewed standards rather than assuming that every local concept required a direct equivalent (Table~\ref{tab:standards_crosswalk_results}). Exact or close mappings were available for 21 fields. Nine fields were narrower or broader than the closest standard term, one field combined concepts that the standards distinguished structurally, and five retained locally defined semantics because no direct cross-domain match was identified.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Standards-crosswalk relationships for the 36 validated schema fields.}
+    \label{tab:standards_crosswalk_results}
+    \renewcommand{\arraystretch}{1.25}
+    \small
+    \begin{tabularx}{\textwidth}{>{\RaggedRight\arraybackslash}p{0.20\textwidth} r >{\RaggedRight\arraybackslash}X}
+        \toprule
+        \textbf{Relationship} & \textbf{Fields} & \textbf{Representative finding} \\
+        \midrule
+        Exact & 10 & \texttt{title}, \texttt{time\_period}, and \texttt{currency} have direct counterparts in established standards. \\
+        Close & 11 & Variable, population, category, and temporal-granularity concepts have close counterparts whose local boundaries remain relevant. \\
+        Standard broader & 6 & General identifier, subject, dimension, and type properties are broader than the corresponding local fields. \\
+        Standard narrower & 3 & Project and finance terms cover only subsets of the broader application concepts. \\
+        Related or structural & 1 & Provenance standards distinguish derivation sources from attribution, which were combined in \texttt{data\_source}. \\
+        No direct match & 5 & Geographic roles, comparisons, intervention types, and analysis methods require source-grounded local semantics. \\
+        \midrule
+        \textbf{Total} & \textbf{36} & \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+Human review treated the crosswalk as evidence for schema refinement rather than as an automatic substitution rule. Accepted changes included clearer field names, plural names for repeatable values, refined definitions, standards mappings, and usage guidance. The overloaded \texttt{data\_source} field was separated into \texttt{data\_sources} and \texttt{attributions}, reflecting the distinction between derivation and attribution in provenance standards. Recommendations that would narrow observed concepts to a domain-specific standard were rejected. Richer nested structures, mandatory identifiers, and machine-enforceable controlled vocabularies were deferred because they were not necessary for the directly inspectable flat specification used in this study.
+
+\subsection{Resulting metadata schema}
+
+Standards-informed refinement produced the final Data Snapshot Metadata Schema with 37 fields organized into the same nine semantic modules (Table~\ref{tab:schema}). The additional field resulted from separating derivation sources from attributions; it did not represent a metadata omission discovered after validation. The final specification preserves the information coverage established by the artifact-driven and validation stages while adopting terminology, semantic distinctions, and guidance supported by the standards review.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Semantic organization of the standards-informed Data Snapshot Metadata Schema.}
+    \label{tab:schema}
+    \small
+    \begin{tabular}{llr}
+        \toprule
+        \textbf{Semantic module} & \textbf{Representative fields} & \textbf{Fields} \\
+        \midrule
+        Identity \& Discovery & \makecell[l]{\texttt{title} \\ \texttt{document\_label} \\ \texttt{subject\_domains}} & 5 \\
+        \midrule
+        Subject \& Semantics & \makecell[l]{\texttt{variable\_names} \\ \texttt{population\_group}} & 4 \\
+        \midrule
+        Temporal Context & \makecell[l]{\texttt{time\_period} \\ \texttt{temporal\_granularity}} & 2 \\
+        \midrule
+        Spatial Context & \makecell[l]{\texttt{geographic\_scope} \\ \texttt{geographic\_entities}} & 5 \\
+        \midrule
+        Measurement Context & \makecell[l]{\texttt{units\_of\_measure} \\ \texttt{statistical\_forms}} & 4 \\
+        \midrule
+        Structural Organization & \makecell[l]{\texttt{row\_dimensions} \\ \texttt{visualization\_types}} & 3 \\
+        \midrule
+        Provenance \& Attribution & \makecell[l]{\texttt{data\_sources} \\ \texttt{attributions} \\ \texttt{languages}} & 5 \\
+        \midrule
+        Project \& Operational Context & \makecell[l]{\texttt{project\_name} \\ \texttt{financing\_measures} \\ \texttt{funders}} & 7 \\
+        \midrule
+        Analytical \& Methodological Context & \makecell[l]{\texttt{analysis\_methods} \\ \texttt{data\_collection\_methods}} & 2 \\
+        \midrule
+        \textbf{Total} & & \textbf{37} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Appendix~\ref{appendix:schema} reproduces the complete reference specification, and Appendix~\ref{appendix:sample_metadata} provides three data snapshots with sample metadata records.
+
+The resulting schema, intermediate knowledge artifacts, held-out validation evidence, standards crosswalk, and human decision record document one complete execution of the methodology. The following section examines the contribution of each semantic transformation.
 
 \section{Analysis of semantic transformations}
 
-The case study produced a sequence of explicit artifacts: metadata observations, metadata field profiles, candidate and refined metadata concept inventories, concept coverage evidence, the operational metadata schema, and held-out validation evidence. Together, they document the transformation of the development collection into a metadata schema and the subsequent evaluation of that schema.
+The case study produced a sequence of explicit artifacts: metadata observations, metadata field profiles, candidate and refined metadata concept inventories, concept coverage evidence, an initial operational metadata schema, held-out validation evidence, a standards crosswalk and decision record, and the final standards-informed schema. Together, they document the transformation of artifact-level evidence into an operational specification, the evaluation of that specification, and its refinement against relevant standards.
 
-This section examines how the intermediate knowledge artifacts reduced semantic complexity, preserved supporting evidence, and structured the respective contributions of the LLM and human expert. It then considers what the held-out validation evidence supports about the resulting field inventory.
+This section examines how the intermediate knowledge artifacts reduced semantic complexity, preserved supporting evidence, and structured the respective contributions of the LLM and human expert. It then considers what the held-out validation and standards review contributed to the resulting schema.
 
-The analysis is organized around six questions:
+The analysis is organized around seven questions:
 
 \begin{enumerate}
     \item How did independent metadata discovery characterize the semantic space?
@@ -520,6 +557,7 @@ The analysis is organized around six questions:
     \item How did concept coverage assessment characterize the refined inventory?
     \item How did metadata schema design transform the concept inventory into an operational specification?
     \item What did held-out schema validation show about the accepted field inventory?
+    \item How did standards-informed refinement change the validated schema?
 \end{enumerate}
 
 \subsection{Independent semantic discovery}
@@ -838,7 +876,15 @@ Validation 2 narrowed the assessment to omissions with material consequences for
 
 Together, the exercises provide evidence that the 36-field inventory was stable with respect to the tested held-out collection and intended application. This conclusion concerns the accepted inventory after human review. It does not imply that candidate generation had saturated, that the schema will cover every future artifact without ambiguity, or that Validation 2 detected every material omission. In particular, the 197 no-gap assessments in Validation 2 were not subjected to an independent human false-negative audit.
 
-Viewed collectively, the six transformations show that metadata schema development is not a single inference task. Each intermediate knowledge artifact reduces or reorganizes semantic complexity while preserving evidence for the next stage. Held-out validation then tests the operational result and returns candidate gaps to human review. This structure assigns artifact interpretation and large-scale semantic comparison to LLM-supported stages while preserving human responsibility for conceptual boundaries, operational design, and schema revision.
+\subsection{Standards-informed refinement}
+
+The standards crosswalk introduced a different form of evidence after coverage validation. It did not ask whether an artifact required an additional metadata concept. Instead, it compared the 36 validated fields with established terminology and representation patterns. Ten fields had exact mappings and eleven had close mappings. For the remaining fields, the closest standard was broader, narrower, structurally related, or absent. The results therefore supported selective reuse across multiple standards rather than adoption of a single external vocabulary.
+
+The crosswalk changed both terminology and semantic boundaries. Examples include replacing \texttt{internal\_identifier} with \texttt{document\_label}, \texttt{geographic\_granularity} with \texttt{geographic\_level}, \texttt{measure\_type} with \texttt{statistical\_forms}, and \texttt{financing\_source} with \texttt{funders}. Repeatable values were expressed through plural field names, and field definitions recorded applicable mappings and value guidance. The principal inventory change separated \texttt{data\_source} into \texttt{data\_sources} and \texttt{attributions}. This produced 37 fields without introducing a new descriptive requirement: the change made explicit a provenance distinction that the validated field had previously combined.
+
+The review also identified standards-based structures that were not incorporated into the flat schema. Candidate representations could associate variables with units and statistical forms, dimensions with categories and presentation roles, and geographic or provenance entities with their roles. Human review deferred these structures and rejected mandatory mappings that would narrow observed concepts or require unsupported normalization. The final schema therefore incorporated standards-informed names, distinctions, definitions, and guidance while retaining a flat, directly inspectable representation.
+
+Viewed collectively, the eight methodology stages show that metadata schema development is not a single inference task. Each intermediate knowledge artifact reduces, reorganizes, evaluates, or contextualizes the accumulated evidence. Held-out validation tests coverage and returns candidate gaps to human review; standards-informed refinement then examines how the validated requirements relate to external terminology and representation practices. This structure assigns artifact interpretation, large-scale semantic comparison, and standards discovery to LLM-supported stages while preserving human responsibility for conceptual boundaries, operational design, schema revision, and final mapping decisions.
 
 \section{Discussion}
 
@@ -846,7 +892,7 @@ Viewed collectively, the six transformations show that metadata schema developme
 
 The case study illustrates how established principles from metadata profile development, schema discovery, ontology learning, and multimodal document understanding can be adapted to derive a metadata schema from the artifacts it must describe. The central design choice is to delay construction of a shared vocabulary until each artifact has been analyzed independently. This preserves local observations that might otherwise be absorbed prematurely into concepts established from earlier artifacts.
 
-Metadata field profiles then aggregate these observations without removing their descriptions, examples, occurrence patterns, or provenance. The resulting evidence-bearing representation supports concept synthesis across artifacts while retaining a path back to the observations that motivated each concept. The candidate and refined metadata concept inventories further reduce the review space, but they do not determine the operational schema directly. Schema design introduces a separate set of decisions concerning field organization, annotation guidance, representational simplicity, and intended use. The difference between the 41 concepts in the refined inventory and the 36 fields in the Data Snapshot Metadata Schema reflects this change in objective.
+Metadata field profiles then aggregate these observations without removing their descriptions, examples, occurrence patterns, or provenance. The resulting evidence-bearing representation supports concept synthesis across artifacts while retaining a path back to the observations that motivated each concept. The candidate and refined metadata concept inventories further reduce the review space, but they do not determine the operational schema directly. Schema design introduces a separate set of decisions concerning field organization, annotation guidance, representational simplicity, and intended use. The transformation from 41 refined concepts to 36 initial fields reflects this change in objective; the subsequent standards-informed split of provenance source and attribution produced the final 37-field specification.
 
 This sequence distinguishes conceptual consolidation from operational representation. A concept may remain distinct because it captures a meaningful descriptive requirement, yet be combined with another concept in the schema when a separate field offers limited practical value. Conversely, a distinction removed during concept refinement may be restored when it supports annotation or retrieval, as occurred with \texttt{panel\_title}. The schema is therefore an operationalization of the concept inventory rather than a direct encoding of it.
 
@@ -854,9 +900,9 @@ The intermediate knowledge artifacts also make the development process inspectab
 
 \subsection{Human--LLM collaboration across semantic transformations}
 
-The case study supports a division of responsibility in which multimodal LLMs perform bounded semantic tasks and human experts retain authority over conceptual and operational decisions. The LLM interpreted individual artifacts, synthesized related evidence into candidate concepts, and performed constrained semantic comparison during concept coverage assessment and schema validation. Deterministic aggregation connected artifact-level observations to reusable field profiles without additional model inference.
+The case study supports a division of responsibility in which LLMs perform bounded semantic tasks and human experts retain authority over conceptual and operational decisions. The multimodal LLM interpreted individual artifacts, synthesized related evidence into candidate concepts, and performed constrained semantic comparison during concept coverage assessment and schema validation. LLM assistance also supported research and comparison across standards. Deterministic aggregation connected artifact-level observations to reusable field profiles without additional model inference.
 
-Human review governed the decisions for which semantic similarity was insufficient. These included defining the boundary between metadata and analytical content, deciding whether concepts should be merged or retained, determining whether a concept warranted an independent field, and adjudicating proposed schema gaps. Such decisions depend on the intended scope and use of the metadata schema. Candidate frequency and model-generated rationales provided evidence, but neither constituted an acceptance criterion.
+Human review governed the decisions for which semantic similarity or an external mapping was insufficient. These included defining the boundary between metadata and analytical content, deciding whether concepts should be merged or retained, determining whether a concept warranted an independent field, adjudicating proposed schema gaps, and deciding whether standards-based terminology or structures fit the observed artifacts and intended use. Candidate frequency, model-generated rationales, and standards mappings provided evidence, but none constituted an acceptance criterion.
 
 The intermediate artifacts therefore reorganize rather than automate the expert task. Independent observations expose the breadth of the descriptive space; field profiles assemble evidence across artifacts; candidate concepts reduce the number of units requiring comparison; and validation outputs focus review on possible gaps. The case study shows that this arrangement can support one complete development process. It does not establish that the workflow is faster or more reliable than expert-only or alternative human--AI approaches, which were not evaluated here.
 
@@ -868,15 +914,23 @@ Validation 2 applied a narrower materiality criterion and produced six possible 
 
 Together, the exercises provide bounded evidence that the accepted 36-field inventory covered the metadata requirements identified in the tested collections for the intended scope. Because both exercises used the same 202 held-out snapshots, they constitute complementary assessments rather than independent replications. The absence of accepted new fields does not establish universal coverage, candidate saturation, or adequacy for artifact classes and applications outside the study.
 
+\subsection{Standards-informed refinement after validation}
+
+Placing standards review after artifact-driven development and held-out validation separates two questions: which metadata concepts the artifacts require, and how those concepts relate to established terminology and representation practices. In this case, the artifact and validation stages established the descriptive scope before external standards were used to refine it. This ordering reduced the risk that the schema would inherit the boundaries of a standard designed for a different resource type or application domain.
+
+The crosswalk nevertheless made substantive contributions. Exact and close mappings supplied established terminology and definitions for many fields. Broader, narrower, and structural relationships exposed where local boundaries required explanation or where a standard suggested a useful distinction. The split between data derivation and artifact attribution illustrates the latter case: the standards review clarified an overloaded field without adding a new artifact-derived requirement.
+
+Human adjudication remained necessary because standards coverage did not determine application fit. A domain-specific classification could be authoritative yet too narrow for artifacts outside that domain; a general property could be too broad to preserve the intended local meaning; and a richer relational structure could be semantically preferable but inconsistent with the selected flat representation. The resulting schema is therefore standards-informed rather than a direct implementation of any one standard. The crosswalk documents semantic relationships, but does not by itself establish interoperability or community adoption.
+
 \subsection{Broader implications and future directions}
 
 The methodology may be useful when a class of multimodal artifacts lacks a directly adoptable metadata schema and its descriptive requirements must be established from representative artifacts. Its applicability depends on the availability and coverage of those artifacts, the multimodal model's ability to interpret them, and expert knowledge sufficient to adjudicate conceptual boundaries and operational requirements. These dependencies make transfer to other domains an empirical question rather than an assumed property of the workflow.
 
 Future work should apply the methodology to substantially different artifact classes, compare it with expert-only and alternative human--AI workflows, and examine agreement among multiple experts during concept refinement and gap adjudication. Further work could also evaluate decision-support mechanisms for larger concept inventories and structured representations for relationships that cannot be expressed adequately through a flat field inventory.
 
-Future work should also formally align the resulting schema with relevant metadata standards and application-profile practices, introduce normalized value representations and controlled vocabularies where appropriate, and adopt a canonical machine-readable implementation from which human-readable documentation and interoperability artifacts can be generated. A post-study implementation using Pydantic and generated JSON Schema is examined in Appendix~\ref{appendix:post_study_validation_comparison}. This follow-on comparison also motivates controlled study of how schema content and presentation affect LLM-assisted validation.
+Future work should operationalize the standards-informed decisions through normalized value representations and controlled vocabularies where mappings are sufficiently precise, and adopt a canonical machine-readable implementation capable of representing relationships deferred from the flat schema. Human-readable documentation and interoperability artifacts can then be generated from that implementation. A post-study implementation using Pydantic and generated JSON Schema is examined in Appendix~\ref{appendix:post_study_validation_comparison}. This follow-on comparison also motivates controlled study of how schema content and presentation affect LLM-assisted validation.
 
-More broadly, metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, multimodal LLMs support artifact interpretation and semantic comparison, deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope and operational form. The Data Snapshot Metadata Schema provides one complete case through which to examine this architecture.
+More broadly, metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, multimodal LLMs support artifact interpretation and semantic comparison, LLM assistance can support standards research, deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope, operational form, and the use of external mappings. The Data Snapshot Metadata Schema provides one complete case through which to examine this architecture.
 
 \section{Limitations}
 
