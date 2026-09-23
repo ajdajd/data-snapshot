@@ -162,7 +162,7 @@ Figure~\ref{fig:conceptual_relationship} summarizes the relationships among thes
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.35\linewidth]{data/conceptual_hierarchy.png}
+    \includegraphics[width=0.95\linewidth]{data/conceptual_hierarchy.png}
     \caption{Relationship between data snapshots, metadata, the intermediate concept inventory, and the metadata schema. Metadata extraction and downstream applications are shown separately because they assume that an operational metadata schema already exists.}
     \label{fig:conceptual_relationship}
 \end{figure}
@@ -410,8 +410,8 @@ Metadata discovery and canonical metadata concept synthesis used GPT-5.5, while 
 
 \begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.75\textwidth]{data/case_study_execution.png}
-    \caption{The complete development workflow transforms 210 development snapshots through the six development stages into an initial 36-field schema, evaluates it against 202 held-out snapshots, and applies standards-informed refinement to produce the final 37-field Data Snapshot Metadata Schema. Colors distinguish LLM-supported, deterministic, and human-guided transformations. [TODO: Add standards-informed schema refinement and the final standards-informed schema.]}
+    \includegraphics[width=0.95\textwidth]{data/case_study_execution.png}
+    \caption{Case-study execution of the proposed methodology. The workflow transforms 210 development snapshots into an initial 36-field schema, with concept coverage assessment applied to the refined concept inventory and schema validation performed on a separate collection of 202 held-out snapshots. Human revision produces the validated 36-field schema, which is then refined against authoritative standards and vocabularies to produce the final 37-field Data Snapshot Metadata Schema. Colors distinguish LLM-supported, deterministic, and human-guided transformations.}
     \label{fig:artifact_evolution}
 \end{figure}
 
