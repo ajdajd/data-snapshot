@@ -476,29 +476,7 @@ The model configurations, prompts, structured outputs, and human-adjudication pr
 
 Following schema validation, the 36 fields were compared with authoritative metadata, statistical, provenance, research-data, publishing, and project-finance standards. The review included DCMI, Schema.org, DCAT, SDMX, DDI, PROV-O, JATS, SKOS, and IATI, together with applicable value and format standards. Codex (\texttt{gpt-5.6-sol}, high reasoning effort) supported standards discovery, comparison, and draft mappings using the validated schema, the validation findings, and authoritative standards documentation. The proposed mappings and refinements were reviewed before changes were incorporated into the schema.
 
-The crosswalk classified the relationship between each field and the reviewed standards rather than assuming that every local concept required a direct equivalent (Table~\ref{tab:standards_crosswalk_results}). Exact or close mappings were available for 21 fields. Nine fields were narrower or broader than the closest standard term, one field combined concepts that the standards distinguished structurally, and five retained locally defined semantics because no direct cross-domain match was identified.
-
-\begin{table}[!ht]
-    \centering
-    \caption{Standards-crosswalk relationships for the 36 validated schema fields.}
-    \label{tab:standards_crosswalk_results}
-    \renewcommand{\arraystretch}{1.25}
-    \small
-    \begin{tabularx}{\textwidth}{>{\RaggedRight\arraybackslash}p{0.20\textwidth} r >{\RaggedRight\arraybackslash}X}
-        \toprule
-        \textbf{Relationship} & \textbf{Fields} & \textbf{Representative finding} \\
-        \midrule
-        Exact & 10 & \texttt{title}, \texttt{time\_period}, and \texttt{currency} have direct counterparts in established standards. \\
-        Close & 11 & Variable, population, category, and temporal-granularity concepts have close counterparts whose local boundaries remain relevant. \\
-        Standard broader & 6 & General identifier, subject, dimension, and type properties are broader than the corresponding local fields. \\
-        Standard narrower & 3 & Project and finance terms cover only subsets of the broader application concepts. \\
-        Related or structural & 1 & Provenance standards distinguish derivation sources from attribution, which were combined in \texttt{data\_source}. \\
-        No direct match & 5 & Geographic roles, comparisons, intervention types, and analysis methods require source-grounded local semantics. \\
-        \midrule
-        \textbf{Total} & \textbf{36} & \\
-        \bottomrule
-    \end{tabularx}
-\end{table}
+The crosswalk classified the relationship between each field and the reviewed standards rather than assuming that every local concept required a direct equivalent. Exact or close mappings were available for 21 fields. Nine fields were narrower or broader than the closest standard term, one field combined concepts that the standards distinguished structurally, and five retained locally defined semantics because no direct cross-domain match was identified.
 
 Human review treated the crosswalk as evidence for schema refinement rather than as an automatic substitution rule. Accepted changes included clearer field names, plural names for repeatable values, refined definitions, standards mappings, and usage guidance. The overloaded \texttt{data\_source} field was separated into \texttt{data\_sources} and \texttt{attributions}, reflecting the distinction between derivation and attribution in provenance standards. Recommendations that would narrow observed concepts to a domain-specific standard were rejected. Richer nested structures, mandatory identifiers, and machine-enforceable controlled vocabularies were deferred because they were not necessary for the directly inspectable flat specification used in this study.
 
@@ -878,7 +856,29 @@ Together, the exercises provide evidence that the 36-field inventory was stable 
 
 \subsection{Standards-informed refinement}
 
-The standards crosswalk introduced a different form of evidence after coverage validation. It did not ask whether an artifact required an additional metadata concept. Instead, it compared the 36 validated fields with established terminology and representation patterns. Ten fields had exact mappings and eleven had close mappings. For the remaining fields, the closest standard was broader, narrower, structurally related, or absent. The results therefore supported selective reuse across multiple standards rather than adoption of a single external vocabulary.
+The standards crosswalk introduced a different form of evidence after coverage validation. It did not ask whether an artifact required an additional metadata concept. Instead, it compared the 36 validated fields with established terminology and representation patterns (Table~\ref{tab:standards_crosswalk_results}). Ten fields had exact mappings and eleven had close mappings. For the remaining fields, the closest standard was broader, narrower, structurally related, or absent. The results therefore supported selective reuse across multiple standards rather than adoption of a single external vocabulary.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Standards-crosswalk relationships for the 36 validated schema fields.}
+    \label{tab:standards_crosswalk_results}
+    \renewcommand{\arraystretch}{1.25}
+    \small
+    \begin{tabularx}{\textwidth}{>{\RaggedRight\arraybackslash}p{0.20\textwidth} r >{\RaggedRight\arraybackslash}X}
+        \toprule
+        \textbf{Relationship} & \textbf{Fields} & \textbf{Representative finding} \\
+        \midrule
+        Exact & 10 & \texttt{title}, \texttt{time\_period}, and \texttt{currency} have direct counterparts in established standards. \\
+        Close & 11 & Variable, population, category, and temporal-granularity concepts have close counterparts whose local boundaries remain relevant. \\
+        Standard broader & 6 & General identifier, subject, dimension, and type properties are broader than the corresponding local fields. \\
+        Standard narrower & 3 & Project and finance terms cover only subsets of the broader application concepts. \\
+        Related or structural & 1 & Provenance standards distinguish derivation sources from attribution, which were combined in \texttt{data\_source}. \\
+        No direct match & 5 & Geographic roles, comparisons, intervention types, and analysis methods require source-grounded local semantics. \\
+        \midrule
+        \textbf{Total} & \textbf{36} & \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
 
 The crosswalk changed both terminology and semantic boundaries. Examples include replacing \texttt{internal\_identifier} with \texttt{document\_label}, \texttt{geographic\_granularity} with \texttt{geographic\_level}, \texttt{measure\_type} with \texttt{statistical\_forms}, and \texttt{financing\_source} with \texttt{funders}. Repeatable values were expressed through plural field names, and field definitions recorded applicable mappings and value guidance. The principal inventory change separated \texttt{data\_source} into \texttt{data\_sources} and \texttt{attributions}. This produced 37 fields without introducing a new descriptive requirement: the change made explicit a provenance distinction that the validated field had previously combined.
 
