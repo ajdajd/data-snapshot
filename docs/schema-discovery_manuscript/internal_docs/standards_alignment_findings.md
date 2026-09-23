@@ -1,6 +1,6 @@
 # Standards-Alignment Findings and Decision Matrix
 
-Status: Crosswalk findings and v1.1.2 decisions approved
+Status: Final standards-alignment decision record
 
 ## Reporting boundary
 
@@ -105,23 +105,16 @@ The decision labels below record the approved dispositions:
 | `analysis_method` | No direct universal equivalent; method vocabularies are discipline-specific | Rename to `analysis_methods`; require an external method vocabulary | Partially accept | Use the plural field. Reject a mandatory vocabulary; preserve explicitly stated methods. |
 | `data_collection_method` | DDI Mode of Collection is an exact or close fit for many values | Rename to `data_collection_methods`; require DDI values | Partially accept | Use the plural field. Apply a DDI term only when exact and preserve other explicit methods. |
 
-## Cross-cutting structural recommendation
+## Deferred structural refinements
 
 The standards review supports richer relationships among variables and their
 qualifiers, dimensions and their categories, geographic entities and their
 roles, provenance entities and attributions, and project or financing
-concepts. The v1.1.2 decision is to defer these nested structures as a
-whole. This is a human design decision based on the need for a directly
-inspectable paper schema, not a claim that the standards-derived structures are
-incorrect.
-
-The corresponding manuscript interpretation should be bounded:
-
-> Human review accepted terminology and semantic distinctions that improved
-> the flat schema, but did not adopt richer relational structures at this
-> stage. Those structures were judged valuable for a subsequent
-> machine-readable implementation rather than necessary for the paper's
-> inspectable schema representation.
+concepts. Human review accepted terminology and semantic distinctions that
+improved the flat schema but deferred these nested structures as a whole. They
+were judged valuable for a subsequent machine-readable implementation rather
+than necessary for the directly inspectable schema representation reported in
+this study.
 
 ## Decision outcome
 
@@ -130,3 +123,33 @@ flat v1.1.2 specification. The additional field results from separating
 derivation sources from attributions. Accepted field names, definitions,
 mappings, and usage guidance are recorded in the v1.1.2 specification; nested
 and machine-enforceable representations are outside this decision set.
+
+## Authoritative sources consulted
+
+- Schema.org: [data model](https://schema.org/docs/datamodel.html),
+  [Dataset](https://schema.org/Dataset), and the term pages referenced in the
+  decision matrix.
+- Dublin Core Metadata Initiative: [DCMI Metadata
+  Terms](https://www.dublincore.org/specifications/dublin-core/dcmi-terms/).
+- World Wide Web Consortium: [Data Catalog Vocabulary
+  (DCAT) 3](https://www.w3.org/TR/vocab-dcat-3/),
+  [PROV-O](https://www.w3.org/TR/prov-o/),
+  [SKOS](https://www.w3.org/TR/skos-reference/), and the
+  [RDF Data Cube Vocabulary](https://www.w3.org/TR/vocab-data-cube/).
+- SDMX: [technical standards](https://sdmx.org/standards-2/) and
+  [cross-domain concepts and code lists](https://sdmx.org/sdmx_cdcl/).
+- DDI Alliance: [DDI Lifecycle 3.3
+  documentation](https://docs.ddialliance.org/DDI-Lifecycle/3.3/).
+- International Aid Transparency Initiative: [IATI Standard
+  2.03](https://reference.iatistandard.org/en/iati-standard/203/).
+- National Information Standards Organization and National Library of
+  Medicine: [JATS 1.3](https://jats.nlm.nih.gov/publishing/1.3/).
+- International Organization for Standardization: [ISO
+  8601](https://www.iso.org/iso-8601-date-and-time-format.html), [ISO
+  3166](https://www.iso.org/iso-3166-country-codes.html), and [ISO
+  4217](https://www.iso.org/iso-4217-currency-codes.html).
+- United Nations: [UN M49](https://unstats.un.org/unsd/methodology/m49/) and
+  [UN/CEFACT Recommendation
+  20](https://unece.org/code-list-recommendations).
+- Internet Engineering Task Force: [BCP
+  47](https://www.rfc-editor.org/info/bcp47).
