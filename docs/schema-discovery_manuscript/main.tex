@@ -45,7 +45,7 @@ District of Columbia, USA \\
 
 \begin{abstract}
 
-Developing an operational metadata schema for a multimodal artifact class requires identifying its descriptive requirements before metadata extraction can begin. We present an artifact-driven, human-in-the-loop methodology that adapts principles from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. The methodology decomposes schema development into explicit, evidence-preserving semantic transformations connected by intermediate knowledge artifacts. Multimodal large language models support artifact interpretation, concept synthesis, and constrained semantic comparison, while human experts determine conceptual boundaries, operational fields, and schema revisions. We apply the methodology to 210 data snapshots extracted from institutional documents, producing the 36-field Data Snapshot Metadata Schema, and evaluate it against a separate collection of 202 snapshots. Human adjudication accepted no additional fields while identifying documentation ambiguities and representation limitations. The contribution is a reusable artifact-driven, human-in-the-loop methodology for developing operational metadata schemas from multimodal artifacts, integrating established methods into an evidence-preserving workflow tailored to this input/output setting: multimodal artifacts as evidence and an operational metadata schema as the endpoint. The source code is available at https://www.github.com/ajdajd/placeholderrepo.
+Developing an operational metadata schema for a multimodal artifact class requires identifying its descriptive requirements before metadata extraction can begin. We present an artifact-driven, human-in-the-loop methodology that adapts principles from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. The methodology decomposes schema development into explicit, evidence-preserving semantic transformations connected by intermediate knowledge artifacts. Multimodal large language models support artifact interpretation, concept synthesis, and constrained semantic comparison, while human experts determine conceptual boundaries, operational fields, and schema revisions. We apply the methodology to 210 data snapshots extracted from institutional documents, producing the 36-field Data Snapshot Metadata Schema, and evaluate it against a separate collection of 202 snapshots. Human adjudication accepted no additional fields while identifying documentation ambiguities and representation limitations. The contribution is a reusable artifact-driven, human-in-the-loop methodology for developing operational metadata schemas from multimodal artifacts, integrating established methods into an evidence-preserving workflow tailored to this input/output setting: multimodal artifacts as evidence and an operational metadata schema as the endpoint. The source code is available at https://github.com/ajdajd/placeholderrepo.
 
 \end{abstract}
 
@@ -993,7 +993,7 @@ Metadata discovery was performed using GPT-5.5 through the OpenAI Responses API.
 
 Representative data snapshots were sampled from the three document corpora described in Section~\ref{sec:case_study}. For each corpus, 35 figures and 35 tables were selected through random sampling, producing a balanced dataset of 210 representative data snapshots.
 
-Each snapshot was processed independently. The snapshot image, together with its associated document-level metadata, was submitted to GPT-5.5 using the system and user prompts reproduced below. Responses were recorded as structured JSON objects and written to disk for subsequent workflow stages.
+Each snapshot was processed independently. The snapshot image, together with its associated document-level metadata, was submitted to GPT-5.5 using system and user prompts. Responses were recorded as structured JSON objects and written to disk for subsequent workflow stages.
 
 Processing snapshots independently ensured that metadata discovery for one artifact could not influence the observations produced for any other artifact.
 
@@ -1005,242 +1005,14 @@ Several design principles were incorporated into the prompt. First, the model wa
 
 The resulting metadata observations therefore constitute reusable semantic hypotheses about candidate metadata fields rather than extracted metadata records.
 
-\subsection{System prompt}
+\subsection{Reproducibility materials}
 
-\begin{lstlisting}
-You are assisting with metadata schema discovery for a document intelligence system.
-
-# Background
-
-The input consists of:
-
-1. A data snapshot image extracted from a PDF document.
-
-   * The snapshot is either a Figure or a Table.
-   * The image may contain titles, captions, footnotes, legends, axes, source citations, notes, labels, and data values.
-
-2. Document-level metadata describing the source PDF.
-
-   * This metadata may already contain information such as:
-
-     * document title
-     * publication date
-     * country
-     * sector
-     * themes
-     * topics
-     * organization
-     * project identifiers
-
-The broader goal of the project is to improve discovery of information contained within figures and tables that is often not fully represented in the surrounding document text.
-
-# Objective
-
-Your goal is NOT to extract metadata into a predefined schema.
-
-Your goal is to discover reusable metadata fields that could become part of a future Figure Metadata Schema or Table Metadata Schema.
-
-Think as a metadata architect, not a data extractor.
-
-# Important Principles
-
-1. Focus on discovering metadata fields, not extracting data.
-
-2. Candidate metadata fields should be reusable across many snapshots.
-
-3. Prefer generic metadata concepts over snapshot-specific concepts.
-
-4. Distinguish between:
-
-   * information already available from document-level metadata
-   * information that must be obtained from the snapshot itself
-
-5. Focus on semantic meaning rather than visual layout characteristics.
-
-6. Consider both explicit information visible in the snapshot and information that can be reasonably inferred from the snapshot.
-
-# Reusable Field Rule
-
-A candidate metadata field should be useful across many figures or tables.
-
-GOOD examples:
-
-* figure_title
-* table_title
-* indicator_name
-* visualization_type
-* geographic_scope
-* time_period
-* population_group
-* unit_of_measure
-* source_citation
-* category_labels
-* category_values
-* expenditure_categories
-* row_dimension
-* column_dimension
-
-BAD examples:
-
-* agriculture
-* services
-* food_products_beverages
-* refund_of_ppf
-* category_value_agriculture
-* category_value_services
-
-These are values, not metadata fields.
-
-When you encounter specific categories, labels, countries, sectors, expenditure types, or data values, represent them as observed values of a reusable metadata field.
-
-Prefer canonical metadata field names when possible.
-
-If multiple names could describe the same concept,
-choose the most general and reusable field name.
-
-# Hallucination Prevention
-
-Observed values must be grounded in evidence from:
-
-* the snapshot image
-* the provided document metadata
-
-Do not invent values.
-
-Do not infer highly specific values unless strongly supported by the evidence.
-
-If a metadata field appears useful but no value can be confidently identified, use:
-
-"Not identifiable from this snapshot"
-
-If a value is inferred rather than explicitly visible, clearly indicate that it is inferred.
-
-# Field Selection Guidance
-
-Only propose metadata fields that would improve one or more of the following:
-
-* search and retrieval
-* filtering and faceted browsing
-* cataloging
-* provenance tracking
-* analytical reuse
-* discovery of data contained within figures and tables
-
-Avoid proposing fields that merely restate visual formatting or layout.
-
-# Prioritization Guidance
-
-The goal is to identify metadata fields that would likely deserve a place in a future Figure Metadata Schema or Table Metadata Schema.
-
-Prioritize metadata fields that:
-
-* are unique to the snapshot or substantially enrich document-level metadata
-* capture the semantic meaning of the figure or table
-* support search, filtering, comparison, or analytical reuse
-* are likely to appear across many snapshots in the corpus
-
-De-prioritize metadata fields that:
-
-* are already known from the extraction pipeline
-* are already available in document metadata
-* provide little additional discovery value beyond existing metadata
-* are administrative identifiers unless they are central to understanding the snapshot
-
-Do not propose:
-
-* snapshot_type
-* figure/table classification
-* page numbers
-* file names
-* extraction metadata
-
-Limit the output to the 10-15 most useful reusable metadata fields.
-
-Do not attempt to exhaustively enumerate every possible field.
-
-When a useful field is already available in document metadata,
-only include it if it materially contributes to discovery of
-the snapshot itself.
-
-The goal is to identify metadata that should be attached to the
-snapshot, not to reproduce the full document metadata record.
-
-# Output Format
-
-Return a JSON object with one top-level key:
-
-* fields
-
-The value of fields must be an array of candidate metadata field objects.
-
-Each candidate metadata field object must contain:
-
-* metadata_field
-* observed_value
-* description
-* source_level
-* discovery_value
-* reasoning
-
-Definitions:
-
-metadata_field:
-A reusable metadata concept that could appear in many snapshots.
-Use snake_case. Prefer durable concepts such as indicator_name,
-geographic_scope, time_period, unit_of_measure, row_dimension, or
-source_citation. Do not use a specific observed value as the field name.
-
-observed_value:
-The value observed in the current snapshot or document metadata.
-
-description:
-A concise description of what the metadata field represents.
-
-source_level:
-One of:
-
-* snapshot
-* document
-* both
-
-discovery_value:
-One of:
-
-* high
-* medium
-* low
-
-reasoning:
-A concise explanation (1 sentence maximum) of why this metadata field would be useful.
-
-Do not include any text outside the JSON object.
-
-Do not include headings.
-
-Do not include observations.
-
-Do not include recommendations.
-
-Return only the fields object.
-
-\end{lstlisting}
-
-\subsection{User prompt}
-
-\begin{lstlisting}
-Analyze the attached data snapshot image together with the provided document metadata.
-
-Document metadata:
-
-{DOCUMENT_METADATA_JSON}
-
-Please perform the metadata schema discovery task described in the system instructions.
-\end{lstlisting}
+The complete system and user prompts, structured-output definitions, and executable implementation for this stage are provided in the accompanying repository.
 
 \section{Appendix: Canonical metadata concept synthesis implementation}
 \label{appendix:ontology_induction}
 
-This appendix documents the implementation of canonical metadata concept synthesis in the case study. The original implementation and prompts called this stage \emph{ontology induction}; that historical terminology is retained in the reproduced prompts. As characterized in this paper, the stage transforms aggregated metadata field profiles into a candidate metadata concept inventory for subsequent expert refinement.
+This appendix documents the implementation of canonical metadata concept synthesis in the case study. The original implementation called this stage \emph{ontology induction}; that historical terminology is retained in the implementation artifacts provided in the accompanying repository. As characterized in this paper, the stage transforms aggregated metadata field profiles into a candidate metadata concept inventory for subsequent expert refinement.
 
 \subsection{Model configuration}
 
@@ -1264,7 +1036,7 @@ Canonical metadata concept synthesis was performed using GPT-5.5 through the Ope
 
 \subsection{Implementation}
 
-The metadata field profiles produced during field profile aggregation were exported as a CSV file and provided to GPT-5.5 together with the system and user prompts reproduced below. Concept synthesis was performed in a single inference using the \texttt{client.responses.create} interface.
+The metadata field profiles produced during field profile aggregation were exported as a CSV file and provided to GPT-5.5 together with system and user prompts. Concept synthesis was performed in a single inference using the \texttt{client.responses.create} interface.
 
 The response consisted of a Markdown table containing canonical metadata concepts, definitions, rationales, and representative discovered metadata fields. This candidate metadata concept inventory subsequently underwent iterative expert refinement.
 
@@ -1276,285 +1048,14 @@ Several design principles were incorporated into the prompt. First, the model wa
 
 The resulting candidate metadata concept inventory is an intermediate representation of the discovered metadata space rather than a formal ontology or operational metadata schema.
 
-\subsection{System prompt}
+\subsection{Reproducibility materials}
 
-\begin{lstlisting}
-You are an expert metadata architect and ontology engineer.
-
-You are designing a canonical metadata ontology for institutional data snapshots extracted from PDF documents.
-
-A data snapshot is a self-contained figure, table, chart, map, infographic, dashboard, or other visual object containing structured information.
-
-The broader objective of the project is to improve discovery of information embedded inside data snapshots that is often not fully represented in surrounding document text.
-
-
-# Input
-
-You will receive metadata field profiles discovered from a corpus of data snapshots.
-
-Each profile represents a candidate metadata field proposed by a multimodal LLM.
-
-Each profile contains information such as:
-
-- metadata_field
-- count
-- corpora_count
-- figure_count
-- table_count
-- source_snapshot_count
-- source_document_count
-- source_both_count
-- n_unique_observed_values
-- top_observed_values
-- top_description_values
-- top_reasoning_values
-
-
-# Goal
-
-Your task is to propose a canonical ontology for a single Data Snapshot Metadata Schema.
-
-The ontology should consist of reusable metadata concepts that could describe data snapshots from multiple domains, including:
-
-- humanitarian reporting
-- refugee and displacement studies
-- development economics
-- project finance
-- statistical publications
-- policy reports
-
-
-# Ontology Design Principles
-
-A metadata concept should:
-
-- improve search and retrieval
-- support filtering and faceted browsing
-- improve cataloging
-- support provenance tracking
-- support analytical reuse
-- capture semantic information embedded inside figures and tables
-
-
-Prefer generic concepts over modality-specific concepts.
-
-
-GOOD
-
-title
-
-indicator_name
-
-time_period
-
-population_group
-
-unit_of_measure
-
-source_citation
-
-
-BAD
-
-figure_title
-
-table_title
-
-chart_title
-
-country_of_asylum_indicator_name
-
-
-Distinguish between:
-
-- reusable metadata concepts
-
-- observed values
-
-- extraction artifacts
-
-
-GOOD
-
-population_group
-
-
-Observed values
-
-Women
-
-Children
-
-Refugees
-
-Households
-
-
-BAD
-
-women
-
-children
-
-refugees
-
-
-These are values, not metadata concepts.
-
-
-Avoid concepts that primarily describe visual formatting.
-
-
-Document-level metadata should only be included if it materially improves discovery of the snapshot itself.
-
-
-The objective is NOT to preserve every discovered field.
-
-
-The objective is to synthesize a concise and reusable ontology containing approximately 50-70 concepts.
-
-
-When uncertain, prefer keeping concepts separate.
-
-Over-merging concepts is generally worse than under-merging concepts because humans can merge concepts later during review.
-
-
-
-# Output
-
-
-Return a markdown table.
-
-
-Each row should represent one proposed metadata concept.
-
-
-Columns
-
-
-canonical_name
-
-
-definition
-
-
-rationale
-
-
-sample_fields
-
-
-
-Definitions
-
-
-canonical_name
-
-Reusable metadata concept in snake_case.
-
-
-
-definition
-
-Short description of what the metadata concept represents.
-
-
-
-rationale
-
-One or two sentences explaining why the concept deserves inclusion in a Data Snapshot Metadata Schema.
-
-
-
-sample_fields
-
-Representative discovered metadata fields that exemplify the concept.
-
-These are examples only.
-
-Do not attempt to exhaustively enumerate every discovered field.
-
-
-Do not include commentary outside the table.
-\end{lstlisting}
-
-\subsection{User prompt}
-
-\begin{lstlisting}
-The attached CSV file contains metadata field profiles discovered from institutional data snapshots.
-
-Dataset summary
-
-- 210 sampled data snapshots
-
-- 3 corpora
-
-    - UNHCR / ReliefWeb
-
-    - Policy Research Working Papers
-
-    - Refugee Project Appraisal Documents
-
-
-- 3,041 metadata observations generated by a multimodal LLM
-
-
-- 833 unique discovered metadata fields
-
-
-
-Each row in the CSV corresponds to one discovered metadata field and contains:
-
-- frequency statistics
-
-- corpus coverage statistics
-
-- representative observed values
-
-- representative descriptions
-
-- representative reasoning statements
-
-
-
-Your task is to synthesize a canonical metadata ontology for a Data Snapshot Metadata Schema.
-
-
-Requirements
-
-
-Review all metadata field profiles before making consolidation decisions.
-
-
-Prefer reusable concepts.
-
-
-Prefer concepts intrinsic to the snapshot itself.
-
-
-De-prioritize document-level metadata unless they materially improve discovery of the snapshot.
-
-
-Merge obvious synonyms.
-
-
-Avoid over-merging concepts.
-
-
-Do not preserve every discovered field.
-
-
-Aim for approximately 50-70 metadata concepts.
-
-
-
-Produce the ontology now.
-\end{lstlisting}
+The complete system and user prompts, structured-output definitions, and executable implementation for this stage are provided in the accompanying repository.
 
 \section{Appendix: Concept coverage assessment implementation}
 \label{appendix:validation}
 
-This appendix documents the implementation of concept coverage assessment in the case study. The original implementation and prompts called this stage \emph{ontology validation}; that historical terminology, including \texttt{not\_in\_ontology}, is retained in the reproduced prompts and outputs. As characterized in this paper, the stage assigns each metadata field profile to one concept in the refined metadata concept inventory, producing the assignments analyzed in Section~\ref{sec:validation}.
+This appendix documents the implementation of concept coverage assessment in the case study. The original implementation called this stage \emph{ontology validation}; that historical terminology, including \texttt{not\_in\_ontology}, is retained in the implementation artifacts provided in the accompanying repository. As characterized in this paper, the stage assigns each metadata field profile to one concept in the refined metadata concept inventory, producing the assignments analyzed in Section~\ref{sec:validation}.
 
 \subsection{Model configuration}
 
@@ -1579,7 +1080,7 @@ Concept coverage assessment was performed using GPT-5.4 mini through the OpenAI 
 
 \subsection{Implementation}
 
-Concept coverage assessment iterated over each metadata field profile produced during field profile aggregation. For each profile, GPT-5.4 mini received the system and user prompts reproduced below together with: (1) the refined metadata concept inventory represented in Markdown, (2) the metadata field name, and (3) representative descriptions and observed values associated with the field profile.
+Concept coverage assessment iterated over each metadata field profile produced during field profile aggregation. For each profile, GPT-5.4 mini received system and user prompts together with: (1) the refined metadata concept inventory represented in Markdown, (2) the metadata field name, and (3) representative descriptions and observed values associated with the field profile.
 
 Classification outputs were constrained using a Pydantic enumeration containing every canonical concept together with the historical \texttt{not\_in\_ontology} category. Consequently, every metadata field profile was assigned to exactly one concept or to \texttt{not\_in\_ontology} when no concept adequately described the field.
 
@@ -1593,131 +1094,9 @@ Several design principles were incorporated into the prompt. First, the model pr
 
 The resulting classifications constitute concept coverage evidence describing how well the refined inventory accounts for the metadata field profiles produced during field profile aggregation.
 
-\subsection{System prompt}
+\subsection{Reproducibility materials}
 
-\begin{lstlisting}
-You are assisting with metadata schema consolidation.
-
-Your task is to classify discovered metadata fields into a predefined ontology of canonical metadata concepts.
-
-The ontology has already been reviewed by a human expert and should be treated as authoritative.
-
-Your role is to act as a classifier, not an ontology designer.
-
-
-# Instructions
-
-You will receive:
-
-1. A reference ontology containing canonical metadata concepts.
-
-For each concept, the ontology provides:
-
-- canonical_name
-- definition
-- examples
-
-
-2. A discovered metadata field profile containing information collected during schema discovery.
-
-
-Your objective is to select the single best canonical concept from the ontology.
-
-Do not create new concepts.
-
-Do not suggest merges.
-
-Do not suggest modifications to the ontology.
-
-Always return exactly one canonical concept.
-
-"not_in_ontology" is a valid canonical concept and should be used when appropriate.
-
-
-# Classification Guidance
-
-Prefer semantic meaning over wording similarity.
-
-Use all available evidence:
-
-- metadata_field
-- top_description_values
-- top_observed_values
-
-The metadata_field name alone may be misleading.
-
-Examples in the ontology are illustrative and not exhaustive.
-
-If several concepts appear plausible, choose the most general and reusable concept.
-
-Use "not_in_ontology" only when no ontology concept adequately describes the field.
-
-Examples include:
-
-- extraction-oriented fields
-- snapshot-specific concepts
-- fields that are not metadata
-- concepts intentionally excluded from the ontology
-
-
-# Confidence Levels
-
-Use:
-
-high
-
-The field clearly belongs to a single ontology concept.
-
-
-medium
-
-Two or more ontology concepts seem plausible.
-
-
-low
-
-No ontology concept fits well, including assignments to "not_in_ontology".
-\end{lstlisting}
-
-\subsection{User prompt}
-
-\begin{lstlisting}
-# Canonical Metadata Ontology
-
-{{ONTOLOGY_MARKDOWN}}
----
-
-### not_in_ontology
-
-Definition:
-Fields that were discovered during schema induction but were intentionally excluded from the metadata schema because they primarily represent extracted values, highly snapshot-specific concepts, or non-metadata artifacts.
-
-Examples:
-data_values, indicator_value, measure_values, baseline_value, target_value, significance_notation
-
-Examples in the ontology represent discovered field names that were judged to belong to that canonical concept.
-
-They are illustrative and not exhaustive.
-
-Prefer semantic meaning over exact string matching.
-
-
-# Metadata Field Profile
-
-metadata_field
-
-{{metadata_field}}
-
-top_description_values
-
-{{top_description_values}}
-
-top_observed_values
-
-{{top_observed_values}}
-
-Assign this discovered metadata field to exactly one canonical metadata concept from the ontology.
-\end{lstlisting}
+The complete system and user prompts, structured-output definitions, and executable implementation for this stage are provided in the accompanying repository.
 
 \section{Appendix: Held-out schema validation implementation}
 \label{appendix:schema_validation}
@@ -1772,92 +1151,9 @@ Candidate names were not normalized by the model. Human review manually grouped 
 
 Acceptance was not determined by candidate frequency. For each candidate area, the reviewer considered whether the evidence described the snapshot rather than only its source document, whether the concept was reusable and within scope, whether existing fields already represented it adequately, whether it was metadata rather than extracted analytical content, whether an independent field had operational value, and whether the issue concerned missing vocabulary or the representation of an existing concept. Application architecture, expected retrieval behavior, generalizability, and maintenance cost informed the operational decision. Decisions and rationales were recorded by candidate area in the final adjudication report. No candidate was accepted as a new field.
 
-\subsubsection{System prompt}
+\subsubsection{Reproducibility materials}
 
-\begin{lstlisting}
-You are evaluating the coverage of a frozen metadata schema against one held-out data snapshot.
-
-The baseline is the **Data Snapshot Metadata Schema v1.1**. Treat it as authoritative and immutable during this task. You may identify evidence of a coverage gap, but you must not revise the schema or decide that a proposed field should be accepted.
-
-A data snapshot is a self-contained table, chart, map, dashboard, composite figure, or other visual analytical object extracted from an institutional document.
-
-## Evaluation procedure
-
-1. Independently identify reusable metadata concepts explicitly evidenced by the snapshot or its source-document metadata.
-2. Compare each concept with the definitions in v1.1.
-3. Record one observation for each distinct reusable metadata concept needed to describe the snapshot.
-4. Propose a candidate new field only when an in-scope observation has a weak fit or no fit.
-
-Do not infer missing information, use external knowledge, or treat plausibility as evidence.
-
-Focus observations on metadata concepts whose coverage is substantively at issue. Do not create observations merely to inventory routine exclusions such as numerical values, table-cell contents, filenames, corpus labels, or artifact indexes and types supplied only for pipeline provenance. Use `out_of_scope` or `uncertain` only when a genuine boundary question affects the coverage decision.
-
-## Metadata boundary
-
-Metadata describes the snapshot and supports identification, interpretation, organization, retrieval, provenance, or analytical reuse.
-
-The following are outside the schema's scope and must not become candidate fields:
-
-- extracted numerical values
-- OCR text or table-cell contents
-- chart or table reconstruction
-- statistical outputs or model results
-- visual formatting details with no descriptive value
-- implementation or extraction-pipeline artifacts
-- snapshot-specific values presented as field names
-
-Document metadata is evidence only when it materially describes or contextualizes the snapshot. Do not copy the entire document record into the assessment.
-
-Evaluate metadata according to its explicitly evidenced role and the exact schema definitions. Do not assume that a document publication date represents the snapshot's data period, or that a document author, publisher, or hosting organization is the source of the represented data. If the evidence supports that role, map the concept to the existing field. Otherwise, assess the distinct concept using the normal fit and candidate-field criteria.
-
-## Fit status
-
-Use exactly one status for every observation:
-
-- `covered`: one or more existing fields represent the concept without material loss.
-- `weak_fit`: an existing field is related, but using it would distort, omit, or conflate important semantics.
-- `no_fit`: the concept is in scope and no existing field adequately represents it.
-- `out_of_scope`: the observation is an extraction output or otherwise outside snapshot metadata.
-- `uncertain`: the evidence or semantic interpretation is insufficient for a reliable decision.
-
-For `covered` and `weak_fit`, identify the closest existing fields using their exact v1.1 names. A wording difference or synonym is not a new field.
-
-## Evidence and candidate fields
-
-Every observation must cite concise, explicit evidence and state whether it comes from the snapshot, document metadata, or both. Write both `evidence` and `fit_rationale` as one concise sentence each.
-
-Candidate fields must:
-
-- use a broadly reusable, preferably singular `snake_case` name;
-- be supported by one or more `weak_fit` or `no_fit` observations;
-- explain why existing fields are insufficient;
-- provide operational value for describing data snapshots; and
-- remain proposals for later human adjudication.
-
-Treat document-level administrative metadata as a candidate only when it materially enables identification, retrieval, verification, or interpretation of the snapshot. This boundary must not suppress valid evidence about snapshot provenance.
-
-Do not make an overall recommendation to revise v1.1 and do not claim schema saturation from a single snapshot.
-\end{lstlisting}
-
-\subsubsection{User prompt}
-
-\begin{lstlisting}
-# Frozen Data Snapshot Metadata Schema v1.1
-
-{{SCHEMA_MARKDOWN}}
-
-# Snapshot
-
-- File: `{{SNAPSHOT_FILE_NAME}}`
-- Source corpus: `{{SOURCE}}`
-- Artifact type: `{{ARTIFACT_TYPE}}`
-
-# Source-document metadata
-
-{{DOCUMENT_METADATA}}
-
-Evaluate the attached snapshot using the system instructions. Return the structured schema-validation assessment only.
-\end{lstlisting}
+The complete system and user prompts, structured-output definitions, and executable implementation for this stage are provided in the accompanying repository.
 
 \subsection{Validation 2: Confirmatory critical-gap assessment}
 
@@ -1897,107 +1193,9 @@ Human review examined all six possible-gap records returned across five snapshot
 
 Adjudication was recorded by snapshot filename and gap identifier using the fields \texttt{human\_decision}, \texttt{critical\_to\_interpretability}, \texttt{critical\_to\_discoverability}, and \texttt{human\_rationale}. The final report recorded the decision and rationale for each of the six candidates. None was accepted as a new field; four were rejected or excluded, and two were classified as representation limitations. The 197 \texttt{no\_critical\_gap\_found} assessments did not receive an independent human false-negative audit.
 
-\subsubsection{System prompt}
+\subsubsection{Reproducibility materials}
 
-\begin{lstlisting}
-You are evaluating the coverage of a frozen metadata schema against one data snapshot.
-
-The baseline is **Data Snapshot Metadata Schema v1.1.1**. Treat it as authoritative and frozen. Your task is only to assess whether this schema adequately covers the supplied data snapshot. Do not revise the schema or decide whether a proposed field should be accepted.
-
-A data snapshot is a self-contained table, chart, map, dashboard, composite figure, or other visual analytical object extracted from an institutional document.
-
-## Core question
-
-Given the schema, snapshot, and parent-document context, is there any critical or possibly critical reusable metadata information about the snapshot that is not adequately covered by an existing field and whose absence would materially impair interpretability, discoverability, or both?
-
-## Evaluation procedure
-
-1. Consider the complete v1.1.1 schema, but do not inventory covered information.
-2. Identify only critical or possibly critical reusable snapshot metadata that may lack adequate coverage.
-3. For each gap, identify the closest existing fields using exact v1.1.1 field names. A wording difference or synonym is not a gap.
-4. Compare a faithful representation of the information with the best representation permitted by the closest existing fields. Explain the concrete interpretability or discoverability impairment that could result from omitting the information or using those fields.
-5. Return a positive `no_critical_gap_found` result when no concept meets the critical or possible thresholds.
-
-## Critical and possible gaps
-
-A `critical` gap must meet all of the following conditions:
-
-- explicit evidence supports the information;
-- the information is reusable snapshot metadata;
-- existing fields cannot represent it without materially distorting or losing its meaning; and
-- its absence has a concrete material impact on interpretability, discoverability, or both.
-
-A `possible` gap must still be plausible reusable snapshot metadata with a plausible material impact, but uncertainty remains about the evidence, existing-field coverage, or materiality.
-
-Do not report information that would merely be useful, convenient, specialized, desirable, or an additional search facet. Do not infer a particular application, interface, user group, search behavior, or workflow. Human review will determine whether each claimed impact and proposed field is justified.
-
-## Snapshot and document boundary
-
-The snapshot is the object being described. Parent-document metadata is supplied as context and may clarify the snapshot's subject, meaning, provenance, or relationship to its source document.
-
-A proposed gap must describe the snapshot, the data represented in it, or provenance explicitly attached to it. A fact that describes only the parent document is not a snapshot-schema gap. Parent-document URLs or locators, identifiers, document types, publication dates, authorship, and general attribution belong to the linked document record unless the evidence explicitly establishes a distinct snapshot-level role.
-
-For every proposed gap, explain why the information is metadata about this snapshot rather than only metadata about its parent document. Do not enumerate, classify, or reproduce the document metadata record.
-
-## Metadata boundary
-
-Reusable metadata describes the snapshot and supports interpretation or discovery across snapshots.
-
-The following are outside the schema's scope and must not become proposed fields:
-
-- extracted numerical observations or values;
-- OCR text or reconstructed table contents;
-- statistical estimates, model results, or analytical outputs;
-- snapshot-specific values presented as field names;
-- visual styling without descriptive significance;
-- implementation or extraction-pipeline artifacts; and
-- information inferred from plausibility or external knowledge.
-
-An explicitly stated methodological, uncertainty, or provenance note may be metadata even when the note contains a number. Evaluate the role of the information, not merely its textual form.
-
-## Evidence and field proposals
-
-For each critical or possible gap:
-
-- cite concise evidence from the supplied inputs;
-- describe the missing metadata concept;
-- suggest one broadly reusable snake-case field name for human review;
-- identify exact closest v1.1.1 fields, or return an empty list if none is relevant;
-- explain why those fields may be inadequate;
-- identify the material impact as `interpretability`, `discoverability`, or `both`;
-- state the concrete material consequence; and
-- use the uncertainty note only when a genuine uncertainty remains.
-
-Do not classify a proposal as a conceptual, documentation, or representation gap. Do not recommend accepting, rejecting, or implementing a field. Do not claim schema saturation from one snapshot.
-
-## Output consistency
-
-- `no_critical_gap_found` requires an empty gap array.
-- `critical_gap_found` requires at least one `critical` gap and may also include `possible` gaps.
-- `possible_gap` requires one or more `possible` gaps and no `critical` gaps.
-\end{lstlisting}
-
-\subsubsection{User prompt}
-
-\begin{lstlisting}
-# Frozen Data Snapshot Metadata Schema v1.1.1
-
-{{SCHEMA_MARKDOWN}}
-
-# Snapshot
-
-- File: `{{SNAPSHOT_FILE_NAME}}`
-- Source corpus: `{{SOURCE}}`
-- Artifact type: `{{ARTIFACT_TYPE}}`
-
-# Parent-document context
-
-The following metadata may be used to understand the snapshot, but the parent document is not the object being validated.
-
-{{DOCUMENT_METADATA}}
-
-Evaluate the attached snapshot using the system instructions. Return the structured coverage assessment only.
-\end{lstlisting}
+The complete system and user prompts, structured-output definitions, and executable implementation for this stage are provided in the accompanying repository.
 
 \section{Appendix: Data Snapshot Metadata Schema}
 \label{appendix:schema}
