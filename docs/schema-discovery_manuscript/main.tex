@@ -45,7 +45,7 @@ District of Columbia, USA \\
 
 \begin{abstract}
 
-Developing an operational metadata schema for a multimodal artifact class requires identifying its descriptive requirements before metadata extraction can begin. We present an artifact-driven, human-in-the-loop methodology that adapts principles from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. The methodology decomposes schema development into explicit, evidence-preserving semantic transformations connected by intermediate knowledge artifacts. Multimodal large language models (LLMs) support artifact interpretation, concept synthesis, constrained semantic comparison, and standards research, while human experts determine conceptual boundaries, operational fields, validation decisions, and standards-informed refinements. We apply the methodology to 210 data snapshots extracted from institutional documents, producing an initial 36-field schema, evaluating it against a separate collection of 202 snapshots, and refining it into the 37-field Data Snapshot Metadata Schema. Human adjudication accepted no additional metadata requirement during held-out validation while identifying documentation ambiguities and representation limitations. The contribution is a reusable artifact-driven, human-in-the-loop methodology for developing operational metadata schemas from multimodal artifacts, integrating established methods into an evidence-preserving workflow tailored to this input/output setting: multimodal artifacts as evidence and a standards-informed operational metadata schema as the endpoint. The source code is available at https://github.com/ajdajd/schema-development.
+Developing an operational metadata schema for a multimodal artifact class requires identifying its descriptive requirements before metadata extraction can begin. We present an artifact-driven, human-in-the-loop methodology that adapts principles from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. The methodology decomposes schema development into explicit, evidence-preserving semantic transformations connected by intermediate knowledge artifacts. LLMs support artifact interpretation, concept synthesis, constrained semantic comparison, and standards research, with multimodal capabilities used where visual artifact interpretation is required, while human experts determine conceptual boundaries, operational fields, validation decisions, and standards-informed refinements. We apply the methodology to 210 data snapshots extracted from institutional documents, producing an initial 36-field schema, evaluating it against a separate collection of 202 snapshots, and refining it into the 37-field Data Snapshot Metadata Schema. Human adjudication accepted no additional metadata requirement during held-out validation while identifying documentation ambiguities and representation limitations. The contribution is a reusable artifact-driven, human-in-the-loop methodology for developing operational metadata schemas from multimodal artifacts, integrating established methods into an evidence-preserving workflow tailored to this input/output setting: multimodal artifacts as evidence and a standards-informed operational metadata schema as the endpoint. The source code is available at https://github.com/ajdajd/schema-development.
 
 \end{abstract}
 
@@ -61,13 +61,13 @@ At the outset of this work, no dedicated operational metadata schema or directly
 
 Metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding provide complementary foundations for this task~\citep{coyle2009applicationprofiles,sadruddin2025schemadiscovery,giglou2023llms4ol,zhang2024edc,ding2026vrdu}. These areas contribute methods for defining operational metadata terms, discovering and consolidating candidate concepts, and interpreting visually rich artifacts. The present work adapts and integrates these methods for a setting in which multimodal artifacts supply the initial evidence and a standards-informed operational metadata schema is the required endpoint.
 
-We present an artifact-driven, human-in-the-loop methodology that decomposes schema development into explicit semantic transformations connected by intermediate knowledge artifacts. Each artifact is analyzed independently before a shared vocabulary is introduced. Subsequent transformations aggregate local observations, synthesize and refine a metadata concept inventory, translate that inventory into an operational schema, evaluate the schema against held-out artifacts, and refine it using relevant standards. The intermediate artifacts preserve supporting evidence and maintain traceability across these transformations. Multimodal LLMs support artifact interpretation, semantic synthesis, constrained comparison, and standards research. Human experts determine conceptual boundaries, operational fields, validation decisions, and final standards-informed refinements.
+We present an artifact-driven, human-in-the-loop methodology that decomposes schema development into explicit, evidence-preserving semantic transformations connected by intermediate knowledge artifacts. Each artifact is analyzed independently before a shared vocabulary is introduced. Subsequent transformations aggregate local observations, synthesize and refine a metadata concept inventory, translate that inventory into an operational schema, evaluate the schema against held-out artifacts, and refine it using relevant standards. The intermediate knowledge artifacts preserve supporting evidence and maintain traceability across these transformations. LLMs support artifact interpretation, semantic synthesis, constrained comparison, and standards research, with multimodal capabilities used for image-based discovery and validation. Human experts determine conceptual boundaries, operational fields, validation decisions, and final standards-informed refinements.
 
 The paper makes three contributions:
 
 \begin{enumerate}
     \item a reusable artifact-driven, human-in-the-loop methodology for developing operational metadata schemas from multimodal artifacts, adapting and integrating established methods from metadata profile development, schema discovery, ontology learning, knowledge graph construction, multimodal document understanding, and application-profile practice;
-    \item an evidence-preserving workflow architecture that makes the transformation from artifact-level observations to operational fields inspectable and assigns complementary responsibilities to multimodal LLMs and human experts; and
+    \item an evidence-preserving workflow architecture that makes the transformation from artifact-level observations to operational fields inspectable and assigns complementary responsibilities to LLMs and human experts; and
     \item a case study applying the methodology to 210 data snapshots, evaluating an initial 36-field schema through two held-out exercises on a separate collection of 202 snapshots, and producing the standards-informed 37-field Data Snapshot Metadata Schema.
 \end{enumerate}
 
@@ -75,7 +75,7 @@ The case study documents one complete execution of the methodology and provides 
 
 \section{Related work}
 
-The proposed methodology adapts established ideas from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. It integrates these strands into a workflow for deriving an operational metadata schema from the multimodal artifacts.
+The proposed methodology adapts established ideas from metadata profile development, schema discovery, ontology learning, knowledge graph construction, and multimodal document understanding. It integrates these strands into a workflow for deriving an operational metadata schema from multimodal artifacts.
 
 \subsection{Metadata standards and schema development}
 
@@ -120,6 +120,7 @@ Table~\ref{tab:positioning} summarizes the methodological contributions adopted 
     \toprule
         \textbf{Literature group} & \textbf{Relevant contribution} & \textbf{Distinction from this work} \\
         \midrule
+        Metadata standards and application-profile guidance & Reuse, constraint, and documentation of established terms & Descriptive requirements are first derived from artifacts before standards-informed refinement \\
         LLMs4SchemaDiscovery & Human-in-the-loop schema discovery and refinement & Scientific text input and direct mutation of an evolving schema \\
         Ding et al. ontology study & Increasing expert responsibility during formalization & Evaluation of classical ontology stages in a healthcare case \\
         NeOn-GPT and Extended NeOn-GPT & Staged construction, reuse, verification, and repair & Formal ontology as the endpoint \\
@@ -151,7 +152,7 @@ Metadata is descriptive information about a data snapshot. It consists of proper
 
 \paragraph{Metadata concept inventory}
 
-A metadata concept inventory is the intermediate conceptual artifact used in this methodology. It records canonical metadata concepts together with definitions, rationales, representative discovered fields, and expert decisions to retain, merge, or exclude concepts. It supports conceptual consolidation and review before the concepts are translated into operational metadata fields. The inventory differs from an ontology in that it does not assert a class hierarchy, formal semantic relations, axioms, or instances~\citep{uschold&gruninger1996,noy&mcguinness2001}.
+A metadata concept inventory is an intermediate knowledge artifact used in this methodology. It records canonical metadata concepts together with definitions, rationales, representative discovered fields, and expert decisions to retain, merge, or exclude concepts. It supports conceptual consolidation and review before the concepts are translated into operational metadata fields. The inventory differs from an ontology in that it does not assert a class hierarchy, formal semantic relations, axioms, or instances~\citep{uschold&gruninger1996,noy&mcguinness2001}.
 
 \paragraph{Metadata schema}
 
@@ -184,16 +185,16 @@ Given a representative collection of multimodal analytical artifacts for which n
 
 This problem presents five challenges. First, the relevant metadata space is initially unknown. Second, artifact-level observations are heterogeneous and local; they must be aggregated and consolidated while retaining traceability to their source artifacts. Third, the resulting concept inventory must be translated into fields, definitions, and guidance suitable for consistent use. Operational design must balance annotation consistency, retrieval utility, usability, and maintainability. Fourth, the completed schema must be evaluated on held-out artifacts without treating every rare semantic distinction as evidence for a new field. Finally, standards-informed refinement must improve terminology and representation without displacing requirements established from the artifacts themselves.
 
-We address these challenges by decomposing metadata schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support artifact interpretation, broad metadata discovery, semantic consolidation, structured gap analysis, and standards research. Human experts retain responsibility for scope, conceptual boundaries, operational schema design, validation adjudication, and final standards-informed decisions.
+We address these challenges by decomposing metadata schema development into a sequence of evidence-preserving semantic transformations connected by explicit intermediate knowledge artifacts. LLMs support broad metadata discovery, semantic consolidation, structured gap analysis, and standards research, with multimodal capabilities used for image-based discovery and validation. Human experts retain responsibility for scope, conceptual boundaries, operational schema design, validation adjudication, and final standards-informed decisions.
 
 The following section presents the proposed methodology.
 
 \section{Methodology}
 \label{sec:methodology}
 
-This section presents a reusable methodology for developing an operational metadata schema for multimodal analytical artifacts that lack a dedicated schema or directly adoptable metadata profile. It decomposes schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support selected discovery, consolidation, and assessment tasks, while human experts retain responsibility for conceptual and operational decisions.
+This section presents a reusable methodology for developing an operational metadata schema for multimodal analytical artifacts that lack a dedicated schema or directly adoptable metadata profile. It decomposes schema development into a sequence of evidence-preserving semantic transformations connected by explicit intermediate knowledge artifacts. LLMs support selected discovery, consolidation, and assessment tasks, with multimodal capabilities used for image-based discovery and validation; human experts retain responsibility for conceptual and operational decisions.
 
-The stages separate artifact-level discovery, field profile aggregation, canonical metadata concept synthesis, expert concept refinement, concept coverage assessment, metadata schema design and specification, schema validation, and standards-informed schema refinement. This decomposition makes each transformation independently reviewable and preserves traceability from the final operational schema to the artifacts and standards that informed it. Table~\ref{tab:methodology_summary} summarizes the workflow.
+The stages separate metadata discovery, field profile aggregation, canonical metadata concept synthesis, expert concept refinement, concept coverage assessment, metadata schema design and specification, schema validation, and standards-informed schema refinement. This decomposition makes each transformation independently reviewable and preserves traceability from the final operational schema to the artifacts and standards that informed it. Table~\ref{tab:methodology_summary} summarizes the workflow.
 
 \begin{table}[!ht]
     \centering
@@ -410,7 +411,7 @@ Metadata discovery and canonical metadata concept synthesis used GPT-5.5, while 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.75\textwidth]{data/case_study_execution.png}
-    \caption{The development workflow transforms the 210 development snapshots into the Data Snapshot Metadata Schema through explicit intermediate knowledge artifacts and evaluates the schema against held-out snapshots. Colors distinguish LLM-supported, deterministic, and human-guided transformations. [TODO: Add standards-informed schema refinement and the final standards-informed schema.]}
+    \caption{The complete development workflow transforms 210 development snapshots through the six development stages into an initial 36-field schema, evaluates it against 202 held-out snapshots, and applies standards-informed refinement to produce the final 37-field Data Snapshot Metadata Schema. Colors distinguish LLM-supported, deterministic, and human-guided transformations. [TODO: Add standards-informed schema refinement and the final standards-informed schema.]}
     \label{fig:artifact_evolution}
 \end{figure}
 
@@ -450,7 +451,7 @@ Table~\ref{tab:schema_validation_results} summarizes the two exercises.
 
 \begin{table}[!ht]
     \centering
-    \caption{Summary of the two schema-validation exercises. Both used the same 202 snapshots held out from schema development.}
+    \caption{Summary of the two schema-validation exercises. Both used the same 202 snapshots held out from metadata discovery through initial schema design.}
     \label{tab:schema_validation_results}
     \renewcommand{\arraystretch}{1.3}
     \small
@@ -474,7 +475,7 @@ Model configurations and human-adjudication procedures for both exercises are do
 \subsection{Standards-informed schema refinement}
 \label{sec:standards_refinement_case_study}
 
-Following schema validation, the 36 fields were compared with authoritative metadata, statistical, provenance, research-data, publishing, and project-finance standards. The review included DCMI, Schema.org, DCAT, SDMX, DDI, PROV-O, JATS, SKOS, and IATI, together with applicable value and format standards. Codex (\texttt{gpt-5.6-sol}, high reasoning effort) supported standards discovery, comparison, and draft mappings using the validated schema, the validation findings, and authoritative standards documentation. The proposed mappings and refinements were reviewed before changes were incorporated into the schema. Appendix~\ref{appendix:standards_refinement} documents the review configuration and procedure.
+Following schema validation, the 36 fields were compared with authoritative sources grouped by their role in the crosswalk. General metadata and catalog vocabularies included DCMI Metadata Terms, Schema.org, and DCAT 3~\citep{dcmi2020terms,schemaorg2026,albertoni2024dcat3}. Statistical and research-data references included SDMX 3.1 and DDI Lifecycle 3.3~\citep{sdmx2025standards,ddi2020lifecycle33}. Provenance, publishing, controlled-vocabulary, and project-finance sources included PROV-O, JATS 1.3, SKOS, and IATI 2.03~\citep{lebo2013provo,niso2021jats13,miles2009skos,iati203}, together with applicable value and format standards. Codex (\texttt{gpt-5.6-sol}, high reasoning effort) supported standards discovery, comparison, and draft mappings using the validated schema, the validation findings, and authoritative standards documentation. The proposed mappings and refinements were reviewed before changes were incorporated into the schema. Appendix~\ref{appendix:standards_refinement} documents the sources, review configuration, and procedure.
 
 The crosswalk classified the relationship between each field and the reviewed standards rather than assuming that every local concept required a direct equivalent. Exact or close mappings were available for 21 fields. Nine fields were narrower or broader than the closest standard term, one field combined concepts that the standards distinguished structurally, and five retained locally defined semantics because no direct cross-domain match was identified.
 
@@ -520,7 +521,7 @@ Appendix~\ref{appendix:schema} reproduces the complete reference specification, 
 
 The resulting schema, intermediate knowledge artifacts, held-out validation evidence, standards crosswalk, and human decision record document one complete execution of the methodology. The following section examines the contribution of each semantic transformation.
 
-\section{Analysis of semantic transformations}
+\section{Analysis of evidence-preserving semantic transformations}
 
 The case study produced a sequence of explicit artifacts: metadata observations, metadata field profiles, candidate and refined metadata concept inventories, concept coverage evidence, an initial operational metadata schema, held-out validation evidence, a standards crosswalk and decision record, and the final standards-informed schema. Together, they document the transformation of artifact-level evidence into an operational specification, the evaluation of that specification, and its refinement against relevant standards.
 
@@ -900,11 +901,11 @@ The intermediate knowledge artifacts also make the development process inspectab
 
 \subsection{Human--LLM collaboration across semantic transformations}
 
-The case study supports a division of responsibility in which LLMs perform bounded semantic tasks and human experts retain authority over conceptual and operational decisions. The multimodal LLM interpreted individual artifacts, synthesized related evidence into candidate concepts, and performed constrained semantic comparison during concept coverage assessment and schema validation. LLM assistance also supported research and comparison across standards. Deterministic aggregation connected artifact-level observations to reusable field profiles without additional model inference.
+The case study supports a division of responsibility in which LLMs perform bounded semantic tasks and human experts retain authority over conceptual and operational decisions. Multimodal capabilities supported interpretation of snapshot images during metadata discovery and held-out validation. LLMs also synthesized related evidence into candidate concepts, performed constrained semantic comparison during concept coverage assessment, and supported research and comparison across standards. Deterministic aggregation connected artifact-level observations to reusable field profiles without additional model inference.
 
 Human review governed the decisions for which semantic similarity or an external mapping was insufficient. These included defining the boundary between metadata and analytical content, deciding whether concepts should be merged or retained, determining whether a concept warranted an independent field, adjudicating proposed schema gaps, and deciding whether standards-based terminology or structures fit the observed artifacts and intended use. Candidate frequency, model-generated rationales, and standards mappings provided evidence, but none constituted an acceptance criterion.
 
-The intermediate artifacts therefore reorganize rather than automate the expert task. Independent observations expose the breadth of the descriptive space; field profiles assemble evidence across artifacts; candidate concepts reduce the number of units requiring comparison; and validation outputs focus review on possible gaps. The case study shows that this arrangement can support one complete development process. It does not establish that the workflow is faster or more reliable than expert-only or alternative human--AI approaches, which were not evaluated here.
+The intermediate knowledge artifacts therefore reorganize rather than automate the expert task. Independent observations expose the breadth of the descriptive space; field profiles assemble evidence across artifacts; candidate concepts reduce the number of units requiring comparison; and validation outputs focus review on possible gaps. The case study shows that this arrangement can support one complete development process. It does not establish that the workflow is faster or more reliable than expert-only or alternative human--AI approaches, which were not evaluated here.
 
 \subsection{Schema validation as part of development}
 
@@ -930,7 +931,7 @@ Future work should apply the methodology to substantially different artifact cla
 
 Future work should operationalize the standards-informed decisions through normalized value representations and controlled vocabularies where mappings are sufficiently precise, and adopt a canonical machine-readable implementation capable of representing relationships deferred from the flat schema. Human-readable documentation and interoperability artifacts can then be generated from that implementation. A post-study implementation using Pydantic and generated JSON Schema is examined in Appendix~\ref{appendix:post_study_validation_comparison}. This follow-on comparison also motivates controlled study of how schema content and presentation affect LLM-assisted validation.
 
-More broadly, metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, multimodal LLMs support artifact interpretation and semantic comparison, LLM assistance can support standards research, deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope, operational form, and the use of external mappings. The Data Snapshot Metadata Schema provides one complete case through which to examine this architecture.
+More broadly, metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, LLMs support artifact interpretation, semantic comparison, and standards research, with multimodal capabilities used where the evidence is visual; deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope, operational form, and the use of external mappings. The Data Snapshot Metadata Schema provides one complete case through which to examine this architecture.
 
 \section{Limitations}
 
@@ -948,11 +949,11 @@ Finally, the operational schema remains a flat field inventory. The validation e
 
 \section{Conclusion}
 
-This paper presented an artifact-driven, human-in-the-loop methodology for developing an operational metadata schema when the descriptive requirements must first be established from multimodal artifacts. The methodology organizes this process into independent metadata discovery, field profile aggregation, canonical metadata concept synthesis, expert concept refinement, concept coverage assessment, metadata schema design and specification, held-out schema validation, and standards-informed schema refinement. Explicit intermediate knowledge artifacts preserve evidence across these semantic transformations.
+This paper presented an artifact-driven, human-in-the-loop methodology for developing an operational metadata schema when the descriptive requirements must first be established from multimodal artifacts. The methodology organizes this process into metadata discovery, field profile aggregation, canonical metadata concept synthesis, expert concept refinement, concept coverage assessment, metadata schema design and specification, schema validation, and standards-informed schema refinement. Explicit intermediate knowledge artifacts connect these evidence-preserving semantic transformations.
 
 The case study applied the methodology to 210 data snapshots and produced an initial Data Snapshot Metadata Schema with 36 fields. Two subsequent validation exercises evaluated the schema against the same 202 held-out snapshots. Human adjudication accepted no additional metadata requirement while identifying documentation ambiguities and representation limitations. Standards-informed refinement then improved terminology, definitions, mappings, and usage guidance and separated provenance sources from attributions, producing the final 37-field specification. These results document one complete execution and support the stability of the validated requirements for the tested collections and intended scope. They do not establish universal coverage, interoperability, or generality beyond this case.
 
-The workflow assigns artifact interpretation, semantic synthesis, constrained comparison, and standards research to LLM-supported stages; aggregates evidence deterministically where possible; and retains human responsibility for conceptual boundaries, operational representation, schema revision, and standards-informed decisions. This division makes the transformation from artifact-level evidence to metadata fields inspectable without treating the LLM as an autonomous schema designer.
+The workflow assigns artifact interpretation, semantic synthesis, constrained comparison, and standards research to LLM-supported stages, with multimodal capabilities used for image-based discovery and validation; aggregates evidence deterministically where possible; and retains human responsibility for conceptual boundaries, operational representation, schema revision, and standards-informed decisions. This division makes the transformation from artifact-level evidence to metadata fields inspectable without treating the LLM as an autonomous schema designer.
 
 The methodological contribution is a reusable artifact-driven, human-in-the-loop methodology for developing operational metadata schemas from multimodal artifacts. It adapts and integrates established principles from metadata profile development, schema discovery, ontology learning, knowledge graph construction, multimodal document understanding, and application-profile practice into an evidence-preserving sequence that transforms artifact-level observations into an operational metadata schema, evaluates that schema against held-out artifacts, and refines it using relevant standards. The Data Snapshot Metadata Schema provides a case through which this architecture is examined; evaluating its transfer to other artifact classes and development settings remains future work.
 
@@ -1175,7 +1176,7 @@ The complete system and user prompts, structured-output definitions, and executa
 \section{Appendix: Held-out schema validation implementation}
 \label{appendix:schema_validation}
 
-This appendix documents the two schema-validation exercises applied to the same 202 snapshots held out from all schema-development stages. The version identifiers and field names in this appendix describe the frozen artifacts and structured outputs used during execution and are therefore retained for reproducibility. Both exercises evaluated one snapshot per request using the snapshot image, the complete frozen schema, and available source-document metadata. Neither exercise permitted the model to revise the schema or accept a proposed field.
+This appendix documents the two schema-validation exercises applied to the same 202 snapshots held out from metadata discovery through initial schema design and then used for held-out schema validation. The version identifiers and field names in this appendix describe the frozen artifacts and structured outputs used during execution and are therefore retained for reproducibility. Both exercises evaluated one snapshot per request using the snapshot image, the complete frozen schema, and available source-document metadata. Neither exercise permitted the model to revise the schema or accept a proposed field.
 
 \subsection{Validation 1: Open residual discovery}
 
@@ -1294,6 +1295,34 @@ The standards review was conducted as an interactive, multi-turn Codex task rath
         Outputs & Field crosswalk, candidate refinements, and decision record \\
         \bottomrule
     \end{tabular}
+\end{table}
+
+Table~\ref{tab:standards_sources} records the authoritative sources used in the crosswalk. Fixed versions or publication dates are reported only where the source establishes them; mutable sources are identified by the date on which they were verified or accessed.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Authoritative sources used for standards-informed schema refinement.}
+    \label{tab:standards_sources}
+    \renewcommand{\arraystretch}{1.15}
+    \scriptsize
+    \begin{tabularx}{\textwidth}{>{\RaggedRight\arraybackslash}p{0.14\textwidth} >{\RaggedRight\arraybackslash}p{0.26\textwidth} >{\RaggedRight\arraybackslash}p{0.23\textwidth} >{\RaggedRight\arraybackslash}X}
+        \toprule
+        \textbf{Standard or vocabulary} & \textbf{Authoritative source} & \textbf{Version or source date} & \textbf{Crosswalk role} \\
+        \midrule
+        DCMI & DCMI Metadata Terms~\citep{dcmi2020terms} & Recommendation dated 2020-01-20 & General resource description \\
+        Schema.org & Schema.org vocabulary and term pages~\citep{schemaorg2026} & Version not recorded; verified/accessed 2026-09-23 & Cross-domain resource, dataset, and measurement properties \\
+        DCAT & Data Catalog Vocabulary (DCAT) 3~\citep{albertoni2024dcat3} & W3C Recommendation dated 2024-08-22 & Catalog, spatial, and temporal description \\
+        SDMX & SDMX technical standards and cross-domain concepts~\citep{sdmx2025standards} & Version 3.1, released May 2025 & Statistical dimensions, frequency, time, and units \\
+        DDI & DDI Lifecycle and controlled vocabularies~\citep{ddi2020lifecycle33} & Lifecycle 3.3; documentation dated 2020-01-15 & Variables, universe, categories, geography, collection, and summary statistics \\
+        PROV-O & PROV-O: The PROV Ontology~\citep{lebo2013provo} & W3C Recommendation dated 2013-04-30 & Derivation and attribution provenance \\
+        JATS & Journal Publishing Tag Set 1.3~\citep{niso2021jats13} & Approved 2021-06-10 & Figure labels, captions, and groups \\
+        SKOS & SKOS Simple Knowledge Organization System Reference~\citep{miles2009skos} & W3C Recommendation dated 2009-08-18 & Concepts, labels, schemes, and mappings \\
+        IATI & IATI Standard documentation~\citep{iati203} & Version 2.03 & Project, finance, organization, and location terms \\
+        RDF Data Cube and OWL-Time & W3C Data Cube vocabulary and Time Ontology~\citep{cyganiak2014datacube,cox2017owltime} & Recommendations dated 2014-01-16 and 2017-10-19 & Statistical dimensions and temporal representation \\
+        ISO and UN value standards & ISO 8601, ISO 3166, ISO 4217, and UN M49~\citep{iso8601,iso3166,iso4217,unm49} & 8601-1:2019; 3166 version not recorded; 4217:2015; M49 version not recorded; accessed 2026-09-23 & Dates, country and area identifiers, and currencies \\
+        Other value and visualization references & BCP 47, UN/CEFACT Recommendation 20, and Vega-Lite~\citep{ietf2009bcp47,uncefactrec20,vegalite2026} & BCP 47 current subseries; other versions not recorded; accessed 2026-09-23 & Languages, units of measure, and visualization terminology \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 The review first identified standards applicable to general resource description, statistical and research-data concepts, provenance, document publishing, development-project information, and value normalization. Each schema field was compared with candidate external terms and classified as exact, close, broader, narrower, related or structural, or having no direct match. Candidate refinements could concern field terminology, definitions, semantic boundaries, value guidance, or representation structure.
