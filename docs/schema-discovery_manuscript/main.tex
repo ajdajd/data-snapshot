@@ -669,7 +669,7 @@ The two stages addressed different questions. LLM-assisted synthesis identified 
 \subsection{Empirical concept coverage assessment}
 \label{sec:validation}
 
-Following expert refinement, each metadata field profile was assigned to a concept in the refined inventory. The LLM performed this constrained semantic comparison at scale; the resulting assignments supplied evidence for, rather than decisions about, concept adequacy. Quantitative analyses examined concept frequency, corpus coverage, artifact-type coverage, and representative assignments, including the historical \texttt{not\_in\_ontology} output label. These analyses assessed whether the inventory contained unsupported distinctions, inappropriate boundaries, or omissions that warranted further refinement.
+Following expert refinement, each metadata field profile was assigned to a concept in the refined inventory. The LLM performed this constrained semantic comparison at scale; the resulting assignments supplied evidence for, rather than decisions about, concept adequacy. Quantitative analyses examined concept frequency, corpus coverage, artifact-type coverage, and representative assignments, including residual assignments for profiles not assigned to a retained concept. These analyses assessed whether the inventory contained unsupported distinctions, inappropriate boundaries, or omissions that warranted further refinement.
 
 Concept frequencies exhibited a head--tail distribution (Table~\ref{tab:ontology_frequency}), with a small number of broadly applicable concepts and a longer tail of specialized concepts. Low empirical support alone was insufficient evidence that a concept should be merged or removed.
 
@@ -709,7 +709,7 @@ Concept frequencies exhibited a head--tail distribution (Table~\ref{tab:ontology
     }
 \end{table}
 
-Inspection of assignments to lower-support concepts showed that they represented legitimate domain-specific metadata rather than redundant concepts (Table~\ref{tab:ontology_validation}). Field profiles assigned to \texttt{not\_in\_ontology} predominantly contained analytical values and other intentionally excluded content rather than missing metadata concepts. The historical label is retained here because it appears in the case-study output.
+Inspection of assignments to lower-support concepts showed that they represented legitimate domain-specific metadata rather than redundant concepts (Table~\ref{tab:ontology_validation}). Residual assignments predominantly contained analytical values and other intentionally excluded content rather than missing metadata concepts.
 
 \begin{table}[!ht]
     \caption{Representative concept coverage observations for low-support and excluded concepts.}
@@ -735,7 +735,7 @@ Inspection of assignments to lower-support concepts showed that they represented
     
     \midrule
     
-    \texttt{not\_in\_ontology} assignments &
+    Residual assignments &
     \texttt{sample\_size} \newline
     \texttt{measure\_values} \newline
     \texttt{axis\_range} \newline
@@ -1055,7 +1055,7 @@ The complete system and user prompts, structured-output definitions, and executa
 \section{Appendix: Concept coverage assessment implementation}
 \label{appendix:validation}
 
-This appendix documents the implementation of concept coverage assessment in the case study. The original implementation called this stage \emph{ontology validation}; that historical terminology, including \texttt{not\_in\_ontology}, is retained in the implementation artifacts provided in the accompanying repository. As characterized in this paper, the stage assigns each metadata field profile to one concept in the refined metadata concept inventory, producing the assignments analyzed in Section~\ref{sec:validation}.
+This appendix documents the implementation of concept coverage assessment in the case study. The original implementation called this stage \emph{ontology validation}; that historical terminology is retained in the implementation artifacts provided in the accompanying repository. The historical output label \texttt{not\_in\_ontology} corresponds to the residual assignments described in Section~\ref{sec:validation}. As characterized in this paper, the stage assigns each metadata field profile to one concept in the refined metadata concept inventory, producing the assignments analyzed in that section.
 
 \subsection{Model configuration}
 
