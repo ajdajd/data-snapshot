@@ -411,7 +411,7 @@ Metadata discovery and canonical metadata concept synthesis used GPT-5.5, while 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.95\textwidth]{data/case_study_execution.png}
-    \caption{Case-study execution of the proposed methodology. The workflow transforms 210 development snapshots into an initial 36-field schema, with concept coverage assessment applied to the refined concept inventory and schema validation performed on a separate collection of 202 held-out snapshots. Human revision produces the validated 36-field schema, which is then refined against authoritative standards and vocabularies to produce the final 37-field Data Snapshot Metadata Schema. Colors distinguish LLM-supported, deterministic, and human-guided transformations.}
+    \caption{Case-study execution of the proposed methodology. The workflow transforms 210 development snapshots into an initial 36-field schema, with concept coverage assessment applied to the refined concept inventory and schema validation performed on a separate collection of 202 held-out snapshots. Human revision produces the validated 36-field schema, which is then refined against authoritative standards and vocabularies to produce the final 37-field Data Snapshot Metadata Schema. Colors distinguish LLM-supported, deterministic, human-guided, and joint LLM–human transformations.}
     \label{fig:artifact_evolution}
 \end{figure}
 
@@ -931,7 +931,7 @@ Future work should apply the methodology to substantially different artifact cla
 
 Future work should formally integrate and evaluate the standards-informed decisions in a canonical machine-readable implementation capable of representing relationships deferred from the flat schema. Human-readable documentation and interoperability artifacts can then be generated from that implementation. A post-study implementation using Pydantic and generated JSON Schema, examined in Appendix~\ref{appendix:post_study_validation_comparison}, provides one candidate implementation and motivates controlled study of how schema content and presentation affect LLM-assisted validation.
 
-More broadly, metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, LLMs support artifact interpretation, semantic comparison, and standards research, with multimodal capabilities used where the evidence is visual; deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope, operational form, and the use of external mappings. The Data Snapshot Metadata Schema provides one complete case through which to examine this architecture.
+More broadly, metadata schema development can be organized as a sequence of evidence-preserving semantic transformations. In this formulation, LLMs support artifact interpretation, semantic comparison, and standards research, with multimodal capabilities used where the evidence is visual; deterministic procedures preserve and aggregate evidence, and human experts determine conceptual scope, operational form, and the use of external mappings. The Data Snapshot Metadata Schema provides one complete case through which to examine this methodology.
 
 \section{Limitations}
 
@@ -1121,7 +1121,7 @@ The prompt was designed to perform semantic consolidation rather than construct 
 
 Several design principles were incorporated into the prompt. First, the model was instructed to synthesize concepts applicable across multiple reporting domains rather than optimize for a single corpus. Second, it distinguished reusable metadata concepts from observed values and extraction artifacts. Third, the prompt emphasized concepts that support discovery, retrieval, provenance, and analytical reuse while discouraging visual-formatting concepts and duplication of document-level metadata. Finally, it favored under-consolidation over aggressive merging. This preserved plausible distinctions for expert review.
 
-The resulting candidate metadata concept inventory is an intermediate representation of the discovered metadata space rather than a formal ontology or operational metadata schema.
+The resulting candidate metadata concept inventory is an intermediate knowledge artifact representing the discovered metadata space rather than a formal ontology or operational metadata schema.
 
 \subsection{Reproducibility materials}
 
