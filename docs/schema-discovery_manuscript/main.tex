@@ -170,7 +170,7 @@ Figure~\ref{fig:conceptual_relationship} summarizes the relationships among thes
 
 The proposed methodology addresses the development of an operational metadata schema for a class of multimodal analytical artifacts that lacks a dedicated schema or directly adoptable metadata profile. Existing standards and vocabularies may still provide applicable terms. The task is to identify, consolidate, define, and operationalize descriptive requirements grounded in representative artifacts.
 
-As illustrated in Figure~\ref{fig:conceptual_relationship}, schema design produces an operational representation, and schema validation evaluates its coverage against held-out artifacts. Standards-informed refinement then compares the validated schema with relevant standards and application-profile practices and incorporates human-approved changes. The endpoint is a standards-informed operational metadata schema accompanied by held-out validation evidence, a standards crosswalk, and a record of human adjudication decisions. Metadata extraction and downstream applications fall outside the scope of this work, as do subsequent activities that adapt the schema to a particular machine-readable implementation. [TODO: Sharpen this paragraph. I think referring to the conceptual relationship figure does not make sense anymore because it doesn't capture the scope clearly.]
+Schema design first produces an operational representation whose coverage is assessed against held-out artifacts. Standards-informed refinement then compares the validated schema with relevant standards and application-profile practices and incorporates human-approved changes that preserve the artifact-derived requirements. The endpoint of the methodology is therefore a standards-informed operational metadata schema accompanied by held-out validation evidence, a standards crosswalk, and a record of human adjudication decisions. Metadata extraction and downstream applications remain outside the scope of this work, as do subsequent activities that adapt the schema to a particular machine-readable implementation.
 
 \subsection{Problem definition}
 
@@ -313,7 +313,7 @@ Human judgment governs this stage. An LLM may propose alternative names, identif
 
 \subsection{Concept coverage assessment}
 
-Concept coverage assessment evaluates how the refined metadata concept inventory represents the metadata field profiles produced during discovery. Using evidence from the development collection, it characterizes how the inventory organizes the discovered metadata space and supports human review and any further refinement before schema design.
+Concept coverage assessment evaluates how the refined metadata concept inventory represents the metadata field profiles produced during field profile aggregation. Using evidence from the development collection, it characterizes how the inventory organizes the discovered metadata space and supports human review and any further refinement before schema design.
 
 The assessment assigns each metadata field profile to one of the concepts in the refined inventory through constrained classification. An LLM or another suitable classifier may perform this assignment. The resulting mappings support quantitative analysis across the representative collection.
 
@@ -405,7 +405,7 @@ Although the dataset is not intended to be statistically representative of insti
 
 We executed the development stages using the 210-snapshot case study dataset. Metadata discovery processed each snapshot independently; subsequent stages aggregated the observations, synthesized and refined a shared concept inventory, assessed concept coverage, and translated the refined inventory into an operational metadata schema. The schema was then evaluated against held-out snapshots and refined through comparison with relevant standards. Figure~\ref{fig:artifact_evolution} shows the intermediate knowledge artifacts produced during this process.
 
-Metadata discovery and canonical metadata concept synthesis used GPT-5.5, while concept coverage assessment used GPT-5.4 mini for constrained classification. Field profile aggregation was implemented deterministically in Python and required no LLM inference. Expert concept refinement and metadata schema design and specification were performed through iterative human review of the intermediate knowledge artifacts. Complete prompts, model configurations, and implementation details for the LLM-supported development stages are provided in Appendices~\ref{appendix:discovery}--\ref{appendix:validation}.
+Metadata discovery and canonical metadata concept synthesis used GPT-5.5, while concept coverage assessment used GPT-5.4 mini for constrained classification. Field profile aggregation was implemented deterministically in Python and required no LLM inference. Expert concept refinement and metadata schema design and specification were performed through iterative human review of the intermediate knowledge artifacts. Model configurations and implementation summaries for these stages are provided in Appendices~\ref{appendix:discovery}--\ref{appendix:validation}; the complete prompts, structured-output definitions, and executable implementations are available in the accompanying repository.
 
 \begin{figure}[!ht]
     \centering
@@ -423,7 +423,7 @@ A central design decision was the separation of metadata describing the snapshot
 \subsection{Schema validation}
 \label{sec:schema_validation_case_study}
 
-A separate collection of 202 snapshots was held out from all schema-development stages. It contained up to 35 figures and 35 tables from each corpus; only 27 eligible figures remained in the Refugee Project Appraisal Document corpus after the 210 case study snapshots were excluded (Table~\ref{tab:validation_composition}). Both validation exercises used this same held-out collection and addressed different questions using the same evidence.
+A separate collection of 202 snapshots was held out from metadata discovery through initial schema design and used only for held-out schema validation. It contained up to 35 figures and 35 tables from each corpus; only 27 eligible figures remained in the Refugee Project Appraisal Document corpus after the 210 case study snapshots were excluded (Table~\ref{tab:validation_composition}). Both validation exercises used this same held-out collection and addressed different questions using the same evidence.
 
 \begin{table}[!ht]
     \centering
@@ -469,7 +469,7 @@ Table~\ref{tab:schema_validation_results} summarizes the two exercises.
 
 Because both exercises used the same held-out collection, they provide complementary evidence rather than independent replications. Validation 1 tested whether broad residual discovery would reveal additional field candidates; Validation 2 tested whether any remaining omission materially affected interpretation or discovery. After human adjudication, neither exercise identified a candidate that would have changed the accepted 36-field inventory. This result supports the adequacy of the inventory for the intended schema scope and tested collections, but does not establish universal coverage of all future data snapshots.
 
-The model configurations, prompts, structured outputs, and human-adjudication procedures for both exercises are documented in Appendix~\ref{appendix:schema_validation}.
+Model configurations and human-adjudication procedures for both exercises are documented in Appendix~\ref{appendix:schema_validation}; the complete prompts, structured-output definitions, and executable implementations are available in the accompanying repository.
 
 \subsection{Standards-informed schema refinement}
 \label{sec:standards_refinement_case_study}
@@ -755,7 +755,7 @@ Inspection of assignments to lower-support concepts showed that they represented
 
     \begin{tabularx}{\textwidth}{Y{0.8} Y{1.1} Y{1.1}}
     \toprule
-        \textbf{Validation observation} &
+        \textbf{Coverage observation} &
     \textbf{Representative examples} &
     \textbf{Interpretation} \\
     
@@ -944,7 +944,7 @@ The study also does not compare the methodology with expert-only development, fu
 
 The standards review was bounded to the selected standards and the intended application. It does not establish that the crosswalk is exhaustive, that every mapping would be accepted by the relevant standards communities, or that the resulting schema interoperates with systems implementing those standards. Held-out validation also preceded standards-informed refinement. It therefore supports the coverage of the validated 36-field inventory, while the revised terminology, guidance, and separation of provenance sources from attributions were not evaluated through a further independent held-out exercise.
 
-Finally, the operational schema remains a flat field inventory. The validation exercises and standards review identified relationships among panels, variables, dimensions, geographic entities, and provenance entities that this representation cannot preserve fully. The paper does not evaluate a subsequent machine-readable implementation, interoperability performance, metadata-extraction accuracy, downstream retrieval performance, or community governance. These activities may require further changes to the representation, but they fall outside the methodology and evidence reported here.
+Finally, the operational schema remains a flat field inventory. The validation exercises and standards review identified relationships among panels, variables, dimensions, geographic entities, and provenance entities that this representation cannot preserve fully. The reported case study does not include the later machine-readable implementation within its evidentiary claims, nor does it evaluate interoperability performance, metadata-extraction accuracy, downstream retrieval performance, or community governance. These activities may require further changes to the representation, but they fall outside the methodology and evidence reported here.
 
 \section{Conclusion}
 
