@@ -54,6 +54,13 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# LaTeX manuscript build artifacts
+docs/schema-discovery_manuscript/main.aux
+docs/schema-discovery_manuscript/main.bbl
+docs/schema-discovery_manuscript/main.blg
+docs/schema-discovery_manuscript/main.out
+docs/schema-discovery_manuscript/main.pdf
+
 # PyBuilder
 target/
 

@@ -83,7 +83,7 @@ Metadata standards provide descriptive frameworks through which digital resource
 
 Existing metadata vocabularies nevertheless do not remove the need for application-specific design. A target artifact class may require terms drawn from several sources, locally defined terms, constraints, and usage guidance assembled into a coherent operational specification~\citep{greenberg2005,coyle2009applicationprofiles}. The problem addressed here is therefore not the absence of relevant metadata concepts, but the absence, at the outset of the work, of a directly adoptable metadata schema for data snapshots as defined in this study.
 
-The resulting Data Snapshot Metadata Schema is presented as a dedicated operational specification for this artifact class rather than as a community standard. Standards alignment, community governance, and formal standardization are separate, longer-term processes beyond the artifact-driven development studied here.
+The resulting Data Snapshot Metadata Schema is presented as a dedicated operational specification for this artifact class rather than as a community standard. The proposed methodology includes standards-informed refinement of the validated schema, while community governance and formal standardization remain separate processes.
 
 \subsection{LLM-assisted schema discovery and ontology learning}
 
@@ -162,7 +162,7 @@ Figure~\ref{fig:conceptual_relationship} summarizes the relationships among thes
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.35\linewidth]{data/conceptual_hierarchy.png}
-    \caption{Relationship between data snapshots, metadata, the intermediate concept inventory, and the metadata schema. Metadata extraction and downstream applications are shown separately because they assume that an operational metadata schema already exists.}
+    \caption{Relationship between data snapshots, metadata, the intermediate concept inventory, and the metadata schema. Metadata extraction and downstream applications are shown separately because they assume that an operational metadata schema already exists. [TODO: Update the schema endpoint to reflect standards-informed refinement.]}
     \label{fig:conceptual_relationship}
 \end{figure}
 
@@ -170,7 +170,7 @@ Figure~\ref{fig:conceptual_relationship} summarizes the relationships among thes
 
 The proposed methodology addresses the development of an operational metadata schema for a class of multimodal analytical artifacts that lacks a dedicated schema or directly adoptable metadata profile. Existing standards and vocabularies may still provide applicable terms. The task is to identify, consolidate, define, and operationalize descriptive requirements grounded in representative artifacts.
 
-As illustrated in Figure~\ref{fig:conceptual_relationship}, schema design produces the operational representation to be evaluated. Schema validation completes the methodology by assessing that representation against held-out artifacts and incorporating justified revisions. The endpoint is therefore an operational metadata schema accompanied by held-out validation evidence and a record of human adjudication decisions. Metadata extraction and downstream applications fall outside the scope of this work, as do subsequent activities that adapt the schema to specific technical or interoperability requirements.
+As illustrated in Figure~\ref{fig:conceptual_relationship}, schema design produces an operational representation, and schema validation evaluates its coverage against held-out artifacts. Standards-informed refinement then compares the validated schema with relevant standards and application-profile practices and incorporates human-approved changes. The endpoint is a standards-informed operational metadata schema accompanied by held-out validation evidence, a standards crosswalk, and a record of human adjudication decisions. Metadata extraction and downstream applications fall outside the scope of this work, as do subsequent activities that adapt the schema to a particular machine-readable implementation. [TODO: Sharpen this paragraph. I think referring to the conceptual relationship figure does not make sense anymore because it doesn't capture the scope clearly.]
 
 \subsection{Problem definition}
 
@@ -182,9 +182,9 @@ We therefore consider the following problem:
 Given a representative collection of multimodal analytical artifacts for which no dedicated operational metadata schema exists, how can an operational metadata schema be systematically developed from artifact-level evidence?
 \end{quote}
 
-This problem presents four challenges. First, the relevant metadata space is initially unknown. Second, artifact-level observations are heterogeneous and local; they must be aggregated and consolidated while retaining traceability to their source artifacts. Third, the resulting concept inventory must be translated into fields, definitions, and guidance suitable for consistent use. Operational design must balance annotation consistency, retrieval utility, usability, and maintainability. Finally, the completed schema must be evaluated on held-out artifacts without treating every rare semantic distinction as evidence for a new field.
+This problem presents five challenges. First, the relevant metadata space is initially unknown. Second, artifact-level observations are heterogeneous and local; they must be aggregated and consolidated while retaining traceability to their source artifacts. Third, the resulting concept inventory must be translated into fields, definitions, and guidance suitable for consistent use. Operational design must balance annotation consistency, retrieval utility, usability, and maintainability. Fourth, the completed schema must be evaluated on held-out artifacts without treating every rare semantic distinction as evidence for a new field. Finally, standards alignment must improve terminology and representation without displacing requirements established from the artifacts themselves.
 
-We address these challenges by decomposing metadata schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support artifact interpretation, broad metadata discovery, semantic consolidation, and structured gap analysis. Human experts retain responsibility for scope, conceptual boundaries, operational schema design, and the adjudication of validation evidence.
+We address these challenges by decomposing metadata schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support artifact interpretation, broad metadata discovery, semantic consolidation, structured gap analysis, and standards research. Human experts retain responsibility for scope, conceptual boundaries, operational schema design, validation adjudication, and final standards-informed decisions.
 
 The following section presents the proposed methodology.
 
@@ -193,7 +193,7 @@ The following section presents the proposed methodology.
 
 This section presents a reusable methodology for developing an operational metadata schema for multimodal analytical artifacts that lack a dedicated schema or directly adoptable metadata profile. It decomposes schema development into a sequence of semantic transformations connected by explicit intermediate knowledge artifacts. Multimodal LLMs support selected discovery, consolidation, and assessment tasks, while human experts retain responsibility for conceptual and operational decisions.
 
-The stages separate artifact-level discovery, field profile aggregation, canonical metadata concept synthesis, expert concept refinement, concept coverage assessment, metadata schema design and specification, and schema validation. This decomposition makes each transformation independently reviewable and preserves traceability from the operational schema to the artifacts that motivated it. Table~\ref{tab:methodology_summary} summarizes the workflow.
+The stages separate artifact-level discovery, field profile aggregation, canonical metadata concept synthesis, expert concept refinement, concept coverage assessment, metadata schema design and specification, schema validation, and standards-informed schema refinement. This decomposition makes each transformation independently reviewable and preserves traceability from the final operational schema to the artifacts and standards that informed it. Table~\ref{tab:methodology_summary} summarizes the workflow.
 
 \begin{table}[!ht]
     \centering
@@ -260,11 +260,18 @@ The stages separate artifact-level discovery, field profile aggregation, canonic
     Open gap discovery and confirmatory assessment &
     Gap adjudication and revision decisions \\
 
+    \midrule
+
+    Standards-informed schema refinement &
+    Validated operational metadata schema and relevant standards \newline $\downarrow$ \newline Standards-informed operational metadata schema and decision record &
+    Standards research, candidate mappings, and comparison &
+    Acceptance, rejection, and deferral decisions \\
+
     \bottomrule
     \end{tabularx}
 \end{table}
 
-The methodology progressively transforms artifact-level observations into a shared concept inventory and then into an operational metadata schema. The final stage evaluates that schema against held-out artifacts and records any justified revisions. The methodology is presented independently of the case study; implementation-specific details are deferred to Section~\ref{sec:case_study}.
+The methodology progressively transforms artifact-level observations into a shared concept inventory and then into an operational metadata schema. Held-out validation evaluates that schema and records justified revisions. Standards-informed refinement then compares the validated schema with relevant external terms and representation practices while preserving the artifact-derived requirements established by the preceding stages. The methodology is presented independently of the case study; implementation-specific details are deferred to Section~\ref{sec:case_study}.
 
 \subsection{Metadata discovery}
 
@@ -345,6 +352,17 @@ Candidate gaps are not treated as automatic schema changes. Human experts review
 
 The output of this stage is a body of validation evidence, a record of human adjudication decisions, and any justified revisions to the operational metadata schema. These outputs support bounded conclusions about schema adequacy for the tested artifact collection and intended application; they do not establish universal coverage.
 
+\subsection{Standards-informed schema refinement}
+\label{sec:standards_refinement_methodology}
+
+Standards-informed schema refinement compares the validated operational metadata schema with relevant metadata standards, domain vocabularies, and application-profile practices. This stage occurs after held-out validation so that external terminology and representation patterns refine an artifact-derived schema rather than determining its initial descriptive requirements.
+
+The review begins by identifying standards relevant to the schema's descriptive scope. Each validated field is then compared with candidate external terms and classified according to whether the relationship is exact, close, broader, narrower, structural, or absent. The crosswalk may identify clearer definitions, more familiar terminology, applicable formats or controlled vocabularies, and representation patterns that distinguish concepts combined in the operational schema.
+
+A standards mapping is not treated as an automatic schema change. Candidate refinements are evaluated against the artifact evidence, the intended application, and operational criteria including annotation consistency, retrieval utility, usability, and maintainability. Human reviewers accept changes that improve semantic accuracy without reducing coverage, reject mappings that narrow or distort the observed concepts, and defer structures that are valuable but unnecessary for the selected operational representation. Proposed mappings may be refined and reviewed iteratively before a decision is finalized.
+
+LLM assistance may support standards discovery, comparison, and candidate mapping across multiple vocabularies. Human reviewers verify the sources and retain authority over field names, definitions, organization, cardinality, value guidance, and the treatment of unmatched local concepts. The output is a standards-informed operational metadata schema together with a crosswalk and decision record. This outcome is an application-specific specification; it does not constitute community standardization or evidence of interoperability performance.
+
 \section{Case study: Developing the Data Snapshot Metadata Schema}
 \label{sec:case_study}
 
@@ -392,7 +410,7 @@ Metadata discovery and canonical metadata concept synthesis used GPT-5.5, while 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.75\textwidth]{data/case_study_execution.png}
-    \caption{The development workflow transforms the 210 development snapshots into the Data Snapshot Metadata Schema through explicit intermediate knowledge artifacts and evaluates the schema against held-out snapshots. Colors distinguish LLM-supported, deterministic, and human-guided transformations.}
+    \caption{The development workflow transforms the 210 development snapshots into the Data Snapshot Metadata Schema through explicit intermediate knowledge artifacts and evaluates the schema against held-out snapshots. Colors distinguish LLM-supported, deterministic, and human-guided transformations. [TODO: Add standards-informed schema refinement and the final standards-informed schema.]}
     \label{fig:artifact_evolution}
 \end{figure}
 
