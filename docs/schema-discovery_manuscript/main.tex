@@ -105,7 +105,7 @@ Multimodal document-understanding research provides the capabilities required to
 
 \subsection{Positioning of this work}
 
-Taken together, the reviewed literature provides human-in-the-loop schema discovery, staged ontology construction, task decomposition, open schema induction and canonicalization, multimodal artifact interpretation, and application-profile practices. This paper adapts these strands into an artifact-driven methodology for metadata schema development. The methodology analyzes snapshots independently before introducing a shared vocabulary; retains local observations rather than immediately absorbing them into an evolving schema; aggregates evidence in deterministic field profiles; separates canonical metadata concept synthesis, expert concept refinement, and concept coverage assessment; translates the refined concept inventory into an operational metadata schema; evaluates that schema against held-out artifacts; and refines the validated schema using relevant standards. Each transformation remains traceable to the artifacts or external mappings that informed it.
+The reviewed literature provides human-in-the-loop schema discovery, staged ontology construction, task decomposition, open schema induction and canonicalization, multimodal artifact interpretation, and application-profile practices. This paper adapts these strands into an artifact-driven methodology for metadata schema development. The methodology analyzes snapshots independently before introducing a shared vocabulary; retains local observations rather than immediately absorbing them into an evolving schema; aggregates evidence in deterministic field profiles; separates canonical metadata concept synthesis, expert concept refinement, and concept coverage assessment; translates the refined concept inventory into an operational metadata schema; evaluates that schema against held-out artifacts; and refines the validated schema using relevant standards. Each transformation remains traceable to the artifacts or external mappings that informed it.
 
 Table~\ref{tab:positioning} summarizes the methodological contributions adopted from each literature group and the corresponding differences in this work.
 
@@ -186,8 +186,6 @@ Given a representative collection of multimodal analytical artifacts for which n
 This problem presents five challenges. First, the relevant metadata space is initially unknown. Second, artifact-level observations are heterogeneous and local; they must be aggregated and consolidated while retaining traceability to their source artifacts. Third, the resulting concept inventory must be translated into fields, definitions, and guidance suitable for consistent use. Operational design must balance annotation consistency, retrieval utility, usability, and maintainability. Fourth, the completed schema must be evaluated on held-out artifacts without treating every rare semantic distinction as evidence for a new field. Finally, standards-informed refinement must improve terminology and representation without displacing requirements established from the artifacts themselves.
 
 We address these challenges by decomposing metadata schema development into a sequence of evidence-preserving semantic transformations connected by explicit intermediate knowledge artifacts. LLMs support broad metadata discovery, semantic consolidation, structured gap analysis, and standards research, with multimodal capabilities used for image-based discovery and validation. Human experts retain responsibility for scope, conceptual boundaries, operational schema design, validation adjudication, and final standards-informed decisions.
-
-The following section presents the proposed methodology.
 
 \section{Methodology}
 \label{sec:methodology}
@@ -411,7 +409,7 @@ Metadata discovery and canonical metadata concept synthesis used GPT-5.5, while 
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=0.95\textwidth]{data/case_study_execution.png}
-    \caption{Case-study execution of the proposed methodology. The workflow transforms 210 development snapshots into an initial 36-field schema, with concept coverage assessment applied to the refined concept inventory and schema validation performed on a separate collection of 202 held-out snapshots. Human revision produces the validated 36-field schema, which is then refined against authoritative standards and vocabularies to produce the final 37-field Data Snapshot Metadata Schema. Colors distinguish LLM-supported, deterministic, human-guided, and joint LLM–human transformations.}
+    \caption{Case-study execution of the proposed methodology. The workflow transforms 210 development snapshots into an initial 36-field schema, with schema validation performed on a separate collection of 202 held-out snapshots. Human revision produces the validated 36-field schema, which is then refined against authoritative standards and vocabularies to produce the final 37-field Data Snapshot Metadata Schema. Colors distinguish LLM-supported, deterministic, human-guided, and joint LLM–human transformations.}
     \label{fig:artifact_evolution}
 \end{figure}
 
@@ -453,18 +451,23 @@ Table~\ref{tab:schema_validation_results} summarizes the two exercises.
     \centering
     \caption{Summary of the two schema-validation exercises. Both used the same 202 snapshots held out from metadata discovery through initial schema design.}
     \label{tab:schema_validation_results}
-    \renewcommand{\arraystretch}{1.3}
-    \small
-    \begin{tabularx}{\textwidth}{>{\RaggedRight\arraybackslash}p{0.26\textwidth} >{\RaggedRight\arraybackslash}X >{\RaggedRight\arraybackslash}X}
-        \toprule
-        \textbf{Measure} & \textbf{Validation 1} & \textbf{Validation 2} \\
-        \midrule
-        Assessment mode & Open residual discovery & Confirmatory critical-gap assessment \\
-        Primary unit of assessment & Metadata observation & Data snapshot \\
-        Held-out snapshots & 202 & 202 \\
-        Main model output & 2,876 observations; 578 candidate-field proposals & 197 snapshots with no critical gap; 5 possible-gap snapshots; 6 possible-gap records \\
-        Accepted new fields after human review & 0 & 0 \\
-        \bottomrule
+    \renewcommand{\arraystretch}{1.4}
+
+    \newcolumntype{Y}[1]{>{\hsize=#1\hsize\raggedright\arraybackslash}X}
+
+    \begin{tabularx}{\textwidth}{Y{0.7} Y{1.15} Y{1.15}}
+    \toprule
+
+    \textbf{Measure} & \textbf{Validation 1} & \textbf{Validation 2} \\
+    \midrule
+
+    Assessment mode & Open residual discovery & Confirmatory critical-gap assessment \\
+    Primary unit of assessment & Metadata observation & Data snapshot \\
+    Held-out snapshots & 202 & 202 \\
+    Main model output & 2,876 observations\newline 578 candidate-field proposals & 197 snapshots with no critical gap\newline 5 possible-gap snapshots\newline 6 possible-gap records \\
+    Accepted new fields after human review & 0 & 0 \\
+
+    \bottomrule
     \end{tabularx}
 \end{table}
 
@@ -475,11 +478,11 @@ Model configurations and human-adjudication procedures for both exercises are do
 \subsection{Standards-informed schema refinement}
 \label{sec:standards_refinement_case_study}
 
-Following schema validation, the 36 fields were compared with authoritative sources grouped by their role in the crosswalk. General metadata and catalog vocabularies included DCMI Metadata Terms, Schema.org, and DCAT 3~\citep{dcmi2020terms,schemaorg2026,albertoni2024dcat3}. Statistical and research-data references included SDMX 3.1 and DDI Lifecycle 3.3~\citep{sdmx2025standards,ddi2020lifecycle33}. Provenance, publishing, controlled-vocabulary, and project-finance sources included PROV-O, JATS 1.3, SKOS, and IATI 2.03~\citep{lebo2013provo,niso2021jats13,miles2009skos,iati203}, together with applicable value and format standards. Codex (\texttt{gpt-5.6-sol}, high reasoning effort) supported standards discovery, comparison, and draft mappings using the validated schema, the validation findings, and authoritative standards documentation. The proposed mappings and refinements were reviewed before changes were incorporated into the schema. Appendix~\ref{appendix:standards_refinement} documents the sources, review configuration, and procedure.
+Following schema validation, the 36 fields were compared with authoritative sources grouped by their role in the crosswalk. General metadata and catalog vocabularies included DCMI Metadata Terms, Schema.org, and DCAT 3~\citep{dcmi2020terms,schemaorg2026,albertoni2024dcat3}. Statistical and research-data references included SDMX 3.1 and DDI Lifecycle 3.3~\citep{sdmx2025standards,ddi2020lifecycle33}. Provenance, publishing, controlled-vocabulary, and project-finance sources included PROV-O, JATS 1.3, SKOS, and IATI 2.03~\citep{lebo2013provo,niso2021jats13,miles2009skos,iati203}, together with applicable value and format standards.
 
-The crosswalk classified the relationship between each field and the reviewed standards rather than assuming that every local concept required a direct equivalent. Exact or close mappings were available for 21 fields. Nine fields were narrower or broader than the closest standard term, one field combined concepts that the standards distinguished structurally, and five retained locally defined semantics because no direct cross-domain match was identified.
+OpenAI Codex software supported standards discovery, comparison, and draft mappings using the validated schema, the validation findings, and authoritative standards documentation. For each schema field, the review classified the relationship to candidate external terms as exact, close, broader, narrower, related or structural, or having no direct match. Candidate refinements could concern field terminology, definitions, semantic boundaries, value guidance, or representation structure.
 
-Human review treated the crosswalk as evidence for schema refinement rather than as an automatic substitution rule. Accepted changes included clearer field names, plural names for repeatable values, refined definitions, standards mappings, and usage guidance. The overloaded \texttt{data\_source} field was separated into \texttt{data\_sources} and \texttt{attributions}, reflecting the distinction between derivation and attribution in provenance standards. Recommendations that would narrow observed concepts to a domain-specific standard were rejected. Richer nested structures, mandatory identifiers, and machine-enforceable controlled vocabularies were deferred because they were not necessary for the directly inspectable flat specification used in this study.
+Human review treated the crosswalk as evidence for schema refinement rather than as an automatic substitution rule. Proposed mappings and refinements were assessed against the artifact evidence, validation findings, intended application, and the requirement that the paper specification remain directly inspectable. Changes were accepted when they improved semantic accuracy without reducing coverage, rejected when they narrowed or distorted observed concepts, and deferred when they required richer relational or machine-enforceable structures beyond the flat specification used in this study. Appendix~\ref{appendix:standards_refinement} documents the sources, review configuration, and procedure.
 
 \subsection{Resulting metadata schema}
 
@@ -857,7 +860,7 @@ Together, the exercises provide evidence that the 36-field inventory was stable 
 
 \subsection{Standards-informed refinement}
 
-The standards crosswalk introduced a different form of evidence after coverage validation. It did not ask whether an artifact required an additional metadata concept. Instead, it compared the 36 validated fields with established terminology and representation patterns (Table~\ref{tab:standards_crosswalk_results}). Ten fields had exact mappings and eleven had close mappings. For the remaining fields, the closest standard was broader, narrower, structurally related, or absent. The results therefore supported selective reuse across multiple standards rather than adoption of a single external vocabulary.
+The standards crosswalk introduced a different form of evidence after coverage validation. It did not ask whether an artifact required an additional metadata concept. Instead, it compared the 36 validated fields with established terminology and representation patterns (Table~\ref{tab:standards_crosswalk_results}). Ten fields had exact mappings and eleven had close mappings. For the remaining fields, the closest reviewed external term was broader, narrower, structurally related, or absent. The results therefore supported selective reuse across multiple standards rather than adoption of a single external vocabulary.
 
 \begin{table}[!ht]
     \centering
@@ -881,9 +884,9 @@ The standards crosswalk introduced a different form of evidence after coverage v
     \end{tabularx}
 \end{table}
 
-The crosswalk changed both terminology and semantic boundaries. Examples include replacing \texttt{internal\_identifier} with \texttt{document\_label}, \texttt{geographic\_granularity} with \texttt{geographic\_level}, \texttt{measure\_type} with \texttt{statistical\_forms}, and \texttt{financing\_source} with \texttt{funders}. Repeatable values were expressed through plural field names, and field definitions recorded applicable mappings and value guidance. The principal schema change separated \texttt{data\_source} into \texttt{data\_sources} and \texttt{attributions}. This produced 37 fields without introducing a new descriptive requirement: the change made explicit a provenance distinction that the validated field had previously combined.
+Standards-informed refinement changed both terminology and semantic boundaries. Examples include replacing \texttt{internal\_identifier} with \texttt{document\_label}, \texttt{geographic\_granularity} with \texttt{geographic\_level}, \texttt{measure\_type} with \texttt{statistical\_forms}, and \texttt{financing\_source} with \texttt{funders}. Repeatable values were expressed through plural field names, and field definitions recorded applicable mappings and value guidance. The principal schema change separated \texttt{data\_source} into \texttt{data\_sources} and \texttt{attributions}. This produced 37 fields without introducing a new descriptive requirement: the change made explicit a provenance distinction that the validated field had previously combined.
 
-The review also identified standards-based structures that were not incorporated into the flat schema. Candidate representations could associate variables with units and statistical forms, dimensions with categories and presentation roles, and geographic or provenance entities with their roles. Human review deferred these structures and rejected mandatory mappings that would narrow observed concepts or require unsupported normalization. The final schema therefore incorporated standards-informed names, distinctions, definitions, and guidance while retaining a flat, directly inspectable representation.
+The review also identified standards-based structures that were not incorporated into the flat schema. Candidate representations could associate variables with units and statistical forms, dimensions with categories and presentation roles, and geographic or provenance entities with their roles. Human review deferred these structures and rejected mandatory mappings that would narrow observed concepts or require unsupported normalization. The final schema therefore incorporated standards-informed names, distinctions, definitions, and guidance without requiring wholesale adoption of the richer structures available in the reviewed standards. It consequently retained the flat, directly inspectable representation selected for this study.
 
 Viewed collectively, the eight methodology stages show that metadata schema development is not a single inference task. Each intermediate knowledge artifact reduces, reorganizes, evaluates, or contextualizes the accumulated evidence. Held-out validation tests coverage and returns candidate gaps to human review; standards-informed refinement then examines how the validated requirements relate to external terminology and representation practices. This structure assigns artifact interpretation, large-scale semantic comparison, and standards discovery to LLM-supported stages while preserving human responsibility for conceptual boundaries, operational design, schema revision, and final mapping decisions.
 
@@ -917,9 +920,9 @@ Together, the exercises provide bounded evidence that the accepted 36-field inve
 
 \subsection{Standards-informed refinement after validation}
 
-Placing standards review after artifact-driven development and held-out validation separates two questions: which metadata concepts the artifacts require, and how those concepts relate to established terminology and representation practices. In this case, the artifact and validation stages established the descriptive scope before external standards were used to refine it. This ordering reduced the risk that the schema would inherit the boundaries of a standard designed for a different resource type or application domain.
+Placing standards review after artifact-driven development and held-out validation separates two questions: which metadata concepts the artifacts require, and how those concepts relate to established terminology and representation practices. In this case, the artifact-driven development and validation stages established the descriptive scope before external standards were used to refine its terminology and representation. This ordering reduced the risk that the schema would inherit the boundaries of a standard designed for a different resource type or application domain.
 
-The crosswalk nevertheless made substantive contributions. Exact and close mappings supplied established terminology and definitions for many fields. Broader, narrower, and structural relationships exposed where local boundaries required explanation or where a standard suggested a useful distinction. The split between data derivation and artifact attribution illustrates the latter case: the standards review clarified an overloaded field without adding a new artifact-derived requirement.
+The standards review nevertheless made substantive contributions. Exact and close mappings supplied established terminology and definitions for many fields. Broader, narrower, and structural relationships exposed where local boundaries required explanation or where a standard suggested a useful distinction. The split between data derivation and artifact attribution illustrates the latter case: the standards review clarified an overloaded field without adding a new artifact-derived requirement.
 
 Human adjudication remained necessary because standards coverage did not determine application fit. A domain-specific classification could be authoritative yet too narrow for artifacts outside that domain; a general property could be too broad to preserve the intended local meaning; and a richer relational structure could be semantically preferable but inconsistent with the selected flat representation. The resulting schema is therefore standards-informed rather than a direct implementation of any one standard. The crosswalk documents semantic relationships, but does not by itself establish interoperability or community adoption.
 
@@ -1286,7 +1289,7 @@ The standards review was conducted as an interactive, multi-turn Codex task rath
         \textbf{Setting} & \textbf{Value} \\
         \midrule
         Interface & Codex Desktop \\
-        Model & \texttt{gpt-5.6-sol} \\
+        Model & GPT 5.6 Sol \\
         Reasoning effort & High \\
         Interaction mode & Interactive, multi-turn review \\
         Input schema & Validated 36-field flat specification \\
@@ -1556,7 +1559,7 @@ This appendix illustrates the Data Snapshot Metadata Schema through three exampl
         & \path{attributions} & Authors' calculation \\
         & \path{source_document_title} & Fragility and Population Movement in Afghanistan \\
         & \path{languages} & English \\
-        & \path{interpretive_notes} & labor income has been computed for male workers aged [14,35]. \\
+        & \path{interpretive_notes} & Notes: labor income has been computed for male workers aged [14,35]. \\
         \midrule
         Project \& Operational Context & \path{project_name} & \textit{null} \\
         & \path{project_identifiers} & \textit{null} \\
