@@ -598,13 +598,27 @@ class StatisticalFormTerm(_NormalizedTerm):
 
     source_text: NonEmptyText | None = Field(
         default=None,
-        description="Exact text or symbol visible in the snapshot that explicitly expresses the mathematical or statistical form of the values, such as count, percentage, rate, index, sum, or mean. A percent sign may instead be recorded as the variable's unit when the snapshot does not support a more specific form.",
-        examples=["Count", "Percentage", "Rate", "Index", "Average"],
+        description="Exact text visible in the snapshot that explicitly expresses the mathematical or statistical form of the values, such as count, percent of total, growth rate, confidence interval, index, sum, or mean. When surrounding source wording supports a form, preserve that wording here. A `%` that specifies the values' measurement scale belongs in the variable's `unit`; a `%` that belongs only to an expression such as `95% CI` is part of the statistical-form wording and is not a percent unit.",
+        examples=[
+            "Count",
+            "Percent of total",
+            "Growth rate",
+            "95% CI",
+            "Index",
+            "Average",
+        ],
     )
     normalized_value: StatisticalFormValue | None = Field(
-        examples=["count", "percentage", "arithmetic_mean"],
+        examples=[
+            "count",
+            "percentage",
+            "rate",
+            "change",
+            "confidence_interval",
+            "arithmetic_mean",
+        ],
         default=None,
-        description="Approved mathematical or statistical form of the values. Use `rate` for a change, incidence, or other rate; use `percentage` for a share or proportion expressed per hundred. Do not select a form solely because the unit is `%`.",
+        description="Approved mathematical or statistical form of the values. Prefer explicit source terminology. Use `percentage` for a percentage, share, or proportion per hundred; `rate` for a quantity presented as a rate relative to a base, including incidence, growth, interest, or tariff rates; and `change` for a difference, movement, or return. Do not select a form solely because the unit is `%`.",
     )
 
 
@@ -743,7 +757,7 @@ class Unit(_SchemaModel):
     Parameters
     ----------
     source_text : str
-        Displayed unit expression.
+        Complete displayed unit or scale expression.
     code : str | None
         Exact UN/CEFACT Recommendation 20 code.
     multiplier_exponent : int | None
@@ -751,8 +765,15 @@ class Unit(_SchemaModel):
     """
 
     source_text: NonEmptyText = Field(
-        examples=["Percent", "USD", "People", "Kilometers"],
-        description="Exact text or symbol visible in the snapshot that states how quantitative values are expressed, such as `%`, `USD`, people, or kilometers. This is the displayed unit, not the mathematical or statistical form of the values; record forms such as rate, percentage share, index, sum, or mean in `statistical_forms` when supported.",
+        examples=[
+            "%",
+            "People",
+            "Kilometers",
+            "US$ millions",
+            "US$000",
+            "US$m/SDRm",
+        ],
+        description="Exact complete text or symbol visible in the snapshot that states the unit or scale in which the variable's quantitative values are expressed, such as `%`, people, kilometers, `US$ millions`, or `US$000`. Preserve the complete measurement expression, excluding the variable name and annotations that do not specify the values' scale. For example, the `%` in `95% CI` states a confidence level and is not a percent unit. When the expression includes one supported applicable currency, repeat it in `currency`; when it combines multiple currencies or no single currency is supported, preserve the expression here and leave `currency` unset. Record a supported magnitude in `multiplier_exponent`. This intentional repetition preserves source wording while keeping qualifiers queryable. A unit does not determine the statistical form: `%` may accompany a percentage, rate, change, coefficient, or no normalized form.",
     )
     code: (
         Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z0-9]{1,3}$")]
@@ -770,7 +791,7 @@ class Unit(_SchemaModel):
     multiplier_exponent: Annotated[int, Field(strict=True)] | None = Field(
         examples=[3, 6, 9],
         default=None,
-        description="Base-10 SDMX unit-multiplier exponent.",
+        description="Base-10 SDMX unit-multiplier exponent supported by the displayed scale, such as `3` for thousand or `6` for million.",
         json_schema_extra=_code_list(
             "SDMX",
             "CL_UNIT_MULT",
@@ -792,15 +813,15 @@ class Currency(_SchemaModel):
     """
 
     source_text: NonEmptyText = Field(
-        examples=["USD", "EUR", "JPY"],
-        description="Exact text or symbol visible in the snapshot that explicitly expresses the currency.",
+        examples=["US$", "$", "EUR", "JPY"],
+        description="Exact currency name, abbreviation, or symbol visible in the snapshot. When one applicable currency is supported, record it even when the same token also appears inside the complete `unit.source_text`; the repetition is intentional. If the unit expression combines multiple currencies or an ambiguous symbol cannot be resolved from snapshot evidence, preserve the complete unit expression and leave `currency` unset rather than forcing one value. Do not include noncurrency scale wording such as thousand or million.",
     )
     code: (
         Annotated[str, StringConstraints(strict=True, pattern=r"^[A-Z]{3}$")] | None
     ) = Field(
         examples=["USD", "EUR", "JPY"],
         default=None,
-        description="Uppercase ISO 4217 alphabetic code.",
+        description="Uppercase ISO 4217 alphabetic code. Populate only when snapshot evidence deterministically identifies the currency; do not assume `USD` from an ambiguous `$` symbol alone.",
         json_schema_extra=_code_list(
             "ISO", "ISO 4217", "https://www.iso.org/iso-4217-currency-codes.html"
         ),
@@ -1007,7 +1028,7 @@ class Variable(_SchemaModel):
             {"source_text": "Kilometers", "code": "KMT"},
         ],
         default=None,
-        description="How the variable's quantitative values are expressed, such as `%`, USD, people, or kilometers. The unit is distinct from `statistical_forms`, which describes whether values are a count, rate, percentage share, index, sum, mean, or another mathematical form.",
+        description="The complete displayed unit or scale expression for the variable, such as `%`, people, kilometers, `US$ millions`, or `US$000`. Preserve the complete measurement expression, excluding the variable name and annotations that do not specify the values' scale. When one applicable currency is supported, repeat it in `currency`; when the expression combines multiple currencies or no single currency is supported, leave `currency` unset. Record a supported magnitude in `unit.multiplier_exponent`. The unit does not by itself establish whether values are a percentage, rate, change, coefficient, or another statistical form; the `%` in `95% CI`, for example, is not a percent unit.",
         json_schema_extra=_standards(
             ("https://schema.org/unitCode", "related_structural")
         ),
@@ -1070,7 +1091,7 @@ class Variable(_SchemaModel):
         ],
         default=None,
         min_length=1,
-        description="The mathematical or statistical form of the variable's values. A rate describes change, incidence, or another quantity relative to a base; a percentage describes a share or proportion per hundred. The displayed symbol `%` belongs in `unit`; select a statistical form only when the snapshot supports it.",
+        description="The mathematical or statistical form of the variable's values. Prefer explicit source terminology. Use `percentage` for a percentage, share, or proportion per hundred; `rate` for a quantity presented as a rate relative to a base, including incidence, growth, interest, or tariff rates; and `change` for a difference, movement, or return. When `%` specifies the scale in which the variable's values are expressed, preserve it in `unit`. Do not create a percent unit when the symbol belongs to a confidence level or significance annotation, or merely appears in a title or note without specifying the variable's measurement scale. Do not select a statistical form from `%` alone.",
         json_schema_extra=_standards(("https://schema.org/statType", "close")),
     )
 
@@ -1898,6 +1919,69 @@ class DataSnapshotMetadata(_SchemaModel):
             [{"name": None, "unit": {"source_text": "%"}}],
             [
                 {
+                    "name": "Share of households",
+                    "unit": {"source_text": "%", "code": "P1"},
+                    "statistical_forms": [
+                        {
+                            "source_text": "Share",
+                            "normalized_value": "percentage",
+                        }
+                    ],
+                }
+            ],
+            [
+                {
+                    "name": "Budgeted cost",
+                    "unit": {"source_text": "US$"},
+                    "currency": {"source_text": "US$", "code": "USD"},
+                }
+            ],
+            [
+                {
+                    "name": "Monthly returns",
+                    "unit": {"source_text": "%", "code": "P1"},
+                    "statistical_forms": [
+                        {
+                            "source_text": "% change",
+                            "normalized_value": "change",
+                        }
+                    ],
+                }
+            ],
+            [
+                {
+                    "name": "pce_residual",
+                    "statistical_forms": [
+                        {
+                            "source_text": "95% CI",
+                            "normalized_value": "confidence_interval",
+                        }
+                    ],
+                }
+            ],
+            [
+                {
+                    "name": "Tariff rate",
+                    "unit": {"source_text": "ad-valorem in %"},
+                    "statistical_forms": [
+                        {
+                            "source_text": "Tariff rate",
+                            "normalized_value": "rate",
+                        }
+                    ],
+                }
+            ],
+            [
+                {
+                    "name": "Amount",
+                    "unit": {
+                        "source_text": "US$m/SDRm",
+                        "multiplier_exponent": 6,
+                    },
+                }
+            ],
+            [
+                {
                     "name": "Revenue",
                     "unit": {
                         "source_text": "US$ millions",
@@ -1917,7 +2001,7 @@ class DataSnapshotMetadata(_SchemaModel):
         ],
         default=None,
         min_length=1,
-        description="Measured quantities, indicators, metrics, or outcomes and their applicable qualifiers. Use variables for what is measured and dimensions for the characteristics that classify or organize observations. Populate `name` when the measured concept can be identified; otherwise omit it rather than using a unit, `%`, `Value`, `Unknown`, or another placeholder. Retain an unnamed variable only when it has a unit, currency, or statistical form. Analytical roles, axis roles, and multi-axis assignments require a named variable. Repeat shared qualifiers on every variable to which they apply.",
+        description="Measured quantities, indicators, metrics, or outcomes and their applicable qualifiers. Use variables for what is measured and dimensions for the characteristics that classify or organize observations. Populate `name` when the measured concept can be identified; otherwise omit it rather than using a unit, `%`, `Value`, `Unknown`, or another placeholder. Retain an unnamed variable only when it has a unit, currency, or statistical form. Preserve each complete displayed unit or scale expression. When one applicable currency is supported, repeat it in `currency`; when the expression combines currencies or no single currency is supported, leave `currency` unset. Record a supported magnitude in `unit.multiplier_exponent`. Analytical roles, axis roles, and multi-axis assignments require a named variable. Repeat shared qualifiers on every variable to which they apply.",
         json_schema_extra=_standards(
             ("https://schema.org/variableMeasured", "close"),
             ("https://ddialliance.org/Specification/DDI-Lifecycle/3.3/", "close"),

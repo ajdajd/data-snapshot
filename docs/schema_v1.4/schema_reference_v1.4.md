@@ -197,7 +197,7 @@ Populate only when panel titles are explicitly present.
 
 **Definition**
 
-Measured quantities, indicators, metrics, or outcomes and their applicable qualifiers. Use variables for what is measured and dimensions for the characteristics that classify or organize observations. Populate `name` when the measured concept can be identified; otherwise omit it rather than using a unit, `%`, `Value`, `Unknown`, or another placeholder. Retain an unnamed variable only when it has a unit, currency, or statistical form. Analytical roles, axis roles, and multi-axis assignments require a named variable. Repeat shared qualifiers on every variable to which they apply.
+Measured quantities, indicators, metrics, or outcomes and their applicable qualifiers. Use variables for what is measured and dimensions for the characteristics that classify or organize observations. Populate `name` when the measured concept can be identified; otherwise omit it rather than using a unit, `%`, `Value`, `Unknown`, or another placeholder. Retain an unnamed variable only when it has a unit, currency, or statistical form. Preserve each complete displayed unit or scale expression. When one applicable currency is supported, repeat it in `currency`; when the expression combines currencies or no single currency is supported, leave `currency` unset. Record a supported magnitude in `unit.multiplier_exponent`. Analytical roles, axis roles, and multi-axis assignments require a named variable. Repeat shared qualifiers on every variable to which they apply.
 
 **Examples**
 
@@ -239,6 +239,100 @@ Measured quantities, indicators, metrics, or outcomes and their applicable quali
     "name": null,
     "unit": {
       "source_text": "%"
+    }
+  }
+]
+```
+
+```json
+[
+  {
+    "name": "Share of households",
+    "statistical_forms": [
+      {
+        "normalized_value": "percentage",
+        "source_text": "Share"
+      }
+    ],
+    "unit": {
+      "code": "P1",
+      "source_text": "%"
+    }
+  }
+]
+```
+
+```json
+[
+  {
+    "currency": {
+      "code": "USD",
+      "source_text": "US$"
+    },
+    "name": "Budgeted cost",
+    "unit": {
+      "source_text": "US$"
+    }
+  }
+]
+```
+
+```json
+[
+  {
+    "name": "Monthly returns",
+    "statistical_forms": [
+      {
+        "normalized_value": "change",
+        "source_text": "% change"
+      }
+    ],
+    "unit": {
+      "code": "P1",
+      "source_text": "%"
+    }
+  }
+]
+```
+
+```json
+[
+  {
+    "name": "pce_residual",
+    "statistical_forms": [
+      {
+        "normalized_value": "confidence_interval",
+        "source_text": "95% CI"
+      }
+    ]
+  }
+]
+```
+
+```json
+[
+  {
+    "name": "Tariff rate",
+    "statistical_forms": [
+      {
+        "normalized_value": "rate",
+        "source_text": "Tariff rate"
+      }
+    ],
+    "unit": {
+      "source_text": "ad-valorem in %"
+    }
+  }
+]
+```
+
+```json
+[
+  {
+    "name": "Amount",
+    "unit": {
+      "multiplier_exponent": 6,
+      "source_text": "US$m/SDRm"
     }
   }
 ]
@@ -1471,12 +1565,16 @@ Represent a displayed currency and optional ISO 4217 code.
 
 **Definition**
 
-Exact text or symbol visible in the snapshot that explicitly expresses the currency.
+Exact currency name, abbreviation, or symbol visible in the snapshot. When one applicable currency is supported, record it even when the same token also appears inside the complete `unit.source_text`; the repetition is intentional. If the unit expression combines multiple currencies or an ambiguous symbol cannot be resolved from snapshot evidence, preserve the complete unit expression and leave `currency` unset rather than forcing one value. Do not include noncurrency scale wording such as thousand or million.
 
 **Examples**
 
 ```json
-"USD"
+"US$"
+```
+
+```json
+"$"
 ```
 
 ```json
@@ -1492,7 +1590,7 @@ Exact text or symbol visible in the snapshot that explicitly expresses the curre
 
 **Definition**
 
-Uppercase ISO 4217 alphabetic code.
+Uppercase ISO 4217 alphabetic code. Populate only when snapshot evidence deterministically identifies the currency; do not assume `USD` from an ambiguous `$` symbol alone.
 
 **Examples**
 
@@ -2806,7 +2904,7 @@ Represent a known or source-only statistical form.
 
 **Definition**
 
-Exact text or symbol visible in the snapshot that explicitly expresses the mathematical or statistical form of the values, such as count, percentage, rate, index, sum, or mean. A percent sign may instead be recorded as the variable's unit when the snapshot does not support a more specific form.
+Exact text visible in the snapshot that explicitly expresses the mathematical or statistical form of the values, such as count, percent of total, growth rate, confidence interval, index, sum, or mean. When surrounding source wording supports a form, preserve that wording here. A `%` that specifies the values' measurement scale belongs in the variable's `unit`; a `%` that belongs only to an expression such as `95% CI` is part of the statistical-form wording and is not a percent unit.
 
 **Examples**
 
@@ -2815,11 +2913,15 @@ Exact text or symbol visible in the snapshot that explicitly expresses the mathe
 ```
 
 ```json
-"Percentage"
+"Percent of total"
 ```
 
 ```json
-"Rate"
+"Growth rate"
+```
+
+```json
+"95% CI"
 ```
 
 ```json
@@ -2835,7 +2937,7 @@ Exact text or symbol visible in the snapshot that explicitly expresses the mathe
 
 **Definition**
 
-Approved mathematical or statistical form of the values. Use `rate` for a change, incidence, or other rate; use `percentage` for a share or proportion expressed per hundred. Do not select a form solely because the unit is `%`.
+Approved mathematical or statistical form of the values. Prefer explicit source terminology. Use `percentage` for a percentage, share, or proportion per hundred; `rate` for a quantity presented as a rate relative to a base, including incidence, growth, interest, or tariff rates; and `change` for a difference, movement, or return. Do not select a form solely because the unit is `%`.
 
 **Examples**
 
@@ -2845,6 +2947,18 @@ Approved mathematical or statistical form of the values. Use `rate` for a change
 
 ```json
 "percentage"
+```
+
+```json
+"rate"
+```
+
+```json
+"change"
+```
+
+```json
+"confidence_interval"
 ```
 
 ```json
@@ -3099,16 +3213,12 @@ Represent a displayed unit and its optional normalized qualifiers.
 
 **Definition**
 
-Exact text or symbol visible in the snapshot that states how quantitative values are expressed, such as `%`, `USD`, people, or kilometers. This is the displayed unit, not the mathematical or statistical form of the values; record forms such as rate, percentage share, index, sum, or mean in `statistical_forms` when supported.
+Exact complete text or symbol visible in the snapshot that states the unit or scale in which the variable's quantitative values are expressed, such as `%`, people, kilometers, `US$ millions`, or `US$000`. Preserve the complete measurement expression, excluding the variable name and annotations that do not specify the values' scale. For example, the `%` in `95% CI` states a confidence level and is not a percent unit. When the expression includes one supported applicable currency, repeat it in `currency`; when it combines multiple currencies or no single currency is supported, preserve the expression here and leave `currency` unset. Record a supported magnitude in `multiplier_exponent`. This intentional repetition preserves source wording while keeping qualifiers queryable. A unit does not determine the statistical form: `%` may accompany a percentage, rate, change, coefficient, or no normalized form.
 
 **Examples**
 
 ```json
-"Percent"
-```
-
-```json
-"USD"
+"%"
 ```
 
 ```json
@@ -3117,6 +3227,18 @@ Exact text or symbol visible in the snapshot that states how quantitative values
 
 ```json
 "Kilometers"
+```
+
+```json
+"US$ millions"
+```
+
+```json
+"US$000"
+```
+
+```json
+"US$m/SDRm"
 ```
 
 
@@ -3141,7 +3263,7 @@ Exact UN/CEFACT Recommendation 20 common code.
 
 **Definition**
 
-Base-10 SDMX unit-multiplier exponent.
+Base-10 SDMX unit-multiplier exponent supported by the displayed scale, such as `3` for thousand or `6` for million.
 
 **Examples**
 
@@ -3207,7 +3329,7 @@ The measured quantity, indicator, metric, or outcome represented by the values. 
 
 **Definition**
 
-How the variable's quantitative values are expressed, such as `%`, USD, people, or kilometers. The unit is distinct from `statistical_forms`, which describes whether values are a count, rate, percentage share, index, sum, mean, or another mathematical form.
+The complete displayed unit or scale expression for the variable, such as `%`, people, kilometers, `US$ millions`, or `US$000`. Preserve the complete measurement expression, excluding the variable name and annotations that do not specify the values' scale. When one applicable currency is supported, repeat it in `currency`; when the expression combines multiple currencies or no single currency is supported, leave `currency` unset. Record a supported magnitude in `unit.multiplier_exponent`. The unit does not by itself establish whether values are a percentage, rate, change, coefficient, or another statistical form; the `%` in `95% CI`, for example, is not a percent unit.
 
 **Examples**
 
@@ -3355,7 +3477,7 @@ Assignments to distinct Cartesian axes in a multi-axis graph. Use this field onl
 
 **Definition**
 
-The mathematical or statistical form of the variable's values. A rate describes change, incidence, or another quantity relative to a base; a percentage describes a share or proportion per hundred. The displayed symbol `%` belongs in `unit`; select a statistical form only when the snapshot supports it.
+The mathematical or statistical form of the variable's values. Prefer explicit source terminology. Use `percentage` for a percentage, share, or proportion per hundred; `rate` for a quantity presented as a rate relative to a base, including incidence, growth, interest, or tariff rates; and `change` for a difference, movement, or return. When `%` specifies the scale in which the variable's values are expressed, preserve it in `unit`. Do not create a percent unit when the symbol belongs to a confidence level or significance annotation, or merely appears in a title or note without specifying the variable's measurement scale. Do not select a statistical form from `%` alone.
 
 **Examples**
 
