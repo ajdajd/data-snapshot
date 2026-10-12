@@ -50,7 +50,7 @@ def test_default_config_uses_luna_flex_and_prompt_caching() -> None:
     config = load_extraction_config()
 
     assert config["model"] == "gpt-5.6-luna"
-    assert config["max_output_tokens"] == 8000
+    assert config["max_output_tokens"] == 25000
     assert config["service_tier"] == "flex"
     assert config["prompt_cache_key"] == "metadata-extraction-v1-4"
     assert config["reasoning"] == {"effort": "medium"}

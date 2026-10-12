@@ -1,354 +1,162 @@
-# data-snapshot
+# Data Snapshot Research Workspace
 
-Data snapshot toolkit for PDF documents.
+Research and exploratory tooling for finding, annotating, evaluating, and
+describing data snapshots in institutional documents.
 
-This package provides the source code for [Benchmarking Open-Source Layout Detection Models for Data Snapshot Extraction from Institutional Documents](https://arxiv.org/abs/2606.06242).
+A **data snapshot** is a table, chart, map, dashboard, or composite figure that
+communicates data within a source document. This repository covers the full
+research lifecycle rather than presenting one production application.
 
-Dataset: [ai4data/data-snapshot](https://huggingface.co/datasets/ai4data/data-snapshot)
+Two forms of extraction are kept distinct:
 
-## Package structure
+- **Data Snapshot Extraction** locates tables and figures in documents and
+  exports them as images and structured detections.
+- **Data Snapshot Metadata Extraction** reads a data snapshot image and fills
+  the canonical Data Snapshot Metadata Schema.
 
-```
-src/data_snapshot/
-├── annotation/       # Label Studio annotation project management
-├── inference/        # Layout detection model adapters
-├── evaluation/       # Evaluation framework
-├── metadata/         # Metadata tools
-├── misc/             # Other tools
-├── constants.py      # Shared constants
-└── utils.py          # Shared utilities
-```
+Source-document metadata is a third, separate concern.
+
+## Research lifecycle
+
+1. Annotate document pages and snapshots in Label Studio.
+2. Extract candidate data snapshots with layout-detection models.
+3. Benchmark detections against human annotations.
+4. Characterize snapshots and develop the semantic metadata schema.
+5. Validate and evolve the schema against held-out evidence.
+6. Extract schema-conformant metadata from snapshot images.
+7. Review generated metadata and save human-reviewed gold records.
+
+## Repository areas
+
+| Area | Purpose | Guide |
+|---|---|---|
+| Data Snapshot Annotation | Create, pre-label, export, restore, and convert Label Studio projects | [Annotation guide](src/data_snapshot/annotation/README.md) |
+| Data Snapshot Extraction | Run TF-ID, DocLayout-YOLO, YOLO11, and YOLO26 adapters | [Extraction guide](src/data_snapshot/inference/README.md) |
+| Extraction Benchmarking | Evaluate detections, merge runs, filter predictions, and render comparisons | [Benchmarking guide](src/data_snapshot/evaluation/README.md) |
+| Schema Discovery | Reproduce the discovery, validation, and schema-evolution research | [Schema discovery guide](notebooks/schema_discovery/README.md) |
+| Canonical Metadata Schema | Validate metadata and generate JSON Schema and field references | [Schema guide](src/data_snapshot/metadata_schema/README.md) |
+| Data Snapshot Metadata Extraction | Extract Schema v1.4 metadata from images and review gold records | [Metadata extraction guide](src/data_snapshot/metadata_extraction/README.md) |
+| Source Document Metadata | Convert and normalize parent-document metadata for dataset publication | [Source metadata guide](src/data_snapshot/metadata/README.md) |
+| Research Notebooks | Run maintained notebooks and identify historical material | [Notebook guide](notebooks/README.md) |
+| Schema Discovery Manuscript | Build and maintain the Paper 2 manuscript | [Manuscript guide](docs/schema-discovery_manuscript/README.md) |
+
+## Research projects
+
+### Paper 1: Data Snapshot Extraction Benchmarking
+
+The extraction-benchmarking study uses the annotation, extraction, and
+evaluation areas above. Its paper is maintained externally in Overleaf and is
+not included in this repository.
+
+- Paper: [Benchmarking Open-Source Layout Detection Models for Data Snapshot
+  Extraction from Institutional Documents](https://arxiv.org/abs/2606.06242)
+- Dataset: [ai4data/data-snapshot](https://huggingface.co/datasets/ai4data/data-snapshot)
+- Evaluation contract: [Unified Evaluation Schema v1.3](docs/data-snapshot-eval-v1.3.schema.json)
+- Methodology: [Evaluation specification](docs/evaluation_spec.md)
+
+### Paper 2: Data Snapshot Metadata Schema Discovery
+
+The schema-discovery study covers snapshot characterization, broad schema
+discovery, held-out validation, standards-informed evolution, and the canonical
+metadata schema. Its tracked manuscript and research evidence are retained in
+this repository.
+
+- Workflow: [Schema discovery notebooks](notebooks/schema_discovery/README.md)
+- Schema versions: [`docs/schema_v1.2`](docs/schema_v1.2),
+  [`docs/schema_v1.3`](docs/schema_v1.3), and
+  [`docs/schema_v1.4`](docs/schema_v1.4)
+- Manuscript: [`docs/schema-discovery_manuscript`](docs/schema-discovery_manuscript/README.md)
 
 ## Installation
 
-This project uses [uv](https://docs.astral.sh/uv/) for dependency management.
+The canonical environment manager is [uv](https://docs.astral.sh/uv/). Python
+3.10 is required and `uv.lock` records the resolved environment.
 
 ```shell
 # Core package
-uv sync
+uv sync --locked
 
-# With model-specific dependencies
-uv sync --extra tfid             # TF-ID adapter
-uv sync --extra doclayout_yolo   # DocLayout-YOLO adapter
-uv sync --extra yolo11           # YOLO11 adapter
-uv sync --extra yolo26           # YOLO26 adapter
-uv sync --extra viz              # Visualization
+# Tests and maintained research notebooks
+uv sync --locked --extra test --extra notebooks
 
-# All dependencies (development)
-uv sync --all-extras
+# Local metadata-review application
+uv sync --locked --extra review
 ```
 
-### Environment variables
+Model adapters have separate, potentially large dependency groups. Install only
+the adapter being used; see the [Data Snapshot Extraction
+guide](src/data_snapshot/inference/README.md).
 
-Copy `.env.template` to `.env` and fill in the required values:
-```
-LABELSTUDIO_API_KEY=    # Required for annotation workflows (See `Add API key` section)
-```
+### Notebook kernels
 
----
-
-# Annotation
-
-Annotation workflows for creating ground truth datasets on Label Studio.
-
-## First time setup
-
-1. Clone the repository.
-    ```shell
-    git clone git@github.com:ajdajd/data-snapshot-annotation.git
-    ```
-2. Go inside the repo and start the service.
-    ```shell
-    cd data-snapshot-annotation
-    docker compose up
-    ```
-3. If you encounter permission issues, run
-    ```shell
-    # Note: Make sure your cwd is the project directory!
-    sudo chmod -R 777 .
-    ```
-    then retry.
-    ```shell
-    docker compose up
-    ```
-4. Open `http://localhost:8080/` on a web browser and create a login.
-
-## Add API key
-
-1. Open Label Studio.
-2. At the top-left corner, click the hamburger menu (≡) and select `Organization`.
-3. At the top-right corner, click `API Tokens Settings`.
-4. Enable `Legacy Tokens` and click `Save Changes`.
-5. At the top-right corner, click the portrait and select `Account & Settings`.
-6. At the left menu, click `Legacy Token`.
-7. Copy the token and add it to the `.env` file.
-
-## Setting up a new PDF annotation project
-
-1. Add PDF files to annotate in the `pdf_input` directory.
-2. Start Label Studio.
-    ```shell
-    docker compose up
-    ```
-3. Run `create_tasks.py`.
-    ```shell
-    uv run python -m data_snapshot.annotation.create_tasks \
-    --project_name="My annotation project" \
-    --dataset_name=my_dataset \
-    --input_pdf_dir=pdf_input/
-    ```
-4. Open Label Studio and refresh the web browser. The newly created project should appear.
-
-## Setting up a new PDF annotation project with pre-labeling
-
-1. Add PDF files to annotate in the `pdf_input` directory.
-2. Generate prediction file(s). See [Inference](#inference) for the list of supported models and installation info.
-    ```shell
-    uv run python -m data_snapshot.inference.{adapter} \
-    --input_pdf_dir=pdf_input/ \
-    --output_json_path=data/evaluation_input/preds.json
-    ```
-3. (Optional) Combine prediction files by assigning a class to a source.
-    ```shell
-    uv run python -m data_snapshot.annotation.merge_class_preds \
-    --figure_preds=data/evaluation_input/preds1.json \
-    --table_preds=data/evaluation_input/preds2.json \
-    --output_json_path=data/evaluation_input/combined_preds.json  
-    ```
-4. Start Label Studio.
-    ```shell
-    docker compose up
-    ```
-5. Create project and tasks.
-    ```shell
-    uv run python -m data_snapshot.annotation.create_tasks_with_prelabeling \
-    --project_name="My project with prelabeling" \
-    --dataset_name=my_dataset \
-    --input_pdf_dir=pdf_input/ \
-    --pred_json_path=data/evaluation_input/preds.json
-    ```
-5. Open Label Studio and refresh the web browser. The newly created project should appear.
-
-## Backing up an annotation project
-
-1. Make sure Label Studio is started.
-    ```shell
-    docker compose up
-    ```
-2. Before exporting, make sure all annotations are submitted and that there are no drafts. You check this by going to the project page and filter for tasks where drafts exist.
-3. Run `export_project.py`. This will create the backup JSON file in the specified path.
-    ```shell
-    uv run python -m data_snapshot.annotation.export_project \
-    --project_id=22 \
-    --output_path=data/backups/project_22_backup.json
-    ```
-
-## Restoring an annotation project
-
-1. Prepare the following files:
-    1. Backup JSON file (e.g., `backups/project_22_backup.json`)
-    2. PDF files (e.g., in `pdf_input/`)
-2. Make sure Label Studio is started and an [API key is added to the `.env` file](#add-api-key).
-    ```shell
-    docker compose up
-    ```
-3. Run `import_project.py`.
-    ```shell
-    uv run python -m data_snapshot.annotation.import_project \
-    --project_name="My restored project" \
-    --input_path=backups/project_22_backup.json \
-    --input_pdf_dir=pdf_input/
-    ```
-    Note: `dataset_name` is an optional parameter that must match the value in the backup file. If not specified, the script will infer it from the backup file.
-
-    If value is not correct, the images will not load properly and the source storage must be manually configured. See [docs/manual_setup.md](docs/manual_setup.md) for instructions.
-
----
-
-# Inference
-
-Layout detection model adapters that perform the following:
-1. Run Figure and Table detection on a directory of PDF files.
-2. Convert the raw model outputs into the [Unified Evaluation Schema v1.3 format](docs/data-snapshot-eval-v1.3.schema.json).
-
-For unsupported models, a small adapter module must be written for them for integration into this repository's framework.
-
-## Supported models
-
-| Model | Optional Dependency | Adapter Module |
-|---|---|---|
-| [yifeihu/TF-ID-large](https://huggingface.co/yifeihu/TF-ID-large) | `uv sync --extra tfid` | `data_snapshot.inference.tfid` |
-| [juliozhao/DocLayout-YOLO-DocStructBench](https://huggingface.co/juliozhao/DocLayout-YOLO-DocStructBench) | `uv sync --extra doclayout_yolo` | `data_snapshot.inference.doclayoutyolo` |
-| [Armaggheddon/yolo11-document-layout](https://huggingface.co/Armaggheddon/yolo11-document-layout) | `uv sync --extra yolo11` | `data_snapshot.inference.yolo11` |
-| [Armaggheddon/yolo26-document-layout](https://huggingface.co/Armaggheddon/yolo26-document-layout) | `uv sync --extra yolo26` | `data_snapshot.inference.yolo26` |
-
-## Generating prediction files
-
-These prediction files will be used in evaluation.
+The repository does not maintain a separate Conda environment. Install and
+register the locked `uv` kernel once:
 
 ```shell
-# Example: DocLayout-YOLO
-uv sync --extra doclayout_yolo
-uv run python -m data_snapshot.inference.doclayoutyolo \
-    --input_pdf_dir=pdf_input/ \
-    --output_json_path=data/evaluation_input/doclayoutyolo.json
+uv sync --locked --extra notebooks
+uv run --extra notebooks python -m ipykernel install --user \
+    --name data-snapshot --display-name "Data Snapshot (uv)"
 ```
 
-All adapters follow the same CLI pattern with `--input_pdf_dir` and `--output_json_path` arguments.
-
-## Batch inference
-
-Run all adapters across multiple batch directories:
+Jupyter may still be launched from Conda or an editor. Select **Data Snapshot
+(uv)** so notebook code runs with the repository dependencies. Alternatively:
 
 ```shell
-uv run python -m data_snapshot.inference.batch_runner \
-    --source unhcr --batch_start 1 --batch_end 5
+uv run --extra notebooks jupyter lab
 ```
 
----
+## Environment variables
 
-# Evaluation
+Copy `.env.template` to `.env` and populate only the credentials needed by the
+workflow:
 
-Evaluation framework for benchmarking layout detection models against human-annotated ground truth.
+```text
+LABELSTUDIO_API_KEY=  # Label Studio project operations
+OPENAI_API_KEY=       # Schema research and metadata extraction API calls
+```
 
-See [docs/evaluation_spec.md](docs/evaluation_spec.md) for the full evaluation specification.
+Never commit `.env`. Offline tests use fake clients and do not require either
+credential.
 
-## Pre-requisites
+## Verification
 
-1. Generate ground truth file from human annotations.
-    1. Export annotations by following the [backup procedure](#backing-up-an-annotation-project).
-    2. Run the Label Studio adapter:
-        ```shell
-        uv run python -m data_snapshot.annotation.labelstudio_adapter \
-        --input_json_path=path/to/exported_json \
-        --output_json_path=data/evaluation_input/ground_truth.json
-        ```
-
-## Running an evaluation
+Run the maintained offline suite without calling external services:
 
 ```shell
-uv run python -m data_snapshot.evaluation.evaluate_model \
-    --gt_json_path=path/to/ground_truth.json \
-    --pred_json_path=path/to/preds.json \
-    --output_report_path=data/evaluation_output/report.json
+uv run --extra test --extra review pytest
+uv run python -m data_snapshot.metadata_schema.generation --check
 ```
 
-Both ground truth and prediction files must conform to the [Unified Evaluation Schema v1.3](docs/data-snapshot-eval-v1.3.schema.json).
+Adapter tests are skipped when their model-specific optional dependencies are
+not installed. Live Label Studio operations, model downloads, and OpenAI calls
+are workflow checks rather than offline test-suite requirements.
 
-## Visualizing predictions
+## Data and generated outputs
 
-To render annotated page images comparing ground truth and predictions:
+Large corpora, Label Studio state, model weights, generated predictions, and
+most experiment outputs are gitignored. Notebooks and commands may therefore
+require local files that are not available in a clean clone. Each local guide
+identifies its expected inputs and outputs.
 
-```shell
-uv sync --extra viz
-uv run python -m data_snapshot.evaluation.visualize_pages \
-    --gt_json_path=path/to/gt.json \
-    --pred_json_path=path/to/pred.json \
-    --input_pdf_dir=pdf_input \
-    --output_dir=data/visualize_pages/
-```
+Tracked reports and outputs are research evidence. Historical notebooks are
+retained even when they use retired package names or depend on local data; see
+the [notebook status guide](notebooks/README.md) before treating one as a
+current entry point.
 
-## Merging batch predictions
+## License
 
-Combine multiple per-batch prediction JSON files (e.g. from `batch_runner`) into a single file:
+MIT License; see [LICENSE](LICENSE).
 
-```shell
-uv run python -m data_snapshot.evaluation.merge_batch_preds \
-    --input_dir=data/batch_runs/ \
-    --output_json=data/evaluation_input/combined.json
-```
-
-## Filtering small predictions
-
-Remove predictions whose bounding-box area falls below a threshold:
-
-```shell
-uv run python -m data_snapshot.evaluation.filter_small_preds \
-    --input_json=data/evaluation_input/preds.json \
-    --output_json=data/evaluation_input/preds_filtered.json
-```
-
----
-
-# Metadata
-
-Tools for converting and enforcing metadata schemas for HuggingFace dataset uploads.
-
-## Converting UNHCR metadata
-
-Convert UNHCR/ReliefWeb scraped metadata JSON files to the Document Metadata Schema:
-
-```shell
-uv run python -m data_snapshot.metadata.unhcr_to_schema \
-    --input_dir=data/hf_metadata/unhcr/ \
-    --output_dir=data/hf_metadata_converted/unhcr/
-```
-
-## Enforcing metadata schema
-
-Unify metadata schemas across dataset subsets for HuggingFace compatibility:
-
-```shell
-uv run python -m data_snapshot.metadata.enforce_metadata_schema \
-    --input_dir data/hf_metadata/unhcr/ \
-    --input_dir data/hf_metadata/prwp/ \
-    --output_dir data/hf_metadata_fixed/
-```
-
----
-
-# Misc
-
-## Extracting snapshots
-
-Crop annotated bounding boxes from PDF pages into individual PNG files:
-
-```shell
-uv run python -m data_snapshot.misc.extract_snapshots \
-    --input_json=data/evaluation_input/ground_truth.json \
-    --input_pdf_dir=pdf_input/ \
-    --output_dir=data/snapshots/
-```
-
-## Splitting annotations for HuggingFace
-
-Split a combined evaluation JSON file into per-document files for HuggingFace dataset upload:
-
-```shell
-uv run python -m data_snapshot.misc.annotations_to_hf_dataset \
-    --input_json=data/evaluation_input/ground_truth.json \
-    --output_dir=data/hf_annotations/
-```
-
----
-
-# Troubleshooting
-
-- `PermissionError: [Errno 13] Permission denied: '/label-studio/data/media'` when setting up Label Studio
-  - Solution: Give writeable permission to the project directory.
-    ```shell
-    # Note: Make sure your cwd is the project directory!
-    sudo chmod -R 777 .
-    ```
-
----
-
-# License
-
-MIT License — see [LICENSE](LICENSE) for details.
-
----
-
-# Citation
+## Citation
 
 ```bibtex
 @misc{dy2026benchmarkingopensourcelayoutdetection,
-      title={Benchmarking Open-Source Layout Detection Models for Data Snapshot Extraction from Institutional Documents}, 
+      title={Benchmarking Open-Source Layout Detection Models for Data Snapshot Extraction from Institutional Documents},
       author={AJ Carl P. Dy and Aivin V. Solatorio},
       year={2026},
       eprint={2606.06242},
       archivePrefix={arXiv},
       primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2606.06242}, 
+      url={https://arxiv.org/abs/2606.06242},
 }
 ```

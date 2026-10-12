@@ -101,7 +101,7 @@ discarding the current edits.
 From the repository root, in a **WSL terminal**:
 
 ```shell
-uv run --extra dev --extra review pytest \
+uv run --extra test --extra review pytest \
     tests/test_metadata_reviewer.py \
     tests/test_metadata_reviewer_app.py \
     tests/test_metadata_schema.py
