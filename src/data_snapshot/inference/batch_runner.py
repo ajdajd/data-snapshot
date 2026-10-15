@@ -15,7 +15,6 @@ import logging
 
 from tqdm.auto import tqdm
 
-from data_snapshot.constants import MODELS_DIR
 from data_snapshot.inference.tfid import TFIDConfig, run_tfid_adapter_directory
 from data_snapshot.inference.yolo11 import YOLO11Config, run_yolo11_adapter_directory
 from data_snapshot.inference.yolo26 import YOLO26Config, run_yolo26_adapter_directory
@@ -159,7 +158,6 @@ def doclayoutyolo_runner(source: str, batch_start: int, batch_end: int) -> None:
         out_path = OUTPUT_DIR + f"doclayoutyolo_{source}_batch{b}.json"
         logging.info(f"Started: {path_dir}")
         cfg = DocLayoutYOLOConfig(
-            model_path=str(MODELS_DIR / "doclayout_yolo_docstructbench_imgsz1024.pt"),
             device="cpu",
             dpi=300,
             conf=0.2,
