@@ -76,11 +76,11 @@ The canonical environment manager is [uv](https://docs.astral.sh/uv/). Python
 # Core package
 uv sync --locked
 
-# Tests and maintained research notebooks
-uv sync --locked --extra test --extra notebooks
+# Daily development, tests, notebooks, and metadata review
+uv sync --locked --extra dev
 
-# Local metadata-review application
-uv sync --locked --extra review
+# Add only the model currently being used
+uv sync --locked --extra dev --extra yolo26
 ```
 
 Model adapters have separate, potentially large dependency groups. Install only
@@ -93,17 +93,19 @@ The repository does not maintain a separate Conda environment. Install and
 register the locked `uv` kernel once:
 
 ```shell
-uv sync --locked --extra notebooks
-uv run --extra notebooks python -m ipykernel install --user \
+uv sync --locked --extra dev
+uv run --no-sync python -m ipykernel install --user \
     --name data-snapshot --display-name "Data Snapshot (uv)"
 ```
 
-Jupyter may still be launched from Conda or an editor. Select **Data Snapshot
-(uv)** so notebook code runs with the repository dependencies. Alternatively:
+Launch Jupyter from the repository environment:
 
 ```shell
-uv run --extra notebooks jupyter lab
+uv run --no-sync jupyter lab
 ```
+
+Editors may also select the **Data Snapshot (uv)** kernel or the repository's
+`.venv/bin/python` interpreter. Conda is not used for this repository.
 
 ## Environment variables
 
@@ -123,8 +125,8 @@ credential.
 Run the maintained offline suite without calling external services:
 
 ```shell
-uv run --extra test --extra review pytest
-uv run python -m data_snapshot.metadata_schema.generation --check
+uv run --no-sync pytest
+uv run --no-sync python -m data_snapshot.metadata_schema.generation --check
 ```
 
 Adapter tests are skipped when their model-specific optional dependencies are

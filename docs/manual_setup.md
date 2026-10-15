@@ -2,18 +2,15 @@
 
 ### 1. Pre-requisites
 
-1. Install the repository.
-    ```shell
-    pip install -e .
-    ```
-2. Install Poppler.
-    ```shell
-    sudo apt-get install poppler-utils
-    ```
+From the repository root, install the locked core environment:
+
+```shell
+uv sync --locked
+```
 
 ### 2. Converting PDFs to images and creating tasks for Label Studio
 1. Add PDF files to the `pdf_input` directory.
-2. Run `python create_tasks_manual.py --dataset_name={dataset}`. The `dataset_name` parameter may be set into any string.
+2. Run `uv run --no-sync python docs/create_tasks_manual.py --dataset_name={dataset}`. The `dataset_name` parameter may be set to any string.
 3. This will generate the following files into the `labelstudio_data/{dataset}` directory:
     - Individual PNG files for each page of each PDF
     - A `tasks.json` file.

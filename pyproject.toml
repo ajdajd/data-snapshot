@@ -25,6 +25,9 @@ dependencies = [
 review = [
     "streamlit>=1.55,<2",
 ]
+pdf2image = [
+    "pdf2image>=1.17,<2",
+]
 notebooks = [
     "ipykernel>=6,<8",
     "jupyterlab>=4,<5",
@@ -65,7 +68,7 @@ test = [
     "jsonschema>=4,<5",
 ]
 dev = [
-    "data-snapshot[test,tfid,doclayout_yolo,viz,yolo11,yolo26]",
+    "data-snapshot[test,notebooks,review]",
     "black==25.1.0",
 ]
 

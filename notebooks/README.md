@@ -8,20 +8,19 @@ and small utilities. They are not all maintained as current applications.
 Install the repository's locked notebook environment:
 
 ```shell
-uv sync --locked --extra notebooks
-uv run --extra notebooks python -m ipykernel install --user \
+uv sync --locked --extra dev
+uv run --no-sync python -m ipykernel install --user \
     --name data-snapshot --display-name "Data Snapshot (uv)"
 ```
 
 Launch the locked Jupyter environment directly:
 
 ```shell
-uv run --extra notebooks jupyter lab
+uv run --no-sync jupyter lab
 ```
 
-It is also fine to launch Jupyter from Conda or an editor, but select the
-**Data Snapshot (uv)** kernel. Conda is not a second dependency specification
-for this repository.
+Editors may also select the **Data Snapshot (uv)** kernel or the repository's
+`.venv/bin/python` interpreter. Conda is not used for this repository.
 
 ## Maintained research workflows
 

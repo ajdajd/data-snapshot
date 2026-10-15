@@ -52,7 +52,7 @@ def convert_pdf_to_images(
         except ImportError as exc:
             raise ImportError(
                 "pymupdf is required for the 'pymupdf' backend. "
-                "Install it with: pip install pymupdf"
+                "Install the locked core environment with: uv sync --locked"
             ) from exc
 
         doc = pymupdf.open(str(pdf_path))
@@ -69,7 +69,7 @@ def convert_pdf_to_images(
         except ImportError as exc:
             raise ImportError(
                 "pdf2image is required for the 'pdf2image' backend. "
-                "Install it with: pip install pdf2image"
+                "Install it with: uv sync --locked --extra pdf2image"
             ) from exc
 
         return convert_from_path(str(pdf_path), dpi=dpi)
