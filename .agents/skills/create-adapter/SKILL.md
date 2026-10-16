@@ -1,497 +1,169 @@
 ---
 name: create-adapter
-description: Develop a layout detection adapter that converts raw model outputs into the Unified Evaluation Schema v1.3 format.
+description: Develop or update layout-detection prediction adapters in the Data Snapshot research repository that emit Unified Evaluation Schema v1.3. Use when integrating a model or library into src/data_snapshot/inference; do not use for Label Studio ground-truth conversion, metadata extraction, or the separate production pipeline.
 ---
 
-# Create Adapter Skill
+# Create Adapter
 
-This skill provides the complete reference for building a **prediction adapter** that integrates a layout detection tool/library into the Data Snapshot Evaluation project.
+Build the smallest adapter that converts one model's layout detections into the
+repository's Unified Evaluation Schema v1.3 prediction format.
 
----
+This skill applies to the research repository at
+`data-snapshot-annotation`. Production extraction belongs in the
+separate `data-snapshot-pipeline` repository; do not copy its architecture,
+environment, weights, or workflow into this checkout.
 
-## 1. What is an Adapter?
+## Establish the Scope
 
-An adapter module converts raw model outputs into a JSON file conforming to the **Unified Evaluation Schema v1.3** (`docs/data-snapshot-eval-v1.3.schema.json`).
+Before editing:
 
-Adapters live in `src/dsa/adapters/` and follow a consistent architecture described below.
+1. Read the closest existing adapter in `src/data_snapshot/inference/`:
+   - `yolo11.py` or `yolo26.py` for Ultralytics models;
+   - `doclayoutyolo.py` for DocLayout-YOLO-style models;
+   - `tfid.py` for generative Hugging Face models.
+2. Read the current contracts:
+   - `docs/data-snapshot-eval-v1.3.schema.json`;
+   - `src/data_snapshot/inference/README.md`;
+   - the evaluation contract in `src/data_snapshot/evaluation/README.md`.
+3. Search for every caller of the adapter pattern before changing shared code:
+   `rg "run_.*adapter|Config|_ADAPTERS" src tests scripts`.
+4. Use official model and library documentation for current installation,
+   loading, inference, output, coordinate, label, and score behavior. Treat a
+   user-provided demo as evidence, not as permission to run it or download
+   weights.
 
----
+After the research pass, present a concise implementation plan in chat that
+covers:
 
-## 2. Schema Contract (v1.3)
+- model installation, initialization, and inference input;
+- raw output parsing, label normalization, coordinate conversion, and score
+  handling;
+- the minimal configuration surface and optional dependencies;
+- required callers, tests, fixtures, documentation, and other integration
+  points;
+- any downloads, model execution, or generated files needed for verification.
 
-The output JSON **must** have these top-level keys:
+Batch genuinely ambiguous model choices into the same message. Wait for
+explicit user approval before changing project files, installing dependencies,
+downloading weights, running real inference, or writing generated outputs. Keep
+the plan in chat; create an `implementation_plan.md` only when the user asks for
+one.
 
-```json
-{
-  "label_map": { "1": "Figure", "2": "Table" },
-  "info": {
-    "schema_version": "1.3",
-    "type": "prediction",
-    "created_at": "<ISO8601>",
-    "run_id": "<unique-run-id>",
-    "model": {
-      "name": "<model-name>",
-      "version": "<version>",
-      "notes": "<free-text>"
-    },
-    "coordinate_system": {
-      "type": "normalized_xyxy",
-      "range": [0.0, 1.0],
-      "origin": "top_left"
-    }
-  },
-  "documents": [
-    { "doc_id": "<filename>", "doc_name": "<filename>", "doc_path": "<path>" }
-  ],
-  "predictions": [
-    {
-      "page_id": "<doc_id>::p<NNN>",
-      "doc_id": "<doc_id>",
-      "page_index": 0,
-      "objects": [
-        {
-          "id": "<page_id>:<obj_index>",
-          "label": "Figure",
-          "bbox": [0.1, 0.2, 0.5, 0.6],
-          "score": 0.95
-        }
-      ]
-    }
-  ]
-}
+## Preserve the Output Contract
+
+The adapter output boundary is `pred_json_path`. Preserve these invariants:
+
+- `info.schema_version` is `"1.3"` and `info.type` is `"prediction"`.
+- Canonical labels come from `data_snapshot.constants.LABEL_MAP` and are only
+  `"Figure"` and `"Table"`; ignore irrelevant model classes.
+- Bounding boxes are normalized `[x1, y1, x2, y2]` with top-left origin and
+  coordinates in `[0, 1]`.
+- Use `normalize_bboxes_xyxy_with_indices()`, then use each retained source
+  index to select the matching label and score. Normalization may drop boxes;
+  positional zipping after normalization can silently misalign detections.
+- Clamp confidence scores to `[0, 1]`. Use `1.0` only when the model genuinely
+  provides no confidence, and document that choice.
+- Keep `filter_small=True` in the adapter config and apply
+  `filter_small_predictions()` by default. The shared threshold is
+  `MIN_PREDICTION_AREA = 0.008`; the evaluator does not filter again.
+- Use zero-based `page_index`, `"{doc_id}::p{page_index:03d}"` page IDs, and
+  `"{page_id}:{object_index}"` object IDs.
+- Include every processed document in `documents`. Match existing adapters by
+  omitting page entries that contain no retained objects.
+- Record truthful model name, version or weight identifier, configuration
+  notes, run ID, and UTC creation time.
+
+Do not copy the schema into the skill or invent a second output model. The JSON
+Schema is authoritative.
+
+## Implement the Adapter
+
+Add `src/data_snapshot/inference/<adapter_name>.py` and follow the closest
+existing adapter's structure:
+
+- a descriptive public module docstring;
+- model and output constants;
+- a narrow raw-label-to-canonical-label mapping;
+- a typed `<AdapterName>Config` containing only supported, useful settings;
+- `run_<adapter_name>_adapter_directory(...) -> Path` with the same public
+  calling shape as existing adapters;
+- recursive, sorted PDF discovery and a clear `FileNotFoundError` when none
+  are found;
+- PDF rendering through `convert_pdf_to_images()`, defaulting to PyMuPDF;
+- model-specific inference and output parsing;
+- a module CLI consistent with the existing per-adapter commands.
+
+Reuse `data_snapshot.constants` and `data_snapshot.utils`. Do not create an
+adapter base class, registry framework, wrapper layer, or new shared helper for
+one model. Extract shared code only when there is demonstrated reuse and the
+change is separately in scope.
+
+Follow `.agents/rules/coding-standards.md`: Black formatting, NumPy docstrings
+for public Python objects, modern Python 3.10+ type hints, and PEP 8 naming.
+
+## Update Only Required Integration Points
+
+Review each place below; update it only when the adapter's intended use needs
+it.
+
+| Place | When to change it |
+|---|---|
+| `pyproject.toml` | Add a model-specific optional dependency group. Never add model dependencies to `dev`. |
+| `uv.lock` | Update when dependency metadata changes. Do not run `uv sync` or install large model extras unless the user requests it. |
+| `src/data_snapshot/inference/README.md` | Add every supported adapter to the model table and usage guidance. |
+| `src/data_snapshot/inference/__init__.py` | Keep the package description's supported-model list accurate. Do not add re-exports unless callers require them. |
+| `src/data_snapshot/evaluation/benchmark.py` | Add the adapter to `_ADAPTERS` only when it should be selectable by the integrated benchmark. |
+| `src/data_snapshot/inference/batch_runner.py` | Add it only when legacy partitioned batch execution is requested; this module eagerly imports every model extra. |
+| `src/data_snapshot/evaluation/configs/` | Add a configuration only for a requested reproducible benchmark or paper comparison. |
+| `tests/` | Cover new parsing and transformation logic offline; add model inference coverage only when its runtime is available. |
+
+Do not modify generated predictions, historical benchmark evidence, model
+weights, or other ignored or untracked data without explicit permission.
+
+## Test the Behavior
+
+New non-trivial parsing or transformation logic needs a small offline test.
+Prefer fake model outputs or pure parsing helpers that verify:
+
+- raw label normalization and ignored classes;
+- bounding-box normalization and source-index alignment;
+- score clamping or the documented no-score fallback;
+- small-area filtering;
+- the emitted document, page, and object identifiers;
+- schema-valid prediction output.
+
+Do not add a permanently skipped end-to-end test as the only coverage. A
+skipped reference-inference test in `tests/test_adapters.py` is optional when a
+stable reference fixture exists and is useful for manual model verification.
+
+Run checks from the repository root. Format each changed Python file in its own
+process:
+
+```shell
+.venv/bin/black path/to/changed_file.py
 ```
 
-### Key rules
+Run the narrow offline tests without syncing dependencies:
 
-| Rule | Detail |
-|------|--------|
-| Bounding boxes | Normalized `[x1, y1, x2, y2]` in `[0, 1]`, `top_left` origin |
-| Labels | Only `"Figure"` and `"Table"` are canonical |
-| Score | **Required** for every prediction object, clamped to `[0, 1]` |
-| `page_id` format | `"{doc_id}::p{page_index:03d}"` |
-| Object `id` format | `"{page_id}:{object_index}"` |
-| `doc_id` | Use the PDF filename (e.g. `"report.pdf"`) |
-| Pages with no objects | **Skip** — do not add empty page entries |
-
----
-
-## 3. Adapter Architecture
-
-Every adapter module follows this structure. Use the existing adapters as reference:
-
-- `doclayoutyolo.py` — YOLO-based object detector
-- `tfid.py` — HuggingFace generative model
-
-### 3.1 Module Structure (for prediction adapters)
-
-```
-src/dsa/adapters/<adapter_name>.py
+```shell
+env UV_CACHE_DIR=/tmp/codex-uv-cache PYTHONDONTWRITEBYTECODE=1 \
+  uv run --frozen --no-sync python -m pytest -p no:cacheprovider <test-paths>
+uv lock --check
 ```
 
-```python
-"""
-<Model Name> adapter -> Unified Evaluation Schema v1.3.
+If an optional model dependency is unavailable, report that boundary and give
+the exact `uv sync --locked --extra <adapter_name>` command for the user to run.
+Do not claim that imports, downloads, GPU execution, or real inference passed
+unless they were actually exercised.
 
-- Input: directory of PDFs
-- Output: single JSON file matching data-snapshot-eval-v1.3.schema.json
-"""
+Run a real-model smoke test only with explicit permission when it would
+download weights, use a GPU, incur cost, or write ignored or untracked output.
 
-from __future__ import annotations
+## Finish
 
-import json
-import uuid
-from pathlib import Path
-from typing import Any
+Report:
 
-from tqdm.auto import tqdm
-
-from dsa.constants import LABEL_MAP, ROOT
-from dsa.utils import convert_pdf_to_images, normalize_bboxes_xyxy, utc_now_iso
-
-# ── Constants ──────────────────────────────────────────────────────────
-MODEL_NAME = "<model-identifier>"
-INPUT_PDF_DIR = ROOT / "pdf_input"
-OUTPUT_JSON_PATH = ROOT / "data/evaluation_input/<adapter-name>.json"
-
-# Raw model labels -> canonical labels.
-# All unmapped labels are silently ignored.
-_LABEL_NORMALIZATION: dict[str, str] = {
-    "figure": "Figure",
-    # ... add model-specific variants
-    "table": "Table",
-}
-_ALLOWED_LABELS = set(LABEL_MAP.values())
-
-
-# ── Label Coercion ─────────────────────────────────────────────────────
-def _coerce_label(raw: Any) -> str | None:
-    """Map a raw model label to a canonical label.
-
-    Parameters
-    ----------
-    raw : Any
-        Raw label produced by the model.
-
-    Returns
-    -------
-    str | None
-        ``"Figure"`` or ``"Table"`` if recognized, ``None`` otherwise.
-    """
-    if raw is None:
-        return None
-    s = str(raw).strip()
-    if not s:
-        return None
-    if s in _ALLOWED_LABELS:
-        return s
-    s_low = s.lower()
-    if s_low in _LABEL_NORMALIZATION:
-        return _LABEL_NORMALIZATION[s_low]
-    return None
-
-
-# ── Config ─────────────────────────────────────────────────────────────
-class <AdapterName>Config:
-    """Configuration for the <Model Name> adapter.
-
-    Parameters
-    ----------
-    <param> : <type>
-        <description>
-    ...
-    """
-
-    def __init__(
-        self,
-        # ... adapter-specific parameters
-        device: str = "cpu",
-        dpi: int = 300,
-        store_doc_path_as: str = "relative",
-        pdf_backend: str = "pymupdf",
-    ) -> None:
-        self.device = device
-        self.dpi = dpi
-        self.store_doc_path_as = store_doc_path_as
-        self.pdf_backend = pdf_backend
-
-
-# ── Main adapter function ─────────────────────────────────────────────
-def run_<adapter_name>_adapter_directory(
-    input_pdf_dir: str | Path,
-    output_json_path: str | Path,
-    *,
-    run_id: str | None = None,
-    config: <AdapterName>Config | None = None,
-) -> Path:
-    """Run <Model Name> on every PDF in a directory and write predictions.
-
-    Parameters
-    ----------
-    input_pdf_dir : str | Path
-        Directory containing PDF files (searched recursively).
-    output_json_path : str | Path
-        Destination path for the prediction JSON.
-    run_id : str | None
-        Optional identifier for this evaluation run.
-    config : <AdapterName>Config | None
-        Adapter configuration. Uses defaults when ``None``.
-
-    Returns
-    -------
-    Path
-        The path where the prediction JSON was written.
-
-    Raises
-    ------
-    FileNotFoundError
-        If no PDF files are found under *input_pdf_dir*.
-    """
-    input_pdf_dir = Path(input_pdf_dir)
-    output_json_path = Path(output_json_path)
-    output_json_path.parent.mkdir(parents=True, exist_ok=True)
-
-    cfg = config or <AdapterName>Config()
-    # TODO: Initialize the model here
-
-    pdf_files = sorted(input_pdf_dir.rglob("*.pdf"))
-    if not pdf_files:
-        raise FileNotFoundError(f"No PDFs found under: {input_pdf_dir}")
-
-    run_id = run_id or f"<adapter-name>-{uuid.uuid4().hex[:10]}"
-
-    documents: list[dict[str, str]] = []
-    predictions: list[dict[str, Any]] = []
-
-    for pdf_path in tqdm(pdf_files, desc="Processing PDFs"):
-        doc_id = pdf_path.name
-
-        if cfg.store_doc_path_as == "absolute":
-            doc_path = str(pdf_path.resolve())
-        else:
-            doc_path = str(pdf_path.resolve().relative_to(ROOT))
-
-        documents.append(
-            {
-                "doc_id": doc_id,
-                "doc_name": pdf_path.name,
-                "doc_path": doc_path,
-            }
-        )
-
-        images = convert_pdf_to_images(pdf_path, dpi=cfg.dpi, backend=cfg.pdf_backend)
-
-        for page_index, image in enumerate(
-            tqdm(images, desc=f"Pages: {pdf_path.name}", leave=False)
-        ):
-            # TODO: Run model inference on `image`
-            # TODO: Extract bboxes, labels, scores from model output
-
-            bboxes_norm = normalize_bboxes_xyxy(
-                boxes_raw, width=image.width, height=image.height
-            )
-
-            page_id = f"{doc_id}::p{page_index:03d}"
-            objects: list[dict[str, Any]] = []
-
-            for i, bbox in enumerate(bboxes_norm):
-                label = _coerce_label(raw_labels[i])
-                if label is None:
-                    continue
-
-                score = float(raw_scores[i])
-                score = max(0.0, min(1.0, score))
-
-                objects.append(
-                    {
-                        "id": f"{page_id}:{i}",
-                        "label": label,
-                        "bbox": bbox,
-                        "score": score,
-                    }
-                )
-
-            if not objects:
-                continue
-
-            predictions.append(
-                {
-                    "page_id": page_id,
-                    "doc_id": doc_id,
-                    "page_index": page_index,
-                    "objects": objects,
-                }
-            )
-
-    out = {
-        "label_map": LABEL_MAP,
-        "info": {
-            "schema_version": "1.3",
-            "type": "prediction",
-            "created_at": utc_now_iso(),
-            "run_id": run_id,
-            "model": {
-                "name": MODEL_NAME,
-                "version": "<version>",
-                "notes": f"adapter=<adapter_name>; device={cfg.device}; dpi={cfg.dpi}",
-            },
-            "coordinate_system": {
-                "type": "normalized_xyxy",
-                "range": [0.0, 1.0],
-                "origin": "top_left",
-            },
-        },
-        "documents": documents,
-        "predictions": predictions,
-    }
-
-    with open(output_json_path, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=4)
-
-    return output_json_path
-
-
-# ── CLI ────────────────────────────────────────────────────────────────
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Run <Model Name> over a PDF directory and produce a v1.3 prediction JSON."
-    )
-    parser.add_argument("--input_pdf_dir", type=str, default=str(INPUT_PDF_DIR))
-    parser.add_argument("--output_json_path", type=str, default=str(OUTPUT_JSON_PATH))
-    parser.add_argument("--run_id", type=str, default=None)
-    parser.add_argument("--device", type=str, default="cpu")
-    parser.add_argument("--dpi", type=int, default=300)
-    parser.add_argument(
-        "--store_doc_path_as",
-        type=str,
-        choices=["relative", "absolute"],
-        default="relative",
-    )
-    parser.add_argument(
-        "--pdf_backend",
-        type=str,
-        choices=["pymupdf", "pdf2image"],
-        default="pymupdf",
-        help="PDF-to-image rendering backend (default: pymupdf).",
-    )
-    # TODO: Add model-specific CLI args
-    args = parser.parse_args()
-
-    pdf_dir = Path(args.input_pdf_dir)
-    print(f"Input PDF dir : {pdf_dir}")
-    pdf_files = list(pdf_dir.rglob("*.pdf"))
-    print(f"PDFs found    : {len(pdf_files)}")
-
-    cfg = <AdapterName>Config(
-        device=args.device,
-        dpi=args.dpi,
-        store_doc_path_as=args.store_doc_path_as,
-        pdf_backend=args.pdf_backend,
-    )
-
-    out_path = run_<adapter_name>_adapter_directory(
-        args.input_pdf_dir,
-        args.output_json_path,
-        run_id=args.run_id,
-        config=cfg,
-    )
-    print(f"Wrote: {out_path}")
-```
-
-### 3.2 Naming Conventions
-
-| Item | Convention | Example |
-|------|-----------|---------|
-| Module filename | `snake_case` (no hyphens) | `doclayoutyolo.py` |
-| Config class | `PascalCase` + `Config` | `DocLayoutYOLOConfig` |
-| Main function | `run_<name>_adapter_directory` | `run_doclayout_yolo_adapter_directory` |
-| Run ID prefix | lowercase with hyphens | `"doclayout-yolo-"` |
-
----
-
-## 4. Shared Utilities
-
-Always import from `dsa.utils` and `dsa.constants` — **do not duplicate**.
-
-### From `dsa.constants`
-
-| Symbol | Purpose |
-|--------|---------|
-| `ROOT` | Project root directory (`Path`) |
-| `LABEL_MAP` | Canonical label map `{"1": "Figure", "2": "Table"}` |
-
-### From `dsa.utils`
-
-| Function | Purpose |
-|----------|---------|
-| `convert_pdf_to_images(pdf_path, dpi, backend)` | Convert PDF pages to `list[PIL.Image.Image]`. Supports `"pymupdf"` (default) and `"pdf2image"` backends. |
-| `normalize_bboxes_xyxy(bboxes, width, height)` | Convert absolute-pixel or already-normalized bboxes to `[0,1]` xyxy. Handles clamping, reordering, degenerate-box filtering. |
-| `utc_now_iso()` | ISO 8601 UTC timestamp with `Z` suffix. |
-| `clamp01(x)` | Clamp a float to `[0, 1]`. |
-| `sanitize_bbox(b)` | Validate and clamp a 4-element bbox list. |
-| `load_json(path)` | Load a JSON file as a dict. |
-
----
-
-## 5. Integration Checklist
-
-After implementing the adapter module:
-
-### 5.1 `pyproject.toml`
-
-Add a new optional-dependency group under `[project.optional-dependencies]`:
-
-```toml
-<adapter_name> = [
-    "<pip-package-name>",
-    # ... other deps
-]
-```
-
-Also add it to the `dev` extras list:
-
-```toml
-dev = [
-    "data-snapshot-annotation[tfid,doclayout_yolo,viz,<adapter_name>]",
-    ...
-]
-```
-
-### 5.2 Test Stub
-
-Add a skipped test function in `tests/test_adapters.py`:
-
-```python
-@pytest.mark.skip(reason="For debugging purposes only.")
-def test_<adapter_name>():
-    ref_path = ROOT / "tests/data/<adapter-name>.json"
-    test_path = ROOT / "tests/data/<adapter-name>_test.json"
-
-    cfg = <AdapterName>Config()
-    run_<adapter_name>_adapter_directory(
-        ROOT / "pdf_input",
-        test_path,
-        config=cfg,
-    )
-
-    ref = load_json(ref_path)
-    del ref["info"]
-    test = load_json(test_path)
-    del test["info"]
-
-    assert json.dumps(ref) == json.dumps(test)
-
-    test_path.unlink()
-```
-
-### 5.3 Imports
-
-Add the necessary imports at the top of `tests/test_adapters.py`:
-
-```python
-from dsa.adapters.<adapter_name> import (
-    <AdapterName>Config,
-    run_<adapter_name>_adapter_directory,
-)
-```
-
----
-
-## 6. Coding Standards
-
-| Standard | Rule |
-|----------|------|
-| Formatter | **Black** (88 char line length) |
-| Docstrings | **NumPy** style on all public modules, classes, and functions |
-| Type hints | Modern Python 3.10+ (`str \| None`, `list[str]`) |
-| Naming | PEP 8 (`snake_case` functions/variables, `PascalCase` classes) |
-| Constants | Project-wide constants go in `src/dsa/constants.py` |
-
----
-
-## 7. Model-Specific Considerations
-
-When integrating a new model, pay attention to:
-
-1. **Coordinate format**: The model may output absolute pixels, percentage-based, or already-normalized coordinates. Use `normalize_bboxes_xyxy()` for conversion.
-2. **Label vocabulary**: Map every model-specific label to `"Figure"` or `"Table"` via `_LABEL_NORMALIZATION`. Labels that don't map to either are silently skipped.
-3. **Score availability**: Some models don't output confidence scores. In that case, default to `1.0` for all detections.
-4. **Batch vs. single inference**: Some models support batch processing. Adapt the page loop accordingly but maintain the same output structure.
-5. **Dependencies**: Keep model-specific dependencies in the optional-dependency group, not in the base `dependencies`.
-
----
-
-## 8. Reference Files
-
-| File | Purpose |
-|------|---------|
-| [data-snapshot-eval-v1.3.schema.json](file:///home/ajd/data-snapshot-annotation/docs/data-snapshot-eval-v1.3.schema.json) | JSON Schema definition |
-| [evaluation_spec.md](file:///home/ajd/data-snapshot-annotation/docs/evaluation_spec.md) | Evaluation contract |
-| [project_context.md](file:///home/ajd/data-snapshot-annotation/docs/project_context.md) | Project background |
-| [constants.py](file:///home/ajd/data-snapshot-annotation/src/dsa/constants.py) | Shared constants |
-| [utils.py](file:///home/ajd/data-snapshot-annotation/src/dsa/utils.py) | Shared utilities |
-| [doclayoutyolo.py](file:///home/ajd/data-snapshot-annotation/src/dsa/adapters/doclayoutyolo.py) | Reference adapter (YOLO) |
-| [tfid.py](file:///home/ajd/data-snapshot-annotation/src/dsa/adapters/tfid.py) | Reference adapter (TF-ID) |
-| [pyproject.toml](file:///home/ajd/data-snapshot-annotation/pyproject.toml) | Project dependencies |
-| [test_adapters.py](file:///home/ajd/data-snapshot-annotation/tests/test_adapters.py) | Adapter test stubs |
+- files changed and integration points intentionally left untouched;
+- focused checks that passed;
+- unavailable optional-runtime checks;
+- any output-contract assumption that still needs human confirmation.
