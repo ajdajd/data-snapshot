@@ -74,7 +74,7 @@ The checked-in DocLayout-YOLO paper configuration is
 ```json
 {
   "model": "doclayoutyolo",
-  "dataset_root": "/home/ajd/hf_datasets/data-snapshot",
+  "dataset_root": "data/hf_datasets/data-snapshot",
   "output_root": "data/evaluation_runs",
   "sources": ["unhcr", "prwp", "refugee"],
   "device": "cuda:0",
