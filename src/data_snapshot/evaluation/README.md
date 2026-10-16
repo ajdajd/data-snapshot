@@ -1,34 +1,160 @@
 # Data Snapshot Extraction Benchmarking
 
-Use these tools to evaluate table and figure detections against human-annotated
-ground truth. Inputs use the [Unified Evaluation Schema
-v1.3](../../../docs/data-snapshot-eval-v1.3.schema.json). The
-[evaluation specification](../../../docs/evaluation_spec.md) records the metric
-definitions and matching methodology; the commands below describe the current
-implementation.
+This package evaluates Figure and Table detections against human-annotated
+ground truth. Both inputs use the [Unified Evaluation Schema
+v1.3](../../../docs/data-snapshot-eval-v1.3.schema.json). This README documents
+the current executable workflow and report fields.
 
-## Starting point: `pred_json_path`
+## Evaluation contract
 
-Model evaluation starts from `pred_json_path`: one prediction JSON file emitted
-by an integrated model adapter. It is the handoff between model-specific
-inference and model-independent evaluation. Evaluation does not load model
-weights or require the model's dependency extra.
+Evaluation starts from two JSON files:
 
-The prediction file must:
+- `gt_json_path`: human-annotated ground truth;
+- `pred_json_path`: predictions emitted by an integrated model adapter.
+
+`pred_json_path` is the boundary between model-specific inference and the
+model-independent evaluator. It must:
 
 - conform to Unified Evaluation Schema v1.3;
 - use `Figure` and `Table` labels;
 - use normalized `[x1, y1, x2, y2]` bounding boxes;
-- identify the same documents and pages as the ground-truth file; and
-- contain all documents being evaluated, normally in one combined file.
+- identify the same documents as the ground truth; and
+- contain all documents being evaluated.
 
-Keep the ground-truth and prediction files inside the repository. The current
-report records their paths relative to the repository root.
+Predictions may contain pages without annotated objects. Keep generated ground
+truth, predictions, and reports inside the repository because report metadata
+currently stores their paths relative to the repository root.
 
-## Quick evaluation
+The paper benchmark removes predictions whose normalized bounding-box area is
+below `0.008`. This removes small logos and other detections unlikely to be
+data snapshots. Integrated adapters apply this filter by default; the evaluator
+does not filter again. Historical filenames use `_wo_small` to identify this
+configuration.
 
-Once `pred_json_path` is ready, metric calculation is one CLI call and requires
-only the core package:
+## Reproduce the paper benchmark from source PDFs
+
+Use this workflow to run inference again from the dataset PDFs. For recalculating
+metrics from the stored paper predictions without inference, see
+[Historical paper artifacts](#historical-paper-artifacts).
+
+### 1. Install dependencies
+
+Create the locked DocLayout-YOLO paper-reproduction environment:
+
+```shell
+uv sync --locked --extra dev --extra doclayout_yolo --extra pdf2image
+```
+
+The `pdf2image` backend also requires Poppler. On Ubuntu or WSL:
+
+```shell
+sudo apt install poppler-utils
+```
+
+The paper predictions used `pdf2image`; current adapters default to PyMuPDF,
+which can shift bounding boxes slightly. For another model, replace
+`doclayout_yolo` with that model's dependency extra while retaining
+`pdf2image` for paper-comparable rendering.
+
+### 2. Prepare the dataset
+
+Download the [Data Snapshot dataset](https://huggingface.co/datasets/ai4data/data-snapshot)
+with this layout:
+
+```text
+data-snapshot/
+├── documents/<source>/*.pdf
+└── annotations/<source>/*.json
+```
+
+### 3. Configure the run
+
+The checked-in DocLayout-YOLO paper configuration is
+[`doclayoutyolo_paper_benchmark.json`](doclayoutyolo_paper_benchmark.json):
+
+```json
+{
+  "model": "doclayoutyolo",
+  "dataset_root": "/home/ajd/hf_datasets/data-snapshot",
+  "output_root": "data/evaluation_runs",
+  "sources": ["unhcr", "prwp", "refugee"],
+  "device": "cuda:0",
+  "adapter_config": {
+    "pdf_backend": "pdf2image"
+  }
+}
+```
+
+Configuration fields:
+
+| Field | Purpose |
+|---|---|
+| `model` | Integrated adapter: `doclayoutyolo`, `tfid`, `yolo11`, or `yolo26` |
+| `dataset_root` | Directory containing `documents/` and `annotations/` |
+| `output_root` | Directory for generated evaluation files |
+| `sources` | Allowed source runs and exact full-corpus membership |
+| `device` | Model device, such as `cpu` or `cuda:0` |
+| `adapter_config` | Optional keyword overrides passed to the adapter config |
+
+Relative dataset and output paths are resolved from the repository root.
+
+### 4. Run each source
+
+Run sources independently so completed inference is preserved if a later source
+fails:
+
+```shell
+uv run --no-sync python scripts/evaluate_benchmark.py \
+    --config src/data_snapshot/evaluation/doclayoutyolo_paper_benchmark.json \
+    --source unhcr
+uv run --no-sync python scripts/evaluate_benchmark.py \
+    --config src/data_snapshot/evaluation/doclayoutyolo_paper_benchmark.json \
+    --source prwp
+uv run --no-sync python scripts/evaluate_benchmark.py \
+    --config src/data_snapshot/evaluation/doclayoutyolo_paper_benchmark.json \
+    --source refugee
+```
+
+Each run validates PDF and annotation coverage, combines the source ground
+truth, runs the selected adapter, and evaluates both Figure and Table objects.
+
+Existing outputs are not replaced by default. Use `--overwrite` only when the
+generated outputs should be replaced. If inference completed but a later step
+failed, use `--reuse-predictions --overwrite` to rebuild the ground truth and
+report without rerunning the model.
+
+### 5. Combine the corpus
+
+After every configured source completes, combine and evaluate the corpus:
+
+```shell
+uv run --no-sync python scripts/evaluate_benchmark.py \
+    --config src/data_snapshot/evaluation/doclayoutyolo_paper_benchmark.json \
+    --corpus
+```
+
+The corpus run includes exactly the configured `sources` and writes the combined
+ground truth, predictions, and report.
+
+Generated files are organized by model and source:
+
+```text
+data/evaluation_runs/<model>/
+├── ground_truth/
+│   ├── sources/<source>.json
+│   └── corpus.json
+├── predictions/
+│   ├── sources/<source>.json
+│   └── corpus.json
+└── reports/
+    ├── sources/<source>.json
+    └── corpus.json
+```
+
+## Evaluate an existing prediction file
+
+When `pred_json_path` already exists, run the evaluator directly without loading
+model weights:
 
 ```shell
 uv run --no-sync python -m data_snapshot.evaluation.evaluate_model \
@@ -36,9 +162,6 @@ uv run --no-sync python -m data_snapshot.evaluation.evaluate_model \
     --pred_json_path=data/evaluation_input/model_predictions.json \
     --output_report_path=data/evaluation_output/model_report.json
 ```
-
-The command writes the full JSON report and prints paper-style Figure and Table
-metric tables for IoU `0.5`. The report also contains results for IoU `0.75`.
 
 The equivalent Python API is:
 
@@ -52,57 +175,13 @@ report = evaluate(
 )
 ```
 
-## Step-by-step procedure
+The evaluator reports IoU thresholds `0.5` and `0.75`; the paper tables use
+`0.5`. A non-empty `documents_mismatch` section means the files do not cover the
+same corpus and should not be treated as a complete benchmark result.
 
-### 1. Select the ground truth
-
-Use a ground-truth JSON created by the [Label Studio annotation
-adapter](../annotation/README.md). Do not compare predictions from one PDF set
-against ground truth from another.
-
-For the paper-wide benchmark, the existing ground truth is:
-
-```text
-data/paper/evaluation_input/ground_truth_corpus_combined.json
-```
-
-### 2. Generate or locate the predictions
-
-Run the integrated adapter over the same PDFs. For example, DocLayout-YOLO
-writes its evaluation-ready output directly to `pred_json_path`:
-
-```shell
-uv run --no-sync python -m data_snapshot.inference.doclayoutyolo \
-    --input_pdf_dir=pdf_input/ \
-    --output_json_path=data/evaluation_input/doclayoutyolo.json
-```
-
-If inference was split into batches, place only compatible files from one model
-in a directory and merge them:
-
-```shell
-uv run --no-sync python -m data_snapshot.evaluation.merge_batch_preds \
-    --input_dir=data/batch_runs/doclayoutyolo/ \
-    --output_json=data/evaluation_input/doclayoutyolo_combined.json
-```
-
-The merge command requires the same label map, model name, and coordinate
-system in every input file. It keeps the first occurrence of a duplicate page.
-
-### 3. Apply the small-prediction policy
-
-The paper benchmark removes predictions with normalized bounding-box area below
-`0.008`. Historical filenames mark this configuration with `_wo_small`. This
-filter removes small logos and other detections unlikely to be data snapshots.
-
-All currently supported adapters apply the `0.008` filter by default, so their
-normal output can be passed directly to evaluation. The filename suffix is only
-a naming convention; the evaluator does not interpret `_wo_small` or apply the
-filter again.
-
-If a prediction file was generated with
-`--no-filter-small-predictions`, by an older adapter, or outside this repository,
-filter it explicitly:
+If predictions came from outside the integrated adapters or were created with
+small-prediction filtering disabled, apply the paper filter once before
+evaluation:
 
 ```shell
 uv run --no-sync python -m data_snapshot.evaluation.filter_small_preds \
@@ -111,31 +190,12 @@ uv run --no-sync python -m data_snapshot.evaluation.filter_small_preds \
     --min_area=0.008
 ```
 
-`0.008` is the paper-reproduction setting and the command default. It can be
-adjusted with `--min_area`, but a different value is a different benchmark
-configuration and should be recorded with the results.
+A different `min_area` value defines a different benchmark configuration and
+should be recorded with the result.
 
-### 4. Run the evaluator
+## Read the report
 
-```shell
-uv run --no-sync python -m data_snapshot.evaluation.evaluate_model \
-    --gt_json_path=data/evaluation_input/ground_truth.json \
-    --pred_json_path=data/evaluation_input/model_predictions_wo_small.json \
-    --output_report_path=data/evaluation_output/model_report.json \
-    --thr 0.5 0.75 \
-    --labels Figure Table
-```
-
-The last two options show the defaults and may be omitted. The paper tables use
-the `0.5` results.
-
-Check the command output for document mismatches. A non-empty
-`documents_mismatch` section means the two files do not cover the same corpus
-and the resulting metrics should not be treated as the full benchmark.
-
-### 5. Read the report
-
-For each label, the paper columns map to report fields as follows:
+For each `Figure` or `Table` label, the paper columns map to these report fields:
 
 | Paper metric | JSON field |
 |---|---|
@@ -145,13 +205,14 @@ For each label, the paper columns map to report fields as follows:
 | Area precision | `metrics["0.5"]["per_class"][label]["mean_area_precision"]` |
 | Area recall | `metrics["0.5"]["per_class"][label]["mean_area_recall"]` |
 
-The evaluator performs greedy one-to-one matching independently for each page
-and label. A pair is a true positive when its IoU meets the selected threshold.
-Spatial metrics are averaged over matched pairs only.
+Matching is greedy and one-to-one within each page and label. A pair is a true
+positive when its IoU meets the selected threshold. Spatial metrics are averaged
+over matched pairs only.
 
-## Reproduce the paper metrics
+## Historical paper artifacts
 
-The repository contains the filtered corpus prediction files and their reports:
+The repository keeps the filtered corpus predictions and reports used for the
+paper. Treat these as read-only historical artifacts:
 
 | Model | Prediction file | Existing report |
 |---|---|---|
@@ -160,38 +221,35 @@ The repository contains the filtered corpus prediction files and their reports:
 | YOLO11 medium | `data/paper/evaluation_input/yolo11_corpus_combined_wo_small.json` | `data/paper/evaluation_output/report_yolo11_corpus_combined_wo_small.json` |
 | YOLO26 medium | `data/paper/evaluation_input/yolo26_corpus_combined_wo_small.json` | `data/paper/evaluation_output/report_yolo26_corpus_combined_wo_small.json` |
 
-Do not overwrite the existing reports; they are historical paper artifacts. To
-recalculate DocLayout-YOLO into a new report:
+The shared ground truth is
+`data/paper/evaluation_input/ground_truth_corpus_combined.json`. To verify the
+evaluator without rerunning inference, evaluate one of the stored prediction
+files and write the new report outside `data/paper/`.
 
-```shell
-uv run --no-sync python -m data_snapshot.evaluation.evaluate_model \
-    --gt_json_path=data/paper/evaluation_input/ground_truth_corpus_combined.json \
-    --pred_json_path=data/paper/evaluation_input/doclayoutyolo_corpus_combined_wo_small.json \
-    --output_report_path=data/evaluation_output/reproduced_doclayoutyolo_report.json
-```
+The repository ignores `data/` by default but explicitly includes JSON files
+under `data/paper/evaluation_input/` and `data/paper/evaluation_output/`. This
+keeps historical paper evidence versioned without admitting other generated
+data.
 
-The printed values, rounded to three decimal places, recreate the corresponding
-DocLayout-YOLO column in the paper table.
+## Extend the benchmark
 
-## Evaluate a future integrated model
+To evaluate another supported model, copy the JSON configuration, change
+`model`, and install that model's dependency extra. No evaluator change is
+required because every integrated adapter writes Unified Evaluation Schema v1.3.
 
-No evaluator change is needed for a new model once its adapter produces a
-Unified Evaluation Schema v1.3 prediction file. The repeatable procedure is:
+To add a data source, create matching `documents/<source>/` and
+`annotations/<source>/` directories, add the source name to `sources`, run that
+source, and then rebuild the corpus.
 
-1. Run the adapter on the benchmark PDFs.
-2. Merge batches if necessary.
-3. Confirm whether the `0.008` filter was applied exactly once.
-4. Use the resulting file as `pred_json_path` in the evaluator.
-5. Save the report under a new model-specific filename.
-6. Record the adapter configuration, model weights, confidence threshold,
-   filtering threshold, and evaluated corpus with the result.
+For a newly integrated model, record the model weights, confidence threshold,
+PDF renderer, filtering threshold, adapter configuration, and evaluated sources
+with the resulting report.
 
 ## Render comparisons
 
 Visualization requires the `viz` extra:
 
 ```shell
-uv sync --locked --extra dev --extra doclayout_yolo --extra viz
 uv run --no-sync python -m data_snapshot.evaluation.visualize_pages \
     --gt_json_path=data/evaluation_input/ground_truth.json \
     --pred_json_path=data/evaluation_input/model_predictions.json \
@@ -203,9 +261,11 @@ uv run --no-sync python -m data_snapshot.evaluation.visualize_pages \
 
 ```shell
 uv run --no-sync pytest \
+    tests/test_benchmark.py \
+    tests/test_benchmark_cli.py \
     tests/test_evaluate_model.py \
     tests/test_adapter_utils.py
 ```
 
-Generated reports, rendered pages, input PDFs, and new model predictions
-normally live in gitignored directories and are not supplied by a clean clone.
+Generated reports, rendered pages, input PDFs, and new model predictions live
+in gitignored directories and are not supplied by a clean clone.

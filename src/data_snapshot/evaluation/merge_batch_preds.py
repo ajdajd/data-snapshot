@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -166,10 +167,38 @@ def combine_batch_predictions(
         raise FileNotFoundError(f"Input directory not found: {input_dir}")
 
     json_files = sorted(input_dir.glob("*.json"))
-    if not json_files:
-        raise FileNotFoundError(f"No JSON files found in: {input_dir}")
+    combine_evaluation_files(json_files, output_json_path)
 
-    print(f"Found {len(json_files)} batch file(s) in '{input_dir}':")
+
+def combine_evaluation_files(
+    input_json_paths: Sequence[str | Path],
+    output_json_path: str | Path,
+) -> None:
+    """Combine explicit Unified Evaluation Schema files into one file.
+
+    Parameters
+    ----------
+    input_json_paths : Sequence[str | Path]
+        Ground-truth or prediction JSON files to combine.
+    output_json_path : str | Path
+        Destination path for the combined JSON file.
+
+    Raises
+    ------
+    FileNotFoundError
+        If no input files are provided or an input file does not exist.
+    ValueError
+        If input files have inconsistent metadata.
+    """
+    json_files = [Path(path) for path in input_json_paths]
+    if not json_files:
+        raise FileNotFoundError("No evaluation JSON files were provided.")
+
+    missing = [path for path in json_files if not path.is_file()]
+    if missing:
+        raise FileNotFoundError(f"Evaluation JSON file not found: {missing[0]}")
+
+    print(f"Combining {len(json_files)} evaluation file(s):")
     for f in json_files:
         print(f"  - {f.name}")
 
