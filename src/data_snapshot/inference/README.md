@@ -34,7 +34,7 @@ All adapters accept an input PDF directory and write one prediction JSON file.
 For example:
 
 ```shell
-uv run --extra yolo26 python -m data_snapshot.inference.yolo26 \
+uv run --no-sync python -m data_snapshot.inference.yolo26 \
     --input_pdf_dir=pdf_input/ \
     --output_json_path=data/evaluation_input/yolo26.json
 ```
@@ -50,7 +50,7 @@ directories such as `pdf_input/unhcr_batch1/`:
 
 ```shell
 uv sync --locked --all-extras
-uv run python -m data_snapshot.inference.batch_runner \
+uv run --no-sync python -m data_snapshot.inference.batch_runner \
     --source unhcr --batch_start 1 --batch_end 5
 ```
 
@@ -69,11 +69,14 @@ needed. Batch outputs are written beneath `data/batch_runs/` by default.
 
 ## Verification
 
-Shared adapter transformations are covered by the core offline suite. Each
-model test is skipped unless its optional dependency is installed:
+Shared adapter transformations are covered by the core offline suite. Reference
+inference tests are intentionally skipped because they run full, deterministic
+model inference. Manually unskip the relevant test after changing an adapter or
+its inference pipeline:
 
 ```shell
-uv run --extra test pytest tests/test_adapter_utils.py tests/test_adapters.py
+uv sync --locked --extra test
+uv run --no-sync pytest tests/test_adapter_utils.py tests/test_adapters.py
 ```
 
 Passing these tests does not verify model-weight downloads, GPU compatibility,

@@ -10,7 +10,7 @@ provided as context, but it is not part of the Data Snapshot Metadata Schema.
 
 ```shell
 uv sync --locked --extra notebooks --extra test
-uv run --extra notebooks jupyter lab notebooks/schema_discovery
+uv run --no-sync jupyter lab notebooks/schema_discovery
 ```
 
 Set `OPENAI_API_KEY` in `.env` only when intentionally running API-backed
@@ -55,7 +55,7 @@ inputs and execution configurations. Do not rerun live validation cells merely
 to check the repository; use the offline tests instead.
 
 ```shell
-uv run --extra test pytest \
+uv run --no-sync pytest \
     tests/test_schema_validation2.py \
     tests/test_schema_validation3.py
 ```

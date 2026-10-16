@@ -35,7 +35,7 @@ entire repository world-writable.
 Place source PDFs in a local directory such as `pdf_input/`, then run:
 
 ```shell
-uv run python -m data_snapshot.annotation.create_tasks \
+uv run --no-sync python -m data_snapshot.annotation.create_tasks \
     --project_name="My annotation project" \
     --dataset_name=my_dataset \
     --input_pdf_dir=pdf_input/
@@ -50,7 +50,7 @@ Generate a prediction file with a [Data Snapshot Extraction
 adapter](../inference/README.md), then run:
 
 ```shell
-uv run python -m data_snapshot.annotation.create_tasks_with_prelabeling \
+uv run --no-sync python -m data_snapshot.annotation.create_tasks_with_prelabeling \
     --project_name="My pre-labeled project" \
     --dataset_name=my_dataset \
     --input_pdf_dir=pdf_input/ \
@@ -60,7 +60,7 @@ uv run python -m data_snapshot.annotation.create_tasks_with_prelabeling \
 To take figures from one prediction file and tables from another:
 
 ```shell
-uv run python -m data_snapshot.annotation.merge_class_preds \
+uv run --no-sync python -m data_snapshot.annotation.merge_class_preds \
     --figure_preds=data/evaluation_input/figure_preds.json \
     --table_preds=data/evaluation_input/table_preds.json \
     --output_json_path=data/evaluation_input/combined_preds.json
@@ -71,7 +71,7 @@ uv run python -m data_snapshot.annotation.merge_class_preds \
 Before exporting, submit all annotations and confirm that no drafts remain.
 
 ```shell
-uv run python -m data_snapshot.annotation.export_project \
+uv run --no-sync python -m data_snapshot.annotation.export_project \
     --project_id=22 \
     --output_path=data/backups/project_22_backup.json
 ```
@@ -79,7 +79,7 @@ uv run python -m data_snapshot.annotation.export_project \
 Restore the backup with the original PDFs:
 
 ```shell
-uv run python -m data_snapshot.annotation.import_project \
+uv run --no-sync python -m data_snapshot.annotation.import_project \
     --project_name="My restored project" \
     --input_path=data/backups/project_22_backup.json \
     --input_pdf_dir=pdf_input/
@@ -94,7 +94,7 @@ guide](../../../docs/manual_setup.md).
 Convert a Label Studio JSON export into Unified Evaluation Schema v1.3:
 
 ```shell
-uv run python -m data_snapshot.annotation.labelstudio_adapter \
+uv run --no-sync python -m data_snapshot.annotation.labelstudio_adapter \
     --input_json_path=path/to/labelstudio_export.json \
     --output_json_path=data/evaluation_input/ground_truth.json
 ```
@@ -108,7 +108,8 @@ The offline adapter and shared utility tests do not require a running Label
 Studio service:
 
 ```shell
-uv run --extra test pytest tests/test_adapters.py tests/test_adapter_utils.py
+uv sync --locked --extra test
+uv run --no-sync pytest tests/test_adapters.py tests/test_adapter_utils.py
 ```
 
 Creating, exporting, and importing projects are integration operations and

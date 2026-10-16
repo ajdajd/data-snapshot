@@ -1,5 +1,9 @@
 ## Setting up an annotation project (manual)
 
+> **Deprecated:** This manual click-ops workflow is retained for posterity. Use
+> the maintained [annotation API workflow](../src/data_snapshot/annotation/README.md)
+> for current work.
+
 ### 1. Pre-requisites
 
 From the repository root, install the locked core environment:

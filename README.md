@@ -129,9 +129,11 @@ uv run --no-sync pytest
 uv run --no-sync python -m data_snapshot.metadata_schema.generation --check
 ```
 
-Adapter tests are skipped when their model-specific optional dependencies are
-not installed. Live Label Studio operations, model downloads, and OpenAI calls
-are workflow checks rather than offline test-suite requirements.
+Reference inference tests are intentionally skipped because they run full,
+deterministic model inference. Manually unskip the relevant test after changing
+an adapter or its inference pipeline. Live Label Studio operations, model
+downloads, and OpenAI calls are workflow checks rather than offline test-suite
+requirements.
 
 ## Data and generated outputs
 
