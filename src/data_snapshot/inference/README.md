@@ -13,7 +13,7 @@ and produces semantic metadata.
 | Model | Dependency extra | Module |
 |---|---|---|
 | TF-ID Large | `tfid` | `data_snapshot.inference.tfid` |
-| DocLayout-YOLO | `doclayout_yolo` | `data_snapshot.inference.doclayoutyolo` |
+| DocLayout-YOLO | `doclayoutyolo` | `data_snapshot.inference.doclayoutyolo` |
 | YOLO11 Document Layout | `yolo11` | `data_snapshot.inference.yolo11` |
 | YOLO26 Document Layout | `yolo26` | `data_snapshot.inference.yolo26` |
 

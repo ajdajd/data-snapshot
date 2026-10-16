@@ -422,7 +422,7 @@ dev = [
     { name = "seaborn" },
     { name = "streamlit" },
 ]
-doclayout-yolo = [
+doclayoutyolo = [
     { name = "doclayout-yolo" },
     { name = "huggingface-hub" },
 ]
@@ -474,9 +474,9 @@ requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = "==25.1.0" },
     { name = "countrycode", specifier = ">=0.6.0" },
     { name = "data-snapshot", extras = ["test", "notebooks", "review"], marker = "extra == 'dev'" },
-    { name = "doclayout-yolo", marker = "extra == 'doclayout-yolo'" },
+    { name = "doclayout-yolo", marker = "extra == 'doclayoutyolo'" },
     { name = "einops", marker = "extra == 'tfid'", specifier = "==0.8.1" },
-    { name = "huggingface-hub", marker = "extra == 'doclayout-yolo'" },
+    { name = "huggingface-hub", marker = "extra == 'doclayoutyolo'" },
     { name = "huggingface-hub", marker = "extra == 'tfid'", specifier = "==0.23.2" },
     { name = "huggingface-hub", marker = "extra == 'yolo11'" },
     { name = "huggingface-hub", marker = "extra == 'yolo26'" },
@@ -507,7 +507,7 @@ requires-dist = [
     { name = "ultralytics", marker = "extra == 'yolo11'" },
     { name = "ultralytics", marker = "extra == 'yolo26'" },
 ]
-provides-extras = ["review", "pdf2image", "notebooks", "tfid", "doclayout-yolo", "yolo11", "yolo26", "viz", "test", "dev"]
+provides-extras = ["review", "pdf2image", "notebooks", "tfid", "doclayoutyolo", "yolo11", "yolo26", "viz", "test", "dev"]
 
 [[package]]
 name = "datamodel-code-generator"
