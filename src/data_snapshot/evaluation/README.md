@@ -33,9 +33,8 @@ configuration.
 
 ## Reproduce the paper benchmark from source PDFs
 
-Use this workflow to run inference again from the dataset PDFs. For recalculating
-metrics from the stored paper predictions without inference, see
-[Historical paper artifacts](#historical-paper-artifacts).
+Use this workflow to run inference again from the dataset PDFs and compare the
+resulting corpus report with the published values.
 
 ### 1. Install dependencies
 
@@ -70,7 +69,7 @@ data-snapshot/
 ### 3. Configure the run
 
 The checked-in DocLayout-YOLO paper configuration is
-[`doclayoutyolo_paper_benchmark.json`](doclayoutyolo_paper_benchmark.json):
+[`configs/doclayoutyolo_paper_benchmark.json`](configs/doclayoutyolo_paper_benchmark.json):
 
 ```json
 {
@@ -105,13 +104,13 @@ fails:
 
 ```shell
 uv run --no-sync python scripts/evaluate_benchmark.py \
-    --config src/data_snapshot/evaluation/doclayoutyolo_paper_benchmark.json \
+    --config src/data_snapshot/evaluation/configs/doclayoutyolo_paper_benchmark.json \
     --source unhcr
 uv run --no-sync python scripts/evaluate_benchmark.py \
-    --config src/data_snapshot/evaluation/doclayoutyolo_paper_benchmark.json \
+    --config src/data_snapshot/evaluation/configs/doclayoutyolo_paper_benchmark.json \
     --source prwp
 uv run --no-sync python scripts/evaluate_benchmark.py \
-    --config src/data_snapshot/evaluation/doclayoutyolo_paper_benchmark.json \
+    --config src/data_snapshot/evaluation/configs/doclayoutyolo_paper_benchmark.json \
     --source refugee
 ```
 
@@ -129,7 +128,7 @@ After every configured source completes, combine and evaluate the corpus:
 
 ```shell
 uv run --no-sync python scripts/evaluate_benchmark.py \
-    --config src/data_snapshot/evaluation/doclayoutyolo_paper_benchmark.json \
+    --config src/data_snapshot/evaluation/configs/doclayoutyolo_paper_benchmark.json \
     --corpus
 ```
 
@@ -209,27 +208,19 @@ Matching is greedy and one-to-one within each page and label. A pair is a true
 positive when its IoU meets the selected threshold. Spatial metrics are averaged
 over matched pairs only.
 
-## Historical paper artifacts
+## Expected DocLayout-YOLO results
 
-The repository keeps the filtered corpus predictions and reports used for the
-paper. Treat these as read-only historical artifacts:
+For a paper-comparable corpus run, the metrics at IoU `0.5` should round to:
 
-| Model | Prediction file | Existing report |
-|---|---|---|
-| TF-ID Large | `data/paper/evaluation_input/tfid-large_corpus_combined_wo_small.json` | `data/paper/evaluation_output/report_tfid-large_corpus_combined_wo_small.json` |
-| DocLayout-YOLO | `data/paper/evaluation_input/doclayoutyolo_corpus_combined_wo_small.json` | `data/paper/evaluation_output/report_doclayoutyolo_corpus_combined_wo_small.json` |
-| YOLO11 medium | `data/paper/evaluation_input/yolo11_corpus_combined_wo_small.json` | `data/paper/evaluation_output/report_yolo11_corpus_combined_wo_small.json` |
-| YOLO26 medium | `data/paper/evaluation_input/yolo26_corpus_combined_wo_small.json` | `data/paper/evaluation_output/report_yolo26_corpus_combined_wo_small.json` |
+| Label | Precision | Recall | IoU | Area precision | Area recall |
+|---|---:|---:|---:|---:|---:|
+| Figure | 0.547 | 0.802 | 0.820 | 0.996 | 0.824 |
+| Table | 0.468 | 0.893 | 0.834 | 0.993 | 0.841 |
 
-The shared ground truth is
-`data/paper/evaluation_input/ground_truth_corpus_combined.json`. To verify the
-evaluator without rerunning inference, evaluate one of the stored prediction
-files and write the new report outside `data/paper/`.
-
-The repository ignores `data/` by default but explicitly includes JSON files
-under `data/paper/evaluation_input/` and `data/paper/evaluation_output/`. This
-keeps historical paper evidence versioned without admitting other generated
-data.
+Compare these values manually with the generated `reports/corpus.json`. A
+difference indicates that the model weights, inference configuration, PDF
+renderer, filtering policy, dependency versions, or input corpus may differ
+from the paper run.
 
 ## Extend the benchmark
 
