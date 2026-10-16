@@ -75,6 +75,7 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+exclude = ["data_snapshot.metadata_extraction_v1_1*"]
 
 
 [tool.pytest.ini_options]
