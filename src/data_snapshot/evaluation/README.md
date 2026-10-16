@@ -169,6 +169,53 @@ data/evaluation_runs/<model>/
     └── corpus.json
 ```
 
+## Run the quick paper sample
+
+Before committing to the full corpus, run the fixed nine-document sample with
+any model configuration:
+
+```shell
+uv run --no-sync python scripts/evaluate_benchmark_sample.py \
+    --config src/data_snapshot/evaluation/configs/doclayoutyolo_paper_benchmark.json
+```
+
+Replace `doclayoutyolo` in the configuration filename with `tfid`, `yolo11`, or
+`yolo26`. The runner temporarily links the selected inputs into one `sample`
+source and uses the normal benchmark pipeline. It does not copy or modify the
+dataset. Results are written beneath
+`data/evaluation_runs/<model>/{ground_truth,predictions,reports}/sources/sample.json`.
+Use `--overwrite` to repeat a completed sample run.
+
+The checked-in
+[`paper_benchmark_sample.json`](configs/paper_benchmark_sample.json) selects the
+three shortest documents containing both labels from each corpus: 9 PDFs, 170
+pages, 17 Figures, and 43 Tables in total.
+
+Historical paper predictions produce these sample metrics at IoU `0.5`:
+
+### Sample figures
+
+| Model | Precision | Recall | IoU | Area precision | Area recall |
+|---|---:|---:|---:|---:|---:|
+| TF-ID-Large | 0.867 | 0.765 | 0.873 | 0.903 | 0.969 |
+| DocLayout-YOLO | 0.636 | 0.824 | 0.771 | 0.972 | 0.790 |
+| YOLOv11 medium | 0.231 | 0.706 | 0.744 | 0.967 | 0.776 |
+| YOLOv26 medium | 0.355 | 0.647 | 0.752 | 0.964 | 0.776 |
+
+### Sample tables
+
+| Model | Precision | Recall | IoU | Area precision | Area recall |
+|---|---:|---:|---:|---:|---:|
+| TF-ID-Large | 0.508 | 0.721 | 0.867 | 0.951 | 0.913 |
+| DocLayout-YOLO | 0.371 | 0.837 | 0.821 | 0.980 | 0.841 |
+| YOLOv11 medium | 0.360 | 0.628 | 0.829 | 0.998 | 0.830 |
+| YOLOv26 medium | 0.363 | 0.767 | 0.813 | 0.992 | 0.820 |
+
+Compare these values manually. Small runtime-dependent differences are
+possible; the sample is intended to catch model-loading, label-mapping,
+rendering, filtering, and evaluator failures rather than replace the full
+benchmark.
+
 ## Evaluate an existing prediction file
 
 When `pred_json_path` already exists, run the evaluator directly without loading

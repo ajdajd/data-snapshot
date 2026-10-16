@@ -1,0 +1,49 @@
+{
+  "documents": [
+    {
+      "source": "unhcr",
+      "pdf": "social_media_forced_displacement_europe_refugee_crises.pdf",
+      "annotation": "social_media_forced_displacement_europe_refugee_crises_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "07062015_bekaagovernorateprofile.pdf",
+      "annotation": "07062015_bekaagovernorateprofile_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "08072015_northgovernorateprofile.pdf",
+      "annotation": "08072015_northgovernorateprofile_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_9058934.pdf",
+      "annotation": "document_9058934_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_698797.pdf",
+      "annotation": "document_698797_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_7063034.pdf",
+      "annotation": "document_7063034_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "060_Yemen-Emergency-COVID-19-Project.pdf",
+      "annotation": "060_Yemen-Emergency-COVID-19-Project_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "196_multi-page.pdf",
+      "annotation": "196_multi-page_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "056_Niger-COVID-19-Emergency-Response-Project.pdf",
+      "annotation": "056_Niger-COVID-19-Emergency-Response-Project_annotations.json"
+    }
+  ]
+}
