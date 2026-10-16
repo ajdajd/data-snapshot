@@ -35,7 +35,7 @@ Install and launch its locked environment with:
 
 ```shell
 uv sync --locked --extra notebooks
-uv run --extra notebooks jupyter lab notebooks/metadata_extraction
+uv run --no-sync jupyter lab notebooks/metadata_extraction
 ```
 
 The notebook reads snapshot images from the configured local data directories,
@@ -47,13 +47,13 @@ Controlled calibration configurations and results are preserved alongside the
 notebook. Validate a calibration's paths and request without making an API call:
 
 ```shell
-uv run python notebooks/metadata_extraction/run_calibration.py c15 --dry-run
+uv run --no-sync python notebooks/metadata_extraction/run_calibration.py c15 --dry-run
 ```
 
 Export successful JSONL metadata objects into individual JSON files:
 
 ```shell
-uv run python notebooks/metadata_extraction/export_metadata.py \
+uv run --no-sync python notebooks/metadata_extraction/export_metadata.py \
     --input_path=notebooks/metadata_extraction/outputs/batch1_results.jsonl \
     --output_dir=notebooks/metadata_extraction/exported/
 ```
@@ -67,17 +67,19 @@ immutable; reviewed gold is the editable output.
 
 ## Historical implementation
 
-`data_snapshot.metadata_extraction_v1_1` and
+`src/data_snapshot/metadata_extraction_v1_1` and
 `notebooks/metadata_extraction/extraction_v1.1/` preserve the earlier Schema
-v1.1 workflow. The archived Python package intentionally contains stale paths
-and is not the current extraction entry point.
+v1.1 workflow. This archived source tree intentionally contains stale paths, is
+excluded from package distributions, and is not the current extraction entry
+point.
 
 ## Verification
 
 Offline tests use fake API clients and make no paid requests:
 
 ```shell
-uv run --extra test pytest \
+uv sync --locked --extra test
+uv run --no-sync pytest \
     tests/test_metadata_extraction.py \
     tests/test_metadata_schema.py
 ```

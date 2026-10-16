@@ -242,7 +242,7 @@ Regenerate both versioned artifacts from the models, from the repository root
 in a **WSL terminal or PowerShell**:
 
 ```shell
-uv run --locked python -m data_snapshot.metadata_schema.generation
+uv run --no-sync python -m data_snapshot.metadata_schema.generation
 ```
 
 This overwrites the generated files:
@@ -254,7 +254,7 @@ Check whether they match the models without writing files, in a **WSL terminal
 or PowerShell**:
 
 ```shell
-uv run --locked python -m data_snapshot.metadata_schema.generation --check
+uv run --no-sync python -m data_snapshot.metadata_schema.generation --check
 ```
 
 For in-memory output, `render_json_schema()` and `render_markdown_reference()`

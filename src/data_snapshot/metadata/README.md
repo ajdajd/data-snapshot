@@ -16,7 +16,7 @@ Convert scraped UNHCR/ReliefWeb report metadata to the target document metadata
 shape:
 
 ```shell
-uv run python -m data_snapshot.metadata.unhcr_to_schema \
+uv run --no-sync python -m data_snapshot.metadata.unhcr_to_schema \
     --input_dir=data/hf_metadata_source/unhcr/ \
     --output_dir=data/hf_metadata_converted/unhcr/
 ```
@@ -31,7 +31,7 @@ types across records. Apply one common deep template across every subset that
 will be loaded together:
 
 ```shell
-uv run python -m data_snapshot.metadata.enforce_metadata_schema \
+uv run --no-sync python -m data_snapshot.metadata.enforce_metadata_schema \
     --input_dir data/hf_metadata_converted/unhcr/ \
     --input_dir data/hf_metadata_source/prwp/ \
     --input_dir data/hf_metadata_source/refugee/ \

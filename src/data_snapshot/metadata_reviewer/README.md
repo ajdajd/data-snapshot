@@ -11,8 +11,8 @@ the generated predictions.
 From the repository root, in a **WSL terminal**:
 
 ```shell
-uv sync --extra review
-uv run --extra review streamlit run \
+uv sync --locked --extra review
+uv run --no-sync streamlit run \
     src/data_snapshot/metadata_reviewer/app.py
 ```
 
@@ -27,7 +27,7 @@ gold:      notebooks/metadata_extraction/gold
 Pass different roots after Streamlit's `--` argument separator:
 
 ```shell
-uv run --extra review streamlit run \
+uv run --no-sync streamlit run \
     src/data_snapshot/metadata_reviewer/app.py -- \
     --snapshots-root /path/to/snapshots \
     --generated-root /path/to/exported \
@@ -101,7 +101,8 @@ discarding the current edits.
 From the repository root, in a **WSL terminal**:
 
 ```shell
-uv run --extra test --extra review pytest \
+uv sync --locked --extra test --extra review
+uv run --no-sync pytest \
     tests/test_metadata_reviewer.py \
     tests/test_metadata_reviewer_app.py \
     tests/test_metadata_schema.py
