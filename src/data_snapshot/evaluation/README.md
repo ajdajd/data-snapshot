@@ -38,10 +38,11 @@ resulting corpus report with the published values.
 
 ### 1. Install dependencies
 
-Create the locked DocLayout-YOLO paper-reproduction environment:
+Install the locked development, renderer, and selected model dependencies. For
+example, for `doclayoutyolo`:
 
 ```shell
-uv sync --locked --extra dev --extra doclayout_yolo --extra pdf2image
+uv sync --locked --extra dev --extra doclayoutyolo --extra pdf2image
 ```
 
 The `pdf2image` backend also requires Poppler. On Ubuntu or WSL:
@@ -50,9 +51,18 @@ The `pdf2image` backend also requires Poppler. On Ubuntu or WSL:
 sudo apt install poppler-utils
 ```
 
+The model keywords and dependency extras are:
+
+| Model | Keyword and extra | Paper configuration |
+|---|---|---|
+| TF-ID-Large | `tfid` | [`tfid_paper_benchmark.json`](configs/tfid_paper_benchmark.json) |
+| DocLayout-YOLO | `doclayoutyolo` | [`doclayoutyolo_paper_benchmark.json`](configs/doclayoutyolo_paper_benchmark.json) |
+| YOLOv11 medium | `yolo11` | [`yolo11_paper_benchmark.json`](configs/yolo11_paper_benchmark.json) |
+| YOLOv26 medium | `yolo26` | [`yolo26_paper_benchmark.json`](configs/yolo26_paper_benchmark.json) |
+
 The paper predictions used `pdf2image`; current adapters default to PyMuPDF,
-which can shift bounding boxes slightly. For another model, replace
-`doclayout_yolo` with that model's dependency extra while retaining
+which can shift bounding boxes slightly. For another model, replace the
+`doclayoutyolo` dependency extra with the keyword in the table while retaining
 `pdf2image` for paper-comparable rendering.
 
 ### 2. Prepare the dataset
@@ -68,7 +78,8 @@ data-snapshot/
 
 ### 3. Configure the run
 
-The checked-in DocLayout-YOLO paper configuration is
+The checked-in `doclayoutyolo` paper configuration is used here as the worked
+example:
 [`configs/doclayoutyolo_paper_benchmark.json`](configs/doclayoutyolo_paper_benchmark.json):
 
 ```json
@@ -97,10 +108,18 @@ Configuration fields:
 
 Relative dataset and output paths are resolved from the repository root.
 
+Paper configurations for all supported models use the
+`configs/<model>_paper_benchmark.json` naming pattern. Select the file matching
+the keyword in the table above, then adjust `dataset_root` and
+`device` for the local environment. Keep `pdf_backend` set to `pdf2image` for
+comparison with the paper. Other `adapter_config` fields are model-specific and
+override that adapter's defaults.
+
 ### 4. Run each source
 
 Run sources independently so completed inference is preserved if a later source
-fails:
+fails. These commands continue the `doclayoutyolo` example; for another model,
+use its model-specific configuration from step 3:
 
 ```shell
 uv run --no-sync python scripts/evaluate_benchmark.py \
@@ -208,25 +227,45 @@ Matching is greedy and one-to-one within each page and label. A pair is a true
 positive when its IoU meets the selected threshold. Spatial metrics are averaged
 over matched pairs only.
 
-## Expected DocLayout-YOLO results
+## Expected paper results
 
-For a paper-comparable corpus run, the metrics at IoU `0.5` should round to:
+For a paper-comparable full-corpus run, the metrics at IoU `0.5` should round
+to the following values.
 
-| Label | Precision | Recall | IoU | Area precision | Area recall |
-|---|---:|---:|---:|---:|---:|
-| Figure | 0.547 | 0.802 | 0.820 | 0.996 | 0.824 |
-| Table | 0.468 | 0.893 | 0.834 | 0.993 | 0.841 |
+### Figures
 
-Compare these values manually with the generated `reports/corpus.json`. A
-difference indicates that the model weights, inference configuration, PDF
-renderer, filtering policy, dependency versions, or input corpus may differ
-from the paper run.
+| Category | Metric | TF-ID-Large | DocLayout-YOLO | YOLOv11 medium | YOLOv26 medium |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Detection | Precision | **0.628** | 0.547 | 0.378 | 0.388 |
+|  | Recall | 0.488 | **0.802** | 0.761 | 0.721 |
+| Spatial accuracy | IoU | **0.877** | 0.820 | 0.817 | 0.817 |
+|  | Area precision | 0.935 | **0.996** | 0.990 | 0.990 |
+|  | Area recall | **0.938** | 0.824 | 0.826 | 0.826 |
+
+### Tables
+
+| Category | Metric | TF-ID-Large | DocLayout-YOLO | YOLOv11 medium | YOLOv26 medium |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Detection | Precision | **0.562** | 0.468 | 0.487 | 0.460 |
+|  | Recall | 0.861 | **0.893** | 0.862 | 0.891 |
+| Spatial accuracy | IoU | **0.919** | 0.834 | 0.817 | 0.824 |
+|  | Area precision | 0.972 | 0.993 | **0.994** | 0.994 |
+|  | Area recall | **0.946** | 0.841 | 0.822 | 0.829 |
+
+See [*Benchmarking Open-Source Layout Detection Models for Data Snapshot
+Extraction from Institutional Documents*](https://arxiv.org/abs/2606.06242)
+for the evaluation protocol, per-corpus results, and limitations.
+
+Compare the appropriate column manually with the generated
+`reports/corpus.json`. A difference indicates that the model weights, inference
+configuration, PDF renderer, filtering policy, dependency versions, or input
+corpus may differ from the paper run.
 
 ## Extend the benchmark
 
-To evaluate another supported model, copy the JSON configuration, change
-`model`, and install that model's dependency extra. No evaluator change is
-required because every integrated adapter writes Unified Evaluation Schema v1.3.
+To evaluate another supported model, follow the same source and corpus workflow
+with its configuration file. No evaluator change is required because every
+integrated adapter writes Unified Evaluation Schema v1.3.
 
 To add a data source, create matching `documents/<source>/` and
 `annotations/<source>/` directories, add the source name to `sources`, run that

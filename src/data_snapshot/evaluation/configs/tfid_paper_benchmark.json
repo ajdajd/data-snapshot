@@ -1,0 +1,14 @@
+{
+  "model": "tfid",
+  "dataset_root": "/home/ajd/hf_datasets/data-snapshot",
+  "output_root": "data/evaluation_runs",
+  "sources": [
+    "unhcr",
+    "prwp",
+    "refugee"
+  ],
+  "device": "cuda:0",
+  "adapter_config": {
+    "pdf_backend": "pdf2image"
+  }
+}

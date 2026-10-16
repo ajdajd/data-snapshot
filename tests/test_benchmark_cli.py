@@ -9,6 +9,7 @@ import pytest
 from data_snapshot.constants import ROOT
 
 _SCRIPT_PATH = ROOT / "scripts/evaluate_benchmark.py"
+_CONFIG_DIR = ROOT / "src/data_snapshot/evaluation/configs"
 
 
 def _load_cli_module() -> ModuleType:
@@ -21,6 +22,17 @@ def _load_cli_module() -> ModuleType:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+@pytest.mark.parametrize("model", ["doclayoutyolo", "tfid", "yolo11", "yolo26"])
+def test_checked_in_paper_config(model: str) -> None:
+    """Validate each checked-in model configuration."""
+    module = _load_cli_module()
+    config = module._load_config(_CONFIG_DIR / f"{model}_paper_benchmark.json")
+
+    assert config["model"] == model
+    assert config["sources"] == ["unhcr", "prwp", "refugee"]
+    assert config["adapter_config"]["pdf_backend"] == "pdf2image"
 
 
 def test_source_and_corpus_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
