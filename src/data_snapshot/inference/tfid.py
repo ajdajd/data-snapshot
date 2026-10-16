@@ -21,7 +21,7 @@ from data_snapshot.constants import INPUT_PDF_DIR, LABEL_MAP, ROOT
 from data_snapshot.utils import (
     convert_pdf_to_images,
     filter_small_predictions,
-    normalize_bboxes_xyxy,
+    normalize_bboxes_xyxy_with_indices,
     utc_now_iso,
 )
 
@@ -297,28 +297,29 @@ def run_tfid_adapter_directory(
             ann = extractor.tf_id_detection(image)[0]
             bboxes_raw, labels_raw, scores_raw = _extract_lists(ann)
 
-            bboxes = normalize_bboxes_xyxy(
+            indexed_bboxes = normalize_bboxes_xyxy_with_indices(
                 bboxes_raw, width=image.width, height=image.height
             )
-
-            # Align lengths defensively.
-            n = len(bboxes)
-            labels_raw = list(labels_raw)[:n] + [None] * max(0, n - len(labels_raw))
-            if scores_raw is not None:
-                scores_raw = list(scores_raw)[:n] + [None] * max(0, n - len(scores_raw))
+            labels = list(labels_raw)
+            scores = list(scores_raw) if scores_raw is not None else None
 
             page_id = f"{doc_id}::p{page_index:03d}"
             objects: list[dict[str, Any]] = []
 
-            for i in range(n):
-                label = _coerce_label(labels_raw[i])
+            for object_index, (source_index, bbox) in enumerate(indexed_bboxes):
+                raw_label = labels[source_index] if source_index < len(labels) else None
+                label = _coerce_label(raw_label)
                 if label is None:
                     continue
 
                 score_val = 1.0
-                if scores_raw is not None and scores_raw[i] is not None:
+                if (
+                    scores is not None
+                    and source_index < len(scores)
+                    and scores[source_index] is not None
+                ):
                     try:
-                        score_val = float(scores_raw[i])
+                        score_val = float(scores[source_index])
                     except Exception:
                         score_val = 1.0
 
@@ -330,9 +331,9 @@ def run_tfid_adapter_directory(
 
                 objects.append(
                     {
-                        "id": f"{page_id}:{i}",
+                        "id": f"{page_id}:{object_index}",
                         "label": label,
-                        "bbox": bboxes[i],
+                        "bbox": bbox,
                         "score": score_val,
                     }
                 )

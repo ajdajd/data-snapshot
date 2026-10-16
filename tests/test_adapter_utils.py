@@ -7,6 +7,7 @@ import pytest
 from data_snapshot.utils import (
     clamp01,
     normalize_bboxes_xyxy,
+    normalize_bboxes_xyxy_with_indices,
     sanitize_bbox,
     utc_now_iso,
 )
@@ -112,3 +113,23 @@ class TestNormalizeBboxesXyxy:
     def test_empty_input(self) -> None:
         result = normalize_bboxes_xyxy([], width=1000, height=1000)
         assert result == []
+
+    def test_retains_source_indices_when_middle_box_is_dropped(self) -> None:
+        bboxes = [
+            [0.1, 0.1, 0.2, 0.2],
+            [0.5, 0.5, 0.5, 0.5],
+            [0.7, 0.7, 0.9, 0.9],
+        ]
+        labels = ["Figure", "Figure", "Table"]
+        scores = [0.95, 0.1, 0.85]
+
+        result = normalize_bboxes_xyxy_with_indices(bboxes, width=1000, height=1000)
+
+        assert result == [
+            (0, [0.1, 0.1, 0.2, 0.2]),
+            (2, [0.7, 0.7, 0.9, 0.9]),
+        ]
+        assert [(labels[index], scores[index]) for index, _ in result] == [
+            ("Figure", 0.95),
+            ("Table", 0.85),
+        ]

@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -264,27 +263,63 @@ class Stats:
         """
         self.fn += n
 
-    def precision(self) -> float:
-        """Compute precision: ``TP / (TP + FP)``."""
+    def precision(self) -> float | None:
+        """Compute precision.
+
+        Returns
+        -------
+        float | None
+            Precision, or ``None`` when there are no predictions.
+        """
         denom = self.tp + self.fp
-        return self.tp / denom if denom > 0 else math.nan
+        return self.tp / denom if denom > 0 else None
 
-    def recall(self) -> float:
-        """Compute recall: ``TP / (TP + FN)``."""
+    def recall(self) -> float | None:
+        """Compute recall.
+
+        Returns
+        -------
+        float | None
+            Recall, or ``None`` when there are no ground-truth objects.
+        """
         denom = self.tp + self.fn
-        return self.tp / denom if denom > 0 else math.nan
+        return self.tp / denom if denom > 0 else None
 
-    def mean_iou(self) -> float:
-        """Compute mean IoU across matched pairs."""
-        return self.iou_sum / self.matched if self.matched > 0 else math.nan
+    def mean_iou(self) -> float | None:
+        """Compute mean IoU.
 
-    def mean_area_recall(self) -> float:
-        """Compute mean coverage across matched pairs."""
-        return self.area_recall_sum / self.matched if self.matched > 0 else math.nan
+        Returns
+        -------
+        float | None
+            Mean IoU, or ``None`` when there are no matches.
+        """
+        return self.iou_sum / self.matched if self.matched > 0 else None
 
-    def mean_area_precision(self) -> float:
-        """Compute mean purity across matched pairs."""
-        return self.area_precision_sum / self.matched if self.matched > 0 else math.nan
+    def mean_area_recall(self) -> float | None:
+        """Compute mean coverage.
+
+        Returns
+        -------
+        float | None
+            Mean coverage, or ``None`` when there are no matches.
+        """
+        return self.area_recall_sum / self.matched if self.matched > 0 else None
+
+    def mean_area_precision(self) -> float | None:
+        """Compute mean purity.
+
+        Returns
+        -------
+        float | None
+            Mean purity, or ``None`` when there are no matches.
+        """
+        return self.area_precision_sum / self.matched if self.matched > 0 else None
+
+
+def _validate_iou_threshold(threshold: float) -> None:
+    """Raise ``ValueError`` when an IoU threshold is outside ``[0, 1]``."""
+    if not 0.0 <= threshold <= 1.0:
+        raise ValueError(f"IoU threshold must be between 0 and 1: {threshold}")
 
 
 def greedy_match(
@@ -309,7 +344,14 @@ def greedy_match(
     tuple[list[tuple[int, int, float]], list[int], list[int]]
         ``(matches, unmatched_pred_indices, unmatched_gt_indices)``
         where each match is ``(pred_idx, gt_idx, iou_value)``.
+
+    Raises
+    ------
+    ValueError
+        If *thr* is outside ``[0, 1]``.
     """
+    _validate_iou_threshold(thr)
+
     cand: list[tuple[int, int, float]] = []
     for p_idx, p in enumerate(pred):
         for g_idx, g in enumerate(gt):
@@ -427,17 +469,24 @@ def print_summary_metrics(output_report_path: str | Path, iou_threshold: float) 
         print("|     Category     |     Metric     | Score |")
         print("|:----------------:|:--------------:|:-----:|")
         print(
-            f"| Detection        | Precision      | {class_metrics['precision']:.3f} |"
-        )
-        print(f"|                  | Recall         | {class_metrics['recall']:.3f} |")
-        print(
-            f"| Spatial accuracy | IoU            | {class_metrics['mean_iou']:.3f} |"
+            "| Detection        | Precision      | "
+            f"{_format_metric(class_metrics['precision'])} |"
         )
         print(
-            f"|                  | Area precision | {class_metrics['mean_area_precision']:.3f} |"
+            "|                  | Recall         | "
+            f"{_format_metric(class_metrics['recall'])} |"
         )
         print(
-            f"|                  | Area recall    | {class_metrics['mean_area_recall']:.3f} |"
+            "| Spatial accuracy | IoU            | "
+            f"{_format_metric(class_metrics['mean_iou'])} |"
+        )
+        print(
+            "|                  | Area precision | "
+            f"{_format_metric(class_metrics['mean_area_precision'])} |"
+        )
+        print(
+            "|                  | Area recall    | "
+            f"{_format_metric(class_metrics['mean_area_recall'])} |"
         )
 
     # Object counts
@@ -448,6 +497,11 @@ def print_summary_metrics(output_report_path: str | Path, iou_threshold: float) 
 
         object_count = class_metrics["tp"] + class_metrics["fn"]
         print(f"{lab} count: {object_count}")
+
+
+def _format_metric(value: float | None) -> str:
+    """Format a metric value for a summary table."""
+    return "N/A" if value is None else f"{value:.3f}"
 
 
 def evaluate(
@@ -481,10 +535,17 @@ def evaluate(
     -------
     dict[str, Any]
         Complete evaluation report dictionary.
+
+    Raises
+    ------
+    ValueError
+        If any IoU threshold is outside ``[0, 1]``.
     """
     # Load files
     gt_json_path = Path(gt_json_path)
     pred_json_path = Path(pred_json_path)
+    for threshold in iou_thresholds:
+        _validate_iou_threshold(threshold)
     gt = load_json(gt_json_path)
     pred = load_json(pred_json_path)
 
@@ -572,7 +633,7 @@ def evaluate(
         outp = Path(output_path)
         outp.parent.mkdir(parents=True, exist_ok=True)
         with open(outp, "w", encoding="utf-8") as f:
-            json.dump(report, f, indent=2, ensure_ascii=False)
+            json.dump(report, f, indent=2, ensure_ascii=False, allow_nan=False)
 
     return report
 

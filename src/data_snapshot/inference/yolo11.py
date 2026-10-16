@@ -25,7 +25,7 @@ from data_snapshot.constants import INPUT_PDF_DIR, LABEL_MAP, MODELS_DIR, ROOT
 from data_snapshot.utils import (
     convert_pdf_to_images,
     filter_small_predictions,
-    normalize_bboxes_xyxy,
+    normalize_bboxes_xyxy_with_indices,
     utc_now_iso,
 )
 
@@ -219,26 +219,26 @@ def run_yolo11_adapter_directory(
             cls_list = result.boxes.cls.cpu().tolist()
             names: dict[int, str] = result.names
 
-            bboxes_norm = normalize_bboxes_xyxy(
+            indexed_bboxes = normalize_bboxes_xyxy_with_indices(
                 boxes_tensor, width=image.width, height=image.height
             )
 
             page_id = f"{doc_id}::p{page_index:03d}"
             objects: list[dict[str, Any]] = []
 
-            for i, bbox in enumerate(bboxes_norm):
-                cls_idx = int(cls_list[i])
+            for object_index, (source_index, bbox) in enumerate(indexed_bboxes):
+                cls_idx = int(cls_list[source_index])
                 raw_name = names.get(cls_idx, "")
                 label = _coerce_label(raw_name)
                 if label is None:
                     continue  # skip classes not relevant to detection
 
-                score = float(scores_list[i])
+                score = float(scores_list[source_index])
                 score = max(0.0, min(1.0, score))
 
                 objects.append(
                     {
-                        "id": f"{page_id}:{i}",
+                        "id": f"{page_id}:{object_index}",
                         "label": label,
                         "bbox": bbox,
                         "score": score,

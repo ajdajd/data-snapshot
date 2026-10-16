@@ -182,8 +182,32 @@ def normalize_bboxes_xyxy(
     list[list[float]]
         Normalized bounding boxes that passed validation.
     """
-    out: list[list[float]] = []
-    for bb in bboxes:
+    return [
+        bbox for _, bbox in normalize_bboxes_xyxy_with_indices(bboxes, width, height)
+    ]
+
+
+def normalize_bboxes_xyxy_with_indices(
+    bboxes: Sequence[Sequence[float]], width: int, height: int
+) -> list[tuple[int, list[float]]]:
+    """Normalize bounding boxes while retaining their source indices.
+
+    Parameters
+    ----------
+    bboxes : Sequence[Sequence[float]]
+        Raw bounding boxes, each as ``[x1, y1, x2, y2]``.
+    width : int
+        Image width in pixels.
+    height : int
+        Image height in pixels.
+
+    Returns
+    -------
+    list[tuple[int, list[float]]]
+        Source index and normalized bounding box for each valid input box.
+    """
+    out: list[tuple[int, list[float]]] = []
+    for index, bb in enumerate(bboxes):
         if len(bb) != 4:
             continue
         x1, y1, x2, y2 = (float(v) for v in bb)
@@ -199,7 +223,7 @@ def normalize_bboxes_xyxy(
         if nx2 <= nx1 or ny2 <= ny1:
             continue  # degenerate
 
-        out.append([nx1, ny1, nx2, ny2])
+        out.append((index, [nx1, ny1, nx2, ny2]))
     return out
 
 
