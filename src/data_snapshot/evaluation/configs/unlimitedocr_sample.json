@@ -1,0 +1,12 @@
+{
+    "model": "unlimitedocr",
+    "dataset_root": "data/hf_datasets/data-snapshot",
+    "output_root": "data/evaluation_runs",
+    "sources": [
+        "sample"
+    ],
+    "device": "cuda:0",
+    "adapter_config": {
+        "pdf_backend": "pymupdf"
+    }
+}
