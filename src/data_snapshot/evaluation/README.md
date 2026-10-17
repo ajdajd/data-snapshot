@@ -67,10 +67,14 @@ The model keywords and dependency extras are:
 | YOLOv26 medium | `yolo26` | [`yolo26_paper_benchmark.json`](configs/yolo26_paper_benchmark.json) |
 | Unlimited-OCR | `unlimitedocr` | Not part of the paper; no paper configuration |
 
-The paper predictions used `pdf2image`; current adapters default to PyMuPDF,
-which can shift bounding boxes slightly. For another model, replace the
-`doclayoutyolo` dependency extra with the keyword in the table while retaining
-`pdf2image` for paper-comparable rendering.
+The benchmark paper used `pdf2image` with Poppler to render PDFs. Keep
+`pdf_backend` set to `pdf2image` when reproducing the paper results. For new
+work, PyMuPDF (`pdf_backend: "pymupdf"`) is the recommended renderer and the
+current adapter default. Switching renderers can change page images and model
+predictions, so record the backend used when reporting results.
+
+For another model, replace the `doclayoutyolo` dependency extra with the keyword
+in the table.
 
 ### 2. Prepare the dataset
 
