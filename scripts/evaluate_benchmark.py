@@ -1,4 +1,4 @@
-"""Run source or corpus evaluation from a JSON benchmark configuration."""
+"""Evaluate every configured source and the combined corpus, or one chosen step."""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ def _build_parser() -> argparse.ArgumentParser:
         required=True,
         help="Path to the benchmark JSON configuration.",
     )
-    mode = parser.add_mutually_exclusive_group(required=True)
+    mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--source", help="Run one configured dataset source.")
     mode.add_argument(
         "--corpus",
@@ -141,20 +141,29 @@ def main(argv: Sequence[str] | None = None) -> None:
         )
         return
 
-    if args.source not in config["sources"]:
+    if args.source is not None and args.source not in config["sources"]:
         parser.error(
             f"Source {args.source!r} is not listed in the configuration sources."
         )
-    evaluate_source(
-        model=config["model"],
-        source=args.source,
-        dataset_root=config["dataset_root"],
-        output_root=config["output_root"],
-        device=config["device"],
-        adapter_config=config["adapter_config"],
-        run_inference=not args.reuse_predictions,
-        overwrite=args.overwrite,
-    )
+    sources = [args.source] if args.source is not None else config["sources"]
+    for source in sources:
+        evaluate_source(
+            model=config["model"],
+            source=source,
+            dataset_root=config["dataset_root"],
+            output_root=config["output_root"],
+            device=config["device"],
+            adapter_config=config["adapter_config"],
+            run_inference=not args.reuse_predictions,
+            overwrite=args.overwrite,
+        )
+    if args.source is None:
+        evaluate_corpus(
+            model=config["model"],
+            sources=sources,
+            output_root=config["output_root"],
+            overwrite=args.overwrite,
+        )
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 {
   "model": "doclayoutyolo",
   "dataset_root": "data/hf_datasets/data-snapshot",
-  "output_root": "data/evaluation_runs",
+  "output_root": "data/evaluation_runs/pymupdf",
   "sources": [
     "unhcr",
     "prwp",
@@ -9,6 +9,6 @@
   ],
   "device": "cuda:0",
   "adapter_config": {
-    "pdf_backend": "pdf2image"
+    "pdf_backend": "pymupdf"
   }
 }

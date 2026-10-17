@@ -1,4 +1,4 @@
-"""Evaluate an integrated model on the fixed paper benchmark sample."""
+"""Evaluate a benchmark sample by source, then combine the selected corpus."""
 
 from __future__ import annotations
 
@@ -49,7 +49,7 @@ def _load_json_object(path: Path, *, kind: str) -> dict[str, Any]:
 def _stage_sample(
     dataset_root: Path, manifest: dict[str, Any], sample_root: Path
 ) -> int:
-    """Link manifest documents into one temporary sample source.
+    """Link manifest documents into temporary source directories.
 
     Parameters
     ----------
@@ -76,11 +76,6 @@ def _stage_sample(
     if not isinstance(documents, list) or not documents:
         raise ValueError("Sample manifest 'documents' must be a non-empty list.")
 
-    pdf_dir = sample_root / "documents/sample"
-    annotation_dir = sample_root / "annotations/sample"
-    pdf_dir.mkdir(parents=True)
-    annotation_dir.mkdir(parents=True)
-
     seen_pdfs: set[str] = set()
     seen_annotations: set[str] = set()
     for entry in documents:
@@ -88,7 +83,10 @@ def _stage_sample(
             raise ValueError("Each sample document must be a JSON object.")
         values = {field: entry.get(field) for field in ("source", "pdf", "annotation")}
         if not all(
-            isinstance(value, str) and value and Path(value).name == value
+            isinstance(value, str)
+            and value
+            and value not in {".", ".."}
+            and Path(value).name == value
             for value in values.values()
         ):
             raise ValueError(
@@ -98,6 +96,10 @@ def _stage_sample(
         source = values["source"]
         pdf_name = values["pdf"]
         annotation_name = values["annotation"]
+        pdf_dir = sample_root / "documents" / source
+        annotation_dir = sample_root / "annotations" / source
+        pdf_dir.mkdir(parents=True, exist_ok=True)
+        annotation_dir.mkdir(parents=True, exist_ok=True)
         if pdf_name in seen_pdfs or annotation_name in seen_annotations:
             raise ValueError("Sample PDF and annotation filenames must be unique.")
         seen_pdfs.add(pdf_name)
@@ -115,8 +117,13 @@ def _stage_sample(
     return len(documents)
 
 
-def _build_parser() -> argparse.ArgumentParser:
+def _build_parser(default_manifest: Path = DEFAULT_MANIFEST) -> argparse.ArgumentParser:
     """Build the sample benchmark command-line parser.
+
+    Parameters
+    ----------
+    default_manifest : Path
+        Fixed document selection used when ``--manifest`` is omitted.
 
     Returns
     -------
@@ -133,7 +140,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--manifest",
         type=Path,
-        default=DEFAULT_MANIFEST,
+        default=default_manifest,
         help="Path to the sample manifest.",
     )
     parser.add_argument(
@@ -144,15 +151,19 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Sequence[str] | None = None) -> None:
+def main(
+    argv: Sequence[str] | None = None, *, default_manifest: Path = DEFAULT_MANIFEST
+) -> None:
     """Stage and evaluate the fixed benchmark sample.
 
     Parameters
     ----------
     argv : Sequence[str] | None
         Optional arguments for testing. Uses process arguments when ``None``.
+    default_manifest : Path
+        Fixed document selection used when ``--manifest`` is omitted.
     """
-    args = _build_parser().parse_args(argv)
+    args = _build_parser(default_manifest).parse_args(argv)
     try:
         config = _load_json_object(args.config, kind="Benchmark configuration")
         manifest = _load_json_object(args.manifest, kind="Sample manifest")
@@ -162,14 +173,24 @@ def main(argv: Sequence[str] | None = None) -> None:
         dataset_root = Path(dataset_root_value)
         if not dataset_root.is_absolute():
             dataset_root = ROOT / dataset_root
+        output_root_value = config.get("output_root")
+        if not isinstance(output_root_value, str) or not output_root_value:
+            raise ValueError("Configuration 'output_root' must be a string.")
+        output_root = Path(output_root_value)
+        if not output_root.is_absolute():
+            output_root = ROOT / output_root
 
         with tempfile.TemporaryDirectory(prefix="data-snapshot-sample-") as directory:
             sample_root = Path(directory)
             document_count = _stage_sample(dataset_root, manifest, sample_root)
+            sources = list(
+                dict.fromkeys(entry["source"] for entry in manifest["documents"])
+            )
             sample_config = {
                 **config,
                 "dataset_root": str(sample_root),
-                "sources": ["sample"],
+                "output_root": str(output_root / args.manifest.stem),
+                "sources": sources,
             }
             sample_config_path = sample_root / "benchmark.json"
             sample_config_path.write_text(
@@ -181,12 +202,12 @@ def main(argv: Sequence[str] | None = None) -> None:
                 str(BENCHMARK_SCRIPT),
                 "--config",
                 str(sample_config_path),
-                "--source",
-                "sample",
             ]
             if args.overwrite:
                 command.append("--overwrite")
-            subprocess.run(command, check=True)
+            for source in sources:
+                subprocess.run([*command, "--source", source], check=True)
+            subprocess.run([*command, "--corpus"], check=True)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         raise SystemExit(str(exc)) from exc
 

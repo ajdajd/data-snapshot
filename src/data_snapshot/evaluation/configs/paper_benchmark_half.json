@@ -1,0 +1,1232 @@
+{
+  "selection": {
+    "method": "Uniform random sample of half the PDFs per source, without replacement, from sorted filenames; one RNG consumed in source order.",
+    "seed": 42,
+    "source_order": [
+      "unhcr",
+      "prwp",
+      "refugee"
+    ],
+    "summary": {
+      "unhcr": {
+        "full_pdf_count": 338,
+        "selected_pdf_count": 169,
+        "selected_page_count": 1295,
+        "selected_object_counts": {
+          "Figure": 1139,
+          "Table": 131
+        }
+      },
+      "prwp": {
+        "full_pdf_count": 100,
+        "selected_pdf_count": 50,
+        "selected_page_count": 1531,
+        "selected_object_counts": {
+          "Figure": 154,
+          "Table": 274
+        }
+      },
+      "refugee": {
+        "full_pdf_count": 38,
+        "selected_pdf_count": 19,
+        "selected_page_count": 927,
+        "selected_object_counts": {
+          "Table": 220,
+          "Figure": 31
+        }
+      }
+    }
+  },
+  "documents": [
+    {
+      "source": "unhcr",
+      "pdf": "06072015-baalbek-hermelgovernorateprofile.pdf",
+      "annotation": "06072015-baalbek-hermelgovernorateprofile_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "08072015_northgovernorateprofile.pdf",
+      "annotation": "08072015_northgovernorateprofile_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "10072015_akkargovernorateprofile.pdf",
+      "annotation": "10072015_akkargovernorateprofile_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "20210420_cimp_thematic_06_marib.pdf",
+      "annotation": "20210420_cimp_thematic_06_marib_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "2022-23_cbi-mapping-trkiye_summary_note.pdf",
+      "annotation": "2022-23_cbi-mapping-trkiye_summary_note_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "20220908_unhcr_cuamm_gbv_safety_audit_josina_machel_pemba_june_2022.pdf",
+      "annotation": "20220908_unhcr_cuamm_gbv_safety_audit_josina_machel_pemba_june_2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "20231228_acaps_yemen_analysis_hub_forced_evictions_analysis.pdf",
+      "annotation": "20231228_acaps_yemen_analysis_hub_forced_evictions_analysis_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "210913_border-wide_consolidated_border_protection_analysis_covid19.pdf",
+      "annotation": "210913_border-wide_consolidated_border_protection_analysis_covid19_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "21_07_21_overview_sheet_en.pdf",
+      "annotation": "21_07_21_overview_sheet_en_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "2_note_danalyse_de_protection_-_retour_de_pdi_a_teguy.pdf",
+      "annotation": "2_note_danalyse_de_protection_-_retour_de_pdi_a_teguy_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "349_mmc-unhcr-esa-sudanese-arrivals-in-eastern-chad.pdf",
+      "annotation": "349_mmc-unhcr-esa-sudanese-arrivals-in-eastern-chad_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "3rp-2018-progress-report-jan-june-2018.pdf",
+      "annotation": "3rp-2018-progress-report-jan-june-2018_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "57696.pdf",
+      "annotation": "57696_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "58b449f54.pdf",
+      "annotation": "58b449f54_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "5fb3ad4d4.pdf",
+      "annotation": "5fb3ad4d4_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "5fe31b2b4.pdf",
+      "annotation": "5fe31b2b4_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "6012b2fd4.pdf",
+      "annotation": "6012b2fd4_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "632482824.pdf",
+      "annotation": "632482824_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "63435.pdf",
+      "annotation": "63435_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "65014.pdf",
+      "annotation": "65014_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "66177.pdf",
+      "annotation": "66177_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "66517-2.pdf",
+      "annotation": "66517-2_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "66890.pdf",
+      "annotation": "66890_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "68487.pdf",
+      "annotation": "68487_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "68557.pdf",
+      "annotation": "68557_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "68786.pdf",
+      "annotation": "68786_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "7.pdf",
+      "annotation": "7_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "75705.pdf",
+      "annotation": "75705_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "75915.pdf",
+      "annotation": "75915_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "aap_in_focus_complaint_feedback_mechanisms_in_lebanon.pdf",
+      "annotation": "aap_in_focus_complaint_feedback_mechanisms_in_lebanon_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "acnur_anlisis-madre_de_dios_vf.pdf",
+      "annotation": "acnur_anlisis-madre_de_dios_vf_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "afghanistan_crisis_update_-_women_and_girls_in_displacement_unhcr-unwomen_september_2022.pdf",
+      "annotation": "afghanistan_crisis_update_-_women_and_girls_in_displacement_unhcr-unwomen_september_2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "analyse_de_protection_projet_21_-_bureau_multi-pays_du_hcr_en_cote_divoire.pdf",
+      "annotation": "analyse_de_protection_projet_21_-_bureau_multi-pays_du_hcr_en_cote_divoire_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "analyse_environnement_de_protection_des_regions_de_segou_san_v2_final.pdf",
+      "annotation": "analyse_environnement_de_protection_des_regions_de_segou_san_v2_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "analysis_of_the_draft_budget_eng.pdf",
+      "annotation": "analysis_of_the_draft_budget_eng_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "ananlysis_of_the_approved_budget_eng_0-1.pdf",
+      "annotation": "ananlysis_of_the_approved_budget_eng_0-1_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "annexe_2a_-_matrice_danalyse_des_risques_de_protection_-_gao_-_version_finale.pdf",
+      "annotation": "annexe_2a_-_matrice_danalyse_des_risques_de_protection_-_gao_-_version_finale_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "annexe_2c_-_matrice_danalyse_des_risques_de_protection_-_tombouctou_-_version_finale.pdf",
+      "annotation": "annexe_2c_-_matrice_danalyse_des_risques_de_protection_-_tombouctou_-_version_finale_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "boletin_de_evidencia_1_vf_20230905.pdf",
+      "annotation": "boletin_de_evidencia_1_vf_20230905_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "bulletin_janvier_2023_2.pdf",
+      "annotation": "bulletin_janvier_2023_2_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "burkina_faso_-_analyse_de_protection_dcembre_2022.pdf",
+      "annotation": "burkina_faso_-_analyse_de_protection_dcembre_2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "cameroonian_refugees_situation_gbv_report_2020.pdf",
+      "annotation": "cameroonian_refugees_situation_gbv_report_2020_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "case_study_on_shelter-nfi-cccm_cluster_2013-2016.pdf",
+      "annotation": "case_study_on_shelter-nfi-cccm_cluster_2013-2016_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "civil_documentation_factsheet_final.pdf",
+      "annotation": "civil_documentation_factsheet_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "cluster_protection_rdc_-_points_saillants_de_la_situation_de_protection_en_rpublique_dmocratique_du_congo_en_novembre_2024.pdf",
+      "annotation": "cluster_protection_rdc_-_points_saillants_de_la_situation_de_protection_en_rpublique_dmocratique_du_congo_en_novembre_2024_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "csm_comparative_brief_071122.pdf",
+      "annotation": "csm_comparative_brief_071122_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "cwc_survey_report_final.pdf",
+      "annotation": "cwc_survey_report_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "d_r_congo_nfi_voucher_fairs_shelter_project_2015-16_a17.pdf",
+      "annotation": "d_r_congo_nfi_voucher_fairs_shelter_project_2015-16_a17_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "east_aleppo_protection_monitoring_report_-_18-20_november_2016.pdf",
+      "annotation": "east_aleppo_protection_monitoring_report_-_18-20_november_2016_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "echoes_ar_10.pdf",
+      "annotation": "echoes_ar_10_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "echoes_ar_8.pdf",
+      "annotation": "echoes_ar_8_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "echoes_en_6.pdf",
+      "annotation": "echoes_en_6_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "echoes_en_8.pdf",
+      "annotation": "echoes_en_8_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "echoes_en_9.pdf",
+      "annotation": "echoes_en_9_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "echoes_from_syria_issue_3.pdf",
+      "annotation": "echoes_from_syria_issue_3_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "ehagl_knowledge_summary_-_impacts_of_forced_displacement_on_host_communities.pdf",
+      "annotation": "ehagl_knowledge_summary_-_impacts_of_forced_displacement_on_host_communities_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "ehagl_knowledge_summary_-_kenya_wb-unhcr_data_and_evidence_collaboration.pdf",
+      "annotation": "ehagl_knowledge_summary_-_kenya_wb-unhcr_data_and_evidence_collaboration_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "ehf_2023_eie_advocacy_note_eng.pdf",
+      "annotation": "ehf_2023_eie_advocacy_note_eng_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "ehf_2023_esu_note_plaidoyer_fre.pdf",
+      "annotation": "ehf_2023_esu_note_plaidoyer_fre_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "engagements_juridiques_internationaux_et_nationaux_relatifs_a_la_protection_au_mali.pdf",
+      "annotation": "engagements_juridiques_internationaux_et_nationaux_relatifs_a_la_protection_au_mali_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "exec_summary_justice_for_children_22062015_final1.pdf",
+      "annotation": "exec_summary_justice_for_children_22062015_final1_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "full_docu.pdf",
+      "annotation": "full_docu_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "gbv_aor_-_corrane_meconta_situation_analysis_march_2022.pdf",
+      "annotation": "gbv_aor_-_corrane_meconta_situation_analysis_march_2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "gbv_aor_nampula_ilha_gbv_safety_audits_march_22_gombe_cyclone.pdf",
+      "annotation": "gbv_aor_nampula_ilha_gbv_safety_audits_march_22_gombe_cyclone_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "gbv_brief-sudan_situation-june2024_final.pdf",
+      "annotation": "gbv_brief-sudan_situation-june2024_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "gbv_trend_analysis_report_arabic.pdf",
+      "annotation": "gbv_trend_analysis_report_arabic_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "gbvims2015annualreport.pdf",
+      "annotation": "gbvims2015annualreport_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "genderalert-philippines_typhoon_final_version_28april2022.pdf",
+      "annotation": "genderalert-philippines_typhoon_final_version_28april2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "global2017.pdf",
+      "annotation": "global2017_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "grfc2025-brief-fr.pdf",
+      "annotation": "grfc2025-brief-fr_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "icfm_q2_analysis_report.pdf",
+      "annotation": "icfm_q2_analysis_report_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "impact_lby_so_refugees_and_migrants_access_to_food_wash_shelter_november_2018.pdf",
+      "annotation": "impact_lby_so_refugees_and_migrants_access_to_food_wash_shelter_november_2018_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "impact_of_funding_cuts_on_mena_operations_0.pdf",
+      "annotation": "impact_of_funding_cuts_on_mena_operations_0_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020.pdf",
+      "annotation": "intersos_-_rapport_mensuel_de_protection_aout_2020_-boucle_du_mouhoun_-_version_du_10-09-2020_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "iom_unhcr_2018_joint_return_reportfinal_24_jun2019dari.pdf",
+      "annotation": "iom_unhcr_2018_joint_return_reportfinal_24_jun2019dari_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "jordanhaus2015finalreport-2.pdf",
+      "annotation": "jordanhaus2015finalreport-2_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "jordanreferralsataglance-2016.pdf",
+      "annotation": "jordanreferralsataglance-2016_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "jun_2023_rbsa_population_data_analysis.pdf",
+      "annotation": "jun_2023_rbsa_population_data_analysis_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "lducation_attaque_en_afrique_occidentale_et_centrale_-_mise_jour_2022.pdf",
+      "annotation": "lducation_attaque_en_afrique_occidentale_et_centrale_-_mise_jour_2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "lebanonhaus2016final.pdf",
+      "annotation": "lebanonhaus2016final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "lebanonhausreport2015final.pdf",
+      "annotation": "lebanonhausreport2015final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "localization_in_unhcr_americasesp.pdf",
+      "annotation": "localization_in_unhcr_americasesp_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "mali_analyse_de_protection_vbg_region_centre_fevrier_2025_final.pdf",
+      "annotation": "mali_analyse_de_protection_vbg_region_centre_fevrier_2025_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "migrant_and_refugee_movements_through_the_central_mediterranean_sea_in_2023_-_joint_annual_overview_for_2023.pdf",
+      "annotation": "migrant_and_refugee_movements_through_the_central_mediterranean_sea_in_2023_-_joint_annual_overview_for_2023_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "nios_y_nias_desprotegidos_-_anlisis_de_la_financiacin_destinada_a_la_proteccin_de_la_niez_y_la_adolescencia_en_la_accin_humanitaria_en_2023_resumen_ejecutivo.pdf",
+      "annotation": "nios_y_nias_desprotegidos_-_anlisis_de_la_financiacin_destinada_a_la_proteccin_de_la_niez_y_la_adolescencia_en_la_accin_humanitaria_en_2023_resumen_ejecutivo_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "note-dinformation---le-mouvement-des-rapatries-spontanes-dans-les-territoires-de-djugu-et-mahagi---ituri---11-10-2019_0.pdf",
+      "annotation": "note-dinformation---le-mouvement-des-rapatries-spontanes-dans-les-territoires-de-djugu-et-mahagi---ituri---11-10-2019_0_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "note_danalyse_et_de_plaidoyer_du_gtp_lam-17_septembre_2020.pdf",
+      "annotation": "note_danalyse_et_de_plaidoyer_du_gtp_lam-17_septembre_2020_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "note_de_plaidoyer-_enle_vements_des_femmes_et_filles_dans_les_re_gions_du_nord_et_du_centre_du_mali_mopti_me_naka_et_tombouctou-juin_2023.pdf",
+      "annotation": "note_de_plaidoyer-_enle_vements_des_femmes_et_filles_dans_les_re_gions_du_nord_et_du_centre_du_mali_mopti_me_naka_et_tombouctou-juin_2023_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "note_de_plaidoyer_sur_les_incendies_des_ecoles_dans_la_regions_de_tillaberi_novembre_2019.pdf",
+      "annotation": "note_de_plaidoyer_sur_les_incendies_des_ecoles_dans_la_regions_de_tillaberi_novembre_2019_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "note_explicative_sur_le_financement_2022-detaillee-_feb2022.pdf",
+      "annotation": "note_explicative_sur_le_financement_2022-detaillee-_feb2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "nws_hlp_aor_legal_needs_assessment_northwest_syria_final.pdf",
+      "annotation": "nws_hlp_aor_legal_needs_assessment_northwest_syria_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "oct_2023_rbsa_population_data_analysis.pdf",
+      "annotation": "oct_2023_rbsa_population_data_analysis_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "outside-the-camps-executive-summary.pdf",
+      "annotation": "outside-the-camps-executive-summary_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "pac_regional_briefing_paper_31082021.pdf",
+      "annotation": "pac_regional_briefing_paper_31082021_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "pakistan_protection-analysis_oct_2022_final_0.pdf",
+      "annotation": "pakistan_protection-analysis_oct_2022_final_0_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "panama_mco_case_for_support_global_focus.pdf",
+      "annotation": "panama_mco_case_for_support_global_focus_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "pau25_protection_analysis_update_chad_january_2025.pdf",
+      "annotation": "pau25_protection_analysis_update_chad_january_2025_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "pau_niger_protection_cluster_niger_september_2024_version_revu_le_041024_final.pdf",
+      "annotation": "pau_niger_protection_cluster_niger_september_2024_version_revu_le_041024_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "pdm-mcap_2016jan-mar_final.pdf",
+      "annotation": "pdm-mcap_2016jan-mar_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "points_saillants_situation_de_protection_en_rd_congo_juillet_2024_1.pdf",
+      "annotation": "points_saillants_situation_de_protection_en_rd_congo_juillet_2024_1_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "points_saillants_situation_de_protection_oct_2023_231129_vf_0.pdf",
+      "annotation": "points_saillants_situation_de_protection_oct_2023_231129_vf_0_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "points_saillants_situation_de_protection_sept_2023.pdf",
+      "annotation": "points_saillants_situation_de_protection_sept_2023_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "poland_protection_analysis_may_2022.pdf",
+      "annotation": "poland_protection_analysis_may_2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "policy_brief_on_shona_community_from_stateless_to_citizens.pdf",
+      "annotation": "policy_brief_on_shona_community_from_stateless_to_citizens_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "press-release_-white-paper-launch.pdf",
+      "annotation": "press-release_-white-paper-launch_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "project_21_central_sahel_child_protection_and_education_note_june_2023.pdf",
+      "annotation": "project_21_central_sahel_child_protection_and_education_note_june_2023_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "protection_brief_czechia_q3_2024_v2.pdf",
+      "annotation": "protection_brief_czechia_q3_2024_v2_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "protection_cluster_somalia_protection_analysis_122023.pdf",
+      "annotation": "protection_cluster_somalia_protection_analysis_122023_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "protection_monitoring_-_summary_of_findings_-_october_2020_final.pdf",
+      "annotation": "protection_monitoring_-_summary_of_findings_-_october_2020_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "protection_monitoring_task_force_-_update_1.pdf",
+      "annotation": "protection_monitoring_task_force_-_update_1_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "protection_risk_analysis_report_oct_2014.pdf",
+      "annotation": "protection_risk_analysis_report_oct_2014_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "protection_sector_analysis_report.pdf",
+      "annotation": "protection_sector_analysis_report_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "protection_sector_north-east_protection_concerns_arising_from_camp_closures.pdf",
+      "annotation": "protection_sector_north-east_protection_concerns_arising_from_camp_closures_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "protection_trends_paper_no_7_jan-mar_2016_final.pdf",
+      "annotation": "protection_trends_paper_no_7_jan-mar_2016_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "psne_-_idp_participation_in_elections_-_march_2023_-_final.pdf",
+      "annotation": "psne_-_idp_participation_in_elections_-_march_2023_-_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "psne_advoacy_note_on_the_relocation_and_return_of_idps_to_logumane_january_2024.pdf",
+      "annotation": "psne_advoacy_note_on_the_relocation_and_return_of_idps_to_logumane_january_2024_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "psne_flash_alert_on_abduction_and_killing_in_borno_state_march_2024_final.pdf",
+      "annotation": "psne_flash_alert_on_abduction_and_killing_in_borno_state_march_2024_final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "rapport_de_mission_zs_kabalo.pdf",
+      "annotation": "rapport_de_mission_zs_kabalo_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "rapport_du_monitoring_de_protection_de_la_region_de_diffa_au_niger_janvier_2022.pdf",
+      "annotation": "rapport_du_monitoring_de_protection_de_la_region_de_diffa_au_niger_janvier_2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "rbsa_population_data_analysis_may_2023.pdf",
+      "annotation": "rbsa_population_data_analysis_may_2023_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "rbsa_population_data_analysis_sep_2022.pdf",
+      "annotation": "rbsa_population_data_analysis_sep_2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "rbsa_population_factsheet_april_2022_final_v3.pdf",
+      "annotation": "rbsa_population_factsheet_april_2022_final_v3_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "reach_impact-of-reduced-funding_uganda-brief.pdf",
+      "annotation": "reach_impact-of-reduced-funding_uganda-brief_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "reach_impact_of_reduced_funding_uganda_brief.pdf",
+      "annotation": "reach_impact_of_reduced_funding_uganda_brief_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "reach_yem_methodologynote_hva_floodsusceptibility_01apr2020_en_v2.pdf",
+      "annotation": "reach_yem_methodologynote_hva_floodsusceptibility_01apr2020_en_v2_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "refugee_and_migrant_children_in_europe_-_accompanied_unaccompanied_and_separated_-_overview_of_trends_january_-_december_2020.pdf",
+      "annotation": "refugee_and_migrant_children_in_europe_-_accompanied_unaccompanied_and_separated_-_overview_of_trends_january_-_december_2020_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "refugee_and_migrant_children_in_europe_2021-final.pdf",
+      "annotation": "refugee_and_migrant_children_in_europe_2021-final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "report_on_joint_education_mission_to_dadaab_refugee_camps_20160930.pdf",
+      "annotation": "report_on_joint_education_mission_to_dadaab_refugee_camps_20160930_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "report_on_suicide_assessment_conducted_in_imvepi_and_rhino_camp_july_2020.pdf",
+      "annotation": "report_on_suicide_assessment_conducted_in_imvepi_and_rhino_camp_july_2020_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "rsc-research-in-brief-21-refugee-mobility-and-livelihoods-in-uganda.pdf",
+      "annotation": "rsc-research-in-brief-21-refugee-mobility-and-livelihoods-in-uganda_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "sans_dfense_-_analyse_du_financement_de_la_protection_de_lenfance_dans_laction_humanitaire_en_2023_synthse.pdf",
+      "annotation": "sans_dfense_-_analyse_du_financement_de_la_protection_de_lenfance_dans_laction_humanitaire_en_2023_synthse_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "shelter_sector_strategy_2025-2026_pl.pdf",
+      "annotation": "shelter_sector_strategy_2025-2026_pl_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "situation-report-international-migration-2021-policy-brief-english.pdf",
+      "annotation": "situation-report-international-migration-2021-policy-brief-english_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "social_media_forced_displacement_europe_refugee_crises.pdf",
+      "annotation": "social_media_forced_displacement_europe_refugee_crises_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "sudan_esnfi_sector_strategy_2017.pdf",
+      "annotation": "sudan_esnfi_sector_strategy_2017_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "summary-report-gryc-kenya.pdf",
+      "annotation": "summary-report-gryc-kenya_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "syria_-_3rp_annual_report_2021_-_june_2022.pdf",
+      "annotation": "syria_-_3rp_annual_report_2021_-_june_2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "syria_3rp_2017_annual_report_arb_-_may_2018.pdf",
+      "annotation": "syria_3rp_2017_annual_report_arb_-_may_2018_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "tcd_advo_crise_du_sud_v3_spread.pdf",
+      "annotation": "tcd_advo_crise_du_sud_v3_spread_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "tcd_hcr_afflux_soudanais_dashboard_16032024_fr.pdf",
+      "annotation": "tcd_hcr_afflux_soudanais_dashboard_16032024_fr_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "tcd_hcr_mouvements_mixtes_update_2021_q3.pdf",
+      "annotation": "tcd_hcr_mouvements_mixtes_update_2021_q3_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "tcd_hcr_mouvements_mixtes_update_janv-dc_2022.pdf",
+      "annotation": "tcd_hcr_mouvements_mixtes_update_janv-dc_2022_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "tcd_hcr_mouvements_mixtes_update_janv-juin2023.pdf",
+      "annotation": "tcd_hcr_mouvements_mixtes_update_janv-juin2023_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "the-quote-sheet_white-paper-launch.pdf",
+      "annotation": "the-quote-sheet_white-paper-launch_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "tmr_infographic_in_english.pdf",
+      "annotation": "tmr_infographic_in_english_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "uganda_policy_brief_-_targeting_assistance_programmes_to_persons_with_specific_needs_-_april_2021.pdf",
+      "annotation": "uganda_policy_brief_-_targeting_assistance_programmes_to_persons_with_specific_needs_-_april_2021_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "uganda_ref_hum_needs_overview_-_full_version_fin2_0.pdf",
+      "annotation": "uganda_ref_hum_needs_overview_-_full_version_fin2_0_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr-unw_disability_and_women_and_girls_in_displacement_from_myanmar.pdf",
+      "annotation": "unhcr-unw_disability_and_women_and_girls_in_displacement_from_myanmar_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr_-_irregular_maritime_movements.pdf",
+      "annotation": "unhcr_-_irregular_maritime_movements_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr_bulgaria_-_brief_8.pdf",
+      "annotation": "unhcr_bulgaria_-_brief_8_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr_bulgaria_protection_brief_international_protection_procedures.pdf",
+      "annotation": "unhcr_bulgaria_protection_brief_international_protection_procedures_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr_chad_mixed_migration_route_01-122023_fr.pdf",
+      "annotation": "unhcr_chad_mixed_migration_route_01-122023_fr_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr_colombia_nexo_cambio_climtico_prdida_de_biodiversidad_y_desplazamiento_forzado.pdf",
+      "annotation": "unhcr_colombia_nexo_cambio_climtico_prdida_de_biodiversidad_y_desplazamiento_forzado_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr_cuamm_gbv_safety_audit_massingiri_site_montepuez_april_2023_1.pdf",
+      "annotation": "unhcr_cuamm_gbv_safety_audit_massingiri_site_montepuez_april_2023_1_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr_global_report_2020_-_east_and_horn_of_africa_and_the_great_lakes.pdf",
+      "annotation": "unhcr_global_report_2020_-_east_and_horn_of_africa_and_the_great_lakes_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr_global_report_2020_-_southern_africa.pdf",
+      "annotation": "unhcr_global_report_2020_-_southern_africa_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr_global_report_2020_-_west_and_central_africa.pdf",
+      "annotation": "unhcr_global_report_2020_-_west_and_central_africa_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcr_roadmap_for_the_inclusion_of_refugee_children_in_the_education_1.pdf",
+      "annotation": "unhcr_roadmap_for_the_inclusion_of_refugee_children_in_the_education_1_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unhcrjordan-cashassistancefocusgroupdiscussions2017-final.pdf",
+      "annotation": "unhcrjordan-cashassistancefocusgroupdiscussions2017-final_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unprotected_--_analysis_of_funding_for_child_protection_in_humanitarian_action_in_2023_ar.pdf",
+      "annotation": "unprotected_--_analysis_of_funding_for_child_protection_in_humanitarian_action_in_2023_ar_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unprotected_analysis_of_funding_for_child_protection_in_humanitarian_action_in_2023_executive_summary_french.pdf",
+      "annotation": "unprotected_analysis_of_funding_for_child_protection_in_humanitarian_action_in_2023_executive_summary_french_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "unprotected_analysis_of_funding_for_child_protection_in_humanitarian_action_in_2023_executive_summary_spanish.pdf",
+      "annotation": "unprotected_analysis_of_funding_for_child_protection_in_humanitarian_action_in_2023_executive_summary_spanish_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "vasyrexecsum2015.pdf",
+      "annotation": "vasyrexecsum2015_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "wash_cccm_shelter_nfi_advocacy_brief_20240827.pdf",
+      "annotation": "wash_cccm_shelter_nfi_advocacy_brief_20240827_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "wca_educationsomadvocacynotesen_20220124.pdf",
+      "annotation": "wca_educationsomadvocacynotesen_20220124_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "wfp-0000150919.pdf",
+      "annotation": "wfp-0000150919_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "wfp-0000151334.pdf",
+      "annotation": "wfp-0000151334_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "wfp272177.pdf",
+      "annotation": "wfp272177_annotations.json"
+    },
+    {
+      "source": "unhcr",
+      "pdf": "wincap_2020-2021_pdm_report_-final.pdf",
+      "annotation": "wincap_2020-2021_pdm_report_-final_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_10000660.pdf",
+      "annotation": "document_10000660_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_10002285.pdf",
+      "annotation": "document_10002285_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_10069312.pdf",
+      "annotation": "document_10069312_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_10240515.pdf",
+      "annotation": "document_10240515_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_10973627.pdf",
+      "annotation": "document_10973627_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_11017288.pdf",
+      "annotation": "document_11017288_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_11225119.pdf",
+      "annotation": "document_11225119_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_11670035.pdf",
+      "annotation": "document_11670035_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_11696987.pdf",
+      "annotation": "document_11696987_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_11777361.pdf",
+      "annotation": "document_11777361_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_12714605.pdf",
+      "annotation": "document_12714605_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_13840629.pdf",
+      "annotation": "document_13840629_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_14435139.pdf",
+      "annotation": "document_14435139_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_14860451.pdf",
+      "annotation": "document_14860451_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_14861148.pdf",
+      "annotation": "document_14861148_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_15347644.pdf",
+      "annotation": "document_15347644_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_15645293.pdf",
+      "annotation": "document_15645293_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_1744000.pdf",
+      "annotation": "document_1744000_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_2160788.pdf",
+      "annotation": "document_2160788_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_2176366.pdf",
+      "annotation": "document_2176366_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_2449168.pdf",
+      "annotation": "document_2449168_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_437268.pdf",
+      "annotation": "document_437268_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_437731.pdf",
+      "annotation": "document_437731_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_437802.pdf",
+      "annotation": "document_437802_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_443630.pdf",
+      "annotation": "document_443630_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_5758486.pdf",
+      "annotation": "document_5758486_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_6213782.pdf",
+      "annotation": "document_6213782_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_6284707.pdf",
+      "annotation": "document_6284707_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_6304708.pdf",
+      "annotation": "document_6304708_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_6596734.pdf",
+      "annotation": "document_6596734_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_6666871.pdf",
+      "annotation": "document_6666871_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_6731296.pdf",
+      "annotation": "document_6731296_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_697372.pdf",
+      "annotation": "document_697372_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_698112.pdf",
+      "annotation": "document_698112_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_698797.pdf",
+      "annotation": "document_698797_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_699634.pdf",
+      "annotation": "document_699634_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_699791.pdf",
+      "annotation": "document_699791_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_699965.pdf",
+      "annotation": "document_699965_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_700209.pdf",
+      "annotation": "document_700209_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_7063025.pdf",
+      "annotation": "document_7063025_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_717449.pdf",
+      "annotation": "document_717449_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_7255556.pdf",
+      "annotation": "document_7255556_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_7499620.pdf",
+      "annotation": "document_7499620_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_7581269.pdf",
+      "annotation": "document_7581269_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_8092215.pdf",
+      "annotation": "document_8092215_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_8886604.pdf",
+      "annotation": "document_8886604_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_9058934.pdf",
+      "annotation": "document_9058934_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_9087385.pdf",
+      "annotation": "document_9087385_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_9089743.pdf",
+      "annotation": "document_9089743_annotations.json"
+    },
+    {
+      "source": "prwp",
+      "pdf": "document_9899936.pdf",
+      "annotation": "document_9899936_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "004_BOSIB-87c444de-4797-4bf9-b654-4932a7fb0112.pdf",
+      "annotation": "004_BOSIB-87c444de-4797-4bf9-b654-4932a7fb0112_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "005_BOSIB-8191b179-7209-4faa-b5e0-11783bcd492d.pdf",
+      "annotation": "005_BOSIB-8191b179-7209-4faa-b5e0-11783bcd492d_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "006_BOSIB-2c22668f-f4ba-42f5-a0d1-7949b7b8fe34.pdf",
+      "annotation": "006_BOSIB-2c22668f-f4ba-42f5-a0d1-7949b7b8fe34_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "013_BOSIB0efb09b920d90858a0135df22da7d1.pdf",
+      "annotation": "013_BOSIB0efb09b920d90858a0135df22da7d1_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "014_BOSIB1dda1d49e0221807413cf06ea9ae3f.pdf",
+      "annotation": "014_BOSIB1dda1d49e0221807413cf06ea9ae3f_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "020_P1781250bdd2b50b0b9720d5c17632331c.pdf",
+      "annotation": "020_P1781250bdd2b50b0b9720d5c17632331c_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "056_Niger-COVID-19-Emergency-Response-Project.pdf",
+      "annotation": "056_Niger-COVID-19-Emergency-Response-Project_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "060_Yemen-Emergency-COVID-19-Project.pdf",
+      "annotation": "060_Yemen-Emergency-COVID-19-Project_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "074_Djibouti-Integrated-Cash-Transfer-and-Human-Capital-Project.pdf",
+      "annotation": "074_Djibouti-Integrated-Cash-Transfer-and-Human-Capital-Project_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "091_PAD2604-ARABIC-PUBLIC-Project-Appraisal-Document-PAD-AR.pdf",
+      "annotation": "091_PAD2604-ARABIC-PUBLIC-Project-Appraisal-Document-PAD-AR_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "112_IDAR2016-0221-PAD-09012016.pdf",
+      "annotation": "112_IDAR2016-0221-PAD-09012016_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "120_PAD1205-ARABIC-PAD-PP152646-PUBLIC-Box393206B.pdf",
+      "annotation": "120_PAD1205-ARABIC-PAD-PP152646-PUBLIC-Box393206B_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "121_PAD1190-PAD-P152848-PUBLIC-Box391435B-LB-EESSP-Final-PAD-for-printing.pdf",
+      "annotation": "121_PAD1190-PAD-P152848-PUBLIC-Box391435B-LB-EESSP-Final-PAD-for-printing_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "191_multi-page.pdf",
+      "annotation": "191_multi-page_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "193_multi-page.pdf",
+      "annotation": "193_multi-page_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "195_multi-page.pdf",
+      "annotation": "195_multi-page_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "196_multi-page.pdf",
+      "annotation": "196_multi-page_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "197_multi-page.pdf",
+      "annotation": "197_multi-page_annotations.json"
+    },
+    {
+      "source": "refugee",
+      "pdf": "200_multi-page.pdf",
+      "annotation": "200_multi-page_annotations.json"
+    }
+  ]
+}

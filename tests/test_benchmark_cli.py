@@ -32,7 +32,8 @@ def test_checked_in_paper_config(model: str) -> None:
 
     assert config["model"] == model
     assert config["sources"] == ["unhcr", "prwp", "refugee"]
-    assert config["adapter_config"]["pdf_backend"] == "pdf2image"
+    assert config["adapter_config"]["pdf_backend"] == "pymupdf"
+    assert config["output_root"] == ROOT / "data/evaluation_runs/pymupdf"
 
 
 def test_source_and_corpus_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -102,6 +103,25 @@ def test_source_and_corpus_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) 
             },
         ),
     ]
+
+    calls.clear()
+    module.main(["--config", str(config_path)])
+    assert [(kind, values.get("source")) for kind, values in calls] == [
+        ("source", "unhcr"),
+        ("source", "prwp"),
+        ("corpus", None),
+    ]
+
+    calls.clear()
+
+    def fail_source(**kwargs: Any) -> dict[str, Any]:
+        """Stop before aggregation when a source fails."""
+        raise RuntimeError("inference failed")
+
+    monkeypatch.setattr(module, "evaluate_source", fail_source)
+    with pytest.raises(RuntimeError, match="inference failed"):
+        module.main(["--config", str(config_path)])
+    assert calls == []
 
 
 def test_cli_rejects_unconfigured_source(

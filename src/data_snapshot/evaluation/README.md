@@ -31,10 +31,10 @@ data snapshots. Integrated adapters apply this filter by default; the evaluator
 does not filter again. Historical filenames use `_wo_small` to identify this
 configuration.
 
-## Reproduce the paper benchmark from source PDFs
+## Run layout benchmarks from source PDFs
 
-Use this workflow to run inference again from the dataset PDFs and compare the
-resulting corpus report with the published values.
+Use the full, smoke-test, or half-sample runner below. Current configurations
+use PyMuPDF and keep these runs separate from historical paper outputs.
 
 ### 1. Install dependencies
 
@@ -42,7 +42,7 @@ Install the locked development, renderer, and selected model dependencies. For
 example, for `doclayoutyolo`:
 
 ```shell
-uv sync --locked --extra dev --extra doclayoutyolo --extra pdf2image
+uv sync --locked --extra dev --extra doclayoutyolo
 ```
 
 Repeat the sync with the selected model extra before switching adapters, then
@@ -51,11 +51,7 @@ that sync. `tfid` and `unlimitedocr` are mutually exclusive, so `--all-extras`
 is unsupported. Unlimited-OCR uses a CUDA GPU with BF16 support; see
 [its setup and prediction contract](../inference/README.md#unlimited-ocr).
 
-The `pdf2image` backend also requires Poppler. On Ubuntu or WSL:
-
-```shell
-sudo apt install poppler-utils
-```
+PyMuPDF is a core dependency and requires no Poppler installation.
 
 The model keywords and dependency extras are:
 
@@ -67,14 +63,11 @@ The model keywords and dependency extras are:
 | YOLOv26 medium | `yolo26` | [`yolo26_paper_benchmark.json`](configs/yolo26_paper_benchmark.json) |
 | Unlimited-OCR | `unlimitedocr` | Not part of the paper; no paper configuration |
 
-The benchmark paper used `pdf2image` with Poppler to render PDFs. Keep
-`pdf_backend` set to `pdf2image` when reproducing the paper results. For new
-work, PyMuPDF (`pdf_backend: "pymupdf"`) is the recommended renderer and the
-current adapter default. Switching renderers can change page images and model
-predictions, so record the backend used when reporting results.
-
-For another model, replace the `doclayoutyolo` dependency extra with the keyword
-in the table.
+Current benchmark configurations use PyMuPDF (`pdf_backend: "pymupdf"`).
+Historical paper runs used `pdf2image` with Poppler; switching renderers can
+change predictions. Use the same renderer and document selection for every
+model in a comparison. Configuration filenames retain `paper_benchmark` for
+compatibility, but their defaults now describe new PyMuPDF runs.
 
 ### 2. Prepare the dataset
 
@@ -97,11 +90,11 @@ example:
 {
   "model": "doclayoutyolo",
   "dataset_root": "data/hf_datasets/data-snapshot",
-  "output_root": "data/evaluation_runs",
+  "output_root": "data/evaluation_runs/pymupdf",
   "sources": ["unhcr", "prwp", "refugee"],
   "device": "cuda:0",
   "adapter_config": {
-    "pdf_backend": "pdf2image"
+    "pdf_backend": "pymupdf"
   }
 }
 ```
@@ -122,11 +115,33 @@ Relative dataset and output paths are resolved from the repository root.
 Paper configurations for the four original benchmark models use the
 `configs/<model>_paper_benchmark.json` naming pattern. Select the file matching
 the keyword in the table above, then adjust `dataset_root` and
-`device` for the local environment. Keep `pdf_backend` set to `pdf2image` for
-comparison with the paper. Other `adapter_config` fields are model-specific and
-override that adapter's defaults.
+`device` for the local environment. Keep the same `pdf_backend` for all models
+in a comparison. Other `adapter_config` fields are model-specific and override
+that adapter's defaults.
 
-### 4. Run each source
+### 4. Choose a runner
+
+All three runners accept `--config` and `--overwrite`, write source reports,
+and recompute overall metrics from pooled ground truth and predictions.
+Without `--overwrite`, existing outputs are protected.
+
+| Selection | PDFs | Runner | Output beneath `data/evaluation_runs/pymupdf/` |
+|---|---:|---|---|
+| Full dataset | 476 | `scripts/evaluate_benchmark.py` | `<model>/` |
+| Smoke test | 9 (3 per corpus) | `scripts/evaluate_benchmark_sample.py` | `paper_benchmark_sample/<model>/` |
+| Fixed half sample | 238 (169 UNHCR, 50 PRWP, 19 refugee) | `scripts/evaluate_benchmark_half.py` | `paper_benchmark_half/<model>/` |
+
+For example, the full runner executes all configured sources and then the
+combined corpus in one command:
+
+```shell
+uv run --no-sync python scripts/evaluate_benchmark.py \
+    --config src/data_snapshot/evaluation/configs/doclayoutyolo_paper_benchmark.json
+```
+
+For the smaller selections, change the script name to the smoke or half runner.
+
+### Run or resume individual sources
 
 Run sources independently so completed inference is preserved if a later source
 fails. These commands continue the `doclayoutyolo` example; for another model,
@@ -168,7 +183,7 @@ ground truth, predictions, and report.
 Generated files are organized by model and source:
 
 ```text
-data/evaluation_runs/<model>/
+data/evaluation_runs/pymupdf/<model>/
 ├── ground_truth/
 │   ├── sources/<source>.json
 │   └── corpus.json
@@ -192,11 +207,11 @@ uv run --no-sync python scripts/evaluate_benchmark_sample.py \
 ```
 
 Replace `doclayoutyolo` in the configuration filename with `tfid`, `yolo11`, or
-`yolo26`. The runner temporarily links the selected inputs into one `sample`
-source and uses the normal benchmark pipeline. It does not copy or modify the
-dataset. Results are written beneath
-`data/evaluation_runs/<model>/{ground_truth,predictions,reports}/sources/sample.json`.
-Use `--overwrite` to repeat a completed sample run.
+`yolo26`. The runner temporarily links the selected inputs into their original
+source directories without copying or modifying the dataset. Results include
+`reports/sources/{unhcr,prwp,refugee}.json` and `reports/corpus.json` under
+`data/evaluation_runs/pymupdf/paper_benchmark_sample/<model>/`.
+Use `--overwrite` only to replace a completed run.
 
 The checked-in
 [`paper_benchmark_sample.json`](configs/paper_benchmark_sample.json) selects the
@@ -207,6 +222,40 @@ A successful smoke test processes all nine documents, reports no document
 mismatch, and produces Figure and Table metrics. The values are diagnostic only:
 this small sample is intended to catch model-loading, label-mapping, rendering,
 filtering, and evaluator failures rather than reproduce the paper results.
+
+## Half-size directional benchmark
+
+[`paper_benchmark_half.json`](configs/paper_benchmark_half.json) fixes half the
+PDFs within each corpus: 169 UNHCR, 50 PRWP, and 19 refugee PDFs, totalling
+238 PDFs and 3,753 pages. It uses seed `42`, sorted filenames, and one random
+number generator consumed in that source order. The manifest records each
+selected PDF and annotation; use this exact selection for every compared model.
+
+```shell
+uv run --no-sync python scripts/evaluate_benchmark_half.py \
+    --config src/data_snapshot/evaluation/configs/doclayoutyolo_paper_benchmark.json
+```
+
+Replace the model name for each run. Per-corpus reports and the overall report
+are written beneath `data/evaluation_runs/pymupdf/paper_benchmark_half/<model>/`.
+These scores support directional comparisons; resolve close rankings with the
+full dataset.
+
+## Markdown comparison report
+
+After running the selected models, render Figure overall, Table overall,
+Figure by corpus, and Table by corpus tables from their JSON reports:
+
+```shell
+uv run --no-sync python scripts/summarize_benchmark.py \
+    --output-root data/evaluation_runs/pymupdf/paper_benchmark_half
+```
+
+The default output is `<output-root>/report.md`. Use the matching smoke or full
+output root when summarizing those selections. Missing model/corpus reports
+leave blank cells, including TF-ID when skipped. An undefined metric is shown
+as `N/A`; document mismatches reject the report. Use `--overwrite` only when
+intentionally refreshing an existing Markdown file.
 
 ## Evaluate an existing prediction file
 
