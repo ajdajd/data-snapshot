@@ -257,8 +257,8 @@ over matched pairs only.
 
 ## Expected paper results
 
-For a paper-comparable full-corpus run, the metrics at IoU `0.5` should round
-to the following values.
+The tables below report the published full-corpus metrics at IoU `0.5`.
+Use them as a reference when comparing fresh inference runs.
 
 ### Figures
 
@@ -285,9 +285,19 @@ Extraction from Institutional Documents*](https://arxiv.org/abs/2606.06242)
 for the evaluation protocol, per-corpus results, and limitations.
 
 Compare the appropriate column manually with the generated
-`reports/corpus.json`. A difference indicates that the model weights, inference
-configuration, PDF renderer, filtering policy, dependency versions, or input
-corpus may differ from the paper run.
+`reports/corpus.json`. Changes in PDF rendering, installed fonts, or numerical
+libraries can introduce discrepancies because they alter page images or model
+predictions. In particular, installing fonts can change how non-embedded PDF
+fonts are substituted, even with the same renderer and Python dependencies.
+Model weights, inference settings, filtering policy, and input corpus must also
+match for a comparable run.
+
+A targeted check of one affected page from each of 10 UNHCR PDFs confirmed this
+font effect across DocLayout-YOLO, YOLO11, and YOLO26. Restoring the older font
+set reproduced the historical boxes and scores exactly for YOLO11 and YOLO26,
+and within `1e-5` for DocLayout-YOLO. This check did not cover full documents or
+the full corpus, so exact agreement with every published aggregate remains
+unverified.
 
 ## Extend the benchmark
 
