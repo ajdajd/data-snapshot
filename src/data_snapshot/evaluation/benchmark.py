@@ -3,14 +3,19 @@
 from __future__ import annotations
 
 import importlib
-from collections.abc import Callable, Sequence
+import json
+import logging
+import traceback
+from collections.abc import Callable, Iterator, Sequence
+from contextlib import contextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from data_snapshot.constants import ROOT
 from data_snapshot.evaluation.evaluate_model import evaluate, print_summary_metrics
 from data_snapshot.evaluation.merge_batch_preds import combine_evaluation_files
-from data_snapshot.utils import load_json
+from data_snapshot.utils import load_json, utc_now_iso
 
 DEFAULT_OUTPUT_ROOT = ROOT / "data/evaluation_runs"
 
@@ -133,6 +138,63 @@ def _validate_disjoint_sources(paths: Sequence[Path]) -> None:
         seen.update(current)
 
 
+@contextmanager
+def _render_diagnostics_log(
+    output_root: Path, source: str, config_values: dict[str, Any]
+) -> Iterator[None]:
+    """Persist rendering events and inference failures in a fresh source log."""
+    log_dir = output_root / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_path = (
+        log_dir / f"{source}_{datetime.now(timezone.utc):%Y%m%dT%H%M%S_%fZ}.jsonl"
+    )
+    handler = logging.FileHandler(log_path, mode="x", encoding="utf-8")
+    logger = logging.getLogger("data_snapshot.rendering")
+    old_level, old_propagate = logger.level, logger.propagate
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+    logger.addHandler(handler)
+    context = {"model": output_root.name, "source": source}
+    print(f"Rendering diagnostics: {log_path}", flush=True)
+    try:
+        logger.info(
+            json.dumps(
+                {
+                    "timestamp": utc_now_iso(),
+                    "event": "inference_started",
+                    **context,
+                    "adapter_config": config_values,
+                },
+                default=str,
+            )
+        )
+        yield
+        logger.info(
+            json.dumps(
+                {"timestamp": utc_now_iso(), "event": "inference_finished", **context}
+            )
+        )
+    except BaseException as exc:
+        logger.info(
+            json.dumps(
+                {
+                    "timestamp": utc_now_iso(),
+                    "event": "inference_failed",
+                    "status": "error",
+                    **context,
+                    "exception": f"{type(exc).__name__}: {exc}",
+                    "traceback": traceback.format_exc(),
+                }
+            )
+        )
+        raise
+    finally:
+        logger.removeHandler(handler)
+        logger.setLevel(old_level)
+        logger.propagate = old_propagate
+        handler.close()
+
+
 def evaluate_source(
     model: str,
     source: str,
@@ -211,7 +273,8 @@ def evaluate_source(
         }
         config_values.update(adapter_config or {})
         config = config_type(**config_values)
-        runner(pdf_dir, pred_path, config=config)
+        with _render_diagnostics_log(output_root, source, config_values):
+            runner(pdf_dir, pred_path, config=config)
 
     combine_evaluation_files(annotation_paths, gt_path)
     _validate_matching_documents(gt_path, pred_path)

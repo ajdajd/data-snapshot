@@ -1,5 +1,7 @@
 import json
+import logging
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -124,6 +126,12 @@ def test_source_and_corpus_workflow(
     )
     assert report["documents_mismatch"] == {"only_gt": [], "only_pred": []}
     corpus = load_json(output_root / "doclayoutyolo/predictions/corpus.json")
+    logs = sorted((output_root / "doclayoutyolo/logs").glob("*.jsonl"))
+    assert len(logs) == 2
+    for path in logs:
+        events = [json.loads(line) for line in path.read_text().splitlines()]
+        assert events[0]["event"] == "inference_started"
+        assert events[-1]["event"] == "inference_finished"
     assert {document["doc_id"] for document in corpus["documents"]} == {
         "first.pdf",
         "second.pdf",
@@ -149,3 +157,65 @@ def test_source_and_corpus_workflow(
             output_root=output_root,
             overwrite=True,
         )
+
+
+@pytest.mark.parametrize("failure", [RuntimeError, KeyboardInterrupt])
+def test_failed_inference_preserves_logs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: type[BaseException]
+) -> None:
+    """Retain failure evidence across retries and release the logging handler.
+
+    Parameters
+    ----------
+    tmp_path : Path
+        Temporary dataset and output directory.
+    monkeypatch : pytest.MonkeyPatch
+        Replace model loading with a failing adapter.
+    failure : type[BaseException]
+        Model failure or user interrupt to propagate.
+    """
+    dataset_root = tmp_path / "dataset"
+    _write_source(dataset_root, "first")
+    output_root = tmp_path / "runs"
+    logger = logging.getLogger("data_snapshot.rendering")
+    old_handlers, old_level, old_propagate = (
+        list(logger.handlers),
+        logger.level,
+        logger.propagate,
+    )
+
+    def fail_runner(
+        input_pdf_dir: Path, output_json_path: Path, *, config: SimpleNamespace
+    ) -> Path:
+        """Simulate an adapter that fails before writing predictions."""
+        raise failure("interrupted")
+
+    monkeypatch.setattr(
+        benchmark, "_load_adapter", lambda model: (SimpleNamespace, fail_runner)
+    )
+    first_log = None
+    first_contents = None
+    for _ in range(2):
+        with pytest.raises(failure, match="interrupted"):
+            benchmark.evaluate_source(
+                model="doclayoutyolo",
+                source="first",
+                dataset_root=dataset_root,
+                output_root=output_root,
+                adapter_config={"weights": tmp_path / "weights.pt"},
+            )
+        if first_log is None:
+            first_log = next((output_root / "doclayoutyolo/logs").glob("*.jsonl"))
+            first_contents = first_log.read_text()
+        assert logger.handlers == old_handlers
+        assert logger.level == old_level and logger.propagate == old_propagate
+    logs = list((output_root / "doclayoutyolo/logs").glob("*.jsonl"))
+    assert len(logs) == 2
+    assert first_log.read_text() == first_contents
+    for path in logs:
+        events = [json.loads(line) for line in path.read_text().splitlines()]
+        assert events[0]["event"] == "inference_started"
+        assert events[0]["adapter_config"]["weights"] == str(tmp_path / "weights.pt")
+        assert events[-1]["event"] == "inference_failed"
+        assert events[-1]["status"] == "error"
+        assert failure.__name__ in events[-1]["traceback"]

@@ -7,6 +7,8 @@ Provides common helpers used across adapter modules and evaluation tools.
 from __future__ import annotations
 
 import json
+import logging
+import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal, Sequence
@@ -16,12 +18,40 @@ from PIL import Image
 from data_snapshot.constants import MIN_PREDICTION_AREA
 
 
+def _log_render_event(
+    pdf_path: str | Path,
+    event: str,
+    *,
+    dpi: int,
+    page_index: int | None = None,
+    warnings: str = "",
+    **details: Any,
+) -> None:
+    """Record one PDF operation with stable document and page identifiers."""
+    record = {
+        "timestamp": utc_now_iso(),
+        "event": event,
+        "status": (
+            "error" if event == "render_failed" else "warning" if warnings else "ok"
+        ),
+        "doc_id": Path(pdf_path).name,
+        "pdf_path": str(Path(pdf_path).resolve()),
+        "backend": "pymupdf",
+        "dpi": dpi,
+        "page_index": page_index,
+        "page_number": None if page_index is None else page_index + 1,
+        "warnings": warnings,
+        **details,
+    }
+    logging.getLogger("data_snapshot.rendering").info(json.dumps(record))
+
+
 def convert_pdf_to_images(
     pdf_path: str | Path,
     dpi: int = 300,
     backend: Literal["pymupdf", "pdf2image"] = "pymupdf",
 ) -> list[Image.Image]:
-    """Convert each page of a PDF file to a PIL image.
+    """Convert PDF pages to PIL images and log PyMuPDF rendering diagnostics.
 
     Parameters
     ----------
@@ -45,6 +75,12 @@ def convert_pdf_to_images(
         If *backend* is not one of the supported values.
     ImportError
         If the requested backend package is not installed.
+
+    Notes
+    -----
+    PyMuPDF events use the ``data_snapshot.rendering`` logger. Page indices are
+    zero-based and page numbers are one-based. Warnings do not imply defective
+    images; rendering exceptions are logged and re-raised without skipping pages.
     """
     if backend == "pymupdf":
         try:
@@ -55,12 +91,65 @@ def convert_pdf_to_images(
                 "Install the locked core environment with: uv sync --locked"
             ) from exc
 
-        doc = pymupdf.open(str(pdf_path))
         images: list[Image.Image] = []
-        for page in doc:
-            pix = page.get_pixmap(dpi=dpi)
-            images.append(pix.pil_image())
-        doc.close()
+        page_index = None
+        page_count = None
+        phase = "open"
+        # shortcut: MuPDF's message buffer is global; use processes for parallel rendering.
+        pymupdf.TOOLS.reset_mupdf_warnings()
+        try:
+            with pymupdf.open(str(pdf_path)) as doc:
+                page_count = doc.page_count
+                _log_render_event(
+                    pdf_path,
+                    "document_opened",
+                    dpi=dpi,
+                    warnings=pymupdf.TOOLS.mupdf_warnings(),
+                    page_count=page_count,
+                    pymupdf_version=pymupdf.VersionBind,
+                    mupdf_version=pymupdf.VersionFitz,
+                )
+                for page_index in range(page_count):
+                    phase = "page"
+                    page = doc.load_page(page_index)
+                    pix = page.get_pixmap(dpi=dpi)
+                    image = pix.pil_image()
+                    images.append(image)
+                    _log_render_event(
+                        pdf_path,
+                        "page_rendered",
+                        dpi=dpi,
+                        page_index=page_index,
+                        warnings=pymupdf.TOOLS.mupdf_warnings(),
+                        width=image.width,
+                        height=image.height,
+                    )
+                page_index = None
+                phase = "close"
+            _log_render_event(
+                pdf_path,
+                "document_finished",
+                dpi=dpi,
+                warnings=pymupdf.TOOLS.mupdf_warnings(),
+                page_count=page_count,
+                rendered_pages=len(images),
+            )
+        except BaseException as exc:
+            _log_render_event(
+                pdf_path,
+                "render_failed",
+                dpi=dpi,
+                page_index=page_index,
+                warnings=pymupdf.TOOLS.mupdf_warnings(),
+                phase=phase,
+                page_count=page_count,
+                rendered_pages=len(images),
+                exception=f"{type(exc).__name__}: {exc}",
+                traceback=traceback.format_exc(),
+                pymupdf_version=pymupdf.VersionBind,
+                mupdf_version=pymupdf.VersionFitz,
+            )
+            raise
         return images
 
     if backend == "pdf2image":

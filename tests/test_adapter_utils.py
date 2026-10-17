@@ -1,16 +1,136 @@
 """Tests for shared adapter utilities in ``data_snapshot.utils``."""
 
+import json
+import logging
 import re
+import sys
+from pathlib import Path
+from types import ModuleType, SimpleNamespace, TracebackType
+from typing import Any
 
 import pytest
+from PIL import Image
 
 from data_snapshot.utils import (
     clamp01,
+    convert_pdf_to_images,
     normalize_bboxes_xyxy,
     normalize_bboxes_xyxy_with_indices,
     sanitize_bbox,
     utc_now_iso,
 )
+
+
+@pytest.mark.parametrize("failure", [None, "open", "page", "close"])
+def test_render_diagnostics(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    caplog: pytest.LogCaptureFixture,
+    failure: str | None,
+) -> None:
+    """Attribute diagnostics and failures without skipping or leaking PDF pages.
+
+    Parameters
+    ----------
+    tmp_path : Path
+        Temporary input location.
+    monkeypatch : pytest.MonkeyPatch
+        Isolate the rendering library from real PDFs.
+    caplog : pytest.LogCaptureFixture
+        Capture structured rendering records.
+    failure : str | None
+        Operation that should fail, or ``None`` for successful rendering.
+    """
+    messages = ["stale warning from a different document"]
+    pdf_path = tmp_path / "input.pdf"
+
+    def warnings(reset: bool = True) -> str:
+        """Read and optionally drain the simulated MuPDF message buffer."""
+        value = "\n".join(messages)
+        if reset:
+            messages.clear()
+        return value
+
+    class FakeDocument:
+        """Simulate two pages and observable resource cleanup."""
+
+        page_count = 2
+        closed = False
+
+        def __enter__(self) -> "FakeDocument":
+            return self
+
+        def __exit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc: BaseException | None,
+            tb: TracebackType | None,
+        ) -> None:
+            self.closed = True
+            if failure == "close":
+                messages.append("close diagnostic")
+                raise RuntimeError("close failed")
+
+        def load_page(self, page_index: int) -> Any:
+            def get_pixmap(*, dpi: int) -> Any:
+                assert dpi == 72
+                if page_index == 1:
+                    messages.append("No common ancestor in structure tree")
+                    if failure == "page":
+                        raise RuntimeError("page failed")
+                return SimpleNamespace(pil_image=lambda: Image.new("RGB", (2, 3)))
+
+            return SimpleNamespace(get_pixmap=get_pixmap)
+
+    document = FakeDocument()
+
+    def open_pdf(path: str) -> FakeDocument:
+        """Simulate document-level diagnostics, including an open failure."""
+        assert Path(path) == pdf_path
+        messages.append("open diagnostic")
+        if failure == "open":
+            raise RuntimeError("open failed")
+        return document
+
+    fake = ModuleType("pymupdf")
+    fake.open = open_pdf
+    fake.TOOLS = SimpleNamespace(
+        reset_mupdf_warnings=messages.clear, mupdf_warnings=warnings
+    )
+    fake.VersionBind = "test-pymupdf"
+    fake.VersionFitz = "test-mupdf"
+    monkeypatch.setitem(sys.modules, "pymupdf", fake)
+    with caplog.at_level(logging.INFO, logger="data_snapshot.rendering"):
+        if failure is None:
+            images = convert_pdf_to_images(pdf_path, dpi=72)
+            assert len(images) == 2
+        else:
+            with pytest.raises(RuntimeError, match=f"{failure} failed"):
+                convert_pdf_to_images(pdf_path, dpi=72)
+    events = [
+        json.loads(record.getMessage())
+        for record in caplog.records
+        if record.name == "data_snapshot.rendering"
+    ]
+    assert all(event["pdf_path"] == str(pdf_path.resolve()) for event in events)
+    assert all("stale warning" not in event["warnings"] for event in events)
+    assert document.closed is (failure != "open")
+    assert not messages
+    if failure is None:
+        assert events[-1]["event"] == "document_finished"
+        assert events[-1]["rendered_pages"] == events[-1]["page_count"] == 2
+        warning = next(event for event in events if event["page_number"] == 2)
+        assert warning["status"] == "warning"
+        assert warning["page_index"] == 1
+        assert warning["width"] == 2 and warning["height"] == 3
+        assert "No common ancestor" in warning["warnings"]
+    else:
+        error = events[-1]
+        assert error["event"] == "render_failed"
+        assert error["phase"] == failure
+        assert error["status"] == "error"
+        assert f"RuntimeError: {failure} failed" in error["traceback"]
+        assert error["page_number"] == (2 if failure == "page" else None)
 
 
 class TestUtcNowIso:

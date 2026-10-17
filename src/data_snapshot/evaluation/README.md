@@ -241,6 +241,37 @@ are written beneath `data/evaluation_runs/pymupdf/paper_benchmark_half/<model>/`
 These scores support directional comparisons; resolve close rankings with the
 full dataset.
 
+## Rendering diagnostics
+
+All three benchmark runners automatically create a fresh JSON Lines log for
+each source inference attempt under `<output_root>/<model>/logs/`. The terminal
+prints the exact filename, which includes the source and a UTC timestamp. Logs
+are flushed as events occur and retained even when inference fails. Restarting
+with `--overwrite` replaces prediction/report outputs but preserves earlier logs.
+
+For PyMuPDF, each record identifies the original resolved PDF path, document ID,
+renderer, DPI, and event. Document-open records include PyMuPDF/MuPDF versions
+and expected page count. Every successfully rendered page records its zero-based
+`page_index`, one-based `page_number`, dimensions, and any MuPDF messages.
+Document-level messages have a null page number. Document-finished records give
+expected and rendered page counts. Rendering failures record the operation,
+current page where known, exception, and traceback; failures are re-raised and
+pages are not silently skipped. Source-level inference failures and Ctrl-C are
+also logged. An externally killed process may leave no final completion event.
+
+Inspect warning/error records after a half-sample run with:
+
+```shell
+rg '"status": "(warning|error)"' \
+    data/evaluation_runs/pymupdf/paper_benchmark_half/*/logs/*.jsonl
+```
+
+This identifies PDFs/pages for later rendering inspection without repeating
+model inference. Warnings alone do not prove images are defective; successful
+page counts also do not establish visual correctness. The renderer still uses
+the same settings and displays native MuPDF diagnostics. Logging does not repair
+PDFs or change which pages are processed.
+
 ## Markdown comparison report
 
 After running the selected models, render Figure overall, Table overall,
