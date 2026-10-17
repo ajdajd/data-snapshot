@@ -47,6 +47,13 @@ tfid = [
     "einops==0.8.1",
     "accelerate==1.12.0",
 ]
+unlimitedocr = [
+    "transformers==5.20.1",
+    "torch==2.10.0",
+    "torchvision==0.25.0",
+    "accelerate==1.12.0",
+    "Pillow>=10.0.1,<13",
+]
 doclayoutyolo = [
     "doclayout-yolo",
     "huggingface-hub",
@@ -72,6 +79,11 @@ dev = [
     "black==25.1.0",
 ]
 
+
+[tool.uv]
+conflicts = [
+    [{ extra = "tfid" }, { extra = "unlimitedocr" }],
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

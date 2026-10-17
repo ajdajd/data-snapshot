@@ -45,6 +45,12 @@ example, for `doclayoutyolo`:
 uv sync --locked --extra dev --extra doclayoutyolo --extra pdf2image
 ```
 
+Repeat the sync with the selected model extra before switching adapters, then
+use `uv run --no-sync` for execution. Include every extra needed for the run in
+that sync. `tfid` and `unlimitedocr` are mutually exclusive, so `--all-extras`
+is unsupported. Unlimited-OCR uses a CUDA GPU with BF16 support; see
+[its setup and prediction contract](../inference/README.md#unlimited-ocr).
+
 The `pdf2image` backend also requires Poppler. On Ubuntu or WSL:
 
 ```shell
@@ -59,6 +65,7 @@ The model keywords and dependency extras are:
 | DocLayout-YOLO | `doclayoutyolo` | [`doclayoutyolo_paper_benchmark.json`](configs/doclayoutyolo_paper_benchmark.json) |
 | YOLOv11 medium | `yolo11` | [`yolo11_paper_benchmark.json`](configs/yolo11_paper_benchmark.json) |
 | YOLOv26 medium | `yolo26` | [`yolo26_paper_benchmark.json`](configs/yolo26_paper_benchmark.json) |
+| Unlimited-OCR | `unlimitedocr` | Not part of the paper; no paper configuration |
 
 The paper predictions used `pdf2image`; current adapters default to PyMuPDF,
 which can shift bounding boxes slightly. For another model, replace the
@@ -99,7 +106,7 @@ Configuration fields:
 
 | Field | Purpose |
 |---|---|
-| `model` | Integrated adapter: `doclayoutyolo`, `tfid`, `yolo11`, or `yolo26` |
+| `model` | Integrated adapter: `doclayoutyolo`, `tfid`, `yolo11`, `yolo26`, or `unlimitedocr` |
 | `dataset_root` | Directory containing `documents/` and `annotations/` |
 | `output_root` | Directory for generated evaluation files |
 | `sources` | Allowed source runs and exact full-corpus membership |
@@ -108,7 +115,7 @@ Configuration fields:
 
 Relative dataset and output paths are resolved from the repository root.
 
-Paper configurations for all supported models use the
+Paper configurations for the four original benchmark models use the
 `configs/<model>_paper_benchmark.json` naming pattern. Select the file matching
 the keyword in the table above, then adjust `dataset_root` and
 `device` for the local environment. Keep `pdf_backend` set to `pdf2image` for
@@ -305,6 +312,19 @@ To evaluate another supported model, follow the same source and corpus workflow
 with its configuration file. No evaluator change is required because every
 integrated adapter writes Unified Evaluation Schema v1.3.
 
+Unlimited-OCR can use the same runner with `model="unlimitedocr"` and
+`device="cuda:0"`. It has no checked-in paper configuration. To run it through
+the Python API after installing its extra:
+
+```shell
+uv sync --locked --extra unlimitedocr
+uv run --no-sync python -c 'from data_snapshot.evaluation.benchmark import evaluate_source; evaluate_source(model="unlimitedocr", source="unhcr", dataset_root="data/hf_datasets/data-snapshot", device="cuda:0")'
+```
+
+This downloads weights if needed, runs inference, and writes evaluation files.
+Unlimited-OCR scores are fixed at `1.0` because the model provides no region
+confidence. Captions and surrounding text are discarded; boxes are not expanded.
+
 To add a data source, create matching `documents/<source>/` and
 `annotations/<source>/` directories, add the source name to `sources`, run that
 source, and then rebuild the corpus.
@@ -318,6 +338,7 @@ with the resulting report.
 Visualization requires the `viz` extra:
 
 ```shell
+uv sync --locked --extra viz
 uv run --no-sync python -m data_snapshot.evaluation.visualize_pages \
     --gt_json_path=data/evaluation_input/ground_truth.json \
     --pred_json_path=data/evaluation_input/model_predictions.json \
@@ -328,11 +349,13 @@ uv run --no-sync python -m data_snapshot.evaluation.visualize_pages \
 ## Verification
 
 ```shell
+uv sync --locked --extra test
 uv run --no-sync pytest \
     tests/test_benchmark.py \
     tests/test_benchmark_cli.py \
     tests/test_evaluate_model.py \
-    tests/test_adapter_utils.py
+    tests/test_adapter_utils.py \
+    tests/test_unlimitedocr.py
 ```
 
 Generated reports, rendered pages, input PDFs, and new model predictions live

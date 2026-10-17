@@ -31,7 +31,7 @@ Source-document metadata is a third, separate concern.
 | Area | Purpose | Guide |
 |---|---|---|
 | Data Snapshot Annotation | Create, pre-label, export, restore, and convert Label Studio projects | [Annotation guide](src/data_snapshot/annotation/README.md) |
-| Data Snapshot Extraction | Run TF-ID, DocLayout-YOLO, YOLO11, and YOLO26 adapters | [Extraction guide](src/data_snapshot/inference/README.md) |
+| Data Snapshot Extraction | Run TF-ID, DocLayout-YOLO, YOLO11, YOLO26, and Unlimited-OCR adapters | [Extraction guide](src/data_snapshot/inference/README.md) |
 | Extraction Benchmarking | Evaluate detections, merge runs, filter predictions, and render comparisons | [Benchmarking guide](src/data_snapshot/evaluation/README.md) |
 | Schema Discovery | Reproduce the discovery, validation, and schema-evolution research | [Schema discovery guide](notebooks/schema_discovery/README.md) |
 | Canonical Metadata Schema | Validate metadata and generate JSON Schema and field references | [Schema guide](src/data_snapshot/metadata_schema/README.md) |
@@ -87,6 +87,13 @@ Model adapters have separate, potentially large dependency groups. Install only
 the adapter being used; see the [Data Snapshot Extraction
 guide](src/data_snapshot/inference/README.md).
 
+Before switching models, run `uv sync --locked --extra <model>` (include
+`--extra dev` when needed), then use `uv run --no-sync`. Each sync selects the
+extras for that environment, so include every extra the next workflow needs.
+The `tfid` and `unlimitedocr` extras are mutually exclusive; `--all-extras` is
+unsupported. Unlimited-OCR uses native Transformers 5.20.1 and a CUDA GPU with
+BF16 support; the project remains on Python 3.10.
+
 ### Notebook kernels
 
 The repository does not maintain a separate Conda environment. Install and
@@ -125,6 +132,7 @@ credential.
 Run the maintained offline suite without calling external services:
 
 ```shell
+uv sync --locked --extra dev
 uv run --no-sync pytest
 uv run --no-sync python -m data_snapshot.metadata_schema.generation --check
 ```

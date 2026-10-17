@@ -15,6 +15,11 @@ from data_snapshot.utils import load_json
 DEFAULT_OUTPUT_ROOT = ROOT / "data/evaluation_runs"
 
 _ADAPTERS = {
+    "unlimitedocr": (
+        "data_snapshot.inference.unlimitedocr",
+        "UnlimitedOCRConfig",
+        "run_unlimitedocr_adapter_directory",
+    ),
     "doclayoutyolo": (
         "data_snapshot.inference.doclayoutyolo",
         "DocLayoutYOLOConfig",
@@ -144,8 +149,8 @@ def evaluate_source(
     Parameters
     ----------
     model : str
-        Integrated adapter name: ``doclayoutyolo``, ``tfid``, ``yolo11``, or
-        ``yolo26``.
+        Integrated adapter name: ``doclayoutyolo``, ``tfid``, ``yolo11``,
+        ``yolo26``, or ``unlimitedocr``.
     source : str
         Dataset source directory name, such as ``unhcr``.
     dataset_root : str | Path
