@@ -43,7 +43,10 @@ def test_checked_in_docling_config() -> None:
     assert config["model"] == "docling_heron"
     assert config["output_root"] == ROOT / "data/evaluation_runs/docling"
     assert config["sources"] == ["unhcr", "prwp", "refugee"]
-    assert config["adapter_config"] == {"artifacts_path": "models/docling"}
+    assert config["adapter_config"] == {
+        "artifacts_path": "models/docling",
+        "document_concurrency": 2,
+    }
 
 
 def test_source_and_corpus_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

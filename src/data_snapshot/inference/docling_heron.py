@@ -45,11 +45,14 @@ class DoclingHeronConfig:
         How input PDF paths are recorded in the prediction JSON.
     filter_small : bool
         Apply the existing benchmark area threshold of 0.008.
+    document_concurrency : {1, 2}
+        Number of PDFs converted concurrently through Docling's native threads.
+        Layout batch size remains 1. The default preserves serial execution.
 
     Raises
     ------
     ValueError
-        If the document path mode is unsupported.
+        If the document path mode or concurrency is unsupported.
     """
 
     def __init__(
@@ -58,14 +61,18 @@ class DoclingHeronConfig:
         device: str = "cpu",
         store_doc_path_as: str = "relative",
         filter_small: bool = True,
+        document_concurrency: int = 1,
     ) -> None:
         if store_doc_path_as not in {"relative", "absolute"}:
             raise ValueError("store_doc_path_as must be relative or absolute")
+        if type(document_concurrency) is not int or document_concurrency not in {1, 2}:
+            raise ValueError("document_concurrency must be 1 or 2")
         path = Path(artifacts_path)
         self.artifacts_path = path if path.is_absolute() else ROOT / path
         self.device = device
         self.store_doc_path_as = store_doc_path_as
         self.filter_small = filter_small
+        self.document_concurrency = document_concurrency
 
 
 def _make_converter(config: DoclingHeronConfig) -> Any:
@@ -216,64 +223,82 @@ def run_docling_heron_adapter_directory(
         if path.exists():
             raise FileExistsError(f"Output already exists: {path}")
     converter = _make_converter(cfg)
-    from docling.datamodel.base_models import ConversionStatus
+    from docling.datamodel.base_models import ConversionStatus, InputFormat
+    from docling.datamodel.settings import scoped, settings
 
     output.parent.mkdir(parents=True, exist_ok=True)
     native_dir.mkdir()
     documents, predictions = [], []
     logger = logging.getLogger("data_snapshot.rendering")
-    for index, pdf in enumerate(pdfs, 1):
-        started = time.perf_counter()
-        print(f"Docling [{index}/{len(pdfs)}] {pdf.name}", flush=True)
-        result = converter.convert(pdf)
-        if result.status != ConversionStatus.SUCCESS or result.errors:
-            raise RuntimeError(
-                f"Docling failed for {pdf.name}: {result.status}; {result.errors}"
-            )
-        expected = result.input.page_count
-        if [page.page_no for page in result.pages] != list(range(1, expected + 1)):
-            raise ValueError(f"Docling page coverage mismatch: {pdf.name}")
-        documents.append(
-            {
-                "doc_id": pdf.name,
-                "doc_name": pdf.name,
-                "doc_path": (
-                    str(pdf.resolve())
-                    if cfg.store_doc_path_as == "absolute"
-                    else str(pdf.resolve().relative_to(ROOT))
-                ),
-            }
-        )
-        for page in result.pages:
-            page_index = page.page_no - 1
-            page_id = f"{pdf.name}::p{page_index:03d}"
-            objects = _objects_from_page(
-                page, page_id=page_id, filter_small=cfg.filter_small
-            )
-            if objects:
-                predictions.append(
-                    {
-                        "page_id": page_id,
-                        "doc_id": pdf.name,
-                        "page_index": page_index,
-                        "objects": objects,
-                    }
+    started = time.perf_counter()
+    perf = settings.perf.model_copy(
+        update={
+            "doc_batch_size": cfg.document_concurrency,
+            "doc_batch_concurrency": cfg.document_concurrency,
+        }
+    )
+    print(
+        f"Docling: {len(pdfs)} PDFs; document_concurrency={cfg.document_concurrency}; layout_batch=1",
+        flush=True,
+    )
+    with scoped(perf=perf):
+        # Initialize once before native worker threads access the shared pipeline.
+        converter.initialize_pipeline(InputFormat.PDF)
+        for index, (pdf, result) in enumerate(
+            zip(pdfs, converter.convert_all(pdfs), strict=True), 1
+        ):
+            if result.status != ConversionStatus.SUCCESS or result.errors:
+                raise RuntimeError(
+                    f"Docling failed for {pdf.name}: {result.status}; {result.errors}"
                 )
-        with (native_dir / f"{pdf.name}.json").open("x", encoding="utf-8") as stream:
-            json.dump(result.document.export_to_dict(), stream, allow_nan=False)
-        logger.info(
-            json.dumps(
+            expected = result.input.page_count
+            if [page.page_no for page in result.pages] != list(range(1, expected + 1)):
+                raise ValueError(f"Docling page coverage mismatch: {pdf.name}")
+            documents.append(
                 {
-                    "timestamp": utc_now_iso(),
-                    "event": "document_finished",
                     "doc_id": pdf.name,
-                    "backend": "docling-parse",
-                    "expected_pages": expected,
-                    "processed_pages": len(result.pages),
-                    "elapsed_seconds": time.perf_counter() - started,
+                    "doc_name": pdf.name,
+                    "doc_path": (
+                        str(pdf.resolve())
+                        if cfg.store_doc_path_as == "absolute"
+                        else str(pdf.resolve().relative_to(ROOT))
+                    ),
                 }
             )
-        )
+            for page in result.pages:
+                page_index = page.page_no - 1
+                page_id = f"{pdf.name}::p{page_index:03d}"
+                objects = _objects_from_page(
+                    page, page_id=page_id, filter_small=cfg.filter_small
+                )
+                if objects:
+                    predictions.append(
+                        {
+                            "page_id": page_id,
+                            "doc_id": pdf.name,
+                            "page_index": page_index,
+                            "objects": objects,
+                        }
+                    )
+            with (native_dir / f"{pdf.name}.json").open(
+                "x", encoding="utf-8"
+            ) as stream:
+                json.dump(result.document.export_to_dict(), stream, allow_nan=False)
+            logger.info(
+                json.dumps(
+                    {
+                        "timestamp": utc_now_iso(),
+                        "event": "document_finished",
+                        "doc_id": pdf.name,
+                        "backend": "docling-parse",
+                        "expected_pages": expected,
+                        "processed_pages": len(result.pages),
+                        "elapsed_run_seconds": time.perf_counter() - started,
+                        "document_concurrency": cfg.document_concurrency,
+                    }
+                )
+            )
+            print(f"Docling completed [{index}/{len(pdfs)}] {pdf.name}", flush=True)
     data = {
         "label_map": LABEL_MAP,
         "info": {
@@ -287,6 +312,7 @@ def run_docling_heron_adapter_directory(
                 "weights_sha256": _WEIGHTS_SHA256,
                 "notes": f"native Docling PDF pipeline; device={cfg.device}; float32; "
                 "layout batch=1; native layout postprocessing and associations; "
+                f"document_concurrency={cfg.document_concurrency}; "
                 "RapidOCR English ONNX CPU; table structure/enrichment disabled; "
                 f"filter_small={cfg.filter_small}; min_area={MIN_PREDICTION_AREA}; "
                 "native document JSON stored separately; crops do not expand to linked text",
@@ -328,6 +354,7 @@ def main() -> None:
         "--store_doc_path_as", choices=["relative", "absolute"], default="relative"
     )
     parser.add_argument("--run_id")
+    parser.add_argument("--document_concurrency", type=int, choices=[1, 2], default=1)
     parser.add_argument(
         "--filter_small_predictions",
         action=argparse.BooleanOptionalAction,
@@ -343,6 +370,7 @@ def main() -> None:
             device=args.device,
             store_doc_path_as=args.store_doc_path_as,
             filter_small=args.filter_small_predictions,
+            document_concurrency=args.document_concurrency,
         ),
     )
     print(path)

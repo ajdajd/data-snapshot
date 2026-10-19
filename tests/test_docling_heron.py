@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
@@ -62,8 +64,9 @@ def test_normalization_alignment_scores_and_shared_filter() -> None:
         adapter._objects_from_page(page, page_id="a.pdf::p000", filter_small=True)
 
 
+@pytest.mark.parametrize("document_concurrency", [1, 2])
 def test_native_document_links_and_empty_pages(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, document_concurrency: int
 ) -> None:
     """Preserve native refs unchanged while emitting only figure/table bounds.
 
@@ -73,6 +76,8 @@ def test_native_document_links_and_empty_pages(
         Temporary PDFs and output files.
     monkeypatch : pytest.MonkeyPatch
         Optional runtime substitutions.
+    document_concurrency : int
+        Requested native document concurrency.
     """
     (tmp_path / "a.pdf").write_bytes(b"fake")
     (tmp_path / "nested").mkdir()
@@ -100,20 +105,60 @@ def test_native_document_links_and_empty_pages(
         pages=[_page([_cluster("picture", [0, 0, 100, 100], 0.7, 3)]), _page([], 2)],
     )
     converter = Mock()
-    converter.convert.return_value = result
+    original_perf = Mock()
+    original_perf.model_copy.side_effect = lambda update: SimpleNamespace(**update)
+    settings = SimpleNamespace(perf=original_perf)
+
+    @contextmanager
+    def scope(*, perf: SimpleNamespace) -> Iterator[None]:
+        """Emulate native scoped settings and restore them even on failure."""
+        before = settings.perf
+        settings.perf = perf
+        try:
+            yield
+        finally:
+            settings.perf = before
+
+    def results(pdfs: list[Path]) -> list[SimpleNamespace]:
+        """Verify native concurrency is active when ordered conversion starts."""
+        assert settings.perf.doc_batch_size == document_concurrency
+        assert settings.perf.doc_batch_concurrency == document_concurrency
+        assert [pdf.name for pdf in pdfs] == ["a.pdf", "b.pdf"]
+        return [result, result]
+
+    converter.convert_all.side_effect = results
     monkeypatch.setattr(adapter, "_make_converter", lambda cfg: converter)
     monkeypatch.setattr(adapter, "version", lambda name: "test-version")
     monkeypatch.setitem(
         sys.modules,
         "docling.datamodel.base_models",
-        SimpleNamespace(ConversionStatus=SimpleNamespace(SUCCESS="success")),
+        SimpleNamespace(
+            ConversionStatus=SimpleNamespace(SUCCESS="success"),
+            InputFormat=SimpleNamespace(PDF="pdf"),
+        ),
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "docling.datamodel.settings",
+        SimpleNamespace(
+            settings=settings,
+            scoped=scope,
+        ),
     )
     output = tmp_path / "results/pred.json"
-    cfg = adapter.DoclingHeronConfig(store_doc_path_as="absolute")
+    cfg = adapter.DoclingHeronConfig(
+        store_doc_path_as="absolute", document_concurrency=document_concurrency
+    )
     adapter.run_docling_heron_adapter_directory(
         tmp_path, output, run_id="test", config=cfg
     )
     data = json.loads(output.read_text())
+    converter.initialize_pipeline.assert_called_once_with("pdf")
+    converter.convert.assert_not_called()
+    assert settings.perf is original_perf
+    assert (
+        f"document_concurrency={document_concurrency}" in data["info"]["model"]["notes"]
+    )
     Draft202012Validator(
         json.loads((ROOT / "docs/data-snapshot-eval-v1.3.schema.json").read_text())
     ).validate(data)
@@ -133,16 +178,39 @@ def test_native_document_links_and_empty_pages(
     )
     with pytest.raises(FileExistsError):
         adapter.run_docling_heron_adapter_directory(tmp_path, output, config=cfg)
+    valid_pages = result.pages
     result.pages = result.pages[:1]
     with pytest.raises(ValueError, match="page coverage"):
         adapter.run_docling_heron_adapter_directory(
             tmp_path, tmp_path / "incomplete.json", config=cfg
         )
+    assert settings.perf is original_perf
     result.status = "partial_success"
     with pytest.raises(RuntimeError, match="partial_success"):
         adapter.run_docling_heron_adapter_directory(
             tmp_path, tmp_path / "failed.json", config=cfg
         )
+    assert settings.perf is original_perf
+    result.status, result.pages = "success", valid_pages
+    converter.convert_all.side_effect = lambda pdfs: [result]
+    with pytest.raises(ValueError, match="zip"):
+        adapter.run_docling_heron_adapter_directory(
+            tmp_path, tmp_path / "missing-document.json", config=cfg
+        )
+    assert settings.perf is original_perf
+
+
+@pytest.mark.parametrize("value", [0, 3, -1, True, 1.5])
+def test_invalid_document_concurrency(value: object) -> None:
+    """Reject unsupported native worker counts before loading the runtime.
+
+    Parameters
+    ----------
+    value : object
+        Invalid worker count.
+    """
+    with pytest.raises(ValueError, match="document_concurrency"):
+        adapter.DoclingHeronConfig(document_concurrency=value)
 
 
 def test_missing_pdfs_and_duplicate_names(tmp_path: Path) -> None:

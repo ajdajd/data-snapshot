@@ -269,13 +269,18 @@ No custom filtering, caption association, or box-expansion rules are added.
 
 Source and pooled reports are isolated under
 `data/evaluation_runs/docling/paper_benchmark_half/docling_heron/`.
+The checked-in configuration sets `adapter_config.document_concurrency` to 2
+for native two-PDF threading, with layout batch size 1. Set it to 1 for serial
+execution. This uses Docling's pairwise batching; it does not guarantee a speed
+gain, and the concurrent memory check covered only the smaller diagnostic run.
 `predictions/sources/<source>.native/` contains one native document JSON per
 PDF. The comparison command reads the saved baseline without replacing it.
 The checked-in config expects assets under `models/docling`; use a local
 config copy with another `artifacts_path` when reusing prefetched assets.
 
-Docling logs a native `document_finished` event with page count and elapsed
-time for every completed PDF. Its backend warnings appear in the process
+Docling logs a native `document_finished` event with page count, concurrency,
+and cumulative `elapsed_run_seconds` for every completed PDF. Concurrent
+ordered results do not provide individual document runtimes. Its backend warnings appear in the process
 output; the detailed PyMuPDF page-render events described below apply only
 to adapters using the shared PyMuPDF renderer. Capture native process output
 alongside the source JSONL log when preserving Docling benchmark evidence.

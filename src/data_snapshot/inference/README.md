@@ -127,7 +127,13 @@ HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 uv run --no-sync \
     --device=cuda:0
 ```
 
-Use `--artifacts_path` for another prefetched artifact root. Heron is fixed to
+Use `--artifacts_path` for another prefetched artifact root, and
+`--document_concurrency=2` to process two PDFs concurrently through Docling's
+native threads. The default is 1; layout batch size remains 1 in both modes.
+The pipeline is initialized before worker threads start, and scoped native
+settings are restored on completion or failure. Docling processes two-document
+batches and waits for each batch; this is not multiprocessing or a continuously
+replenished worker queue. Heron is fixed to
 revision `8f39ad3c0b4c58e9c2d2c84a38465abf757272d8`; the adapter verifies its
 weight SHA-256. The runtime uses Docling 2.140.0, Transformers 5.20.1, FP32,
 batch size 1, and English RapidOCR on CPU through ONNX Runtime. Table structure
@@ -173,7 +179,7 @@ preservation, not the correctness of Docling's associations. At evaluation IoU
 0.5, Figure precision/recall were 0.326/0.824 and Table precision/recall were
 0.465/0.930; these are sample diagnostics, not half-benchmark scores.
 
-Keep the serial document loop and layout batch size 1 on the tested machine.
+Serial execution remains available as the default; layout batch size stays 1.
 The nine-PDF baseline took 652.26 seconds (3547 MiB peak process RSS, 348 MiB
 PyTorch-reserved VRAM). Layout batch size 4 took 705.47 seconds and 952 MiB
 reserved VRAM. It retained the same 129 detections and detection counts, with
@@ -181,10 +187,15 @@ maximum normalized coordinate drift of `2.69e-7` and score drift of `4.99e-5`;
 native links and text were unchanged. Native two-document concurrency took
 212.13 seconds for the first six PDFs / 61 pages, versus 206.27 seconds serial,
 and was stopped at the user's request. All six native document JSON files were
-identical. Neither experiment demonstrated a speed gain, so no experimental
-execution options are added. Timings are single trials, include initialization
+identical. Neither experiment demonstrated a speed gain. Native two-document
+concurrency was subsequently integrated at the user's request; the benchmark
+configuration selects 2, while `document_concurrency=1` retains serial execution.
+Timings are single trials, include initialization
 and native JSON export, and exclude interpreter imports and evaluation; close
 timing differences should not be treated as statistically established slowdowns.
+The concurrency trial did not complete all nine PDFs, and peak RAM for the
+broader interrupted attempt was 4751 MiB; full half-benchmark memory limits
+remain unverified.
 
 Existing prediction files and native evidence directories are protected. For
 a failed attempt, use a fresh output location; the legacy batch runner is not

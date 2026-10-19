@@ -5,6 +5,7 @@
   "sources": ["unhcr", "prwp", "refugee"],
   "device": "cuda:0",
   "adapter_config": {
-    "artifacts_path": "models/docling"
+    "artifacts_path": "models/docling",
+    "document_concurrency": 2
   }
 }
