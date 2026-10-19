@@ -33,8 +33,9 @@ configuration.
 
 ## Run layout benchmarks from source PDFs
 
-Use the full, smoke-test, or half-sample runner below. Current configurations
-use PyMuPDF and keep these runs separate from historical paper outputs.
+Use the full, smoke-test, or half-sample runner below. The original adapters
+use PyMuPDF; Docling uses its native PDF pipeline. These runs remain separate
+from historical paper outputs.
 
 ### 1. Install dependencies
 
@@ -47,8 +48,8 @@ uv sync --locked --extra dev --extra doclayoutyolo
 
 Repeat the sync with the selected model extra before switching adapters, then
 use `uv run --no-sync` for execution. Include every extra needed for the run in
-that sync. `tfid` and `unlimitedocr` are mutually exclusive, so `--all-extras`
-is unsupported. Unlimited-OCR uses a CUDA GPU with BF16 support; see
+that sync. `tfid` conflicts with both `unlimitedocr` and `docling_heron`, so
+`--all-extras` is unsupported. Unlimited-OCR uses a CUDA GPU with BF16 support; see
 [its setup and prediction contract](../inference/README.md#unlimited-ocr).
 
 PyMuPDF is a core dependency and requires no Poppler installation.
@@ -62,6 +63,7 @@ The model keywords and dependency extras are:
 | YOLOv11 medium | `yolo11` | [`yolo11_paper_benchmark.json`](configs/yolo11_paper_benchmark.json) |
 | YOLOv26 medium | `yolo26` | [`yolo26_paper_benchmark.json`](configs/yolo26_paper_benchmark.json) |
 | Unlimited-OCR | `unlimitedocr` | Not part of the paper; no paper configuration |
+| Docling Heron | `docling_heron` | [`docling_heron_benchmark.json`](configs/docling_heron_benchmark.json); native PDF pipeline |
 
 Current benchmark configurations use PyMuPDF (`pdf_backend: "pymupdf"`).
 Historical paper runs used `pdf2image` with Poppler; switching renderers can
@@ -103,7 +105,7 @@ Configuration fields:
 
 | Field | Purpose |
 |---|---|
-| `model` | Integrated adapter: `doclayoutyolo`, `tfid`, `yolo11`, `yolo26`, or `unlimitedocr` |
+| `model` | Integrated adapter: `doclayoutyolo`, `tfid`, `yolo11`, `yolo26`, `unlimitedocr`, or `docling_heron` |
 | `dataset_root` | Directory containing `documents/` and `annotations/` |
 | `output_root` | Directory for generated evaluation files |
 | `sources` | Allowed source runs and exact full-corpus membership |
@@ -242,6 +244,41 @@ These scores support directional comparisons; resolve close rankings with the
 full dataset.
 
 ## Rendering diagnostics
+
+### Native Docling half-sample comparison
+
+After the [explicit asset preparation](../inference/README.md#native-docling-heron),
+run the same fixed half-sample through Docling:
+
+```shell
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 uv run --no-sync \
+    python scripts/evaluate_benchmark_half.py \
+    --config src/data_snapshot/evaluation/configs/docling_heron_benchmark.json
+uv run --no-sync python scripts/summarize_benchmark.py \
+    --output-root data/evaluation_runs/pymupdf/paper_benchmark_half \
+    --docling-root data/evaluation_runs/docling/paper_benchmark_half \
+    --output data/evaluation_runs/docling/paper_benchmark_half/comparison.md
+```
+
+The adapter evaluates native picture/table layout clusters with the same
+`0.008` area filter. Caption/footnote links remain in separate native JSON;
+they do not expand evaluation bounds or native crops. The native Docling
+backend, OCR, preprocessing, and layout postprocessing differ from the saved
+PyMuPDF baseline, so interpret scores as complete-pipeline comparisons.
+No custom filtering, caption association, or box-expansion rules are added.
+
+Source and pooled reports are isolated under
+`data/evaluation_runs/docling/paper_benchmark_half/docling_heron/`.
+`predictions/sources/<source>.native/` contains one native document JSON per
+PDF. The comparison command reads the saved baseline without replacing it.
+The checked-in config expects assets under `models/docling`; use a local
+config copy with another `artifacts_path` when reusing prefetched assets.
+
+Docling logs a native `document_finished` event with page count and elapsed
+time for every completed PDF. Its backend warnings appear in the process
+output; the detailed PyMuPDF page-render events described below apply only
+to adapters using the shared PyMuPDF renderer. Capture native process output
+alongside the source JSONL log when preserving Docling benchmark evidence.
 
 All three benchmark runners automatically create a fresh JSON Lines log for
 each source inference attempt under `<output_root>/<model>/logs/`. The terminal

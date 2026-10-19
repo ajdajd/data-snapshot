@@ -8,6 +8,9 @@ resolution-markers = [
 conflicts = [[
     { package = "data-snapshot", extra = "tfid" },
     { package = "data-snapshot", extra = "unlimitedocr" },
+], [
+    { package = "data-snapshot", extra = "docling-heron" },
+    { package = "data-snapshot", extra = "tfid" },
 ]]
 
 [[package]]
@@ -16,14 +19,15 @@ version = "1.12.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "huggingface-hub", version = "0.23.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr'" },
+    { name = "huggingface-hub", version = "1.33.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "numpy" },
     { name = "packaging" },
     { name = "psutil" },
     { name = "pyyaml" },
     { name = "safetensors" },
     { name = "torch", version = "2.9.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr'" },
+    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/4a/8e/ac2a9566747a93f8be36ee08532eb0160558b07630a081a6056a9f89bf1d/accelerate-1.12.0.tar.gz", hash = "sha256:70988c352feb481887077d2ab845125024b2a137a5090d6d7a32b57d03a45df6", size = 398399, upload-time = "2025-11-21T11:27:46.973Z" }
 wheels = [
@@ -292,7 +296,7 @@ name = "cffi"
 version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9e/ef/008a1939e372c06329a3fce4279c02f328488f3526744906eeec3da7ad5f/cffi-2.1.1.tar.gz", hash = "sha256:dd31f52ea1086513bb9df30f8fcee9b8918323ae067a3d5b78bc826a000712be", size = 530807, upload-time = "2026-08-03T21:21:18.939Z" }
 wheels = [
@@ -354,6 +358,30 @@ wheels = [
 ]
 
 [[package]]
+name = "coloredlogs"
+version = "15.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "humanfriendly" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/cc/c7/eed8f27100517e8c0e6b923d5f0845d0cb99763da6fdee00478f91db7325/coloredlogs-15.0.1.tar.gz", hash = "sha256:7c991aa71a4577af2f82600d8f8f3a89f936baeaf9b50a9c197da014e5bf16b0", size = 278520, upload-time = "2021-06-11T10:22:45.202Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a7/06/3d6badcf13db419e25b07041d9c7b4a2c331d3f4e7134445ec5df57714cd/coloredlogs-15.0.1-py2.py3-none-any.whl", hash = "sha256:612ee75c546f53e92e70049c9dbfcc18c935a2b9a53b66085ce9ef6a6e5c0934", size = 46018, upload-time = "2021-06-11T10:22:42.561Z" },
+]
+
+[[package]]
+name = "colorlog"
+version = "6.12.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8c/55/ba79756cb90c8d69d599d57785398ac87bba7b19c80e87f4e8a562197c93/colorlog-6.12.0.tar.gz", hash = "sha256:2a7924c1dadf18b22a0eb8b06d1c7b01d5341707ec1641eb6fcc4fde0c3e8e5f", size = 18151, upload-time = "2026-07-23T13:40:40.71Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d4/19/0b6647bf5e331521e55d2b63bfbdc210bd9cd605189273f03614a05f702d/colorlog-6.12.0-py3-none-any.whl", hash = "sha256:30d392604e9110045a2c2aeefc27d7a017abbab63f3a8aee594eac0801df784e", size = 12239, upload-time = "2026-07-23T13:40:39.562Z" },
+]
+
+[[package]]
 name = "comm"
 version = "0.2.3"
 source = { registry = "https://pypi.org/simple" }
@@ -400,7 +428,7 @@ name = "cuda-bindings"
 version = "12.9.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cuda-pathfinder", marker = "(sys_platform != 'win32' and extra != 'extra-13-data-snapshot-tfid') or (sys_platform == 'win32' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "cuda-pathfinder", marker = "(sys_platform != 'win32' and extra != 'extra-13-data-snapshot-tfid') or (sys_platform == 'win32' and extra == 'extra-13-data-snapshot-unlimitedocr') or extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/37/31/bfcc870f69c6a017c4ad5c42316207fc7551940db6f3639aa4466ec5faf3/cuda_bindings-12.9.4-cp310-cp310-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:a022c96b8bd847e8dc0675523431149a4c3e872f440e3002213dbb9e08f0331a", size = 11800959, upload-time = "2025-10-21T14:51:26.458Z" },
@@ -458,7 +486,14 @@ dev = [
 doclayoutyolo = [
     { name = "doclayout-yolo" },
     { name = "huggingface-hub", version = "0.23.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "huggingface-hub", version = "1.33.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+]
+docling-heron = [
+    { name = "docling", extra = ["rapidocr"], marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "torchvision", version = "0.25.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "transformers", version = "5.20.1", source = { registry = "https://pypi.org/simple" } },
 ]
 notebooks = [
     { name = "ipykernel" },
@@ -502,12 +537,14 @@ viz = [
 ]
 yolo11 = [
     { name = "huggingface-hub", version = "0.23.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "huggingface-hub", version = "1.33.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
     { name = "ultralytics" },
 ]
 yolo26 = [
     { name = "huggingface-hub", version = "0.23.2", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "huggingface-hub", version = "1.33.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
     { name = "ultralytics" },
 ]
 
@@ -519,6 +556,7 @@ requires-dist = [
     { name = "countrycode", specifier = ">=0.6.0" },
     { name = "data-snapshot", extras = ["test", "notebooks", "review"], marker = "extra == 'dev'" },
     { name = "doclayout-yolo", marker = "extra == 'doclayoutyolo'" },
+    { name = "docling", extras = ["rapidocr"], marker = "extra == 'docling-heron'", specifier = "==2.140.0" },
     { name = "einops", marker = "extra == 'tfid'", specifier = "==0.8.1" },
     { name = "huggingface-hub", marker = "extra == 'doclayoutyolo'" },
     { name = "huggingface-hub", marker = "extra == 'tfid'", specifier = "==0.23.2" },
@@ -546,16 +584,19 @@ requires-dist = [
     { name = "seaborn", marker = "extra == 'notebooks'", specifier = ">=0.13,<1" },
     { name = "streamlit", marker = "extra == 'review'", specifier = ">=1.55,<2" },
     { name = "timm", marker = "extra == 'tfid'", specifier = "==1.0.24" },
+    { name = "torch", marker = "extra == 'docling-heron'", specifier = "==2.10.0" },
     { name = "torch", marker = "extra == 'tfid'", specifier = "==2.9.1" },
     { name = "torch", marker = "extra == 'unlimitedocr'", specifier = "==2.10.0" },
+    { name = "torchvision", marker = "extra == 'docling-heron'", specifier = "==0.25.0" },
     { name = "torchvision", marker = "extra == 'unlimitedocr'", specifier = "==0.25.0" },
     { name = "tqdm", specifier = "==4.67.1" },
+    { name = "transformers", marker = "extra == 'docling-heron'", specifier = "==5.20.1" },
     { name = "transformers", marker = "extra == 'tfid'", specifier = "==4.46.0" },
     { name = "transformers", marker = "extra == 'unlimitedocr'", specifier = "==5.20.1" },
     { name = "ultralytics", marker = "extra == 'yolo11'" },
     { name = "ultralytics", marker = "extra == 'yolo26'" },
 ]
-provides-extras = ["review", "pdf2image", "notebooks", "tfid", "unlimitedocr", "doclayoutyolo", "yolo11", "yolo26", "viz", "test", "dev"]
+provides-extras = ["docling-heron", "review", "pdf2image", "notebooks", "tfid", "unlimitedocr", "doclayoutyolo", "yolo11", "yolo26", "viz", "test", "dev"]
 
 [[package]]
 name = "datamodel-code-generator"
@@ -610,6 +651,15 @@ wheels = [
 ]
 
 [[package]]
+name = "dill"
+version = "0.4.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/81/e1/56027a71e31b02ddc53c7d65b01e68edf64dea2932122fe7746a516f75d5/dill-0.4.1.tar.gz", hash = "sha256:423092df4182177d4d8ba8290c8a5b640c66ab35ec7da59ccfa00f6fa3eea5fa", size = 187315, upload-time = "2026-01-19T02:36:56.85Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl", hash = "sha256:1e1ce33e978ae97fcfcff5638477032b801c46c7c65cf717f95fbc2248f79a9d", size = 120019, upload-time = "2026-01-19T02:36:55.663Z" },
+]
+
+[[package]]
 name = "distro"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -625,6 +675,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/8c/8b/57666417c0f90f08bcafa776861060426765fdb422eb10212086fb811d26/dnspython-2.8.0.tar.gz", hash = "sha256:181d3c6996452cb1189c4046c61599b84a5a86e099562ffde77d26984ff26d0f", size = 368251, upload-time = "2025-09-07T18:58:00.022Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ba/5a/18ad964b0086c6e62e2e7500f7edc89e3faa45033c71c1893d34eed2b2de/dnspython-2.8.0-py3-none-any.whl", hash = "sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af", size = 331094, upload-time = "2025-09-07T18:57:58.071Z" },
+]
+
+[[package]]
+name = "doclang"
+version = "0.7.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lxml" },
+    { name = "typer", version = "0.26.8", source = { registry = "https://pypi.org/simple" } },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f5/3a/005e4856ad8e9b9879414a4df4dbc56dc3663b96f9d8c920ef210e8931cf/doclang-0.7.3.tar.gz", hash = "sha256:ca50615357e46ebf9597bb9065b9112367103ec24bd539f8ae12649224cf50b0", size = 31569, upload-time = "2026-07-15T08:11:02.917Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a5/81/334ccc0f0cd7c3d75996b6b596e7f4c62c4c46a0ca042003315c28170159/doclang-0.7.3-py3-none-any.whl", hash = "sha256:9440c4ca9f7e061a7b8d33bdf15b1029be69a4c13cd8952dd6ce541884e4c685", size = 32267, upload-time = "2026-07-15T08:11:01.977Z" },
 ]
 
 [[package]]
@@ -645,14 +708,160 @@ dependencies = [
     { name = "seaborn" },
     { name = "thop" },
     { name = "torch", version = "2.9.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "torchvision", version = "0.24.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "torchvision", version = "0.25.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "torchvision", version = "0.25.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "tqdm" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/87/0c/6cfdf059503ea36fcf56b34f74cab2cc7d20f09838c4cb6e7a70b1d1ef7d/doclayout_yolo-0.0.4.tar.gz", hash = "sha256:80311d10bed03cf884c5bfcc624bfe0fdcff6e784ba76799347b0290d79dcb4d", size = 603077, upload-time = "2025-06-10T09:06:36.514Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7e/ac/6e16e92f412d94494f6fed95cfdf3ff135cf09af09e4d4f10846e9d87f75/doclayout_yolo-0.0.4-py3-none-any.whl", hash = "sha256:934451385a6e50d71fbbda12e5866eb4003d87186364d0151d8e8ec898a21723", size = 711270, upload-time = "2025-06-10T09:06:30.063Z" },
+]
+
+[[package]]
+name = "docling"
+version = "2.140.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "docling-slim", extra = ["standard"], marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d2/c8/16dbc85693242bcb442853cfc7931839899a8c249c3bc2fd54237e129070/docling-2.140.0.tar.gz", hash = "sha256:a8df49153b61ba1c6ffae1d83f1e03b645eaec509af36e8e10a9825c291fd13d", size = 9101, upload-time = "2026-10-16T09:03:17.312Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bc/48/655152e26bea8be1b87e9651dccb961e89e2a2b6735ba36cf07eb72cdbfb/docling-2.140.0-py3-none-any.whl", hash = "sha256:8500cb3344dd81b1dfdfd6f97885c3ccd1cf0c4768cb488104856c787af3787f", size = 5241, upload-time = "2026-10-16T09:03:16.176Z" },
+]
+
+[package.optional-dependencies]
+rapidocr = [
+    { name = "docling-slim", extra = ["feat-ocr-rapidocr-onnx"], marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+]
+
+[[package]]
+name = "docling-core"
+version = "2.102.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "defusedxml" },
+    { name = "doclang" },
+    { name = "jsonref" },
+    { name = "jsonschema" },
+    { name = "latex2mathml" },
+    { name = "pandas" },
+    { name = "pillow" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "tabulate" },
+    { name = "typer", version = "0.26.8", source = { registry = "https://pypi.org/simple" } },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c8/cc/af034afb72ddc4bfcb24f6cace3ffcf800ca4226080497c989a6a4124a4b/docling_core-2.102.0.tar.gz", hash = "sha256:f951eef5ba69391d8fc0b39e54726475d6135b49d4080f886ad98945ea397872", size = 425379, upload-time = "2026-10-18T05:31:45.103Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/83/ee/5e8ddf1cdccf623aa2f131cddbd5e50fc0647f933481ebe347185a05a259/docling_core-2.102.0-py3-none-any.whl", hash = "sha256:dc2d1d6e6ec5e96c762e7b71df0d017dfd94224a06c92eeccced1625a7e921c2", size = 321488, upload-time = "2026-10-18T05:31:43.292Z" },
+]
+
+[package.optional-dependencies]
+chunking = [
+    { name = "semchunk" },
+    { name = "transformers", version = "5.20.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "tree-sitter" },
+    { name = "tree-sitter-c" },
+    { name = "tree-sitter-javascript" },
+    { name = "tree-sitter-python" },
+    { name = "tree-sitter-typescript" },
+]
+
+[[package]]
+name = "docling-ibm-models"
+version = "4.0.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "huggingface-hub", version = "1.33.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "numpy" },
+    { name = "pillow" },
+    { name = "safetensors", extra = ["torch"], marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "torchvision", version = "0.25.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "transformers", version = "5.20.1", source = { registry = "https://pypi.org/simple" } },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/69/ee/7dd19487bf333320f0fc73eddcb42347d9f266310ebb1a605f120987f7c1/docling_ibm_models-4.0.3.tar.gz", hash = "sha256:509e89af75e06b48500977dca11ecb6022e81b1526c90dd54587a60ccc82bdb6", size = 77649, upload-time = "2026-09-18T16:15:36.731Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7a/ab/395243c3825803044c58ef28131f50ff3db366c72b0f73c5c190f7b02f81/docling_ibm_models-4.0.3-py3-none-any.whl", hash = "sha256:82c6c6ad6622aa9e58c4d745c26fba12eef54927f32d44f21f24bcb5be5464ff", size = 69401, upload-time = "2026-09-18T16:15:35.169Z" },
+]
+
+[[package]]
+name = "docling-parse"
+version = "7.22.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "docling-core" },
+    { name = "pillow" },
+    { name = "pydantic" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d7/ea/f609987314655e8ad0136d68d0961f60a28421d2cd79da5a67d59f4c0c92/docling_parse-7.22.3.tar.gz", hash = "sha256:100e9c320e199343cd7bb03a816956e578109dd53d76cc72ecbd9d9e89954dc6", size = 7050703, upload-time = "2026-10-13T04:24:34.028Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/af/a5/a65a5cb28d5694656e4bbddd9b37905e6321edf33d1746d6cf680487f7cf/docling_parse-7.22.3-cp310-cp310-macosx_14_0_arm64.whl", hash = "sha256:c3604408e313f9b0319892926abcbb5722e24170ed30df9d17169ba498223178", size = 9875746, upload-time = "2026-10-13T04:23:36.767Z" },
+    { url = "https://files.pythonhosted.org/packages/f5/9a/4568fe897b5fd22bda3e2377ae05931b3c9f8159314cbe323e2b963d83fe/docling_parse-7.22.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:64d1310dccd9c74123c3337bea1e45d1bc9f804a59053fc2d7027596acc8b967", size = 10464081, upload-time = "2026-10-13T04:23:39.19Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/67/37718deeea31a7e5eae72780a9df070fc3522fdf23d70b22f41df74d75a0/docling_parse-7.22.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:40c86c1b421c7dbf94f1ee19e79d7d799fa80b4489fbd7854f98269ee91153a1", size = 10738227, upload-time = "2026-10-13T04:23:41.498Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/e5/f45eaf5073dfd914a839f46fc57760b8a71fefe718b55819b57ae69b3cd4/docling_parse-7.22.3-cp310-cp310-win_amd64.whl", hash = "sha256:8605e66b15ee16d68beaee5256712d4ecadcf4590f875b4e00320feae0ac15e6", size = 11884476, upload-time = "2026-10-13T04:23:43.921Z" },
+    { url = "https://files.pythonhosted.org/packages/95/88/ab0e4aecc4c872b6916b8d7a13cd3463440d7dc30db81706774493cb2e8d/docling_parse-7.22.3-cp310-cp310-win_arm64.whl", hash = "sha256:d42de08e466309f6ad59c8cca57fae786a04ee049887e936226851ab29c24fce", size = 9274387, upload-time = "2026-10-13T04:23:46.516Z" },
+]
+
+[[package]]
+name = "docling-slim"
+version = "2.140.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "certifi" },
+    { name = "docling-core" },
+    { name = "filetype" },
+    { name = "langcodes" },
+    { name = "pluggy" },
+    { name = "pydantic" },
+    { name = "pydantic-settings" },
+    { name = "requests" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/35/16/ad528a3882a62655b1c9df387ed01931e8d1c00d15e452d879450167fe0a/docling_slim-2.140.0.tar.gz", hash = "sha256:0d8f72cb7f2da3146a8171265d47f8b115aec6557156256d62a453ca6495f702", size = 843603, upload-time = "2026-10-16T09:01:53.171Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/87/2b/c2fdd9f74844072200869d2037e777a7533b7d7ebf734d06667c7f7fd1f9/docling_slim-2.140.0-py3-none-any.whl", hash = "sha256:91ab66bc79c471aa4c23d956a6c4887344d84673a496dcc867ec6a3ada8e41d5", size = 1024840, upload-time = "2026-10-16T09:01:50.903Z" },
+]
+
+[package.optional-dependencies]
+feat-ocr-rapidocr-onnx = [
+    { name = "onnxruntime" },
+    { name = "rapidocr" },
+]
+standard = [
+    { name = "accelerate" },
+    { name = "beautifulsoup4" },
+    { name = "defusedxml" },
+    { name = "docling-core", extra = ["chunking"], marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "docling-ibm-models" },
+    { name = "docling-parse" },
+    { name = "httpx" },
+    { name = "huggingface-hub", version = "1.33.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "mail-parser" },
+    { name = "marko" },
+    { name = "numpy" },
+    { name = "openpyxl" },
+    { name = "pillow" },
+    { name = "polyfactory" },
+    { name = "pylatexenc" },
+    { name = "pypdfium2" },
+    { name = "python-docx" },
+    { name = "python-dotenv" },
+    { name = "python-oxmsg" },
+    { name = "python-pptx" },
+    { name = "rapidocr" },
+    { name = "rich" },
+    { name = "rtree" },
+    { name = "scipy" },
+    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "torchvision", version = "0.25.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "typer", version = "0.26.8", source = { registry = "https://pypi.org/simple" } },
+    { name = "websockets" },
 ]
 
 [[package]]
@@ -675,6 +884,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f5/22/900cb125c76b7aaa450ce02fd727f452243f2e91a61af068b40adba60ea9/email_validator-2.3.0.tar.gz", hash = "sha256:9fc05c37f2f6cf439ff414f8fc46d917929974a82244c20eb10231ba60c54426", size = 51238, upload-time = "2025-08-26T13:09:06.831Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/de/15/545e2b6cf2e3be84bc1ed85613edd75b8aea69807a71c26f4ca6a9258e82/email_validator-2.3.0-py3-none-any.whl", hash = "sha256:80f13f623413e6b197ae73bb10bf4eb0908faf509ad8362c5edeb0be7fd450b4", size = 35604, upload-time = "2025-08-26T13:09:05.858Z" },
+]
+
+[[package]]
+name = "et-xmlfile"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d3/38/af70d7ab1ae9d4da450eeec1fa3918940a5fafb9055e934af8d6eb0c2313/et_xmlfile-2.0.0.tar.gz", hash = "sha256:dab3f4764309081ce75662649be815c4c9081e88f0837825f90fd28317d4da54", size = 17234, upload-time = "2024-10-25T17:25:40.039Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl", hash = "sha256:7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa", size = 18059, upload-time = "2024-10-25T17:25:39.051Z" },
 ]
 
 [[package]]
@@ -703,7 +921,7 @@ name = "faker"
 version = "40.22.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/84/11/81debfd0c4f8542c746c95d0267d9dd31b8e18ec21ed7ab89569de1bbfea/faker-40.22.0.tar.gz", hash = "sha256:0df62f975c97f79be3d89d626c4ee1518604cb4fea94f7629697f0529fc757d5", size = 1972732, upload-time = "2026-06-09T22:11:57.112Z" }
 wheels = [
@@ -726,6 +944,23 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/1f/f9/f38573ed5844586db374d085911740a501ccfa373b455fc9413f09f85237/filelock-3.29.1.tar.gz", hash = "sha256:d97e6b1b9757569626c58caa07dc4beb1613f4a2938b1e8cc81afca398906c9e", size = 59335, upload-time = "2026-06-03T15:19:04.053Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4c/a0/614c5fe402fd88951df45f4dda2fa3b4e17a99ecd92340771929169b3b95/filelock-3.29.1-py3-none-any.whl", hash = "sha256:85199dfd706869641b72b2e8955d5416a4b2b7dc4b0e8e6d97b4cc1299a6983b", size = 40750, upload-time = "2026-06-03T15:19:02.959Z" },
+]
+
+[[package]]
+name = "filetype"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/bb/29/745f7d30d47fe0f251d3ad3dc2978a23141917661998763bebb6da007eb1/filetype-1.2.0.tar.gz", hash = "sha256:66b56cd6474bf41d8c54660347d37afcc3f7d1970648de365c102ef77548aadb", size = 998020, upload-time = "2022-11-02T17:34:04.141Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl", hash = "sha256:7ce71b6880181241cf7ac8697a2f1eb6a8bd9b429f7ad6d27b8db9ba5f1c2d25", size = 19970, upload-time = "2022-11-02T17:34:01.425Z" },
+]
+
+[[package]]
+name = "flatbuffers"
+version = "25.12.19"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e8/2d/d2a548598be01649e2d46231d151a6c56d10b964d94043a335ae56ea2d92/flatbuffers-25.12.19-py2.py3-none-any.whl", hash = "sha256:7634f50c427838bb021c2d66a3d1168e9d199b0607e6329399f04846d42e20b4", size = 26661, upload-time = "2025-12-19T23:16:13.622Z" },
 ]
 
 [[package]]
@@ -815,8 +1050,8 @@ name = "httpcore2"
 version = "2.13.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "h11", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "truststore", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "h11", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+    { name = "truststore", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cb/f3/1db7aa2bc2524062192bb0e0323969492d1883152a232fe36eea65f4e35c/httpcore2-2.13.1.tar.gz", hash = "sha256:e0aa977abe17e69a3b820a24542a6fa88702676d83880b8d194dcd18408e5103", size = 68071, upload-time = "2026-09-23T07:47:22.372Z" }
 wheels = [
@@ -858,11 +1093,11 @@ name = "httpx2"
 version = "2.13.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "anyio", marker = "(sys_platform != 'emscripten' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "httpcore2", marker = "(sys_platform != 'emscripten' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "idna", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "truststore", marker = "(sys_platform != 'emscripten' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "typing-extensions", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "anyio", marker = "(sys_platform != 'emscripten' and extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "httpcore2", marker = "(sys_platform != 'emscripten' and extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "idna", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+    { name = "truststore", marker = "(sys_platform != 'emscripten' and extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "typing-extensions", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/d5/44/474bef2a0e9d90f1715d32cb98b0738695ca17ba324095fb2497ed7fbd59/httpx2-2.13.1.tar.gz", hash = "sha256:e48744a19e3af5ee48313d0ce5fe941d5422fae5705ea922a4aabf94d7800dfa", size = 100405, upload-time = "2026-09-23T07:47:23.052Z" }
 wheels = [
@@ -893,6 +1128,31 @@ wheels = [
 
 [[package]]
 name = "huggingface-hub"
+version = "1.33.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform != 'win32'",
+]
+dependencies = [
+    { name = "click", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "filelock", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "fsspec", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "hf-xet", marker = "(platform_machine == 'AMD64' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'aarch64' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'amd64' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'arm64' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron') or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "httpx", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "packaging", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "pyyaml", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "tomli", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "tqdm", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "typing-extensions", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/25/2a/484d112c0d8fc5f665d7b65137ac9cdb2953c982391598c3597968a12ee7/huggingface_hub-1.33.0.tar.gz", hash = "sha256:367be21a201db9523eddf8aeac7048f2602c1b308691c97640d5e72ed188007e", size = 1043548, upload-time = "2026-09-24T09:49:29.971Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fc/16/963096d224b80909432dc16561a615fd33d2d13beef3ce4c63fa25e40867/huggingface_hub-1.33.0-py3-none-any.whl", hash = "sha256:04e434b06e100eddbce9a6e817d72693a7884b10a79bd67ab48080d5c07eb899", size = 846435, upload-time = "2026-09-24T09:49:28.059Z" },
+]
+
+[[package]]
+name = "huggingface-hub"
 version = "2.2.0"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
@@ -900,20 +1160,32 @@ resolution-markers = [
     "sys_platform != 'win32'",
 ]
 dependencies = [
-    { name = "click", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "filelock", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "fsspec", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "hf-xet", marker = "(platform_machine == 'AMD64' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine == 'ARM64' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine == 'aarch64' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine == 'amd64' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine == 'arm64' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine == 'x86_64' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "httpx2", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "packaging", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "pyyaml", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "tomli", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "tqdm", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "typing-extensions", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "click", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+    { name = "filelock", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+    { name = "fsspec", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+    { name = "hf-xet", marker = "(platform_machine == 'AMD64' and extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine == 'ARM64' and extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine == 'aarch64' and extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine == 'amd64' and extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine == 'arm64' and extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine == 'x86_64' and extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "httpx2", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+    { name = "packaging", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+    { name = "pyyaml", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+    { name = "tomli", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+    { name = "tqdm", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
+    { name = "typing-extensions", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra != 'extra-13-data-snapshot-tfid')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/12/47/6858d63643e66fb4f6585c3cfd4029c0b2bc1ae21688cee9b3335f20a10d/huggingface_hub-2.2.0.tar.gz", hash = "sha256:5d1b47537394e4215cb858aa12fd493d0f7ef7f58990f5dcd24bc173107b2871", size = 1041026, upload-time = "2026-10-08T15:30:59.971Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/eb/b0/0f7b430fd100b3a3b037fdbb314878200241082e607b3383c63d91a13a72/huggingface_hub-2.2.0-py3-none-any.whl", hash = "sha256:1667f145dc56dc210d60966069397df9ecfca9607a5d43db88b308c89dae56b3", size = 839884, upload-time = "2026-10-08T15:30:57.914Z" },
+]
+
+[[package]]
+name = "humanfriendly"
+version = "10.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyreadline3", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/cc/3f/2c29224acb2e2df4d2046e4c73ee2662023c58ff5b113c4c1adac0886c43/humanfriendly-10.0.tar.gz", hash = "sha256:6b0b831ce8f15f7300721aa49829fc4e83921a9a301cc7f606be6686a2288ddc", size = 360702, upload-time = "2021-09-17T21:40:43.31Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f0/0f/310fb31e39e2d734ccaa2c0fb981ee41f7bd5056ce9bc29b2248bd569169/humanfriendly-10.0-py2.py3-none-any.whl", hash = "sha256:1697e1a8a8f550fd43c2865cd84542fc175a61dcb779b6fee18cf6b6ccba1477", size = 86794, upload-time = "2021-09-17T21:40:39.897Z" },
 ]
 
 [[package]]
@@ -967,7 +1239,7 @@ name = "ipykernel"
 version = "7.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "appnope", marker = "sys_platform == 'darwin' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "appnope", marker = "sys_platform == 'darwin' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "comm" },
     { name = "debugpy" },
     { name = "ipython" },
@@ -991,12 +1263,12 @@ name = "ipython"
 version = "8.39.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "decorator" },
     { name = "exceptiongroup" },
     { name = "jedi" },
     { name = "matplotlib-inline" },
-    { name = "pexpect", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'emscripten' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform == 'win32' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "pexpect", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'emscripten' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform == 'emscripten' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform == 'win32' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform == 'win32' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "prompt-toolkit" },
     { name = "pygments" },
     { name = "stack-data" },
@@ -1125,6 +1397,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/33/a2/c92f0a7ed439c490d2c8ad712fdb074c311afa4f77870987826a3b1483ba/jsonpointer-3.2.1.tar.gz", hash = "sha256:47c846513b3a4ec46eecef1105207fba075e2a3659048e362bd7daff0fc33342", size = 11309, upload-time = "2026-10-10T21:11:06.988Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fa/29/accef8eea16670b88f3a23102c35dee62c6f159db30d9628908043b3e21b/jsonpointer-3.2.1-py3-none-any.whl", hash = "sha256:b19ee68644e9ffb51440448d8f7811af2b7406eea1db90603e93f5849323119a", size = 8332, upload-time = "2026-10-10T21:11:05.648Z" },
+]
+
+[[package]]
+name = "jsonref"
+version = "1.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/aa/0d/c1f3277e90ccdb50d33ed5ba1ec5b3f0a242ed8c1b1a85d3afeb68464dca/jsonref-1.1.0.tar.gz", hash = "sha256:32fe8e1d85af0fdefbebce950af85590b22b60f9e95443176adbde4e1ecea552", size = 8814, upload-time = "2023-01-16T16:10:04.455Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0c/ec/e1db9922bceb168197a558a2b8c03a7963f1afe93517ddd3cf99f202f996/jsonref-1.1.0-py3-none-any.whl", hash = "sha256:590dc7773df6c21cbf948b5dac07a72a251db28b0238ceecce0a2abfa8ec30a9", size = 9425, upload-time = "2023-01-16T16:10:02.255Z" },
 ]
 
 [[package]]
@@ -1259,7 +1540,7 @@ dependencies = [
     { name = "overrides" },
     { name = "packaging" },
     { name = "prometheus-client" },
-    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "pyzmq" },
     { name = "send2trash" },
     { name = "terminado" },
@@ -1277,7 +1558,7 @@ name = "jupyter-server-terminals"
 version = "0.5.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "terminado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f4/a7/bcd0a9b0cbba88986fe944aaaf91bfda603e5a50bda8ed15123f381a3b2f/jupyter_server_terminals-0.5.4.tar.gz", hash = "sha256:bbda128ed41d0be9020349f9f1f2a4ab9952a73ed5f5ac9f1419794761fb87f5", size = 31770, upload-time = "2026-01-14T16:53:20.213Z" }
@@ -1397,12 +1678,30 @@ wheels = [
 ]
 
 [[package]]
+name = "langcodes"
+version = "3.5.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a9/75/f9edc5d72945019312f359e69ded9f82392a81d49c5051ed3209b100c0d2/langcodes-3.5.1.tar.gz", hash = "sha256:40bff315e01b01d11c2ae3928dd4f5cbd74dd38f9bd912c12b9a3606c143f731", size = 191084, upload-time = "2025-12-02T16:22:01.627Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/dd/c1/d10b371bcba7abce05e2b33910e39c33cfa496a53f13640b7b8e10bb4d2b/langcodes-3.5.1-py3-none-any.whl", hash = "sha256:b6a9c25c603804e2d169165091d0cdb23934610524a21d226e4f463e8e958a72", size = 183050, upload-time = "2025-12-02T16:21:59.954Z" },
+]
+
+[[package]]
 name = "lark"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/da/34/28fff3ab31ccff1fd4f6c7c7b0ceb2b6968d8ea4950663eadcb5720591a0/lark-1.3.1.tar.gz", hash = "sha256:b426a7a6d6d53189d318f2b6236ab5d6429eaf09259f1ca33eb716eed10d2905", size = 382732, upload-time = "2025-10-27T18:25:56.653Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/82/3d/14ce75ef66813643812f3093ab17e46d3a206942ce7376d31ec2d36229e7/lark-1.3.1-py3-none-any.whl", hash = "sha256:c629b661023a014c37da873b4ff58a817398d12635d3bbb2c5a03be7fe5d1e12", size = 113151, upload-time = "2025-10-27T18:25:54.882Z" },
+]
+
+[[package]]
+name = "latex2mathml"
+version = "3.81.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/88/db/336c38300e44582752b95842b15a4be8fe656914cf5b02ad1bec53cebceb/latex2mathml-3.81.1.tar.gz", hash = "sha256:c95add0c0fcdecad2d70567e0643050d5ea1149fb2e98a5d5792fb1c8eea2ed5", size = 77475, upload-time = "2026-09-07T19:55:11.037Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/30/b8bcfb01a2514cb7554a048ed52883de276e66d757c3cc535a3c29eb9e98/latex2mathml-3.81.1-py3-none-any.whl", hash = "sha256:c337668441b71c819b6733905a8058ba9a9d767bae11a0c5fdacb3aff31361bd", size = 79159, upload-time = "2026-09-07T19:55:09.611Z" },
 ]
 
 [[package]]
@@ -1430,6 +1729,15 @@ wheels = [
 ]
 
 [[package]]
+name = "mail-parser"
+version = "4.8.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/43/30/8e3a2559bb78ecbe4e3a9f0a9c50d332e0631ff0f0478f1205979c3f40fa/mail_parser-4.8.0.tar.gz", hash = "sha256:602e659b159652d378b0f9cce2d682bee692bedae72687786e2b2e52eaeb9afc", size = 2976254, upload-time = "2026-10-01T22:19:30.031Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/74/a1/3bb021d2f35ad523cb6fed8d9b6133d3116ded938b85acd9d452c012d854/mail_parser-4.8.0-py3-none-any.whl", hash = "sha256:119aed23c2056dd73b7d70b77e5caf1bc0cb3675ca50c1ff49b4b72296ffa9ca", size = 62568, upload-time = "2026-10-01T22:19:28.696Z" },
+]
+
+[[package]]
 name = "markdown-it-py"
 version = "4.2.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1439,6 +1747,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/06/ff/7841249c247aa650a76b9ee4bbaeae59370dc8bfd2f6c01f3630c35eb134/markdown_it_py-4.2.0.tar.gz", hash = "sha256:04a21681d6fbb623de53f6f364d352309d4094dd4194040a10fd51833e418d49", size = 82454, upload-time = "2026-05-07T12:08:28.36Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/81/4da04ced5a082363ecfa159c010d200ecbd959ae410c10c0264a38cac0f5/markdown_it_py-4.2.0-py3-none-any.whl", hash = "sha256:9f7ebbcd14fe59494226453aed97c1070d83f8d24b6fc3a3bcf9a38092641c4a", size = 91687, upload-time = "2026-05-07T12:08:27.182Z" },
+]
+
+[[package]]
+name = "marko"
+version = "2.2.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/82/6d/671a18bb386adca6311bca6c2fe6bec873947ee501cc5f8f509ec06bdde0/marko-2.2.4.tar.gz", hash = "sha256:c042c66f835425673123d7536b39b4660de3b68e30078c70fd26245b31170683", size = 151013, upload-time = "2026-08-12T03:20:11.772Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d3/78/751d49c8bdfa0b30147c99235516433af6b63eca367ff28593c7346a0494/marko-2.2.4-py3-none-any.whl", hash = "sha256:d80510506edba096ec49d4720a09645fa0bb78e7b7b88697f20032fc19730aa9", size = 46753, upload-time = "2026-08-12T03:20:10.811Z" },
 ]
 
 [[package]]
@@ -1522,12 +1839,47 @@ wheels = [
 ]
 
 [[package]]
+name = "mpire"
+version = "2.10.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pygments" },
+    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3a/93/80ac75c20ce54c785648b4ed363c88f148bf22637e10c9863db4fbe73e74/mpire-2.10.2.tar.gz", hash = "sha256:f66a321e93fadff34585a4bfa05e95bd946cf714b442f51c529038eb45773d97", size = 271270, upload-time = "2024-05-07T14:00:31.815Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/20/14/1db1729ad6db4999c3a16c47937d601fcb909aaa4224f5eca5a2f145a605/mpire-2.10.2-py3-none-any.whl", hash = "sha256:d627707f7a8d02aa4c7f7d59de399dec5290945ddf7fbd36cbb1d6ebb37a51fb", size = 272756, upload-time = "2024-05-07T14:00:29.633Z" },
+]
+
+[package.optional-dependencies]
+dill = [
+    { name = "multiprocess" },
+]
+
+[[package]]
 name = "mpmath"
 version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e0/47/dd32fa426cc72114383ac549964eecb20ecfd886d1e5ccf5340b55b02f57/mpmath-1.3.0.tar.gz", hash = "sha256:7a28eb2a9774d00c7bc92411c19a89209d5da7c4c9a9e227be8330a23a25b91f", size = 508106, upload-time = "2023-03-07T16:47:11.061Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/43/e3/7d92a15f894aa0c9c4b49b8ee9ac9850d6e63b03c9c32c0367a13ae62209/mpmath-1.3.0-py3-none-any.whl", hash = "sha256:a0b2b9fe80bbcd81a6647ff13108738cfb482d481d826cc0e02f5b35e5c88d2c", size = 536198, upload-time = "2023-03-07T16:47:09.197Z" },
+]
+
+[[package]]
+name = "multiprocess"
+version = "0.70.19"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dill" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a2/f2/e783ac7f2aeeed14e9e12801f22529cc7e6b7ab80928d6dcce4e9f00922d/multiprocess-0.70.19.tar.gz", hash = "sha256:952021e0e6c55a4a9fe4cd787895b86e239a40e76802a789d6305398d3975897", size = 2079989, upload-time = "2026-01-19T06:47:39.744Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8b/b6/10832f96b499690854e574360be342a282f5f7dba58eff791299ff6c0637/multiprocess-0.70.19-pp310-pypy310_pp73-macosx_10_15_x86_64.whl", hash = "sha256:02e5c35d7d6cd2bdc89c1858867f7bde4012837411023a4696c148c1bdd7c80e", size = 135131, upload-time = "2026-01-19T06:47:20.479Z" },
+    { url = "https://files.pythonhosted.org/packages/99/50/faef2d8106534b0dc4a0b772668a1a99682696ebf17d3c0f13f2ed6a656a/multiprocess-0.70.19-pp310-pypy310_pp73-macosx_11_0_arm64.whl", hash = "sha256:79576c02d1207ec405b00cabf2c643c36070800cca433860e14539df7818b2aa", size = 135131, upload-time = "2026-01-19T06:47:21.879Z" },
+    { url = "https://files.pythonhosted.org/packages/94/b1/0b71d18b76bf423c2e8ee00b31db37d17297ab3b4db44e188692afdca628/multiprocess-0.70.19-pp310-pypy310_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:c6b6d78d43a03b68014ca1f0b7937d965393a670c5de7c29026beb2258f2f896", size = 135134, upload-time = "2026-01-19T06:47:23.262Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/45/8004d1e6b9185c1a444d6b55ac5682acf9d98035e54386d967366035a03a/multiprocess-0.70.19-py310-none-any.whl", hash = "sha256:97404393419dcb2a8385910864eedf47a3cadf82c66345b44f036420eb0b5d87", size = 134948, upload-time = "2026-01-19T06:47:32.325Z" },
+    { url = "https://files.pythonhosted.org/packages/7e/82/69e539c4c2027f1e1697e09aaa2449243085a0edf81ae2c6341e84d769b6/multiprocess-0.70.19-py39-none-any.whl", hash = "sha256:0d4b4397ed669d371c81dcd1ef33fd384a44d6c3de1bd0ca7ac06d837720d3c5", size = 133477, upload-time = "2026-01-19T06:47:38.619Z" },
 ]
 
 [[package]]
@@ -1715,7 +2067,7 @@ name = "nvidia-cudnn-cu12"
 version = "9.10.2.21"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
+    { name = "nvidia-cublas-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-docling-heron' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fa/41/e79269ce215c857c935fd86bcfe91a451a584dfc27f1e068f568b9ad1ab7/nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:c9132cc3f8958447b4910a1720036d9eff5928cc3179b0a51fb6d167c6cc87d8", size = 705026878, upload-time = "2025-06-06T21:52:51.348Z" },
@@ -1728,7 +2080,7 @@ name = "nvidia-cufft-cu12"
 version = "11.3.3.83"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
+    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-docling-heron' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/60/bc/7771846d3a0272026c416fbb7e5f4c1f146d6d80704534d0b187dd6f4800/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:848ef7224d6305cdb2a4df928759dca7b1201874787083b6e7550dd6765ce69a", size = 193109211, upload-time = "2025-03-07T01:44:56.873Z" },
@@ -1760,9 +2112,9 @@ name = "nvidia-cusolver-cu12"
 version = "11.7.3.90"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
-    { name = "nvidia-cusparse-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
-    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
+    { name = "nvidia-cublas-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-docling-heron' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
+    { name = "nvidia-cusparse-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-docling-heron' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
+    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-docling-heron' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c8/32/f7cd6ce8a7690544d084ea21c26e910a97e077c9b7f07bf5de623ee19981/nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:db9ed69dbef9715071232caa9b69c52ac7de3a95773c2db65bdba85916e4e5c0", size = 267229841, upload-time = "2025-03-07T01:46:54.356Z" },
@@ -1775,7 +2127,7 @@ name = "nvidia-cusparse-cu12"
 version = "12.5.8.93"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
+    { name = "nvidia-nvjitlink-cu12", marker = "sys_platform != 'win32' or extra == 'extra-13-data-snapshot-docling-heron' or extra == 'extra-13-data-snapshot-tfid' or extra == 'extra-13-data-snapshot-unlimitedocr'" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bc/f7/cd777c4109681367721b00a106f491e0d0d15cfa1fd59672ce580ce42a97/nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:9b6c161cb130be1a07a27ea6923df8141f3c295852f4b260c65f18f3e0a091dc", size = 288117129, upload-time = "2025-03-07T01:47:40.407Z" },
@@ -1847,6 +2199,47 @@ wheels = [
 ]
 
 [[package]]
+name = "olefile"
+version = "0.47"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/69/1b/077b508e3e500e1629d366249c3ccb32f95e50258b231705c09e3c7a4366/olefile-0.47.zip", hash = "sha256:599383381a0bf3dfbd932ca0ca6515acd174ed48870cbf7fee123d698c192c1c", size = 112240, upload-time = "2023-12-01T16:22:53.025Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/17/d3/b64c356a907242d719fc668b71befd73324e47ab46c8ebbbede252c154b2/olefile-0.47-py2.py3-none-any.whl", hash = "sha256:543c7da2a7adadf21214938bb79c83ea12b473a4b6ee4ad4bf854e7715e13d1f", size = 114565, upload-time = "2023-12-01T16:22:51.518Z" },
+]
+
+[[package]]
+name = "omegaconf"
+version = "2.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyyaml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/cc/10/1cabf3188a4d9684a06568c7fd76f9536eede625733c8399cf1f5337b83e/omegaconf-2.4.0.tar.gz", hash = "sha256:7e219a70bea371da250285b9c01c7db027bc421722799c2cc4ff14bc4a2a753b", size = 3544508, upload-time = "2026-10-09T12:44:02.326Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4f/bd/0d9f8247b0819385213d09564eda5c52d3673313c2414d51f72883ec24cd/omegaconf-2.4.0-py3-none-any.whl", hash = "sha256:f141a664c777582405e3cc6e0545ecc79429e79f844995b1a6e71c35946a025c", size = 254152, upload-time = "2026-10-09T12:43:59.764Z" },
+]
+
+[[package]]
+name = "onnxruntime"
+version = "1.23.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "coloredlogs" },
+    { name = "flatbuffers" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "protobuf" },
+    { name = "sympy" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/35/d6/311b1afea060015b56c742f3531168c1644650767f27ef40062569960587/onnxruntime-1.23.2-cp310-cp310-macosx_13_0_arm64.whl", hash = "sha256:a7730122afe186a784660f6ec5807138bf9d792fa1df76556b27307ea9ebcbe3", size = 17195934, upload-time = "2025-10-27T23:06:14.143Z" },
+    { url = "https://files.pythonhosted.org/packages/db/db/81bf3d7cecfbfed9092b6b4052e857a769d62ed90561b410014e0aae18db/onnxruntime-1.23.2-cp310-cp310-macosx_13_0_x86_64.whl", hash = "sha256:b28740f4ecef1738ea8f807461dd541b8287d5650b5be33bca7b474e3cbd1f36", size = 19153079, upload-time = "2025-10-27T23:05:57.686Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/4d/a382452b17cf70a2313153c520ea4c96ab670c996cb3a95cc5d5ac7bfdac/onnxruntime-1.23.2-cp310-cp310-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:8f7d1fe034090a1e371b7f3ca9d3ccae2fabae8c1d8844fb7371d1ea38e8e8d2", size = 15219883, upload-time = "2025-10-22T03:46:21.66Z" },
+    { url = "https://files.pythonhosted.org/packages/fb/56/179bf90679984c85b417664c26aae4f427cba7514bd2d65c43b181b7b08b/onnxruntime-1.23.2-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:4ca88747e708e5c67337b0f65eed4b7d0dd70d22ac332038c9fc4635760018f7", size = 17370357, upload-time = "2025-10-22T03:46:57.968Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/6d/738e50c47c2fd285b1e6c8083f15dac1a5f6199213378a5f14092497296d/onnxruntime-1.23.2-cp310-cp310-win_amd64.whl", hash = "sha256:0be6a37a45e6719db5120e9986fcd30ea205ac8103fd1fb74b6c33348327a0cc", size = 13467651, upload-time = "2025-10-27T23:06:11.904Z" },
+]
+
+[[package]]
 name = "openai"
 version = "2.54.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1899,6 +2292,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/4b/33/b5db29a6c00eb8f50708110d8d453747ca125c8b805bc437b289dbdcc057/opencv_python_headless-4.13.0.92-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:0bd48544f77c68b2941392fcdf9bcd2b9cdf00e98cb8c29b2455d194763cf99e", size = 60391106, upload-time = "2026-02-05T10:30:14.236Z" },
     { url = "https://files.pythonhosted.org/packages/fb/c3/52cfea47cd33e53e8c0fbd6e7c800b457245c1fda7d61660b4ffe9596a7f/opencv_python_headless-4.13.0.92-cp37-abi3-win32.whl", hash = "sha256:a7cf08e5b191f4ebb530791acc0825a7986e0d0dee2a3c491184bd8599848a4b", size = 30812232, upload-time = "2026-02-05T07:02:29.594Z" },
     { url = "https://files.pythonhosted.org/packages/4a/90/b338326131ccb2aaa3c2c85d00f41822c0050139a4bfe723cfd95455bd2d/opencv_python_headless-4.13.0.92-cp37-abi3-win_amd64.whl", hash = "sha256:77a82fe35ddcec0f62c15f2ba8a12ecc2ed4207c17b0902c7a3151ae29f37fb6", size = 40070414, upload-time = "2026-02-05T07:02:26.448Z" },
+]
+
+[[package]]
+name = "openpyxl"
+version = "3.1.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "et-xmlfile" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3d/f9/88d94a75de065ea32619465d2f77b29a0469500e99012523b91cc4141cd1/openpyxl-3.1.5.tar.gz", hash = "sha256:cf0e3cf56142039133628b5acffe8ef0c12bc902d2aadd3e0fe5878dc08d1050", size = 186464, upload-time = "2024-06-28T14:03:44.161Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl", hash = "sha256:5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2", size = 250910, upload-time = "2024-06-28T14:03:41.161Z" },
 ]
 
 [[package]]
@@ -1984,7 +2389,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "sys_platform != 'win32' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "ptyprocess", marker = "sys_platform != 'win32' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [
@@ -2067,6 +2472,19 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f4/ed/f2d26ae02d92c2689056838ed59e2a626326ad23c2831d58637d25f6c82a/polars_runtime_32-1.41.2-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:e7016a3deb641b64a31447abbbee0f34bd020a6a9ae34ee6b743837def15e2a4", size = 54328561, upload-time = "2026-05-29T17:37:32.587Z" },
     { url = "https://files.pythonhosted.org/packages/9b/c4/9c3831cc885dc7769e59abf8f583821a5fb4403fd0e4eba0ccc6d47a3d4b/polars_runtime_32-1.41.2-cp310-abi3-win_amd64.whl", hash = "sha256:1e5e5377c315e0dcafdfb2a31adc546abbaeb3f9cb1864e6536523d2af473265", size = 51978643, upload-time = "2026-05-29T17:37:37.443Z" },
     { url = "https://files.pythonhosted.org/packages/cd/c6/79e9f3f270270d7ed5575d92b7bfef49f01abd9275447161275b23b553a8/polars_runtime_32-1.41.2-cp310-abi3-win_arm64.whl", hash = "sha256:843d96f69d18eca53429c1198e58891db7f18111f83b9c419bb45ad9d73eaed5", size = 46006901, upload-time = "2026-05-29T17:37:42.522Z" },
+]
+
+[[package]]
+name = "polyfactory"
+version = "3.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "faker" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/85/68/7717bd9e63ed254617a7d3dc9260904fb736d6ea203e58ffddcb186c64e4/polyfactory-3.3.0.tar.gz", hash = "sha256:237258b6ff43edf362ffd1f68086bb796466f786adfa002b0ac256dbf2246e9a", size = 348668, upload-time = "2026-02-22T09:46:28.01Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/dd/34/b6f19941adcdaf415b5e8a8d577499f5b6a76b59cbae37f9b125a9ffe9f2/polyfactory-3.3.0-py3-none-any.whl", hash = "sha256:686abcaa761930d3df87b91e95b26b8d8cb9fdbbbe0b03d5f918acff5c72606e", size = 62707, upload-time = "2026-02-22T09:46:25.985Z" },
 ]
 
 [[package]]
@@ -2164,6 +2582,20 @@ wheels = [
 ]
 
 [[package]]
+name = "pyclipper"
+version = "1.4.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/21/3c06205bb407e1f79b73b7b4dfb3950bd9537c4f625a68ab5cc41177f5bc/pyclipper-1.4.0.tar.gz", hash = "sha256:9882bd889f27da78add4dd6f881d25697efc740bf840274e749988d25496c8e1", size = 54489, upload-time = "2025-12-01T13:15:35.015Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8a/9f/a10173d32ecc2ce19a04d018163f3ca22a04c0c6ad03b464dcd32f9152a8/pyclipper-1.4.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:bafad70d2679c187120e8c44e1f9a8b06150bad8c0aecf612ad7dfbfa9510f73", size = 264510, upload-time = "2025-12-01T13:14:46.551Z" },
+    { url = "https://files.pythonhosted.org/packages/e0/c2/5490ddc4a1f7ceeaa0258f4266397e720c02db515b2ca5bc69b85676f697/pyclipper-1.4.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:0b74a9dd44b22a7fd35d65fb1ceeba57f3817f34a97a28c3255556362e491447", size = 139498, upload-time = "2025-12-01T13:14:48.31Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/0a/bea9102d1d75634b1a5702b0e92982451a1eafca73c4845d3dbe27eba13d/pyclipper-1.4.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:0a4d2736fb3c42e8eb1d38bf27a720d1015526c11e476bded55138a977c17d9d", size = 970974, upload-time = "2025-12-01T13:14:49.799Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/1b/097f8776d5b3a10eb7b443b632221f4ed825d892e79e05682f4b10a1a59c/pyclipper-1.4.0-cp310-cp310-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:b3b3630051b53ad2564cb079e088b112dd576e3d91038338ad1cc7915e0f14dc", size = 943315, upload-time = "2025-12-01T13:14:51.266Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/4d/17d6a3f1abf0f368d58f2309e80ee3761afb1fd1342f7780ab32ba4f0b1d/pyclipper-1.4.0-cp310-cp310-win32.whl", hash = "sha256:8d42b07a2f6cfe2d9b87daf345443583f00a14e856927782fde52f3a255e305a", size = 95286, upload-time = "2025-12-01T13:14:52.922Z" },
+    { url = "https://files.pythonhosted.org/packages/53/ca/b30138427ed122ec9b47980b943164974a2ec606fa3f71597033b9a9f9a6/pyclipper-1.4.0-cp310-cp310-win_amd64.whl", hash = "sha256:6a97b961f182b92d899ca88c1bb3632faea2e00ce18d07c5f789666ebb021ca4", size = 104227, upload-time = "2025-12-01T13:14:54.013Z" },
+]
+
+[[package]]
 name = "pycparser"
 version = "3.11"
 source = { registry = "https://pypi.org/simple" }
@@ -2218,6 +2650,20 @@ wheels = [
 ]
 
 [[package]]
+name = "pydantic-settings"
+version = "2.15.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+    { name = "typing-inspection" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/68/ca/31c57507b13119d7d3cfa1576dad2911a4861e3be07b579395f4e9d393f9/pydantic_settings-2.15.0.tar.gz", hash = "sha256:694b793e84f766ba76a90ebdefc01d0a9a045dab0382bee70393da93712ad117", size = 261253, upload-time = "2026-08-07T09:24:57.419Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/30/a4/2bffa9f8e804325a09867f0e9d30795c80ea9f8d62560bd1b6ad6220eb2f/pydantic_settings-2.15.0-py3-none-any.whl", hash = "sha256:0ba092c291c94baceb5eff768aa0d56400a457585bc0175925a5a5510303da42", size = 69413, upload-time = "2026-08-07T09:24:55.839Z" },
+]
+
+[[package]]
 name = "pydeck"
 version = "0.9.3"
 source = { registry = "https://pypi.org/simple" }
@@ -2252,6 +2698,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pylatexenc"
+version = "2.11"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/52/45/ddb0fb04acf95fe9cf9c369814dbdd08651bd2c9ee455f142651e06f4488/pylatexenc-2.11.tar.gz", hash = "sha256:305a072a99ce736246049c9da05841b9d718c0f7ea8888f5f596cf15cb621053", size = 165743, upload-time = "2026-07-25T17:26:31.534Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e7/06/3d67bd912ef337aa4856b466121d03f304aa1bb4d804f9298b6227cd227e/pylatexenc-2.11-py2.py3-none-any.whl", hash = "sha256:e78e7391d6c104f1ed150e21cfaa58016cdb50aa54406a2eecb793649ffdfdd0", size = 137533, upload-time = "2026-07-25T17:26:30.141Z" },
+]
+
+[[package]]
 name = "pymupdf"
 version = "1.27.2.3"
 source = { registry = "https://pypi.org/simple" }
@@ -2276,6 +2731,36 @@ wheels = [
 ]
 
 [[package]]
+name = "pypdfium2"
+version = "5.14.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/95/d0/c81d3a7c2a9af37b817ace1de0acd40cf44d15f12407c5e86b3668364a5c/pypdfium2-5.14.0.tar.gz", hash = "sha256:c5f009b3157f10e97dceb55963f5910eff92feb00587ba10a76f12b87ce1a4b6", size = 376498, upload-time = "2026-10-04T15:19:19.835Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/91/03/79e89eac9d811e83d606342e129f5f39e168442ddf23b024fea4a7ee4762/pypdfium2-5.14.0-py3-none-android_23_arm64_v8a.whl", hash = "sha256:bed597b2cea3990164e43f9003f71db18959d0abd5d73adc9c176e7be2d84b98", size = 3453370, upload-time = "2026-10-04T15:18:40.79Z" },
+    { url = "https://files.pythonhosted.org/packages/cc/68/369b80e408017b18eaecaa3c730bded07d90bfb65562215df200b56fb8e2/pypdfium2-5.14.0-py3-none-android_23_armeabi_v7a.whl", hash = "sha256:1951f0aed469150b13c62eabd501a9839e608ab9983ca8579be9eb73213b72b6", size = 2889924, upload-time = "2026-10-04T15:18:42.825Z" },
+    { url = "https://files.pythonhosted.org/packages/d1/ea/14673bc9d8b7beeaa1eb46e9951b22543edaf2a4676c586e3b1e032ff6ee/pypdfium2-5.14.0-py3-none-macosx_13_0_arm64.whl", hash = "sha256:2de384df66ba55fcaab0775f30f28ec1090af3dfa60276a07821efc96d993118", size = 3542294, upload-time = "2026-10-04T15:18:44.345Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/11/b720097b01fa0874854f2f6669cbea4e4ea4e075769687714fac64d68964/pypdfium2-5.14.0-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:e4e203ea9710fd00e5448edb6f1615dc8587035357f75f40b432dde0c33e8da1", size = 3735845, upload-time = "2026-10-04T15:18:45.975Z" },
+    { url = "https://files.pythonhosted.org/packages/92/b4/0c31aa51887cd6cd032191dfe010a6d01ed43cf03204cfbd2184ebe4b715/pypdfium2-5.14.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f1b696e6901e16f114a2ec6332e5e3f8f5033a901614ead28499ab18ca6024f5", size = 3719672, upload-time = "2026-10-04T15:18:47.455Z" },
+    { url = "https://files.pythonhosted.org/packages/93/a8/ae6ef96bf66559328d07b9e402ea704352ea00c49b6a73573da57e1fb378/pypdfium2-5.14.0-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:593f2c952ae3ffdca0efcbb3d9464fbccb876254386114ff900cabef21157c3f", size = 3435593, upload-time = "2026-10-04T15:18:49.131Z" },
+    { url = "https://files.pythonhosted.org/packages/59/ff/a78405fab4c8bad0ec25b49c5efba2c85ed14609ec73645f95220560bd81/pypdfium2-5.14.0-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:d436ee9e024f981e68f5775f5a9d115f93ea14ee6c2c6efd35dd17d83edf4942", size = 3868604, upload-time = "2026-10-04T15:18:51.304Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/6e/09e9b62ab66c9acef5ad14f8a8c0d7b4d8d6ea6492e4e65b612ef146d373/pypdfium2-5.14.0-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:f6f13bbcc5f4adabc2676e52f662c6cb375de86b314790b0ae08f3ab62eb116a", size = 4279333, upload-time = "2026-10-04T15:18:52.948Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/a3/c9cc797fc8bdfb8f37b9b0f8b9d02a5fc196b2015f408d53624cab5b0519/pypdfium2-5.14.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:11f281613fa22313d9c7ab89947665e84eccf8ebe40e1198a84a88352305648d", size = 3799581, upload-time = "2026-10-04T15:18:54.913Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/76/54355a4bbd88bdd5ed3f4405bdc345eb593df9995daf90d285cbdf5c1410/pypdfium2-5.14.0-py3-none-manylinux_2_27_s390x.manylinux_2_28_s390x.whl", hash = "sha256:51d9e9b64ebc34effaf57f9b6d4511b3f66ad3744bd1690d2cc6700853173dcf", size = 4113022, upload-time = "2026-10-04T15:18:56.774Z" },
+    { url = "https://files.pythonhosted.org/packages/7d/bc/ea461961ed0e0c4866df7a5610e76f769ef468bff28cd007e2aeecc8b882/pypdfium2-5.14.0-py3-none-manylinux_2_34_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:605ab9d0d4c5e223599c9065b88d16b2c1f131c807c80dea8adbb16f1433e95b", size = 4062832, upload-time = "2026-10-04T15:18:58.471Z" },
+    { url = "https://files.pythonhosted.org/packages/32/30/dde99bc8cb3f8ace1d856095c2b4a29c80eecf9089b186a3b0845d0abc69/pypdfium2-5.14.0-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:382de7fe20d32c42993a274d7b6c555a5623a97570dfc1d2f5e0a16fe0d5d482", size = 5058436, upload-time = "2026-10-04T15:18:59.993Z" },
+    { url = "https://files.pythonhosted.org/packages/ec/16/5314182dda2695fdf5bd414a450ee866087068cca4725703932770d4be04/pypdfium2-5.14.0-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:dbfd6deff68cc46b134acd6be380d98d694a9f018fbb622c07229225c85db389", size = 4595505, upload-time = "2026-10-04T15:19:01.835Z" },
+    { url = "https://files.pythonhosted.org/packages/63/3f/474c42e726f0020095c7d5f3fb88cfd4e5d39c1361105a72899ada0ecd1b/pypdfium2-5.14.0-py3-none-musllinux_1_2_i686.whl", hash = "sha256:9f4d77db5232826dd03a63481f32164331b96c21fd68f0667b2e43dbae141a93", size = 5309775, upload-time = "2026-10-04T15:19:03.564Z" },
+    { url = "https://files.pythonhosted.org/packages/6b/0c/723a6cf11cff00f125310d8c2c08362dc6c100d05fff8f92285a4df1bd41/pypdfium2-5.14.0-py3-none-musllinux_1_2_ppc64le.whl", hash = "sha256:b40a0913196a1483f0fdc22a53f8719c3aef87f1c4d8d9c38d2ad4e207500fdf", size = 5224565, upload-time = "2026-10-04T15:19:05.264Z" },
+    { url = "https://files.pythonhosted.org/packages/5c/c5/86ab02a41e77a7aa962af6545a406815aeb9abaecd9f25dec34dbc336b72/pypdfium2-5.14.0-py3-none-musllinux_1_2_riscv64.whl", hash = "sha256:790e2cac1641a65912b73bd7243f45195d36f1663c85a3e1a126a8f5867c82a3", size = 4704416, upload-time = "2026-10-04T15:19:07.05Z" },
+    { url = "https://files.pythonhosted.org/packages/ac/de/fb75013f924c5a4dde4a4a41ec13e7495f9b80022bf35dd51baa54e05910/pypdfium2-5.14.0-py3-none-musllinux_1_2_s390x.whl", hash = "sha256:09b99c8f0cb427eb17fec13c0862ed598bba34b4843df153f70fff806a2820bc", size = 5163621, upload-time = "2026-10-04T15:19:09.021Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/77/e59c814f10b533bc4565abe90ccef888ba29be45ada4627ebbf710961f0d/pypdfium2-5.14.0-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:e70d87cb0577eab38f2106f9c9606b458930beef612a1b5f298772ed259f5ec0", size = 5121606, upload-time = "2026-10-04T15:19:10.609Z" },
+    { url = "https://files.pythonhosted.org/packages/21/25/e067396b4bdd26c19f0997bfa3422d3975a49ceec2c59668e7599f2adcba/pypdfium2-5.14.0-py3-none-pyemscripten_2026_0_wasm32.whl", hash = "sha256:c73be14076bedebd9bcaf9b062579c95c668580043bccd29eb0db502101d5716", size = 2675501, upload-time = "2026-10-04T15:19:12.588Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/0c/6c21f68a57d0c4c506b9e5f72506ba91d8dde47eef699f3fd9561f7bff0e/pypdfium2-5.14.0-py3-none-win32.whl", hash = "sha256:9fd5cc94a389d50298e4d8cb79af6b9b8e0d785606e2a937725dc6e271c9c6e6", size = 3805374, upload-time = "2026-10-04T15:19:14.357Z" },
+    { url = "https://files.pythonhosted.org/packages/00/dc/ca7874924c9cfd701ad53f89529968523790e70473e0b71e834668316148/pypdfium2-5.14.0-py3-none-win_amd64.whl", hash = "sha256:149fd5c6397b8df8bf7911a93506eff0be874f877afe7ac936cf5d37d21a6a06", size = 3947280, upload-time = "2026-10-04T15:19:16.302Z" },
+    { url = "https://files.pythonhosted.org/packages/46/ab/35f2276deeeebb781925e2647dd88a39f8ea1a910104a0dbb28218473502/pypdfium2-5.14.0-py3-none-win_arm64.whl", hash = "sha256:eb8aeca157808f323e39ea298cc6d6c8e080c192ea2efb1ca81daa0f0ff4d095", size = 3745021, upload-time = "2026-10-04T15:19:18.276Z" },
+]
+
+[[package]]
 name = "pyperclip"
 version = "1.11.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2285,11 +2770,20 @@ wheels = [
 ]
 
 [[package]]
+name = "pyreadline3"
+version = "3.5.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b6/6d/f94028646d7bbe6d9d873c47ee7c246f2d29129d253f0d96cb6fcab70733/pyreadline3-3.5.6.tar.gz", hash = "sha256:61e53218b99656091ddb077df9e71f25850e72e030b6183b39c9b7e6e4f4a9bf", size = 100368, upload-time = "2026-05-14T17:55:04.471Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f7/5e/35c856e186b74678c24927847ad9895a51f1bc02a0c6126477a6c6040064/pyreadline3-3.5.6-py3-none-any.whl", hash = "sha256:8449b734232e42a5dcd74048e39b60db2839a4c38cf3ae2bf7707d58b5389c0d", size = 85243, upload-time = "2026-05-14T17:55:03.262Z" },
+]
+
+[[package]]
 name = "pytest"
 version = "9.0.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "exceptiongroup" },
     { name = "iniconfig" },
     { name = "packaging" },
@@ -2312,6 +2806,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/66/c0/0c8b6ad9f17a802ee498c46e004a0eb49bc148f2fd230864601a86dcf6db/python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3", size = 342432, upload-time = "2024-03-01T18:36:20.211Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427", size = 229892, upload-time = "2024-03-01T18:36:18.57Z" },
+]
+
+[[package]]
+name = "python-docx"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lxml" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a9/f7/eddfe33871520adab45aaa1a71f0402a2252050c14c7e3009446c8f4701c/python_docx-1.2.0.tar.gz", hash = "sha256:7bc9d7b7d8a69c9c02ca09216118c86552704edc23bac179283f2e38f86220ce", size = 5723256, upload-time = "2025-06-16T20:46:27.921Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d0/00/1e03a4989fa5795da308cd774f05b704ace555a70f9bf9d3be057b680bcf/python_docx-1.2.0-py3-none-any.whl", hash = "sha256:3fd478f3250fbbbfd3b94fe1e985955737c145627498896a8a6bf81f4baf66c7", size = 252987, upload-time = "2025-06-16T20:46:22.506Z" },
 ]
 
 [[package]]
@@ -2342,12 +2849,51 @@ wheels = [
 ]
 
 [[package]]
+name = "python-oxmsg"
+version = "0.0.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "olefile" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a2/4e/869f34faedbc968796d2c7e9837dede079c9cb9750917356b1f1eda926e9/python_oxmsg-0.0.2.tar.gz", hash = "sha256:a6aff4deb1b5975d44d49dab1d9384089ffeec819e19c6940bc7ffbc84775fad", size = 34713, upload-time = "2025-02-03T17:13:47.415Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/53/67/f56c69a98c7eb244025845506387d0f961681657c9fcd8b2d2edd148f9d2/python_oxmsg-0.0.2-py3-none-any.whl", hash = "sha256:22be29b14c46016bcd05e34abddfd8e05ee82082f53b82753d115da3fc7d0355", size = 31455, upload-time = "2025-02-03T17:13:46.061Z" },
+]
+
+[[package]]
+name = "python-pptx"
+version = "1.0.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "lxml" },
+    { name = "pillow" },
+    { name = "typing-extensions" },
+    { name = "xlsxwriter" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/52/a9/0c0db8d37b2b8a645666f7fd8accea4c6224e013c42b1d5c17c93590cd06/python_pptx-1.0.2.tar.gz", hash = "sha256:479a8af0eaf0f0d76b6f00b0887732874ad2e3188230315290cd1f9dd9cc7095", size = 10109297, upload-time = "2024-08-07T17:33:37.772Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d9/4f/00be2196329ebbff56ce564aa94efb0fbc828d00de250b1980de1a34ab49/python_pptx-1.0.2-py3-none-any.whl", hash = "sha256:160838e0b8565a8b1f67947675886e9fea18aa5e795db7ae531606d68e785cba", size = 472788, upload-time = "2024-08-07T17:33:28.192Z" },
+]
+
+[[package]]
 name = "pytz"
 version = "2026.2"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ff/46/dd499ec9038423421951e4fad73051febaa13d2df82b4064f87af8b8c0c3/pytz-2026.2.tar.gz", hash = "sha256:0e60b47b29f21574376f218fe21abc009894a2321ea16c6754f3cad6eb7cdd6a", size = 320861, upload-time = "2026-05-04T01:35:29.667Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ec/dd/96da98f892250475bdf2328112d7468abdd4acc7b902b6af23f4ed958ea0/pytz-2026.2-py2.py3-none-any.whl", hash = "sha256:04156e608bee23d3792fd45c94ae47fae1036688e75032eea2e3bf0323d1f126", size = 510141, upload-time = "2026-05-04T01:35:27.408Z" },
+]
+
+[[package]]
+name = "pywin32"
+version = "312"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fe/1b/9cfdeac80ee45bebbbcb31f1b7b99a0d81a1c72de48d837be984e0e88b1d/pywin32-312-cp310-cp310-win32.whl", hash = "sha256:772235332b5d1024c696f11cea1ae4be7930f0a8b894bb43db14e3f435f1ff7e", size = 6361387, upload-time = "2026-06-04T07:49:14.329Z" },
+    { url = "https://files.pythonhosted.org/packages/33/b1/7afc96d041d982c27bc2df6f853d43f01fd273e3d39d04be3647ddeb533d/pywin32-312-cp310-cp310-win_amd64.whl", hash = "sha256:5dbc35d2b5320dc07f25fa31269cfb767471002b17de5eb067d03da68c7cb2db", size = 6926780, upload-time = "2026-06-04T07:49:16.881Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/3a/4140da9ad54108e517f4a16b2d83da3033e08662144623e1239587cb7db6/pywin32-312-cp310-cp310-win_arm64.whl", hash = "sha256:3020656e34f1cf7faeb7bccd2b84653a607c6ff0c55ada85e6487d61716deabd", size = 4307203, upload-time = "2026-06-04T07:49:18.993Z" },
 ]
 
 [[package]]
@@ -2382,7 +2928,7 @@ name = "pyzmq"
 version = "27.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "implementation_name == 'pypy' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "cffi", marker = "implementation_name == 'pypy' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e7/8d/5b3d5631c2f4b4b8862f64cd0c9eb777b5710eeb5125b4be8dd0a200a4c0/pyzmq-27.2.0.tar.gz", hash = "sha256:54d4259d1bfae24ecdb5ca79f7acc2eac6c286a02d6a0ae617797cb45f0726d3", size = 292316, upload-time = "2026-08-20T19:08:21.19Z" }
 wheels = [
@@ -2413,6 +2959,27 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/2d/5a/7a070d0e9911441061402013f0c64e5772ee781704c5dae093e6b051c6f6/pyzmq-27.2.0-pp310-pypy310_pp73-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:211350c3ccd4746bc5a85e8fe961bad1f7f2f274f67cf1f785fad7f96f562eea", size = 614493, upload-time = "2026-08-20T19:07:56.77Z" },
     { url = "https://files.pythonhosted.org/packages/b3/28/833485224e1bd8960cbf3539db465ab2bf23b50de885dc4225a637480539/pyzmq-27.2.0-pp310-pypy310_pp73-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:dde5e291548ca0f397623b5e523db5c90172b32aa4fd3ba464a79ea31a580b43", size = 780573, upload-time = "2026-08-20T19:07:58.18Z" },
     { url = "https://files.pythonhosted.org/packages/90/8e/52239b9b5fe4f9cf77e272e6a8c548c01ba407d08d3aeeb3220816669ef1/pyzmq-27.2.0-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:94242bd4de6af7e74665e14a88630bccd615057f6acfaf08a3a432551d604645", size = 553963, upload-time = "2026-08-20T19:08:00.015Z" },
+]
+
+[[package]]
+name = "rapidocr"
+version = "3.10.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorlog" },
+    { name = "numpy" },
+    { name = "omegaconf" },
+    { name = "opencv-python-headless" },
+    { name = "pillow" },
+    { name = "pyclipper" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "shapely" },
+    { name = "six" },
+    { name = "tqdm" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/59/07/203065283bba0c5e9c10af3602dc25ab3e59ee54dc2d1d22c8faeabf5ed8/rapidocr-3.10.0-py3-none-any.whl", hash = "sha256:2fc34e26cd0f48514804a94f8832283039c7334076bff60768b1fed9ad068050", size = 27288134, upload-time = "2026-10-08T15:07:45.98Z" },
 ]
 
 [[package]]
@@ -2559,6 +3126,22 @@ wheels = [
 ]
 
 [[package]]
+name = "rtree"
+version = "1.4.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/95/09/7302695875a019514de9a5dd17b8320e7a19d6e7bc8f85dcfb79a4ce2da3/rtree-1.4.1.tar.gz", hash = "sha256:c6b1b3550881e57ebe530cc6cffefc87cd9bf49c30b37b894065a9f810875e46", size = 52425, upload-time = "2025-08-13T19:32:01.413Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/04/d9/108cd989a4c0954e60b3cdc86fd2826407702b5375f6dfdab2802e5fed98/rtree-1.4.1-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:d672184298527522d4914d8ae53bf76982b86ca420b0acde9298a7a87d81d4a4", size = 468484, upload-time = "2025-08-13T19:31:50.593Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/cf/2710b6fd6b07ea0aef317b29f335790ba6adf06a28ac236078ed9bd8a91d/rtree-1.4.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:a7e48d805e12011c2cf739a29d6a60ae852fb1de9fc84220bbcef67e6e595d7d", size = 436325, upload-time = "2025-08-13T19:31:52.367Z" },
+    { url = "https://files.pythonhosted.org/packages/55/e1/4d075268a46e68db3cac51846eb6a3ab96ed481c585c5a1ad411b3c23aad/rtree-1.4.1-py3-none-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:efa8c4496e31e9ad58ff6c7df89abceac7022d906cb64a3e18e4fceae6b77f65", size = 459789, upload-time = "2025-08-13T19:31:53.926Z" },
+    { url = "https://files.pythonhosted.org/packages/d1/75/e5d44be90525cd28503e7f836d077ae6663ec0687a13ba7810b4114b3668/rtree-1.4.1-py3-none-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:12de4578f1b3381a93a655846900be4e3d5f4cd5e306b8b00aa77c1121dc7e8c", size = 507644, upload-time = "2025-08-13T19:31:55.164Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/85/b8684f769a142163b52859a38a486493b05bafb4f2fb71d4f945de28ebf9/rtree-1.4.1-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:b558edda52eca3e6d1ee629042192c65e6b7f2c150d6d6cd207ce82f85be3967", size = 1454478, upload-time = "2025-08-13T19:31:56.808Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/a4/c2292b95246b9165cc43a0c3757e80995d58bc9b43da5cb47ad6e3535213/rtree-1.4.1-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:f155bc8d6bac9dcd383481dee8c130947a4866db1d16cb6dff442329a038a0dc", size = 1555140, upload-time = "2025-08-13T19:31:58.031Z" },
+    { url = "https://files.pythonhosted.org/packages/74/25/5282c8270bfcd620d3e73beb35b40ac4ab00f0a898d98ebeb41ef0989ec8/rtree-1.4.1-py3-none-win_amd64.whl", hash = "sha256:efe125f416fd27150197ab8521158662943a40f87acab8028a1aac4ad667a489", size = 389358, upload-time = "2025-08-13T19:31:59.247Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/50/0a9e7e7afe7339bd5e36911f0ceb15fed51945836ed803ae5afd661057fd/rtree-1.4.1-py3-none-win_arm64.whl", hash = "sha256:3d46f55729b28138e897ffef32f7ce93ac335cb67f9120125ad3742a220800f0", size = 355253, upload-time = "2025-08-13T19:32:00.296Z" },
+]
+
+[[package]]
 name = "safetensors"
 version = "0.8.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2580,6 +3163,12 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/8e/3f/73ccf82579412b4a71c4ca673f10b5f1f888d7cf5af7fe24f27d30307be4/safetensors-0.8.0-cp310-abi3-win32.whl", hash = "sha256:2ddf52eac562eda224f99acfa7889d02968c1fd59a5b011ae7d8137c37e9c02d", size = 342401, upload-time = "2026-06-09T07:52:28.895Z" },
     { url = "https://files.pythonhosted.org/packages/1b/6d/3fba214c1e5e0f69991677ec3bc17023f0421776975e1de0c682dca475e2/safetensors-0.8.0-cp310-abi3-win_amd64.whl", hash = "sha256:096ec1a98435df7beb08853bb5aa9081a84f23d0adc67ed1a0a10550f608373f", size = 355540, upload-time = "2026-06-09T07:52:27.832Z" },
     { url = "https://files.pythonhosted.org/packages/8d/fc/7eedc3510d97878876e32774eebbeb61c43f148a96e915c84229a3e967aa/safetensors-0.8.0-cp310-abi3-win_arm64.whl", hash = "sha256:f7838e5135a406ad3e02efdcb8cf2e5397d368b0154537c4fec682dbc544d452", size = 340500, upload-time = "2026-06-09T07:52:26.745Z" },
+]
+
+[package.optional-dependencies]
+torch = [
+    { name = "numpy" },
+    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" } },
 ]
 
 [[package]]
@@ -2636,12 +3225,44 @@ wheels = [
 ]
 
 [[package]]
+name = "semchunk"
+version = "3.2.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mpire", extra = ["dill"], marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a9/a0/ce7e3d6cc76498fd594e667d10a03f17d7cced129e46869daec23523bf5a/semchunk-3.2.5.tar.gz", hash = "sha256:ee15e9a06a69a411937dd8fcf0a25d7ef389c5195863140436872a02c95b0218", size = 17667, upload-time = "2025-10-28T02:12:38.025Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f8/95/12d226ee4d207cb1f77a216baa7e1a8bae2639733c140abe8d0316d23a18/semchunk-3.2.5-py3-none-any.whl", hash = "sha256:fd09cc5f380bd010b8ca773bd81893f7eaf11d37dd8362a83d46cedaf5dae076", size = 13048, upload-time = "2025-10-28T02:12:36.724Z" },
+]
+
+[[package]]
 name = "send2trash"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c5/f0/184b4b5f8d00f2a92cf96eec8967a3d550b52cf94362dad1100df9e48d57/send2trash-2.1.0.tar.gz", hash = "sha256:1c72b39f09457db3c05ce1d19158c2cbef4c32b8bedd02c155e49282b7ea7459", size = 17255, upload-time = "2026-01-14T06:27:36.056Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1c/78/504fdd027da3b84ff1aecd9f6957e65f35134534ccc6da8628eb71e76d3f/send2trash-2.1.0-py3-none-any.whl", hash = "sha256:0da2f112e6d6bb22de6aa6daa7e144831a4febf2a87261451c4ad849fe9a873c", size = 17610, upload-time = "2026-01-14T06:27:35.218Z" },
+]
+
+[[package]]
+name = "shapely"
+version = "2.1.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4d/bc/0989043118a27cccb4e906a46b7565ce36ca7b57f5a18b78f4f1b0f72d9d/shapely-2.1.2.tar.gz", hash = "sha256:2ed4ecb28320a433db18a5bf029986aa8afcfd740745e78847e330d5d94922a9", size = 315489, upload-time = "2025-09-24T13:51:41.432Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/05/89/c3548aa9b9812a5d143986764dededfa48d817714e947398bdda87c77a72/shapely-2.1.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:7ae48c236c0324b4e139bea88a306a04ca630f49be66741b340729d380d8f52f", size = 1825959, upload-time = "2025-09-24T13:50:00.682Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/8a/7ebc947080442edd614ceebe0ce2cdbd00c25e832c240e1d1de61d0e6b38/shapely-2.1.2-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:eba6710407f1daa8e7602c347dfc94adc02205ec27ed956346190d66579eb9ea", size = 1629196, upload-time = "2025-09-24T13:50:03.447Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/86/c9c27881c20d00fc409e7e059de569d5ed0abfcec9c49548b124ebddea51/shapely-2.1.2-cp310-cp310-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:ef4a456cc8b7b3d50ccec29642aa4aeda959e9da2fe9540a92754770d5f0cf1f", size = 2951065, upload-time = "2025-09-24T13:50:05.266Z" },
+    { url = "https://files.pythonhosted.org/packages/50/8a/0ab1f7433a2a85d9e9aea5b1fbb333f3b09b309e7817309250b4b7b2cc7a/shapely-2.1.2-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:e38a190442aacc67ff9f75ce60aec04893041f16f97d242209106d502486a142", size = 3058666, upload-time = "2025-09-24T13:50:06.872Z" },
+    { url = "https://files.pythonhosted.org/packages/bb/c6/5a30ffac9c4f3ffd5b7113a7f5299ccec4713acd5ee44039778a7698224e/shapely-2.1.2-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:40d784101f5d06a1fd30b55fc11ea58a61be23f930d934d86f19a180909908a4", size = 3966905, upload-time = "2025-09-24T13:50:09.417Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/72/e92f3035ba43e53959007f928315a68fbcf2eeb4e5ededb6f0dc7ff1ecc3/shapely-2.1.2-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:f6f6cd5819c50d9bcf921882784586aab34a4bd53e7553e175dece6db513a6f0", size = 4129260, upload-time = "2025-09-24T13:50:11.183Z" },
+    { url = "https://files.pythonhosted.org/packages/42/24/605901b73a3d9f65fa958e63c9211f4be23d584da8a1a7487382fac7fdc5/shapely-2.1.2-cp310-cp310-win32.whl", hash = "sha256:fe9627c39c59e553c90f5bc3128252cb85dc3b3be8189710666d2f8bc3a5503e", size = 1544301, upload-time = "2025-09-24T13:50:12.521Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/89/6db795b8dd3919851856bd2ddd13ce434a748072f6fdee42ff30cbd3afa3/shapely-2.1.2-cp310-cp310-win_amd64.whl", hash = "sha256:1d0bfb4b8f661b3b4ec3565fa36c340bfb1cda82087199711f86a88647d26b2f", size = 1722074, upload-time = "2025-09-24T13:50:13.909Z" },
 ]
 
 [[package]]
@@ -2763,7 +3384,7 @@ dependencies = [
     { name = "toml" },
     { name = "typing-extensions" },
     { name = "uvicorn" },
-    { name = "watchdog", marker = "sys_platform != 'darwin' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "watchdog", marker = "sys_platform != 'darwin' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "websockets" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ce/8a/ccd27f3d5fb05734659a3c188b2c4014454d263e30ae31bb93445290b9cb/streamlit-1.63.0.tar.gz", hash = "sha256:1ea0121884d5606cf055b8c42600528daf07d0401eaabfc8e22f00e235ea53eb", size = 9911883, upload-time = "2026-09-01T17:12:32.456Z" }
@@ -2811,12 +3432,21 @@ wheels = [
 ]
 
 [[package]]
+name = "tabulate"
+version = "0.10.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/46/58/8c37dea7bbf769b20d58e7ace7e5edfe65b849442b00ffcdd56be88697c6/tabulate-0.10.0.tar.gz", hash = "sha256:e2cfde8f79420f6deeffdeda9aaec3b6bc5abce947655d17ac662b126e48a60d", size = 91754, upload-time = "2026-03-04T18:55:34.402Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/99/55/db07de81b5c630da5cbf5c7df646580ca26dfaefa593667fc6f2fe016d2e/tabulate-0.10.0-py3-none-any.whl", hash = "sha256:f0b0622e567335c8fabaaa659f1b33bcb6ddfe2e496071b743aa113f8774f2d3", size = 39814, upload-time = "2026-03-04T18:55:31.284Z" },
+]
+
+[[package]]
 name = "terminado"
 version = "0.18.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "os_name != 'nt' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "ptyprocess", marker = "os_name != 'nt' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "tornado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8a/11/965c6fd8e5cc254f1fe142d547387da17a8ebfd75a3455f637c663fb38a0/terminado-0.18.1.tar.gz", hash = "sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e", size = 32701, upload-time = "2024-03-12T14:34:39.026Z" }
@@ -2830,7 +3460,7 @@ version = "0.1.1.post2209072238"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "torch", version = "2.9.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bb/0f/72beeab4ff5221dc47127c80f8834b4bcd0cb36f6ba91c0b1d04a1233403/thop-0.1.1.post2209072238-py3-none-any.whl", hash = "sha256:01473c225231927d2ad718351f78ebf7cffe6af3bed464c4f1ba1ef0f7cdda27", size = 15443, upload-time = "2022-09-07T14:38:37.211Z" },
@@ -2916,7 +3546,8 @@ resolution-markers = [
     "sys_platform != 'win32'",
 ]
 dependencies = [
-    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "huggingface-hub", version = "1.33.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/e0/7c/2cabb2174e772636683008f2c5621949b645da7d303c596589e84516a184/tokenizers-0.23.3.tar.gz", hash = "sha256:cded33237c77caeef62944d32aa9a7ef42bdce2b3497e18d137e072a8c4be438", size = 385286, upload-time = "2026-10-09T10:16:55.759Z" }
 wheels = [
@@ -2969,23 +3600,23 @@ dependencies = [
     { name = "fsspec", marker = "extra == 'extra-13-data-snapshot-tfid'" },
     { name = "jinja2", marker = "extra == 'extra-13-data-snapshot-tfid'" },
     { name = "networkx", marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cuda-cupti-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cuda-nvrtc-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cuda-runtime-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cudnn-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cufft-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cufile-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-curand-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cusolver-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cusparse-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cusparselt-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-nccl-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-nvshmem-cu12", version = "3.3.20", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-nvtx-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cuda-cupti-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cuda-nvrtc-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cuda-runtime-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cudnn-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cufft-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cufile-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-curand-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cusolver-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cusparse-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cusparselt-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-nccl-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-nvshmem-cu12", version = "3.3.20", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-nvtx-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "sympy", marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "triton", version = "3.5.1", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "triton", version = "3.5.1", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "typing-extensions", marker = "extra == 'extra-13-data-snapshot-tfid'" },
 ]
 wheels = [
@@ -3004,29 +3635,29 @@ resolution-markers = [
     "sys_platform != 'win32'",
 ]
 dependencies = [
-    { name = "cuda-bindings", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "filelock", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "fsspec", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "jinja2", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "networkx", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "nvidia-cublas-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cuda-cupti-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cuda-nvrtc-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cuda-runtime-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cudnn-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cufft-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cufile-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-curand-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cusolver-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cusparse-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-cusparselt-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-nccl-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-nvshmem-cu12", version = "3.4.5", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "nvidia-nvtx-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "sympy", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
-    { name = "triton", version = "3.6.0", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
-    { name = "typing-extensions", marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "cuda-bindings", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "filelock", marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "fsspec", marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "jinja2", marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "networkx", marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cuda-cupti-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cuda-nvrtc-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cuda-runtime-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cudnn-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cufft-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cufile-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-curand-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cusolver-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cusparse-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-cusparselt-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-nccl-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-nvshmem-cu12", version = "3.4.5", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "nvidia-nvtx-cu12", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "sympy", marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "triton", version = "3.6.0", source = { registry = "https://pypi.org/simple" }, marker = "(platform_machine == 'x86_64' and sys_platform == 'linux' and extra == 'extra-13-data-snapshot-docling-heron') or (platform_machine == 'x86_64' and sys_platform == 'linux' and extra != 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (platform_machine != 'x86_64' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (sys_platform != 'linux' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "typing-extensions", marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5b/30/bfebdd8ec77db9a79775121789992d6b3b75ee5494971294d7b4b7c999bc/torch-2.10.0-2-cp310-none-macosx_11_0_arm64.whl", hash = "sha256:2b980edd8d7c0a68c4e951ee1856334a43193f98730d97408fbd148c1a933313", size = 79411457, upload-time = "2026-02-10T21:44:59.189Z" },
@@ -3099,7 +3730,7 @@ name = "tqdm"
 version = "4.67.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737, upload-time = "2024-11-24T20:12:22.481Z" }
 wheels = [
@@ -3149,7 +3780,8 @@ resolution-markers = [
     "sys_platform != 'win32'",
 ]
 dependencies = [
-    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "huggingface-hub", version = "1.33.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "huggingface-hub", version = "2.2.0", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "numpy" },
     { name = "packaging" },
     { name = "pyyaml" },
@@ -3157,11 +3789,91 @@ dependencies = [
     { name = "safetensors" },
     { name = "tokenizers", version = "0.23.3", source = { registry = "https://pypi.org/simple" } },
     { name = "tqdm" },
-    { name = "typer" },
+    { name = "typer", version = "0.26.8", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "typer", version = "0.27.3", source = { registry = "https://pypi.org/simple" }, marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/32/03/2e8d6da6a582a0fdbaa7af9c0dab72dac113e6e3ea3b98d6ed67248322cc/transformers-5.20.1.tar.gz", hash = "sha256:25b30879e4c243f00630c1079171ede6d4f6bf76e68f978acd47628a640bc8a0", size = 10224416, upload-time = "2026-10-16T13:02:04.181Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ae/ba/057af605774c3c7a9228ce61d88040749134ef320426403b31bb73755d43/transformers-5.20.1-py3-none-any.whl", hash = "sha256:5f51ce444193e5d0a751e3fa489ddbc2224ff12f6675a5cfefd4044b09757c19", size = 12844669, upload-time = "2026-10-16T13:02:00.488Z" },
+]
+
+[[package]]
+name = "tree-sitter"
+version = "0.26.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f7/03/5600b84aff2e6c4fe80cfebb4063fe2f50299521befe5f6092ab8c082f4a/tree_sitter-0.26.0.tar.gz", hash = "sha256:b40c219edccc4564530c96f8f1556f6202b37cda964d1cbd7bd2b7e68b40a245", size = 191423, upload-time = "2026-06-30T12:14:27.933Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a4/2f/201c33ea65875d8e4ec73e4d1949718ec49780d84c0adf19793ef75d99a2/tree_sitter-0.26.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:ff527388df14cb5009f9274faf78cc69a7393ae6acf3b04784b8acca249519c5", size = 148676, upload-time = "2026-06-30T12:13:42.718Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/db/05b9d45dd2b9827bf91b6819e749227ca6d686d58658292c0f149294b18e/tree_sitter-0.26.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:7bcbadfa614326debef581957d5c780a9d7f66065c13deea61aa21d1dd36263f", size = 140757, upload-time = "2026-06-30T12:13:44.007Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/08/1e1da65c1585b8d70130b26d65b41a71737ab623c1fab1008479c2b95b50/tree_sitter-0.26.0-cp310-cp310-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:2f941cea06128c1f74f8937a8e2a90c7db49cf4be6647cd9e07d92a306d91517", size = 631526, upload-time = "2026-06-30T12:13:45.008Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/b7/06353044a80ee58a71e884b4a9b2913705849d81025d87308abdfef8f883/tree_sitter-0.26.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:e9e46b664887d8c1014f1fb33e09454bbdd9ec1fe29b7fd02dde7b46bc1bb81a", size = 658688, upload-time = "2026-06-30T12:13:46.491Z" },
+    { url = "https://files.pythonhosted.org/packages/df/56/c4b22ccbc4f89ae507c0b76e29f363ad4f16eb38c43f7392b3eb9afec64e/tree_sitter-0.26.0-cp310-cp310-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:763627db05db34f12333081bd7422cc1c675893d373cc870b3e9249e200700e4", size = 644399, upload-time = "2026-06-30T12:13:47.719Z" },
+    { url = "https://files.pythonhosted.org/packages/b5/b7/6b3f0192d5b9b49a199cb0dcd5e45dd1327a82c52c80a49edd790e3a2d9b/tree_sitter-0.26.0-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:17a1c5cfd3a05d5c7c86bf4282b6ef8092c91dc0a98390499669c3fedb7d1814", size = 655316, upload-time = "2026-06-30T12:13:49.03Z" },
+    { url = "https://files.pythonhosted.org/packages/a5/6b/f7475c8f8d699671c2a80c3ed16f5cddd161280c6ed5b845117179c66075/tree_sitter-0.26.0-cp310-cp310-win_amd64.whl", hash = "sha256:f289be0225ba2ace8e87d6c9639b2bc9ff2b5271afb7c5d39282a4a00e248682", size = 129494, upload-time = "2026-06-30T12:13:50.242Z" },
+    { url = "https://files.pythonhosted.org/packages/f6/20/0df8dd708638cba7ef875fff4ce80122af7f604f1f0b566de2164108bc01/tree_sitter-0.26.0-cp310-cp310-win_arm64.whl", hash = "sha256:526a165a2cb1d1f79e247d400f0e0acd8d49a817d6f312d543513af200b1f886", size = 116486, upload-time = "2026-06-30T12:13:51.21Z" },
+]
+
+[[package]]
+name = "tree-sitter-c"
+version = "0.24.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/c9/3834f3d9278251aea7312274971bc4c45b17aec2490fd4b884d93bd7019a/tree_sitter_c-0.24.2.tar.gz", hash = "sha256:1628584df0299b5a340aa63f8e67b6c97c91517f52fa7e7a4c557e40adb330a9", size = 228397, upload-time = "2026-04-22T08:06:14.491Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/28/c1/26ed17730ec2c17bedc1b673349e5e0a466c578e3eb0327c3b73cf52bf97/tree_sitter_c-0.24.2-cp310-abi3-macosx_10_9_x86_64.whl", hash = "sha256:4d4579a8b54f0a442f903d88d3304cab77cd5c2031d4015baa4f2f8e15d6dcb7", size = 81016, upload-time = "2026-04-22T08:06:07.208Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/1c/1140db75e7e375cda3c68792a33826c4fd40b5b98c3259d93c75f6c8368f/tree_sitter_c-0.24.2-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:97bc80a224d48215d4e6e6376bf30d114f4c317b8145ff1b02afe785d4ba7bdd", size = 86213, upload-time = "2026-04-22T08:06:08.136Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/8c/0dfb88d726f8821d1c4c36042f092be974a800afd734307a595b8604190c/tree_sitter_c-0.24.2-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:5041ef67eb68ce6bc8bb0b1f8ef3a5585ce523dae0c7eec109ab0627dd75aede", size = 94264, upload-time = "2026-04-22T08:06:08.918Z" },
+    { url = "https://files.pythonhosted.org/packages/87/78/47dc570e7aee6b0a1ecc2520b30639cc2b06003154c9ab0672d86bf720d5/tree_sitter_c-0.24.2-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:c098bedcd5ac86ff93fa734d51d1dd86aed40fd5ed7d634c7af11380a0469969", size = 94560, upload-time = "2026-04-22T08:06:09.852Z" },
+    { url = "https://files.pythonhosted.org/packages/29/37/75d59d3f74f4cfc00f04472917e933d8a9c9fdc6eff980ef9552e010e6aa/tree_sitter_c-0.24.2-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:82842c5a5f2acd93f4de10038c33ac179c8979defc39376f990348d6289e933b", size = 94023, upload-time = "2026-04-22T08:06:10.682Z" },
+    { url = "https://files.pythonhosted.org/packages/64/57/8fc655d5a446a70a637e92b98bd2fdaab88bf5bb5b36076ac4add544808d/tree_sitter_c-0.24.2-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:e2b42e8e22202c251f8629306f9321233542e07a6e01611b5fe83489272143eb", size = 94160, upload-time = "2026-04-22T08:06:11.497Z" },
+    { url = "https://files.pythonhosted.org/packages/c1/f7/72a1d6b42dd31fd37e03ff67e7dc5ee572301499e6b216002b8dd42a1714/tree_sitter_c-0.24.2-cp310-abi3-win_amd64.whl", hash = "sha256:abb549225091f7b25df2dd3a0143ece6e208f7055d8bcb4700b41ee79b9ef1e1", size = 84669, upload-time = "2026-04-22T08:06:12.347Z" },
+    { url = "https://files.pythonhosted.org/packages/e2/9d/7475d9ae8ef679aa36c7dfe6c903ab78e573651c68b6ef9862d6a3f994db/tree_sitter_c-0.24.2-cp310-abi3-win_arm64.whl", hash = "sha256:4a2f4371cd816cc3153458f69062135ebb2ea5f275ddd90494e5c823d778204a", size = 82956, upload-time = "2026-04-22T08:06:13.364Z" },
+]
+
+[[package]]
+name = "tree-sitter-javascript"
+version = "0.25.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/59/e0/e63103c72a9d3dfd89a31e02e660263ad84b7438e5f44ee82e443e65bbde/tree_sitter_javascript-0.25.0.tar.gz", hash = "sha256:329b5414874f0588a98f1c291f1b28138286617aa907746ffe55adfdcf963f38", size = 132338, upload-time = "2025-09-01T07:13:44.792Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2c/df/5106ac250cd03661ebc3cc75da6b3d9f6800a3606393a0122eca58038104/tree_sitter_javascript-0.25.0-cp310-abi3-macosx_10_9_x86_64.whl", hash = "sha256:b70f887fb269d6e58c349d683f59fa647140c410cfe2bee44a883b20ec92e3dc", size = 64052, upload-time = "2025-09-01T07:13:36.865Z" },
+    { url = "https://files.pythonhosted.org/packages/b1/8f/6b4b2bc90d8ab3955856ce852cc9d1e82c81d7ab9646385f0e75ffd5b5d3/tree_sitter_javascript-0.25.0-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:8264a996b8845cfce06965152a013b5d9cbb7d199bc3503e12b5682e62bb1de1", size = 66440, upload-time = "2025-09-01T07:13:37.962Z" },
+    { url = "https://files.pythonhosted.org/packages/5f/c4/7da74ecdcd8a398f88bd003a87c65403b5fe0e958cdd43fbd5fd4a398fcf/tree_sitter_javascript-0.25.0-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:9dc04ba91fc8583344e57c1f1ed5b2c97ecaaf47480011b92fbeab8dda96db75", size = 99728, upload-time = "2025-09-01T07:13:38.755Z" },
+    { url = "https://files.pythonhosted.org/packages/96/c8/97da3af4796495e46421e9344738addb3602fa6426ea695be3fcbadbee37/tree_sitter_javascript-0.25.0-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:199d09985190852e0912da2b8d26c932159be314bc04952cf917ed0e4c633e6b", size = 106072, upload-time = "2025-09-01T07:13:39.798Z" },
+    { url = "https://files.pythonhosted.org/packages/13/be/c964e8130be08cc9bd6627d845f0e4460945b158429d39510953bbcb8fcc/tree_sitter_javascript-0.25.0-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:dfcf789064c58dc13c0a4edb550acacfc6f0f280577f1e7a00de3e89fc7f8ddc", size = 104388, upload-time = "2025-09-01T07:13:40.866Z" },
+    { url = "https://files.pythonhosted.org/packages/ee/89/9b773dee0f8961d1bb8d7baf0a204ab587618df19897c1ef260916f318ec/tree_sitter_javascript-0.25.0-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:1b852d3aee8a36186dbcc32c798b11b4869f9b5041743b63b65c2ef793db7a54", size = 98377, upload-time = "2025-09-01T07:13:41.838Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/dc/d90cb1790f8cec9b4878d278ad9faf7c8f893189ce0f855304fd704fc274/tree_sitter_javascript-0.25.0-cp310-abi3-win_amd64.whl", hash = "sha256:e5ed840f5bd4a3f0272e441d19429b26eedc257abe5574c8546da6b556865e3c", size = 62975, upload-time = "2025-09-01T07:13:42.828Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/1f/f9eba1038b7d4394410f3c0a6ec2122b590cd7acb03f196e52fa57ebbe72/tree_sitter_javascript-0.25.0-cp310-abi3-win_arm64.whl", hash = "sha256:622a69d677aa7f6ee2931d8c77c981a33f0ebb6d275aa9d43d3397c879a9bb0b", size = 61668, upload-time = "2025-09-01T07:13:43.803Z" },
+]
+
+[[package]]
+name = "tree-sitter-python"
+version = "0.25.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/8b/c992ff0e768cb6768d5c96234579bf8842b3a633db641455d86dd30d5dac/tree_sitter_python-0.25.0.tar.gz", hash = "sha256:b13e090f725f5b9c86aa455a268553c65cadf325471ad5b65cd29cac8a1a68ac", size = 159845, upload-time = "2025-09-11T06:47:58.159Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cf/64/a4e503c78a4eb3ac46d8e72a29c1b1237fa85238d8e972b063e0751f5a94/tree_sitter_python-0.25.0-cp310-abi3-macosx_10_9_x86_64.whl", hash = "sha256:14a79a47ddef72f987d5a2c122d148a812169d7484ff5c75a3db9609d419f361", size = 73790, upload-time = "2025-09-11T06:47:47.652Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/1d/60d8c2a0cc63d6ec4ba4e99ce61b802d2e39ef9db799bdf2a8f932a6cd4b/tree_sitter_python-0.25.0-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:480c21dbd995b7fe44813e741d71fed10ba695e7caab627fb034e3828469d762", size = 76691, upload-time = "2025-09-11T06:47:49.038Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/cb/d9b0b67d037922d60cbe0359e0c86457c2da721bc714381a63e2c8e35eba/tree_sitter_python-0.25.0-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:86f118e5eecad616ecdb81d171a36dde9bef5a0b21ed71ea9c3e390813c3baf5", size = 108133, upload-time = "2025-09-11T06:47:50.499Z" },
+    { url = "https://files.pythonhosted.org/packages/40/bd/bf4787f57e6b2860f3f1c8c62f045b39fb32d6bac4b53d7a9e66de968440/tree_sitter_python-0.25.0-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:be71650ca2b93b6e9649e5d65c6811aad87a7614c8c1003246b303f6b150f61b", size = 110603, upload-time = "2025-09-11T06:47:51.985Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/25/feff09f5c2f32484fbce15db8b49455c7572346ce61a699a41972dea7318/tree_sitter_python-0.25.0-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:e6d5b5799628cc0f24691ab2a172a8e676f668fe90dc60468bee14084a35c16d", size = 108998, upload-time = "2025-09-11T06:47:53.046Z" },
+    { url = "https://files.pythonhosted.org/packages/75/69/4946da3d6c0df316ccb938316ce007fb565d08f89d02d854f2d308f0309f/tree_sitter_python-0.25.0-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:71959832fc5d9642e52c11f2f7d79ae520b461e63334927e93ca46cd61cd9683", size = 107268, upload-time = "2025-09-11T06:47:54.388Z" },
+    { url = "https://files.pythonhosted.org/packages/ed/a2/996fc2dfa1076dc460d3e2f3c75974ea4b8f02f6bc925383aaae519920e8/tree_sitter_python-0.25.0-cp310-abi3-win_amd64.whl", hash = "sha256:9bcde33f18792de54ee579b00e1b4fe186b7926825444766f849bf7181793a76", size = 76073, upload-time = "2025-09-11T06:47:55.773Z" },
+    { url = "https://files.pythonhosted.org/packages/07/19/4b5569d9b1ebebb5907d11554a96ef3fa09364a30fcfabeff587495b512f/tree_sitter_python-0.25.0-cp310-abi3-win_arm64.whl", hash = "sha256:0fbf6a3774ad7e89ee891851204c2e2c47e12b63a5edbe2e9156997731c128bb", size = 74169, upload-time = "2025-09-11T06:47:56.747Z" },
+]
+
+[[package]]
+name = "tree-sitter-typescript"
+version = "0.23.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1e/fc/bb52958f7e399250aee093751e9373a6311cadbe76b6e0d109b853757f35/tree_sitter_typescript-0.23.2.tar.gz", hash = "sha256:7b167b5827c882261cb7a50dfa0fb567975f9b315e87ed87ad0a0a3aedb3834d", size = 773053, upload-time = "2024-11-11T02:36:11.396Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/28/95/4c00680866280e008e81dd621fd4d3f54aa3dad1b76b857a19da1b2cc426/tree_sitter_typescript-0.23.2-cp39-abi3-macosx_10_9_x86_64.whl", hash = "sha256:3cd752d70d8e5371fdac6a9a4df9d8924b63b6998d268586f7d374c9fba2a478", size = 286677, upload-time = "2024-11-11T02:35:58.839Z" },
+    { url = "https://files.pythonhosted.org/packages/8f/2f/1f36fda564518d84593f2740d5905ac127d590baf5c5753cef2a88a89c15/tree_sitter_typescript-0.23.2-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:c7cc1b0ff5d91bac863b0e38b1578d5505e718156c9db577c8baea2557f66de8", size = 302008, upload-time = "2024-11-11T02:36:00.733Z" },
+    { url = "https://files.pythonhosted.org/packages/96/2d/975c2dad292aa9994f982eb0b69cc6fda0223e4b6c4ea714550477d8ec3a/tree_sitter_typescript-0.23.2-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4b1eed5b0b3a8134e86126b00b743d667ec27c63fc9de1b7bb23168803879e31", size = 351987, upload-time = "2024-11-11T02:36:02.669Z" },
+    { url = "https://files.pythonhosted.org/packages/49/d1/a71c36da6e2b8a4ed5e2970819b86ef13ba77ac40d9e333cb17df6a2c5db/tree_sitter_typescript-0.23.2-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e96d36b85bcacdeb8ff5c2618d75593ef12ebaf1b4eace3477e2bdb2abb1752c", size = 344960, upload-time = "2024-11-11T02:36:04.443Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/cb/f57b149d7beed1a85b8266d0c60ebe4c46e79c9ba56bc17b898e17daf88e/tree_sitter_typescript-0.23.2-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:8d4f0f9bcb61ad7b7509d49a1565ff2cc363863644a234e1e0fe10960e55aea0", size = 340245, upload-time = "2024-11-11T02:36:06.473Z" },
+    { url = "https://files.pythonhosted.org/packages/8b/ab/dd84f0e2337296a5f09749f7b5483215d75c8fa9e33738522e5ed81f7254/tree_sitter_typescript-0.23.2-cp39-abi3-win_amd64.whl", hash = "sha256:3f730b66396bc3e11811e4465c41ee45d9e9edd6de355a58bbbc49fa770da8f9", size = 278015, upload-time = "2024-11-11T02:36:07.631Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/e4/81f9a935789233cf412a0ed5fe04c883841d2c8fb0b7e075958a35c65032/tree_sitter_typescript-0.23.2-cp39-abi3-win_arm64.whl", hash = "sha256:05db58f70b95ef0ea126db5560f3775692f609589ed6f8dd0af84b7f19f1cbb7", size = 274052, upload-time = "2024-11-11T02:36:09.514Z" },
 ]
 
 [[package]]
@@ -3199,13 +3911,36 @@ wheels = [
 
 [[package]]
 name = "typer"
+version = "0.26.8"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform != 'win32'",
+]
+dependencies = [
+    { name = "annotated-doc", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "colorama", marker = "(sys_platform == 'win32' and extra == 'extra-13-data-snapshot-docling-heron') or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "rich", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "shellingham", marker = "extra == 'extra-13-data-snapshot-docling-heron' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7c/f7/68adc395201b20b872d68e975386832e8005ffeacedd43a1d837a32815be/typer-0.26.8.tar.gz", hash = "sha256:c244a6bd558886fe3f8780efb6bdd28bb9aff005a94eedebaa5cb32926fe2f7e", size = 202097, upload-time = "2026-06-26T09:22:45.705Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/80/87/b9fd69c92c6102a066e1b86a35243f53e70bd4c709f2a26d9f4fee4f4dc0/typer-0.26.8-py3-none-any.whl", hash = "sha256:3512ca79ac5c11113414b36e80281b872884477722440691c89d1112e321a49c", size = 122564, upload-time = "2026-06-26T09:22:44.72Z" },
+]
+
+[[package]]
+name = "typer"
 version = "0.27.3"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "sys_platform == 'win32'",
+    "sys_platform != 'win32'",
+]
 dependencies = [
-    { name = "annotated-doc" },
-    { name = "colorama", marker = "sys_platform == 'win32'" },
-    { name = "rich" },
-    { name = "shellingham" },
+    { name = "annotated-doc", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "colorama", marker = "(sys_platform == 'win32' and extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr') or (extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid')" },
+    { name = "rich", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
+    { name = "shellingham", marker = "(extra == 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-tfid') or (extra != 'extra-13-data-snapshot-docling-heron' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/03/51/d33db42cc72ffd8c30777547b42d01f0cbf9d95a770457698d0174b3ed71/typer-0.27.3.tar.gz", hash = "sha256:d0396f770a560ab1b0a8504e13b5f254b728cedb05c61cf0359e944e50ce8901", size = 205303, upload-time = "2026-10-06T17:24:16.61Z" }
 wheels = [
@@ -3276,9 +4011,9 @@ dependencies = [
     { name = "requests" },
     { name = "scipy" },
     { name = "torch", version = "2.9.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "torchvision", version = "0.24.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "torchvision", version = "0.25.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "torchvision", version = "0.25.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
     { name = "ultralytics-thop" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/00/75/956691013731a27fbabe929620fa9cf90bdd17aa4c0a0c75ab5127a4b004/ultralytics-8.4.63.tar.gz", hash = "sha256:0b04a1374ecc1090c5387228fa37290be7a29979c4c06b2b8edab5eac19f94a4", size = 1099912, upload-time = "2026-06-09T17:36:30.028Z" }
@@ -3293,7 +4028,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
     { name = "torch", version = "2.9.1", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-tfid'" },
-    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-unlimitedocr' or extra != 'extra-13-data-snapshot-tfid'" },
+    { name = "torch", version = "2.10.0", source = { registry = "https://pypi.org/simple" }, marker = "extra == 'extra-13-data-snapshot-docling-heron' or extra != 'extra-13-data-snapshot-tfid' or (extra == 'extra-13-data-snapshot-tfid' and extra == 'extra-13-data-snapshot-unlimitedocr')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/98/c6/d25cb53e141242f74950744179c21b8798bb09b9e7161465ecda4f577ddf/ultralytics_thop-2.0.20.tar.gz", hash = "sha256:f3595e0d8c6fd0b9f62fc2cd9be921755e2649a05c34f1fabaea0bff7295d641", size = 34682, upload-time = "2026-06-06T11:42:42.184Z" }
 wheels = [
@@ -3446,6 +4181,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/13/d3/882d50452c6fbd13f24fe5d2644b97cdad2565a7e1522cbb6312de8a52cf/wrapt-2.2.1-cp310-cp310-win_amd64.whl", hash = "sha256:d7f513d3185e6fec82d0c3518f2e6365d8b4e49f5f45f29640d5162d56a23b54", size = 80350, upload-time = "2026-05-22T14:47:41.194Z" },
     { url = "https://files.pythonhosted.org/packages/58/0f/148376523b4e370692286a9ba14d5715cf3c5b86da3bd3630926367b6b73/wrapt-2.2.1-cp310-cp310-win_arm64.whl", hash = "sha256:44255c84bc57554fed822e83e70036b51afa9edb56fc7ca56c54410ece7898c9", size = 79149, upload-time = "2026-05-22T14:47:42.835Z" },
     { url = "https://files.pythonhosted.org/packages/53/46/29ac9daf11a86c22a8c38cd9236c62928ccae83f7ceb06bd3b0467cf9d05/wrapt-2.2.1-py3-none-any.whl", hash = "sha256:3aafea2975caef8ca49400640dde02cc7426e798f24870ed01f490bc3cffd32f", size = 61000, upload-time = "2026-05-22T14:49:41.593Z" },
+]
+
+[[package]]
+name = "xlsxwriter"
+version = "3.2.9"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/46/2c/c06ef49dc36e7954e55b802a8b231770d286a9758b3d936bd1e04ce5ba88/xlsxwriter-3.2.9.tar.gz", hash = "sha256:254b1c37a368c444eac6e2f867405cc9e461b0ed97a3233b2ac1e574efb4140c", size = 215940, upload-time = "2025-09-16T00:16:21.63Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3a/0c/3662f4a66880196a590b202f0db82d919dd2f89e99a27fadef91c4a33d41/xlsxwriter-3.2.9-py3-none-any.whl", hash = "sha256:9a5db42bc5dff014806c58a20b9eae7322a134abb6fce3c92c181bfb275ec5b3", size = 175315, upload-time = "2025-09-16T00:16:20.108Z" },
 ]
 
 [[package]]

@@ -17,6 +17,7 @@ and produces semantic metadata.
 | YOLO11 Document Layout | `yolo11` | `data_snapshot.inference.yolo11` |
 | YOLO26 Document Layout | `yolo26` | `data_snapshot.inference.yolo26` |
 | Unlimited-OCR | `unlimitedocr` | `data_snapshot.inference.unlimitedocr` |
+| Docling Heron (native pipeline) | `docling_heron` | `data_snapshot.inference.docling_heron` |
 
 Install only the adapter required for a run:
 
@@ -31,9 +32,8 @@ control.
 
 Run `uv sync --locked --extra <model>` before switching adapters, and use
 `uv run --no-sync` afterward. Include `--extra dev`, `--extra test`, or other
-extras in the same sync when that workflow needs them. `tfid` and `unlimitedocr`
-require incompatible Transformers and PyTorch versions and cannot be installed
-together; `uv sync --all-extras` is unsupported.
+extras in the same sync when that workflow needs them. `tfid` conflicts with
+both `unlimitedocr` and `docling_heron`; `uv sync --all-extras` is unsupported.
 
 ## Run one adapter
 
@@ -95,6 +95,100 @@ supports Python 3.10; the older Baidu example's tested Python 3.12 environment
 is not used by this adapter. Offline tests do not verify checkpoint loading or
 CUDA compatibility; run the command above on a small input only when ready to
 download weights and execute the model.
+
+### Native Docling Heron
+
+Install the model extra, then prefetch the pinned layout model and the English
+OCR assets explicitly. The adapter itself requires local assets and does not
+download missing models:
+
+```shell
+uv sync --locked --extra docling_heron
+uv run --no-sync python - <<'PY'
+from pathlib import Path
+from huggingface_hub import snapshot_download
+from docling.models.stages.ocr.rapid_ocr_model import RapidOcrModel
+from data_snapshot.inference.docling_heron import MODEL_NAME, MODEL_REVISION
+
+root = Path("models/docling")
+snapshot_download(
+    MODEL_NAME, revision=MODEL_REVISION,
+    local_dir=root / MODEL_NAME.replace("/", "--"),
+    allow_patterns=["*.json", "*.safetensors"],
+)
+RapidOcrModel.download_models(
+    backend="onnxruntime", lang="en", local_dir=root / "RapidOcr",
+)
+PY
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 uv run --no-sync \
+    python -m data_snapshot.inference.docling_heron \
+    --input_pdf_dir=pdf_input/ \
+    --output_json_path=data/evaluation_input/docling_heron.json \
+    --device=cuda:0
+```
+
+Use `--artifacts_path` for another prefetched artifact root. Heron is fixed to
+revision `8f39ad3c0b4c58e9c2d2c84a38465abf757272d8`; the adapter verifies its
+weight SHA-256. The runtime uses Docling 2.140.0, Transformers 5.20.1, FP32,
+batch size 1, and English RapidOCR on CPU through ONNX Runtime. Table structure
+recognition, enrichment, and compilation are disabled. Docling's default engine
+confidence threshold is 0.3; its native layout postprocessing and reading-order
+rules remain enabled. No custom detection or association rules are added.
+
+Native `picture` and `table` layout clusters become `Figure` and `Table`, with
+their native confidence and point coordinates normalized by page dimensions.
+The shared `0.008` area filter remains enabled. The evaluation boxes are not
+expanded to captions or footnotes. Native document JSON, including all native
+caption/footnote references, text, and provenance, is stored separately in
+`<prediction stem>.native/<PDF filename>.json`, including objects removed by
+the benchmark area filter. No spatial matching is used to invent links.
+This is Docling's assembled document, not a full dump of every detector proposal
+or all-class confidence scores. The nine-PDF diagnostic trials also retain
+`native-layout.json`, containing every postprocessed layout cluster's label,
+bounding box, and confidence. Additional labels are excluded from evaluation.
+
+Docling consumes PDFs through its own `docling-parse` backend rather than the
+repository's PyMuPDF renderer. Its layout stage requests page images at scale
+1 and the pinned processor resizes to 640 by 640. Comparisons with the saved
+300 DPI PyMuPDF baseline therefore compare complete pipelines.
+
+The benchmark retains native JSON without page-image payloads and does not
+mass-export crops. With retained page images, Docling's native
+`item.get_image(document)` crops the item provenance bounds; caption/footnote
+references do not enlarge that crop. Text already inside the detected bounds
+can still appear. The single-PDF smoke evidence includes example native crops.
+
+On 2026-10-19 the pre-integration smoke processed both pages of
+`08072015_northgovernorateprofile.pdf` on a GTX 1650 Ti (4 GiB), using the
+settings above: 15.18 seconds including initialization/conversion, 2651 MiB
+peak process RSS, 299 MiB peak PyTorch-allocated GPU memory and 348 MiB reserved.
+Both page overlays were inspected; native output had five pictures and one
+table, with no caption/footnote links on that PDF. GPU measurements cover only
+PyTorch's allocator, and these measurements do not establish full-corpus limits.
+
+The subsequent fixed nine-PDF sample completed all 170 pages with no conversion
+failures, schema errors, or document mismatches. It retained 26 native caption
+links and five footnote links, with all references resolving. These checks verify
+preservation, not the correctness of Docling's associations. At evaluation IoU
+0.5, Figure precision/recall were 0.326/0.824 and Table precision/recall were
+0.465/0.930; these are sample diagnostics, not half-benchmark scores.
+
+Keep the serial document loop and layout batch size 1 on the tested machine.
+The nine-PDF baseline took 652.26 seconds (3547 MiB peak process RSS, 348 MiB
+PyTorch-reserved VRAM). Layout batch size 4 took 705.47 seconds and 952 MiB
+reserved VRAM. It retained the same 129 detections and detection counts, with
+maximum normalized coordinate drift of `2.69e-7` and score drift of `4.99e-5`;
+native links and text were unchanged. Native two-document concurrency took
+212.13 seconds for the first six PDFs / 61 pages, versus 206.27 seconds serial,
+and was stopped at the user's request. All six native document JSON files were
+identical. Neither experiment demonstrated a speed gain, so no experimental
+execution options are added. Timings are single trials, include initialization
+and native JSON export, and exclude interpreter imports and evaluation; close
+timing differences should not be treated as statistically established slowdowns.
+
+Existing prediction files and native evidence directories are protected. For
+a failed attempt, use a fresh output location; the legacy batch runner is not
+extended for this adapter.
 
 ## Batch extraction
 

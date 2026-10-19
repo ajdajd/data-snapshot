@@ -36,6 +36,16 @@ def test_checked_in_paper_config(model: str) -> None:
     assert config["output_root"] == ROOT / "data/evaluation_runs/pymupdf"
 
 
+def test_checked_in_docling_config() -> None:
+    """Keep native Docling output separate from PyMuPDF baseline evidence."""
+    module = _load_cli_module()
+    config = module._load_config(_CONFIG_DIR / "docling_heron_benchmark.json")
+    assert config["model"] == "docling_heron"
+    assert config["output_root"] == ROOT / "data/evaluation_runs/docling"
+    assert config["sources"] == ["unhcr", "prwp", "refugee"]
+    assert config["adapter_config"] == {"artifacts_path": "models/docling"}
+
+
 def test_source_and_corpus_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     module = _load_cli_module()
     config_path = tmp_path / "benchmark.json"

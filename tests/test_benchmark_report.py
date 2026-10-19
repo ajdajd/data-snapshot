@@ -54,3 +54,44 @@ def test_benchmark_markdown(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="Document mismatch"):
         module.main(["--output-root", str(tmp_path), "--overwrite"])
     assert output.read_text() == text
+
+
+def test_docling_comparison_keeps_native_renderer_note(tmp_path: Path) -> None:
+    """Read Docling from a separate root without changing the baseline report.
+
+    Parameters
+    ----------
+    tmp_path : Path
+        Separate baseline and native Docling report roots.
+    """
+    spec = importlib.util.spec_from_file_location(
+        "benchmark_report", ROOT / "scripts/summarize_benchmark.py"
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    metrics = {key: 0.5 for key in module.METRICS.values()}
+    report = {
+        "documents_mismatch": {"only_gt": [], "only_pred": []},
+        "metrics": {"0.5": {"per_class": {"Figure": metrics, "Table": metrics}}},
+    }
+    path = tmp_path / "native/docling_heron/reports/corpus.json"
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(report))
+    baseline = tmp_path / "baseline"
+    baseline.mkdir()
+    module.main(
+        [
+            "--output-root",
+            str(baseline),
+            "--docling-root",
+            str(tmp_path / "native"),
+            "--output",
+            str(tmp_path / "comparison.md"),
+        ]
+    )
+    text = (tmp_path / "comparison.md").read_text()
+    assert "Docling Heron" in text
+    assert "complete pipelines" in text
+    assert "crops are not expanded" in text
+    assert not (baseline / "report.md").exists()

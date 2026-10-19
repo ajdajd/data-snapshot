@@ -41,9 +41,17 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, help="Default: <output-root>/report.md.")
     parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument(
+        "--docling-root",
+        type=Path,
+        help="Additional benchmark root containing docling_heron/reports/.",
+    )
     args = parser.parse_args(argv)
+    models = dict(MODELS)
+    if args.docling_root is not None:
+        models["docling_heron"] = "Docling Heron"
     reports: dict[str, dict[str, Any]] = {}
-    for model in MODELS:
+    for model in models:
         reports[model] = {}
         for source in ("corpus", *SOURCES):
             relative = (
@@ -51,7 +59,8 @@ def main(argv: Sequence[str] | None = None) -> None:
                 if source == "corpus"
                 else Path("sources") / f"{source}.json"
             )
-            path = args.output_root / model / "reports" / relative
+            root = args.docling_root if model == "docling_heron" else args.output_root
+            path = root / model / "reports" / relative
             if not path.is_file():
                 continue
             report = json.loads(path.read_text(encoding="utf-8"))
@@ -66,9 +75,20 @@ def main(argv: Sequence[str] | None = None) -> None:
         "",
         "Results from the JSON reports in this directory. Evaluation IoU threshold: **0.5**. Spatial metrics are means over matched detections. Overall metrics come from the pooled corpus report, not averages of source scores.",
         "",
-        "Blank cells mean not run; N/A means a metric is undefined. Bold marks the best displayed available value, including ties at three decimal places. Compare only runs using the same document selection and renderer.",
+        "Blank cells mean not run; N/A means a metric is undefined. Bold marks the best displayed available value, including ties at three decimal places. Compare identical document selections and account for differences in rendering and preprocessing.",
         "",
     ]
+    if args.docling_root is not None:
+        lines.extend(
+            [
+                "Docling uses its native PDF backend, OCR, layout postprocessing, and "
+                "reading order; the existing baseline uses PyMuPDF. This compares "
+                "complete pipelines, not layout models under identical rendering. "
+                "Only figure/table bounds are evaluated; native caption/footnote "
+                "links remain separate, and crops are not expanded to include them.",
+                "",
+            ]
+        )
     for split in (False, True):
         for label in ("Figure", "Table"):
             suffix = "by corpus" if split else "overall"
@@ -76,10 +96,10 @@ def main(argv: Sequence[str] | None = None) -> None:
             columns = (["Corpus"] if split else []) + [
                 "Category",
                 "Metric",
-                *MODELS.values(),
+                *models.values(),
             ]
             lines.append("| " + " | ".join(columns) + " |")
-            lines.append("|" + "---|" * (3 if split else 2) + "---:|" * len(MODELS))
+            lines.append("|" + "---|" * (3 if split else 2) + "---:|" * len(models))
             for source in SOURCES if split else ("corpus",):
                 for title, key in METRICS.items():
                     values = [
@@ -88,7 +108,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                             if source in reports[model]
                             else None
                         )
-                        for model in MODELS
+                        for model in models
                     ]
                     best = max(
                         (round(value, 3) for value in values if value is not None),
@@ -101,7 +121,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                         else "Spatial Accuracy"
                     )
                     cells.extend([category, title])
-                    for model, value in zip(MODELS, values):
+                    for model, value in zip(models, values):
                         cell = (
                             ("N/A" if source in reports[model] else "")
                             if value is None
