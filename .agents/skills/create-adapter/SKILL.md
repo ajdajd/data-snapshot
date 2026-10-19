@@ -31,11 +31,24 @@ Before editing:
    loading, inference, output, coordinate, label, and score behavior. Treat a
    user-provided demo as evidence, not as permission to run it or download
    weights.
+5. Assess whether the current machine can run the proposed model configuration
+   before recommending installs or downloads. Use read-only checks for the OS
+   (including WSL limits), Python version, CPU capabilities, GPU model and
+   driver/CUDA compatibility, precision support, available RAM/VRAM, and disk
+   space. Compare these with official runtime requirements and expected memory
+   for both weights and inference working space; weight-file size alone is not
+   a sufficient memory estimate. Distinguish observed facts, estimates, and
+   unknowns. If access to hardware information is blocked, give the user exact
+   diagnostic commands. Report known incompatibilities before proceeding and
+   propose alternatives without installing them or assuming they work. This
+   assessment does not replace the required single-PDF smoke test.
 
 After the research pass, present a concise implementation plan in chat that
 covers:
 
 - model installation, initialization, and inference input;
+- machine compatibility for the proposed runtime, device, and precision,
+  including memory headroom, known blockers, and checks still needed;
 - raw output parsing, label normalization, coordinate conversion, and score
   handling;
 - the minimal configuration surface and optional dependencies;
