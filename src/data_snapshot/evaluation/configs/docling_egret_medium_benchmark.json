@@ -1,0 +1,11 @@
+{
+  "model": "docling_egret_medium",
+  "dataset_root": "data/hf_datasets/data-snapshot",
+  "output_root": "data/evaluation_runs/docling/egret_medium_20261019",
+  "sources": ["unhcr", "prwp", "refugee"],
+  "device": "cuda:0",
+  "adapter_config": {
+    "artifacts_path": "models/docling",
+    "document_concurrency": 2
+  }
+}

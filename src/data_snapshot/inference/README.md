@@ -18,6 +18,7 @@ and produces semantic metadata.
 | YOLO26 Document Layout | `yolo26` | `data_snapshot.inference.yolo26` |
 | Unlimited-OCR | `unlimitedocr` | `data_snapshot.inference.unlimitedocr` |
 | Docling Heron (native pipeline) | `docling_heron` | `data_snapshot.inference.docling_heron` |
+| Docling Egret Medium (native pipeline) | `docling_heron` (shared runtime) | `data_snapshot.inference.docling_heron` |
 
 Install only the adapter required for a run:
 
@@ -140,6 +141,21 @@ batch size 1, and English RapidOCR on CPU through ONNX Runtime. Table structure
 recognition, enrichment, and compilation are disabled. Docling's default engine
 confidence threshold is 0.3; its native layout postprocessing and reading-order
 rules remain enabled. No custom detection or association rules are added.
+
+Egret Medium uses the same module, dependency extra, converter, and output
+transformation. Select `--layout_model=egret_medium` in the module CLI, or use
+`DoclingEgretMediumConfig` with `run_docling_heron_adapter_directory()` in Python.
+The benchmark key is `docling_egret_medium`; it selects the Egret configuration
+without requiring a checkpoint override. The default remains Heron.
+
+Egret is pinned to revision `77ede7cc7bed96d853c58f319734803d6ea2ea5c`, with
+weight SHA-256 verification. Prefetch it with the download snippet above after
+substituting `EGRET_MODEL_NAME` and `EGRET_MODEL_REVISION` for the Heron constants;
+the weight download is about 78 MB, and existing RapidOCR assets can be reused.
+Both checkpoints supply identical 640-by-640 processor configurations. Egret's
+D-FINE architecture replaces Heron's RT-DETRv2; all optional pipeline settings,
+score threshold, FP32 precision, and shared filtering remain the same. This
+compares checkpoint/model substitutions, not learned weights in one architecture.
 
 Native `picture` and `table` layout clusters become `Figure` and `Table`, with
 their native confidence and point coordinates normalized by page dimensions.

@@ -46,10 +46,19 @@ def main(argv: Sequence[str] | None = None) -> None:
         type=Path,
         help="Additional benchmark root containing docling_heron/reports/.",
     )
+    parser.add_argument(
+        "--egret-root",
+        type=Path,
+        help="Additional benchmark root containing docling_egret_medium/reports/.",
+    )
     args = parser.parse_args(argv)
     models = dict(MODELS)
     if args.docling_root is not None:
         models["docling_heron"] = "Docling Heron"
+    if args.egret_root is not None:
+        models["docling_egret_medium"] = "Docling Egret Medium"
+    roots = {model: args.output_root for model in models}
+    roots.update(docling_heron=args.docling_root, docling_egret_medium=args.egret_root)
     reports: dict[str, dict[str, Any]] = {}
     for model in models:
         reports[model] = {}
@@ -59,7 +68,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                 if source == "corpus"
                 else Path("sources") / f"{source}.json"
             )
-            root = args.docling_root if model == "docling_heron" else args.output_root
+            root = roots[model]
             path = root / model / "reports" / relative
             if not path.is_file():
                 continue
@@ -78,7 +87,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         "Blank cells mean not run; N/A means a metric is undefined. Bold marks the best displayed available value, including ties at three decimal places. Compare identical document selections and account for differences in rendering and preprocessing.",
         "",
     ]
-    if args.docling_root is not None:
+    if args.docling_root is not None or args.egret_root is not None:
         lines.extend(
             [
                 "Docling uses its native PDF backend, OCR, layout postprocessing, and "
@@ -86,6 +95,15 @@ def main(argv: Sequence[str] | None = None) -> None:
                 "complete pipelines, not layout models under identical rendering. "
                 "Only figure/table bounds are evaluated; native caption/footnote "
                 "links remain separate, and crops are not expanded to include them.",
+                "",
+            ]
+        )
+    if args.egret_root is not None:
+        lines.extend(
+            [
+                "Egret Medium uses D-FINE; Heron uses RT-DETRv2. Attribute their "
+                "differences to the checkpoint/model substitution only when native "
+                "pipeline settings, input selection, and runtime versions match.",
                 "",
             ]
         )

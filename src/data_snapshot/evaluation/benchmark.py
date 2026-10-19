@@ -20,6 +20,11 @@ from data_snapshot.utils import load_json, utc_now_iso
 DEFAULT_OUTPUT_ROOT = ROOT / "data/evaluation_runs"
 
 _ADAPTERS = {
+    "docling_egret_medium": (
+        "data_snapshot.inference.docling_heron",
+        "DoclingEgretMediumConfig",
+        "run_docling_heron_adapter_directory",
+    ),
     "docling_heron": (
         "data_snapshot.inference.docling_heron",
         "DoclingHeronConfig",
@@ -217,7 +222,7 @@ def evaluate_source(
     ----------
     model : str
         Integrated adapter name: ``doclayoutyolo``, ``tfid``, ``yolo11``,
-        ``yolo26``, ``unlimitedocr``, or ``docling_heron``.
+        ``yolo26``, ``unlimitedocr``, ``docling_heron``, or ``docling_egret_medium``.
     source : str
         Dataset source directory name, such as ``unhcr``.
     dataset_root : str | Path

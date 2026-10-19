@@ -1,4 +1,4 @@
-"""Evaluate native Docling Heron bounds and preserve its document links separately.
+"""Evaluate native Docling layout bounds and preserve document links separately.
 
 PDFs pass through Docling's own backend, OCR, layout postprocessing, and reading
 order. Only picture/table layout clusters enter the evaluation JSON. Native
@@ -28,6 +28,11 @@ from data_snapshot.utils import (
 MODEL_NAME = "docling-project/docling-layout-heron"
 MODEL_REVISION = "8f39ad3c0b4c58e9c2d2c84a38465abf757272d8"
 _WEIGHTS_SHA256 = "00333a43451945aaf89db8ca9c0a17e75d1537c17db60fdb91aa95f4c7929e0c"
+EGRET_MODEL_NAME = "docling-project/docling-layout-egret-medium"
+EGRET_MODEL_REVISION = "77ede7cc7bed96d853c58f319734803d6ea2ea5c"
+_EGRET_WEIGHTS_SHA256 = (
+    "e7fc5b9a353826c123c5d03efc230909ac02b93e26293ec7cb4db8978fe9e3af"
+)
 _LABELS = {"picture": LABEL_MAP["1"], "table": LABEL_MAP["2"]}
 
 
@@ -55,6 +60,11 @@ class DoclingHeronConfig:
         If the document path mode or concurrency is unsupported.
     """
 
+    model_name: str = MODEL_NAME
+    model_revision: str = MODEL_REVISION
+    weights_sha256: str = _WEIGHTS_SHA256
+    layout_preset: str = "layout_heron_default"
+
     def __init__(
         self,
         artifacts_path: str | Path = MODELS_DIR / "docling",
@@ -75,6 +85,34 @@ class DoclingHeronConfig:
         self.document_concurrency = document_concurrency
 
 
+class DoclingEgretMediumConfig(DoclingHeronConfig):
+    """Select pinned Egret Medium while retaining Heron's pipeline settings.
+
+    Parameters
+    ----------
+    artifacts_path : str | Path
+        Local artifact root containing Egret Medium and English RapidOCR assets.
+    device : str
+        PyTorch layout device. OCR uses CPU.
+    store_doc_path_as : {"relative", "absolute"}
+        How input PDF paths are recorded.
+    filter_small : bool
+        Apply the shared minimum predicted area of 0.008.
+    document_concurrency : {1, 2}
+        Native document concurrency; layout batch size remains 1.
+
+    Raises
+    ------
+    ValueError
+        If the document path mode or concurrency is unsupported.
+    """
+
+    model_name = EGRET_MODEL_NAME
+    model_revision = EGRET_MODEL_REVISION
+    weights_sha256 = _EGRET_WEIGHTS_SHA256
+    layout_preset = "layout_egret_medium"
+
+
 def _make_converter(config: DoclingHeronConfig) -> Any:
     """Create the smoke-tested native pipeline without downloading assets."""
     import torch
@@ -93,19 +131,21 @@ def _make_converter(config: DoclingHeronConfig) -> Any:
     if not config.artifacts_path.is_dir():
         raise FileNotFoundError(f"Prefetch Docling assets into {config.artifacts_path}")
     weights = (
-        config.artifacts_path / MODEL_NAME.replace("/", "--") / "model.safetensors"
+        config.artifacts_path
+        / config.model_name.replace("/", "--")
+        / "model.safetensors"
     )
     digest = hashlib.sha256()
     with weights.open("rb") as stream:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
-    if digest.hexdigest() != _WEIGHTS_SHA256:
-        raise ValueError(f"Heron weights do not match pinned revision: {weights}")
+    if digest.hexdigest() != config.weights_sha256:
+        raise ValueError(f"Weights do not match pinned revision: {weights}")
     if config.device.startswith("cuda") and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but unavailable; refusing CPU fallback")
-    layout = LayoutObjectDetectionOptions.from_preset("layout_heron_default")
+    layout = LayoutObjectDetectionOptions.from_preset(config.layout_preset)
     layout.model_spec = layout.model_spec.model_copy(
-        update={"revision": MODEL_REVISION}
+        update={"revision": config.model_revision}
     )
     layout.engine_options = TransformersObjectDetectionEngineOptions(
         torch_dtype="float32", compile_model=False
@@ -305,11 +345,13 @@ def run_docling_heron_adapter_directory(
             "schema_version": "1.3",
             "type": "prediction",
             "created_at": utc_now_iso(),
-            "run_id": run_id or f"docling-heron-{uuid.uuid4().hex[:10]}",
+            "run_id": run_id
+            or f"{cfg.model_name.rsplit('/', 1)[-1]}-{uuid.uuid4().hex[:10]}",
             "model": {
-                "name": MODEL_NAME,
-                "version": MODEL_REVISION,
-                "weights_sha256": _WEIGHTS_SHA256,
+                "name": cfg.model_name,
+                "version": cfg.model_revision,
+                "weights_sha256": cfg.weights_sha256,
+                "layout_preset": cfg.layout_preset,
                 "notes": f"native Docling PDF pipeline; device={cfg.device}; float32; "
                 "layout batch=1; native layout postprocessing and associations; "
                 f"document_concurrency={cfg.document_concurrency}; "
@@ -326,6 +368,9 @@ def run_docling_heron_adapter_directory(
                         "transformers",
                         "rapidocr",
                         "onnxruntime",
+                        "pillow",
+                        "opencv-python-headless",
+                        "pydantic",
                     )
                 },
             },
@@ -351,6 +396,9 @@ def main() -> None:
     parser.add_argument("--artifacts_path", type=Path, default=MODELS_DIR / "docling")
     parser.add_argument("--device", default="cpu")
     parser.add_argument(
+        "--layout_model", choices=["heron", "egret_medium"], default="heron"
+    )
+    parser.add_argument(
         "--store_doc_path_as", choices=["relative", "absolute"], default="relative"
     )
     parser.add_argument("--run_id")
@@ -361,11 +409,16 @@ def main() -> None:
         default=True,
     )
     args = parser.parse_args()
+    config_type = (
+        DoclingEgretMediumConfig
+        if args.layout_model == "egret_medium"
+        else DoclingHeronConfig
+    )
     path = run_docling_heron_adapter_directory(
         args.input_pdf_dir,
         args.output_json_path,
         run_id=args.run_id,
-        config=DoclingHeronConfig(
+        config=config_type(
             artifacts_path=args.artifacts_path,
             device=args.device,
             store_doc_path_as=args.store_doc_path_as,

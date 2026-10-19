@@ -64,6 +64,7 @@ The model keywords and dependency extras are:
 | YOLOv26 medium | `yolo26` | [`yolo26_paper_benchmark.json`](configs/yolo26_paper_benchmark.json) |
 | Unlimited-OCR | `unlimitedocr` | Not part of the paper; no paper configuration |
 | Docling Heron | `docling_heron` | [`docling_heron_benchmark.json`](configs/docling_heron_benchmark.json); native PDF pipeline |
+| Docling Egret Medium | `docling_egret_medium` | [`docling_egret_medium_benchmark.json`](configs/docling_egret_medium_benchmark.json); shared Docling pipeline and `docling_heron` extra |
 
 Current benchmark configurations use PyMuPDF (`pdf_backend: "pymupdf"`).
 Historical paper runs used `pdf2image` with Poppler; switching renderers can
@@ -105,7 +106,7 @@ Configuration fields:
 
 | Field | Purpose |
 |---|---|
-| `model` | Integrated adapter: `doclayoutyolo`, `tfid`, `yolo11`, `yolo26`, `unlimitedocr`, or `docling_heron` |
+| `model` | Integrated adapter: `doclayoutyolo`, `tfid`, `yolo11`, `yolo26`, `unlimitedocr`, `docling_heron`, or `docling_egret_medium` |
 | `dataset_root` | Directory containing `documents/` and `annotations/` |
 | `output_root` | Directory for generated evaluation files |
 | `sources` | Allowed source runs and exact full-corpus membership |
@@ -277,6 +278,16 @@ gain, and the concurrent memory check covered only the smaller diagnostic run.
 PDF. The comparison command reads the saved baseline without replacing it.
 The checked-in config expects assets under `models/docling`; use a local
 config copy with another `artifacts_path` when reusing prefetched assets.
+
+For Egret Medium, use `docling_egret_medium_benchmark.json`. It retains Heron's
+CUDA FP32, layout batch size 1, document concurrency 2, CPU English RapidOCR,
+and disabled table structure/enrichment. Only the pinned layout checkpoint and
+its architecture change. Outputs use the `docling_egret_medium/` directory.
+The shared summarizer accepts `--egret-root <root>/paper_benchmark_half` alongside
+`--docling-root` to add Egret and Heron from separate completed runs. Only compare
+identical document selections and account for runtime-version differences.
+See the [validation record](../../../docs/docling_egret_medium_validation.md)
+for the current local asset override and ready-to-run half-benchmark command.
 
 Docling logs a native `document_finished` event with page count, concurrency,
 and cumulative `elapsed_run_seconds` for every completed PDF. Concurrent

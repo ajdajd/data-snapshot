@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -65,8 +66,14 @@ def test_normalization_alignment_scores_and_shared_filter() -> None:
 
 
 @pytest.mark.parametrize("document_concurrency", [1, 2])
+@pytest.mark.parametrize(
+    "config_type", [adapter.DoclingHeronConfig, adapter.DoclingEgretMediumConfig]
+)
 def test_native_document_links_and_empty_pages(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, document_concurrency: int
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    document_concurrency: int,
+    config_type: type[adapter.DoclingHeronConfig],
 ) -> None:
     """Preserve native refs unchanged while emitting only figure/table bounds.
 
@@ -78,6 +85,8 @@ def test_native_document_links_and_empty_pages(
         Optional runtime substitutions.
     document_concurrency : int
         Requested native document concurrency.
+    config_type : type[adapter.DoclingHeronConfig]
+        Checkpoint configuration sharing the native conversion runner.
     """
     (tmp_path / "a.pdf").write_bytes(b"fake")
     (tmp_path / "nested").mkdir()
@@ -146,13 +155,17 @@ def test_native_document_links_and_empty_pages(
         ),
     )
     output = tmp_path / "results/pred.json"
-    cfg = adapter.DoclingHeronConfig(
+    cfg = config_type(
         store_doc_path_as="absolute", document_concurrency=document_concurrency
     )
     adapter.run_docling_heron_adapter_directory(
         tmp_path, output, run_id="test", config=cfg
     )
     data = json.loads(output.read_text())
+    assert data["info"]["model"]["name"] == cfg.model_name
+    assert data["info"]["model"]["version"] == cfg.model_revision
+    assert data["info"]["model"]["weights_sha256"] == cfg.weights_sha256
+    assert data["info"]["model"]["layout_preset"] == cfg.layout_preset
     converter.initialize_pipeline.assert_called_once_with("pdf")
     converter.convert.assert_not_called()
     assert settings.perf is original_perf
@@ -174,6 +187,10 @@ def test_native_document_links_and_empty_pages(
     assert data["predictions"][0]["objects"][0]["bbox"] == [0, 0, 1, 0.5]
     assert _load_adapter("docling_heron") == (
         adapter.DoclingHeronConfig,
+        adapter.run_docling_heron_adapter_directory,
+    )
+    assert _load_adapter("docling_egret_medium") == (
+        adapter.DoclingEgretMediumConfig,
         adapter.run_docling_heron_adapter_directory,
     )
     with pytest.raises(FileExistsError):
@@ -198,6 +215,81 @@ def test_native_document_links_and_empty_pages(
             tmp_path, tmp_path / "missing-document.json", config=cfg
         )
     assert settings.perf is original_perf
+
+
+@pytest.mark.parametrize(
+    "config_type", [adapter.DoclingHeronConfig, adapter.DoclingEgretMediumConfig]
+)
+def test_converter_checkpoint_and_pipeline_settings(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    config_type: type[adapter.DoclingHeronConfig],
+) -> None:
+    """Select each pinned checkpoint without changing the shared pipeline.
+
+    Parameters
+    ----------
+    tmp_path : Path
+        Local fake weights.
+    monkeypatch : pytest.MonkeyPatch
+        Substitute optional model dependencies without importing them.
+    config_type : type[adapter.DoclingHeronConfig]
+        Heron or Egret configuration to exercise.
+    """
+    cfg = config_type(artifacts_path=tmp_path, device="cuda:0")
+    weights = tmp_path / cfg.model_name.replace("/", "--") / "model.safetensors"
+    weights.parent.mkdir()
+    weights.write_bytes(b"weights")
+    cfg.weights_sha256 = hashlib.sha256(b"weights").hexdigest()
+    cuda = Mock()
+    cuda.is_available.return_value = True
+    spec = Mock()
+    layout = SimpleNamespace(model_spec=spec)
+    preset = Mock(return_value=layout)
+    modules = {
+        "torch": SimpleNamespace(cuda=cuda),
+        "docling.datamodel.accelerator_options": SimpleNamespace(
+            AcceleratorOptions=SimpleNamespace
+        ),
+        "docling.datamodel.base_models": SimpleNamespace(
+            InputFormat=SimpleNamespace(PDF="pdf")
+        ),
+        "docling.datamodel.object_detection_engine_options": SimpleNamespace(
+            TransformersObjectDetectionEngineOptions=SimpleNamespace
+        ),
+        "docling.datamodel.pipeline_options": SimpleNamespace(
+            LayoutObjectDetectionOptions=SimpleNamespace(from_preset=preset),
+            PdfPipelineOptions=SimpleNamespace,
+            RapidOcrOptions=SimpleNamespace,
+        ),
+        "docling.document_converter": SimpleNamespace(
+            DocumentConverter=SimpleNamespace, PdfFormatOption=SimpleNamespace
+        ),
+    }
+    for name, module in modules.items():
+        monkeypatch.setitem(sys.modules, name, module)
+    converter = adapter._make_converter(cfg)
+    options = converter.format_options["pdf"].pipeline_options
+    preset.assert_called_once_with(cfg.layout_preset)
+    spec.model_copy.assert_called_once_with(update={"revision": cfg.model_revision})
+    assert options.layout_options.engine_options.torch_dtype == "float32"
+    assert options.layout_options.engine_options.compile_model is False
+    assert options.accelerator_options.device == "cuda:0"
+    assert (
+        options.layout_batch_size
+        == options.ocr_batch_size
+        == options.table_batch_size
+        == 1
+    )
+    assert options.do_ocr and not options.do_table_structure
+    assert options.ocr_options.lang == ["en"]
+    assert not any(options.ocr_options.rapidocr_params.values())
+    cuda.is_available.return_value = False
+    with pytest.raises(RuntimeError, match="CUDA requested"):
+        adapter._make_converter(cfg)
+    weights.write_bytes(b"wrong checkpoint")
+    with pytest.raises(ValueError, match="pinned revision"):
+        adapter._make_converter(cfg)
 
 
 @pytest.mark.parametrize("value", [0, 3, -1, True, 1.5])

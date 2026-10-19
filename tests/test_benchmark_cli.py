@@ -47,6 +47,12 @@ def test_checked_in_docling_config() -> None:
         "artifacts_path": "models/docling",
         "document_concurrency": 2,
     }
+    egret = module._load_config(_CONFIG_DIR / "docling_egret_medium_benchmark.json")
+    assert egret["model"] == "docling_egret_medium"
+    assert egret["adapter_config"] == config["adapter_config"]
+    assert egret["sources"] == config["sources"]
+    assert egret["device"] == config["device"]
+    assert egret["output_root"] != config["output_root"]
 
 
 def test_source_and_corpus_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

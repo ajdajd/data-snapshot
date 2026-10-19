@@ -78,6 +78,9 @@ def test_docling_comparison_keeps_native_renderer_note(tmp_path: Path) -> None:
     path = tmp_path / "native/docling_heron/reports/corpus.json"
     path.parent.mkdir(parents=True)
     path.write_text(json.dumps(report))
+    egret_path = tmp_path / "egret/docling_egret_medium/reports/corpus.json"
+    egret_path.parent.mkdir(parents=True)
+    egret_path.write_text(json.dumps(report))
     baseline = tmp_path / "baseline"
     baseline.mkdir()
     module.main(
@@ -86,12 +89,16 @@ def test_docling_comparison_keeps_native_renderer_note(tmp_path: Path) -> None:
             str(baseline),
             "--docling-root",
             str(tmp_path / "native"),
+            "--egret-root",
+            str(tmp_path / "egret"),
             "--output",
             str(tmp_path / "comparison.md"),
         ]
     )
     text = (tmp_path / "comparison.md").read_text()
     assert "Docling Heron" in text
+    assert "Docling Egret Medium" in text
+    assert "| Detection | Precision |  |  |  |  | **0.500** | **0.500** |" in text
     assert "complete pipelines" in text
     assert "crops are not expanded" in text
     assert not (baseline / "report.md").exists()
