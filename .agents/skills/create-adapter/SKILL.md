@@ -51,6 +51,15 @@ downloading weights, running real inference, or writing generated outputs. Keep
 the plan in chat; create an `implementation_plan.md` only when the user asks for
 one.
 
+For large library installs or model downloads, ask the user to run the terminal
+commands instead of launching them and waiting in the agent session. Provide
+copy-paste commands with the working directory, target environment, and expected
+download size when known. This includes first-run inference commands that would
+automatically download weights. Wait for the user to confirm completion or share
+errors before continuing dependent work. General integration approval does not
+override this handoff; execute these commands only if the user specifically asks
+the agent to run them.
+
 ## Pass a Single-PDF Smoke Test Before Integration
 
 After approval, test the real model on one short, representative PDF before
