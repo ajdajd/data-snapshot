@@ -53,6 +53,7 @@ not included in this repository.
 - Dataset: [ai4data/data-snapshot](https://huggingface.co/datasets/ai4data/data-snapshot)
 - Evaluation contract: [Unified Evaluation Schema v1.3](docs/data-snapshot-eval-v1.3.schema.json)
 - Methodology: [Evaluation specification](docs/evaluation_spec.md)
+- Current progress and resumption: [Extraction handoff](docs/extraction_continuation/START_HERE.md)
 
 ### Paper 2: Data Snapshot Metadata Schema Discovery
 

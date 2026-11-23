@@ -1,7 +1,12 @@
 # Docling Egret Medium validation
 
-Validated on 2026-10-19. The half-sample benchmark is ready for the user to run;
-no Egret half-sample results are claimed here.
+Pre-run validation performed on 2026-10-19. **Status reconciled 2026-11-23:**
+the half-sample benchmark subsequently completed. See the
+[completed comparison](half_paper_benchmark_report.md) and
+[current handoff](extraction_continuation/START_HERE.md) for results and resumption guidance.
+The checks below retain the earlier smoke/partial-trial evidence. The recorded
+temporary environment is now missing; historical commands below are not ready
+to execute against the current checkout or existing benchmark outputs.
 
 ## Checkpoint and protocol
 
@@ -94,7 +99,7 @@ These generated artifacts are gitignored and may not accompany a clean clone.
 Historical Heron/PyMuPDF reports, the fixed manifests, weights, dependencies,
 lockfile, and legacy batch runner were not changed.
 
-## Run the half benchmark in the existing environment
+## Historical half benchmark commands
 
 Keep the existing environment and assets under `/tmp/docling-heron-1a7BNUMJ/`.
 The tested runtime is Python 3.10.19, Docling 2.140.0, Transformers 5.20.1,

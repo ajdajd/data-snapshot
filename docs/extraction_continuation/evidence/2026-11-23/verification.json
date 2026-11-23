@@ -1,0 +1,385 @@
+{
+  "verified_on": "2026-11-23",
+  "timezone": "Asia/Manila",
+  "research_commit": "f67ce8f092a5fd98a0e81d06fd7a07330fb2d012",
+  "manifest": {
+    "path": "src/data_snapshot/evaluation/configs/paper_benchmark_half.json",
+    "bytes": 43266,
+    "sha256": "5697a5cdc2a2b7f82984e9c5121923472d17e60a1caa9ddacd8319b0026e7c7d"
+  },
+  "protocol": {
+    "document_count": 238,
+    "page_count": 3753,
+    "selection_seed": 42,
+    "evaluation_iou": 0.5,
+    "minimum_predicted_area": 0.008
+  },
+  "limitations": [
+    "Archived reports and hashes do not back up predictions, native sidecars, datasets, weights, or environments.",
+    "Reference resolution and page completion do not establish association accuracy, OCR completeness, or crop completeness.",
+    "Original report info paths are historical provenance and may point to local ignored files."
+  ],
+  "models": {
+    "doclayoutyolo": {
+      "original_root": "data/evaluation_runs/pymupdf/paper_benchmark_half/doclayoutyolo",
+      "prediction": {
+        "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/doclayoutyolo/predictions/corpus.json",
+        "bytes": 1360712,
+        "sha256": "28eee8636ee69f59e20e3f5d7f4f25ee4c25bd6ab08009749df0a6525d982d94"
+      },
+      "ground_truth": {
+        "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/doclayoutyolo/ground_truth/corpus.json",
+        "bytes": 797626,
+        "sha256": "38829ed4cc27649703292ba444f6e928afb372e256ee532ebd1af8b6b02bca1c"
+      },
+      "document_count": 238,
+      "pooled_prediction_schema_valid": true,
+      "ground_truth_matches_other_models": true,
+      "model_metadata": {
+        "name": "juliozhao/DocLayout-YOLO-DocStructBench",
+        "version": "doclayout_yolo_docstructbench_imgsz1024.pt",
+        "notes": "adapter=doclayout_yolo; device=cuda:0; dpi=300; conf=0.2; imgsz=1024"
+      },
+      "reports": {
+        "corpus": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/doclayoutyolo/reports/corpus.json",
+          "bytes": 2565,
+          "sha256": "e85fb3ba239d82c122596b243b19ac8a953ba9504c1c440de42a1fbecf98170a",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/doclayoutyolo/reports/corpus.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/unhcr": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/doclayoutyolo/reports/sources/unhcr.json",
+          "bytes": 2590,
+          "sha256": "fbcde955758854771deb9c4c8b23e72ca156d29a2c9fe314c00c23872b05f613",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/doclayoutyolo/reports/sources/unhcr.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/prwp": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/doclayoutyolo/reports/sources/prwp.json",
+          "bytes": 2564,
+          "sha256": "44de3c9273634f1d58b7571782531b6934106be77df790f6a4b06894e4cca91c",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/doclayoutyolo/reports/sources/prwp.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/refugee": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/doclayoutyolo/reports/sources/refugee.json",
+          "bytes": 2588,
+          "sha256": "b1e3fd967fcedca3b16f3868816b1f19e4ca8c06fffbe51b89b49bb6b690d4e1",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/doclayoutyolo/reports/sources/refugee.json",
+          "recomputed_metrics_match": true
+        }
+      }
+    },
+    "yolo11": {
+      "original_root": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo11",
+      "prediction": {
+        "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo11/predictions/corpus.json",
+        "bytes": 1600883,
+        "sha256": "42d81de3f04747d42f0bfe0cf4199525ac7220fd23ae292f5fce80a56b197034"
+      },
+      "ground_truth": {
+        "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo11/ground_truth/corpus.json",
+        "bytes": 797626,
+        "sha256": "b1c5d1b1ea0998f68e02fc22987dbb43215a508628500df7541bbd1082114f81"
+      },
+      "document_count": 238,
+      "pooled_prediction_schema_valid": true,
+      "ground_truth_matches_other_models": true,
+      "model_metadata": {
+        "name": "Armaggheddon/yolo11-document-layout",
+        "version": "yolo11m_doc_layout.pt",
+        "notes": "adapter=yolo11; device=cuda:0; dpi=300; conf=0.25; iou=0.7; imgsz=1280"
+      },
+      "reports": {
+        "corpus": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo11/reports/corpus.json",
+          "bytes": 2550,
+          "sha256": "5770984ad8bb75625b5d1c8d51119cee84049cc2e136dc801bab1def4bcf87a8",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/yolo11/reports/corpus.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/unhcr": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo11/reports/sources/unhcr.json",
+          "bytes": 2581,
+          "sha256": "ef02293b0e18e103c4e4f4f422278aa8a98c3a07ffe1f42bc29d6508a9de1ddb",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/yolo11/reports/sources/unhcr.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/prwp": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo11/reports/sources/prwp.json",
+          "bytes": 2570,
+          "sha256": "e1b9bf874e2997086957fd364c4c1d167af8d85758b55f8a0f7536afc76e72c9",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/yolo11/reports/sources/prwp.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/refugee": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo11/reports/sources/refugee.json",
+          "bytes": 2575,
+          "sha256": "f568f0abceb2482b0541e7c7b9195398aafef346118b3176f14846b7b9c55fd2",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/yolo11/reports/sources/refugee.json",
+          "recomputed_metrics_match": true
+        }
+      }
+    },
+    "yolo26": {
+      "original_root": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo26",
+      "prediction": {
+        "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo26/predictions/corpus.json",
+        "bytes": 1575068,
+        "sha256": "4aaedf267be845d4db64470ede83cf1d79044e5e66ac91ecd0f7c4f5b09f5315"
+      },
+      "ground_truth": {
+        "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo26/ground_truth/corpus.json",
+        "bytes": 797626,
+        "sha256": "b3cccb7298e26b2a9623b6260f6294f74e594aae4e676058fa8cbd2ab8a0f6e8"
+      },
+      "document_count": 238,
+      "pooled_prediction_schema_valid": true,
+      "ground_truth_matches_other_models": true,
+      "model_metadata": {
+        "name": "Armaggheddon/yolo26-document-layout",
+        "version": "yolo26m_doc_layout.pt",
+        "notes": "adapter=yolo26; device=cuda:0; dpi=300; conf=0.25; iou=0.7; imgsz=1280"
+      },
+      "reports": {
+        "corpus": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo26/reports/corpus.json",
+          "bytes": 2548,
+          "sha256": "c7ffe18e013ae1a1ab424513e67634a553817e9fd9ede4706da11b55fef042e3",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/yolo26/reports/corpus.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/unhcr": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo26/reports/sources/unhcr.json",
+          "bytes": 2579,
+          "sha256": "7c52d58fd38476d069cd08fe7fbf685b4f88781389cd16738da86d14bf406a3d",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/yolo26/reports/sources/unhcr.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/prwp": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo26/reports/sources/prwp.json",
+          "bytes": 2555,
+          "sha256": "696367e0e19194c6173df75462203da77c06c39ca2101c79ce0d95e47077fd4e",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/yolo26/reports/sources/prwp.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/refugee": {
+          "path": "data/evaluation_runs/pymupdf/paper_benchmark_half/yolo26/reports/sources/refugee.json",
+          "bytes": 2578,
+          "sha256": "e3e8f3c1eedb8ef2318d8386a3a7dafff3d072c0412858baaca8d37efa5a41b8",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/yolo26/reports/sources/refugee.json",
+          "recomputed_metrics_match": true
+        }
+      }
+    },
+    "docling_heron": {
+      "original_root": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron",
+      "prediction": {
+        "path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/predictions/corpus.json",
+        "bytes": 1708115,
+        "sha256": "d757bf85655363ed265d1b081bfc2b33c06ab33a6d526d21833504dbf654fb56"
+      },
+      "ground_truth": {
+        "path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/ground_truth/corpus.json",
+        "bytes": 797626,
+        "sha256": "171e403b2f9f6e31332a5e4caf704aee607fee8a70861ed2e1bc7f9a8ec6fc5a"
+      },
+      "document_count": 238,
+      "pooled_prediction_schema_valid": true,
+      "ground_truth_matches_other_models": true,
+      "model_metadata": {
+        "name": "docling-project/docling-layout-heron",
+        "version": "8f39ad3c0b4c58e9c2d2c84a38465abf757272d8",
+        "weights_sha256": "00333a43451945aaf89db8ca9c0a17e75d1537c17db60fdb91aa95f4c7929e0c",
+        "notes": "native Docling PDF pipeline; device=cuda:0; float32; layout batch=1; native layout postprocessing and associations; document_concurrency=2; RapidOCR English ONNX CPU; table structure/enrichment disabled; filter_small=True; min_area=0.008; native document JSON stored separately; crops do not expand to linked text",
+        "packages": {
+          "docling": "2.140.0",
+          "docling-core": "2.102.0",
+          "docling-parse": "7.22.3",
+          "torch": "2.10.0",
+          "transformers": "5.20.1",
+          "rapidocr": "3.10.0",
+          "onnxruntime": "1.23.2"
+        }
+      },
+      "reports": {
+        "corpus": {
+          "path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/reports/corpus.json",
+          "bytes": 2620,
+          "sha256": "61751665b2d6e7683ef49cbda7642a4abcccac549b8dd931232bf61addb160cd",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/docling_heron/reports/corpus.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/unhcr": {
+          "path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/reports/sources/unhcr.json",
+          "bytes": 2652,
+          "sha256": "9b5b6436c3a481cbb984e078d7b30e0a2cb17a3e9745cf3b1a690754c0d17199",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/docling_heron/reports/sources/unhcr.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/prwp": {
+          "path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/reports/sources/prwp.json",
+          "bytes": 2637,
+          "sha256": "44df1f1ce2fa10327b97bd1ce9282700237c4b017141ad6712864658d12140c9",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/docling_heron/reports/sources/prwp.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/refugee": {
+          "path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/reports/sources/refugee.json",
+          "bytes": 2650,
+          "sha256": "25c4ca7710d80a9edbb8682bc94fbd4ca2d168d53db172e4aa95ad29a63c2873",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/docling_heron/reports/sources/refugee.json",
+          "recomputed_metrics_match": true
+        }
+      },
+      "native": {
+        "document_count": 238,
+        "page_count": 3753,
+        "caption_references": 817,
+        "footnote_references": 219,
+        "unresolved_references": 0,
+        "completion_events": 238,
+        "sorted_sidecar_path_and_sha256_digest": "1c11f62a25ce9c46547f6483c5e3a1359276d4063ad1024f99a4cefcb2ba18c9",
+        "digest_encoding": "UTF-8 concatenation of sorted paths relative to original_root, NUL, payload SHA-256 hex, newline",
+        "logs": [
+          {
+            "path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/logs/prwp_20261019T075518_102100Z.jsonl",
+            "bytes": 12631,
+            "sha256": "488a316a5f70ee8e0ed7820b9260d9c99ff9a5e5a0f45224534c266d94de8276"
+          },
+          {
+            "path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/logs/refugee_20261019T084751_554495Z.jsonl",
+            "bytes": 5437,
+            "sha256": "9d14245a09fe97d9247efe7ba2351a42411bb70c8d0135fc7507e85b93a90f91"
+          },
+          {
+            "path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/logs/unhcr_20261019T064901_790610Z.jsonl",
+            "bytes": 46621,
+            "sha256": "da094c3a2945a0f52320ec78f9d7e40421bf398b3260b2cfa152bc8074e23519"
+          }
+        ]
+      }
+    },
+    "docling_egret_medium": {
+      "original_root": "data/evaluation_runs/docling/egret_medium_20261019/paper_benchmark_half/docling_egret_medium",
+      "prediction": {
+        "path": "data/evaluation_runs/docling/egret_medium_20261019/paper_benchmark_half/docling_egret_medium/predictions/corpus.json",
+        "bytes": 1730373,
+        "sha256": "4d1e1f47e51e1148056ad061efba71c6b0b13c1c8ddc482012b449bcbff80693"
+      },
+      "ground_truth": {
+        "path": "data/evaluation_runs/docling/egret_medium_20261019/paper_benchmark_half/docling_egret_medium/ground_truth/corpus.json",
+        "bytes": 797626,
+        "sha256": "e16dbfe5122ebcb4cd5a22a4ca1cc7740978ad2a39fc4e0cc08e77218418043b"
+      },
+      "document_count": 238,
+      "pooled_prediction_schema_valid": true,
+      "ground_truth_matches_other_models": true,
+      "model_metadata": {
+        "name": "docling-project/docling-layout-egret-medium",
+        "version": "77ede7cc7bed96d853c58f319734803d6ea2ea5c",
+        "weights_sha256": "e7fc5b9a353826c123c5d03efc230909ac02b93e26293ec7cb4db8978fe9e3af",
+        "layout_preset": "layout_egret_medium",
+        "notes": "native Docling PDF pipeline; device=cuda:0; float32; layout batch=1; native layout postprocessing and associations; document_concurrency=2; RapidOCR English ONNX CPU; table structure/enrichment disabled; filter_small=True; min_area=0.008; native document JSON stored separately; crops do not expand to linked text",
+        "packages": {
+          "docling": "2.140.0",
+          "docling-core": "2.102.0",
+          "docling-parse": "7.22.3",
+          "torch": "2.10.0",
+          "transformers": "5.20.1",
+          "rapidocr": "3.10.0",
+          "onnxruntime": "1.23.2",
+          "pillow": "12.3.0",
+          "opencv-python-headless": "5.0.0.93",
+          "pydantic": "2.14.1"
+        }
+      },
+      "reports": {
+        "corpus": {
+          "path": "data/evaluation_runs/docling/egret_medium_20261019/paper_benchmark_half/docling_egret_medium/reports/corpus.json",
+          "bytes": 2622,
+          "sha256": "a1a79d1f0404288ccae3fe445d7ef3396dc263f8f52f5b57cd1749e6d5ae57aa",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/docling_egret_medium/reports/corpus.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/unhcr": {
+          "path": "data/evaluation_runs/docling/egret_medium_20261019/paper_benchmark_half/docling_egret_medium/reports/sources/unhcr.json",
+          "bytes": 2653,
+          "sha256": "92418aa09e9daf78925786e1c013c5f1e5f0a1130c89aaeca3d02065cc21ede5",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/docling_egret_medium/reports/sources/unhcr.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/prwp": {
+          "path": "data/evaluation_runs/docling/egret_medium_20261019/paper_benchmark_half/docling_egret_medium/reports/sources/prwp.json",
+          "bytes": 2638,
+          "sha256": "88a3e0e61e530031db5af22a260964c363762607424814d562f1039b07ffce4b",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/docling_egret_medium/reports/sources/prwp.json",
+          "recomputed_metrics_match": true
+        },
+        "sources/refugee": {
+          "path": "data/evaluation_runs/docling/egret_medium_20261019/paper_benchmark_half/docling_egret_medium/reports/sources/refugee.json",
+          "bytes": 2650,
+          "sha256": "d3100875efb435a8a039a5bdeaf7109d78ece1ee78b78ff4eb36c32fadb5ffd6",
+          "archived_path": "docs/extraction_continuation/evidence/2026-11-23/docling_egret_medium/reports/sources/refugee.json",
+          "recomputed_metrics_match": true
+        }
+      },
+      "native": {
+        "document_count": 238,
+        "page_count": 3753,
+        "caption_references": 846,
+        "footnote_references": 127,
+        "unresolved_references": 0,
+        "completion_events": 238,
+        "sorted_sidecar_path_and_sha256_digest": "5dd6db5b63e8544862180df672673cae55ebe35b1e93d27d9ec8d3631b3dbb2d",
+        "digest_encoding": "UTF-8 concatenation of sorted paths relative to original_root, NUL, payload SHA-256 hex, newline",
+        "logs": [
+          {
+            "path": "data/evaluation_runs/docling/egret_medium_20261019/paper_benchmark_half/docling_egret_medium/logs/prwp_20261019T122103_068003Z.jsonl",
+            "bytes": 12637,
+            "sha256": "ad6a93c4e98dd641326f865ef46f5952dd4619df4c3f306e40ebca16005ae896"
+          },
+          {
+            "path": "data/evaluation_runs/docling/egret_medium_20261019/paper_benchmark_half/docling_egret_medium/logs/refugee_20261019T131959_479609Z.jsonl",
+            "bytes": 5463,
+            "sha256": "b894c9b9d9464281a28862f611cf930b05f53bd72758a06e200c6da9f5f01502"
+          },
+          {
+            "path": "data/evaluation_runs/docling/egret_medium_20261019/paper_benchmark_half/docling_egret_medium/logs/unhcr_20261019T110455_292071Z.jsonl",
+            "bytes": 46663,
+            "sha256": "b54e635caf5c18f4ba5ea81400fd45b62ce834bda24642e686fb86292c6ac6de"
+          }
+        ]
+      }
+    }
+  },
+  "offline_tests": {
+    "result": "89 passed in 2.25s during the preceding reconstruction in this session",
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=\"$PWD/src\" uv --no-cache run --no-sync --offline python -m pytest -q -p no:cacheprovider tests/test_adapter_utils.py tests/test_docling_heron.py tests/test_unlimitedocr.py tests/test_evaluate_model.py tests/test_benchmark.py tests/test_benchmark_cli.py tests/test_benchmark_sample_cli.py tests/test_benchmark_report.py",
+    "real_inference": false
+  },
+  "installed_packages": {
+    "torch": "2.10.0",
+    "transformers": "5.20.1",
+    "docling": null,
+    "rapidocr": null,
+    "onnxruntime": null,
+    "ultralytics": null,
+    "doclayout-yolo": null,
+    "pytest": "9.0.2",
+    "jsonschema": "4.26.0",
+    "pymupdf": "1.27.2.3"
+  },
+  "unlimitedocr_failure": {
+    "path": "data/evaluation_runs/paper_benchmark_sample/unlimitedocr/logs/unhcr_20261017T124257_056935Z.jsonl",
+    "bytes": 7773,
+    "sha256": "97224cf43cc690a5c1dc88e0674120031570591e471c61f6099c2171132d3e57",
+    "archived_path": "docs/extraction_continuation/evidence/2026-11-23/unlimitedocr_failure.jsonl"
+  },
+  "roadmap": {
+    "source": "User-provided plan.png attachment, supplied 2026-11-23 as earlier planning context",
+    "archived_path": "docs/extraction_continuation/evidence/2026-11-23/roadmap.png",
+    "sha256": "da0d3248a257190a87099a4bd5ae6db75ea41ca5a290b57c75cbe713b4f3445d"
+  }
+}

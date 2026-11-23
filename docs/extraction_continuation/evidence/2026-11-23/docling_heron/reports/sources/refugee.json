@@ -1,0 +1,95 @@
+{
+  "info": {
+    "schema_version": "1.3",
+    "gt_path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/ground_truth/sources/refugee.json",
+    "pred_path": "data/evaluation_runs/docling/user_run_concurrent_20261019/paper_benchmark_half/docling_heron/predictions/sources/refugee.json"
+  },
+  "label_map": {
+    "1": "Figure",
+    "2": "Table"
+  },
+  "thresholds": [
+    0.5,
+    0.75
+  ],
+  "documents_mismatch": {
+    "only_gt": [],
+    "only_pred": []
+  },
+  "metrics": {
+    "0.5": {
+      "micro": {
+        "tp": 205,
+        "fp": 429,
+        "fn": 46,
+        "precision": 0.32334384858044163,
+        "recall": 0.8167330677290837,
+        "matched": 205,
+        "mean_iou": 0.8350727538588045,
+        "mean_area_precision": 0.9931812255209159,
+        "mean_area_recall": 0.8417848174627108
+      },
+      "per_class": {
+        "Figure": {
+          "tp": 20,
+          "fp": 115,
+          "fn": 11,
+          "precision": 0.14814814814814814,
+          "recall": 0.6451612903225806,
+          "matched": 20,
+          "mean_iou": 0.8826591175825007,
+          "mean_area_precision": 0.9999696123105707,
+          "mean_area_recall": 0.8826800520951688
+        },
+        "Table": {
+          "tp": 185,
+          "fp": 314,
+          "fn": 35,
+          "precision": 0.37074148296593185,
+          "recall": 0.8409090909090909,
+          "matched": 185,
+          "mean_iou": 0.8299282821048918,
+          "mean_area_precision": 0.9924473458679802,
+          "mean_area_recall": 0.837363711015959
+        }
+      }
+    },
+    "0.75": {
+      "micro": {
+        "tp": 154,
+        "fp": 480,
+        "fn": 97,
+        "precision": 0.24290220820189273,
+        "recall": 0.6135458167330677,
+        "matched": 154,
+        "mean_iou": 0.8970688548931794,
+        "mean_area_precision": 0.9974926306525362,
+        "mean_area_recall": 0.8995082328372306
+      },
+      "per_class": {
+        "Figure": {
+          "tp": 19,
+          "fp": 116,
+          "fn": 12,
+          "precision": 0.14074074074074075,
+          "recall": 0.6129032258064516,
+          "matched": 19,
+          "mean_iou": 0.8944506418447735,
+          "mean_area_precision": 0.9999680129584955,
+          "mean_area_recall": 0.8944726781738979
+        },
+        "Table": {
+          "tp": 135,
+          "fp": 364,
+          "fn": 85,
+          "precision": 0.27054108216432865,
+          "recall": 0.6136363636363636,
+          "matched": 135,
+          "mean_iou": 0.8974373441370292,
+          "mean_area_precision": 0.997144243513179,
+          "mean_area_recall": 0.900216940530589
+        }
+      }
+    }
+  }
+}

@@ -2,6 +2,11 @@
 
 Last updated: **2026-10-19**. This is the working comparison document to update as additional model runs become available. Historical run reports remain unchanged.
 
+Reverified **2026-11-23**: all 20 source/pooled reports match recomputed metrics.
+[Tracked report copies and verification evidence](extraction_continuation/evidence/2026-11-23/)
+preserve the results beyond local ignored artifacts. See the
+[extraction handoff](extraction_continuation/START_HERE.md) for the roadmap and current environment.
+
 ## Motivation and sample
 
 We evaluate a fixed, randomly selected half of the PDFs in each corpus so we can test faster and get a directional signal before committing to a full benchmark. Selection is uniform without replacement from sorted filenames, using seed **42**, with one random-number generator consumed in source order: UNHCR, PRWP, then refugee. This is half the documents per corpus, not half the pages or annotations; it is not a substitute for full-benchmark results or a statistical significance test.
