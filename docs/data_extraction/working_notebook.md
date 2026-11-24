@@ -18,8 +18,8 @@ Build a complete local Docling example before expanding to other stacks:
 The first success case is the monthly-income table. After that, compare the
 remaining agreed examples to identify which extraction and mapping problems need
 attention. Consult Aivin once tangible outputs are available; no message has been
-sent. Use those examples to clarify his proposed interaction between model
-inference, user confirmation, and data extraction.
+sent. After dedicated chart enrichment has been tested, use the examples to
+clarify what he meant by the data model and the scope of a separate review workflow.
 
 Later experiments, in order:
 
@@ -65,10 +65,23 @@ For example, the income image shows Mean and Median as columns. Long observation
 use `(income category, summary statistic) -> value`. A renderer could show the same
 observations as a table or figure without changing their statistical structure.
 
-The user-confirmation workflow is still a hypothesis to discuss with Aivin. One
-interpretation is: propose a model/mapping, show a preview, let the user correct
-uncertain meanings, then populate and export the observations. It may be a mapping
-to a shared DSD, rather than a new DSD per image.
+### Extraction and review are separate workflows
+
+User clarification: build extraction first and defer the user-confirmation/review
+workflow. Extraction is the automated path from PNG through native extraction,
+statistical interpretation/mapping, long observations and SDMX output. Calling it
+mechanical does not imply that it is error-free or that statistical interpretation
+is solved; uncertain cases still need explicit failure or review flags.
+
+The later review workflow may involve checking source images, correcting values
+and their associations, resolving uncertain statistical meanings, and approving
+results. It may need a UI, but its design and scope are not decided. Do not make
+an interactive confirmation step a prerequisite for this extraction prototype.
+Confirm the intended separation with Aivin alongside the meaning of data model.
+
+The gap after Docling includes assigning statistical roles and meanings,
+selecting/adapting a DSD, mapping observations to it, and serialization/validation.
+A DSD describes the structure; it does not itself correct extraction errors.
 
 ### Exchange version
 
@@ -77,6 +90,70 @@ specifications. [AI4Data's dissemination standards guide](https://worldbank.gith
 lists SDMX 3.1. The [official data schema](https://json.sdmx.org/2.1.0/sdmx-json-data-schema.json)
 identifies that pairing. Metadata Editor's bundled JSON 2.0 schema concerns
 reference metadata and is not an observation-data exchange requirement.
+
+### Worked example: SDMX, the DSD, and the actual numbers
+
+SDMX supplies the vocabulary and rules for statistical exchange. A DSD is a
+specific statistical schema written using those rules. SDMX-JSON is one encoding
+for exchanging the definitions and data. A dataset contains the observations.
+The DSD is itself an SDMX object: it is not a competing standard or an extra
+extraction model. See [SDMX overview](https://sdmx.org/about-sdmx/) and the
+[DSD definition](https://fmrwiki.sdmx.io/12.3.0/information-model/SDMX-maintainables/DataOrMetadataStructureDefinition/).
+
+Our verified income crop begins with these two rows:
+
+| Income category | Mean | Median |
+|---|---:|---:|
+| Agriculture | 5930 | 4800 |
+| Manufacturing | 7496 | 7000 |
+
+Docling recovers cell text and table structure. Our reviewed mapping says the
+first column supplies income categories, and the next two columns are summary
+statistics. In long form, those same four observations become:
+
+| CATEGORY | STATISTIC | OBS_VALUE |
+|---|---|---:|
+| Agriculture | Mean | 5930 |
+| Agriculture | Median | 4800 |
+| Manufacturing | Mean | 7496 |
+| Manufacturing | Median | 7000 |
+
+The corresponding **DSD** defines these fields:
+
+| Component | SDMX role | Meaning | Current representation |
+|---|---|---|---|
+| CATEGORY | Dimension | Which income category? | String |
+| STATISTIC | Dimension | Which summary statistic? | String |
+| OBS_VALUE | Measure | What reported income/remittance amount? | Double |
+
+`(CATEGORY, STATISTIC)` identifies an observation within this dataset. The
+**data** supplies `Agriculture`, `Mean`, and `5930`. The DSD defines the fields and
+their roles, rather than containing the list of measured numbers. Our current
+DSD uses uncoded strings; it does not yet enumerate Mean/Median in a code list.
+The mapping profile separately checks those expected headers. Standard code
+lists can later make those representations more specific and interoperable.
+
+The output files separate these concerns:
+
+- [`native.json`](../../data/structured_data_trials/20261124_gpu_standard_01/108733-revised-public-wb-unhcr-policy-brief-final_table_000/native.json): Docling's extracted cells and document structure.
+- [`observations.json`](../../data/structured_data_trials/20261124_gpu_standard_01/108733-revised-public-wb-unhcr-policy-brief-final_table_000/observations.json): our readable intermediate observations, their keys, original text and evidence references.
+- [`structure.sdmx.json`](../../data/structured_data_trials/20261124_gpu_standard_01/108733-revised-public-wb-unhcr-policy-brief-final_table_000/structure.sdmx.json): the concept definitions and `LOCAL:INCOME_SUMMARY(0.1.0)` DSD, encoded in SDMX-JSON.
+- [`data.sdmx.json`](../../data/structured_data_trials/20261124_gpu_standard_01/108733-revised-public-wb-unhcr-policy-brief-final_table_000/data.sdmx.json): all 16 observations, with a link to that DSD, encoded in SDMX-JSON.
+
+For example, the last file encodes Agriculture/Mean as `"0:0": [5930.0]`.
+Its dimension value lists say category index 0 means Agriculture and statistic
+index 0 means Mean. These are compact indexes in this message, not permanent
+category codes. The underlying observation is the first long-format row above.
+
+The official **SDMX JSON Schema** checks the shape of an exchange message; our
+**DSD** describes the statistical fields of this dataset. Passing the former
+does not mean a number is correct or that we chose the right statistical model.
+
+An existing DSD such as WDI can be reused when its dimensions and meanings fit.
+It does not automatically express the income crop's Mean/Median distinction.
+The current income profile is manually reviewed; automatic DSD selection,
+inference and user confirmation are not implemented. Unknown currency and
+ambiguous observation time remain unresolved rather than being invented.
 
 ## How Docling fits into this workflow
 
@@ -96,7 +173,7 @@ It is already a local generative-model experiment; the deferred LLM work concern
 alternative models and statistical/SDMX interpretation, including remote APIs.
 
 Docling also supports optional chart-extraction enrichment using separate models.
-Our current trials do not enable that stage. The poor results from the small
+The initial trials did not enable that stage. The poor results from the small
 Granite conversion model therefore do not establish the capability of every
 Docling chart-extraction configuration. See [vision models](https://docling-project.github.io/docling/usage/vision_models/).
 
@@ -144,7 +221,8 @@ The machine-readable selection is in
 
 The independent module is
 [`structured_data_extraction`](../../src/data_snapshot/structured_data_extraction/README.md).
-It has a PNG CLI, two local Docling pipelines, a reviewed income mapping profile,
+It has a PNG CLI, two tested local Docling pipelines and a prepared chart-enrichment
+configuration, a reviewed income mapping profile,
 long observations with native cell references, and matching structure/data SDMX
 messages. Official schemas are vendored for offline validation. Native evidence
 and errors are retained in fresh run folders; existing runs are not overwritten.
@@ -181,9 +259,12 @@ yet mapped automatically into SDMX observations.
 - The OpenCV distribution was present but its `cv2` import was missing after
   environment synchronization. Reinstalling `opencv-python-headless==4.13.0.92`
   repaired it. RapidOCR assets then downloaded successfully.
-- Some existing console launchers still reference the old
+- Before rebuilding, some console launchers referenced the old
   `data-snapshot-annotation` checkout. Tools were invoked as Python modules
   through `uv run --no-sync python -m ...` to use the current environment.
+- The user rebuilt `.venv` with `uv sync --locked --python 3.10 --extra
+  structured_data --extra test` and reported that imports, CUDA and focused
+  tests pass. The rebuilt Black launcher points to this checkout.
 - Unlimited-OCR is deferred: its cached BF16 weights occupy 6.21 GiB before
   activations, exceeding this GPU's capacity. Offloading/quantization is untested.
 
@@ -203,6 +284,9 @@ allocated memory, not total GPU memory including context and other allocations.
 | Regression / standard | CPU | 29.92 s | Detected 22×5 table; nested headings and significance marks preserved in native cells. Numerical accuracy not fully scored; mapping deferred. |
 | Shona / Granite | CPU FP32 | ~431 s before interruption | No complete native result. The initial 8192-token run was stopped after prolonged decoding. This does not establish that CPU execution is impossible. |
 | Shona / Granite | CUDA FP32 | 90.97 s | Conversion completed, but its chart data is 0×0: no usable observations. No SDMX output produced. |
+| Guarantee / standard | CPU | 15.77 s | One picture and no tables/chart metadata. OCR reads chart text, including the four data labels and axis ticks, without assigning them to series/category observations. |
+| Refugee pie / standard | CPU | 4.42 s | One picture and no tables/chart metadata. OCR reads `91%`, but reads the other percentage as `%6`; no usable numerical series. |
+| Shona / standard | CPU | 4.77 s | One picture and no tables/chart metadata. OCR recovers labels/ticks but does not estimate plotted values. |
 
 Evidence roots under `data/structured_data_trials/`:
 
@@ -214,16 +298,64 @@ Evidence roots under `data/structured_data_trials/`:
 - `20261124_gpu_standard_01`: verified GPU income output.
 - `20261124_gpu_granite_01`: GPU guarantee-chart extraction.
 - `20261124_gpu_granite_02`: bounded GPU Shona rerun.
+- `20261124_standard_charts_01`: standard-pipeline baseline on all three charts,
+  in one process. Later images benefit from warm imports/caches; times are not
+  comparable controlled benchmarks.
 
 These large/generated outputs are gitignored. The income test fixture is manually
 transcribed from the source image and is independent of model predictions.
 
+### Dedicated chart enrichment
+
+Added `--pipeline chart`: standard conversion followed by picture classification
+and `granite_vision_v3_3` Chart2CSV enrichment. Standard conversion supplies a
+picture without the small VLM's existing incorrect chart data, which would cause
+the enrichment stage to skip chart-to-table generation. The picture classifier
+must recognize bar, pie or line chart for the stage to process it.
+
+The dedicated model is
+[`ibm-granite/granite-vision-3.3-2b-chart2csv-preview`](https://huggingface.co/ibm-granite/granite-vision-3.3-2b-chart2csv-preview),
+pinned by installed Docling to revision
+`6e1fbaae4604ecc85f4f371416d82154ca49ad67`. Its published
+[weight files](https://huggingface.co/ibm-granite/granite-vision-3.3-2b-chart2csv-preview/tree/main)
+total approximately 6.15 GB. The newer default
+[Granite Vision 4.1 4B](https://huggingface.co/ibm-granite/granite-vision-4.1-4b/tree/main)
+has approximately 7.99 GB of weight files. Neither is a full-GPU fit on this
+4 GiB card at the published 16-bit precision, before runtime allocations.
+
+The prepared smaller-model configuration is CPU BF16, no quantization or
+compilation, capped at 2048 generated tokens. This reduces weight RAM relative
+to FP32 but does not establish peak RAM or acceptable runtime. This CPU lacks
+native BF16 acceleration. The user completed the additional download and the
+first guarantee-chart trial is now running. No Python dependency changes were
+needed. Download command:
+
+```bash
+uv run --no-sync docling-tools models download \
+  picture_classifier granite_chart_extraction_v3_3
+```
+
+Local safetensors-header inspection confirms 3,076,068,416 stored parameters,
+all BF16, totaling 6,152,136,832 bytes (5.73 GiB) before runtime allocations.
+The model's "2B" name does not describe its full stored parameter count.
+
+The CLI refuses chart CUDA runs on this machine and checks for prefetched model
+directories. See the [usage guide](../../src/data_snapshot/structured_data_extraction/README.md#dedicated-chart-extraction)
+for the first guarantee-chart command and expected four associations.
+
+Source inspection found that chart enrichment parses generated text without
+checking its finish reason; a token-limited or malformed result may coexist with
+conversion success. Raw chart output therefore remains unverified. Empty,
+truncated and inaccurate numerical extractions must be reviewed; no automatic
+chart-to-SDMX export was added.
+
 ## Checks and interpretation
 
-- 15 focused offline tests pass: observation associations, official-schema
+- 18 focused offline tests pass: observation associations, official-schema
   validation, indexed-data decoding, missing versus zero, ambiguous numbers,
-  malformed structures, GPU option forwarding, immutable runs and interruption.
-- The focused suite plus existing metadata-schema tests passed (107 tests).
+  malformed structures, pipeline/device forwarding, immutable runs, interruption,
+  chart CPU/BF16 configuration and missing-model/GPU rejection.
+- The focused suite plus existing metadata-schema tests passed (110 tests).
 - `uv lock --check --offline` passes. The new `structured_data` extra reuses the
   pinned Docling stack and declares its TF-ID dependency conflict explicitly.
 - A wheel build includes both official schemas, the income mapping profile and
@@ -236,14 +368,52 @@ they are never labelled verified numerical datasets.
 
 ## Next actions and open questions
 
-1. Keep the verified income example as the first tangible end-to-end artifact.
-2. Review chart failures before adding automatic chart-to-SDMX mappings. Consider
-   another Docling model/configuration only with an explicit hardware assessment.
+1. Use the worked income example above to explain the data/DSD/exchange distinction.
+2. Once additional models finish downloading, run dedicated chart enrichment on
+   the guarantee image first. Check all four values and their associations, record
+   CPU runtime/RAM and classification, then decide whether to run pie and Shona.
+   Keep raw failures; do not add automatic chart-to-SDMX mappings before review.
 3. Compare the actual extracted examples with WDI/UNICEF/UNHCR concepts; document
    where reuse works, where extensions are needed, and what requires confirmation.
-4. Use the native extraction, long observations, local DSD and failure examples
-   to clarify the intended model-inference/user-interaction workflow with Aivin.
+4. Complete the draft below with measured enrichment results, then use the native
+   extraction, long observations and local DSD to clarify the data-model meaning
+   and extraction/review separation with Aivin. Sending remains the user's action.
 
 Unresolved: the eventual shared DSD; standard-code mapping; units absent from
 crops; time intervals that are not regular frequencies; confidence/error-bar
 interpretation; regression-table semantics; and correction review policy.
+
+## Draft message to Aivin (not sent)
+
+Status: draft while the dedicated chart model downloads. Replace the bracketed
+sentence with actual enriched results before sending; do not imply they are known.
+
+Hi Aivin, a quick update on structured data extraction from Data Snapshots.
+
+I've implemented an initial local Docling pipeline that takes a PNG and preserves
+the extracted document structure. For the simple income table, all 16 values and
+their category/statistic associations matched the image. The regression table
+was extracted, but its nested headers and coefficient/standard-error relationships
+still need mapping. The initial chart results from the small Granite-Docling model
+were incorrect or empty. [Add dedicated chart-enrichment results here.]
+
+Docling provides text, table cells and document structure, and can provide chart
+data depending on the pipeline/model. To reach our SDMX target, we still need to
+interpret these as statistical dimensions, measures and attributes, map them to
+a Data Structure Definition (DSD), and write the observations in SDMX-JSON.
+
+I'm understanding the DSD as the statistical schema: analogous to how the Data
+Snapshot Metadata Schema defines our metadata fields, it defines the fields and
+roles of the extracted statistical data. For example, the income table has
+income category and summary statistic (Mean/Median) as dimensions, and the amount
+as the measure. We have an experimental DSD for that example; the shared structure
+still needs to be developed, preferably reusing existing SDMX concepts/DSDs.
+
+Is this the kind of "data model" you meant in our last call, or were you referring
+to something broader?
+
+I'm also proposing two separate workflows: first, automated extraction and
+conversion; second, a review workflow for correcting extraction errors and
+confirming uncertain interpretations. The second may need a UI, but I suggest
+deferring its design until we understand the extraction results better. Does
+that separation match what you had in mind?

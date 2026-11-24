@@ -117,12 +117,15 @@ def test_structure_requires_review(native: dict, profile: Profile, damage: str) 
 
 
 @pytest.mark.parametrize("valid", [True, False])
+@pytest.mark.parametrize("pipeline,device", [("standard", "cuda:0"), ("chart", "cpu")])
 def test_cli_retains_native_evidence(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     native: dict,
     profile: Profile,
     valid: bool,
+    pipeline: str,
+    device: str,
 ) -> None:
     """Preserve extraction on mapping failure and refuse to overwrite a run."""
     import sys
@@ -155,7 +158,9 @@ def test_cli_retains_native_evidence(
             "--profile",
             str(mapping),
             "--device",
-            "cuda:0",
+            device,
+            "--pipeline",
+            pipeline,
         ],
     )
     if valid:
@@ -166,7 +171,12 @@ def test_cli_retains_native_evidence(
             cli.main()
         assert not (output / "income/data.sdmx.json").exists()
     assert json.loads((output / "income/native.json").read_text()) == native
-    assert calls == [{"pipeline": "standard", "device": "cuda:0"}]
+    assert calls == [{"pipeline": pipeline, "device": device}]
+    report = json.loads((output / "income/run.json").read_text())
+    assert report["chart_preset"] == (
+        "granite_vision_v3_3" if pipeline == "chart" else None
+    )
+    assert report["chart_image_scale"] == (0.5 if pipeline == "chart" else None)
     assert image.exists()
     with pytest.raises(FileExistsError):
         cli.main()
@@ -197,3 +207,53 @@ def test_interruption_is_recorded(
     report = json.loads((output / "income/run.json").read_text())
     assert report["status"] == "interrupted"
     assert not (output / "income/data.sdmx.json").exists()
+
+
+def test_chart_configuration_and_missing_models(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Require local CPU BF16 chart inference and explicit model prefetching."""
+    from types import SimpleNamespace
+
+    from docling.datamodel.base_models import ConversionStatus, InputFormat
+    from docling.datamodel.settings import settings
+    import docling.document_converter as converters
+
+    from data_snapshot.structured_data_extraction.docling import extract_image
+
+    monkeypatch.setattr(settings, "cache_dir", tmp_path)
+    artifacts = tmp_path / "models"
+    artifacts.mkdir()
+    with pytest.raises(ValueError, match="4 GiB GPU"):
+        extract_image(Path("chart.png"), pipeline="chart", device="cuda:0")
+    with pytest.raises(FileNotFoundError, match="models download picture_classifier"):
+        extract_image(Path("chart.png"), pipeline="chart")
+    for folder in (
+        "ibm-granite--granite-vision-3.3-2b-chart2csv-preview",
+        "docling-project--DocumentFigureClassifier-v2.5",
+    ):
+        (artifacts / folder).mkdir()
+    captured = {}
+
+    def converter(**kwargs: object) -> SimpleNamespace:
+        captured.update(kwargs)
+        return SimpleNamespace(
+            convert=lambda _: SimpleNamespace(
+                status=ConversionStatus.SUCCESS,
+                document=SimpleNamespace(export_to_dict=lambda: {"pictures": []}),
+            )
+        )
+
+    monkeypatch.setattr(converters, "DocumentConverter", converter)
+    assert extract_image(Path("chart.png"), pipeline="chart") == {"pictures": []}
+    options = captured["format_options"][InputFormat.IMAGE].pipeline_options
+    chart = options.chart_extraction_options
+    assert options.do_chart_extraction and options.generate_picture_images
+    assert options.images_scale == 0.5
+    assert not options.enable_remote_services
+    assert chart.chart2csv and not chart.chart2summary and not chart.chart2code
+    assert chart.engine_options.device.value == "cpu"
+    assert chart.engine_options.torch_dtype == "bfloat16"
+    assert not chart.engine_options.load_in_8bit
+    assert not chart.engine_options.compile_model
+    assert chart.model_spec.max_new_tokens == 2048

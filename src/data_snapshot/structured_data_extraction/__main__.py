@@ -20,7 +20,7 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--device", choices=["cpu", "cuda:0"], default="cpu")
     parser.add_argument(
-        "--pipeline", choices=["standard", "granite"], default="standard"
+        "--pipeline", choices=["standard", "granite", "chart"], default="standard"
     )
     parser.add_argument(
         "--profile", type=Path, help="Reviewed mapping; omit for native extraction only"
@@ -49,7 +49,12 @@ def main() -> None:
             "docling_version": version("docling"),
             "device": args.device,
             "profile": profile.model_dump() if profile else None,
-            "max_new_tokens": 2048 if args.pipeline == "granite" else None,
+            "max_new_tokens": (2048 if args.pipeline in {"granite", "chart"} else None),
+            "chart_preset": (
+                "granite_vision_v3_3" if args.pipeline == "chart" else None
+            ),
+            "chart_image_scale": 0.5 if args.pipeline == "chart" else None,
+            "chart_cpu_offload": args.pipeline == "chart" and args.device == "cuda:0",
             "status": "started",
         }
         started = time.monotonic()

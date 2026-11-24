@@ -37,6 +37,48 @@ the generation limit as incomplete; the CLI refuses to transform such a result.
 The initial chart trials used the preset's 8192-token limit. Interrupted runs are
 recorded explicitly rather than being reported as successful extraction.
 
+### Dedicated chart extraction
+
+`--pipeline chart` adds picture classification and dedicated Chart2CSV enrichment
+to the standard pipeline. It uses the smaller `granite_vision_v3_3` preset,
+distinct from both Granite-Docling-258M and the current default Granite Vision 4B.
+No new Python dependencies or environment synchronization are needed.
+
+Download the additional models once:
+
+```bash
+uv run --no-sync docling-tools models download \
+  picture_classifier granite_chart_extraction_v3_3
+```
+
+The chart weights alone are approximately 6.15 GB on disk. They exceed this
+machine's 4 GiB GPU even at 16-bit precision. This configuration therefore uses
+CPU BF16 to reduce RAM requirements, without quantization or compilation.
+The CPU lacks native BF16 acceleration; runtime and peak RAM are unverified.
+CUDA requests for this pipeline are rejected before model loading.
+
+After downloading, run the first example in a fresh output directory:
+
+```bash
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+uv run --no-sync python -m data_snapshot.structured_data_extraction \
+  /home/ajd/hf_datasets/data-snapshot/snapshots/prwp/document_10000660_figure_002.png \
+  --pipeline chart --device cpu \
+  --output-dir data/structured_data_trials/guarantee_chart_enrichment_01
+```
+
+Inspect `native.json` for picture classification and
+`pictures[].meta.tabular_chart.chart_data`. Expected chart associations are
+HIGH/MUTUAL 15, HIGH/PUBLIC 7, LOW_MIDDLE/MUTUAL 7, LOW_MIDDLE/PUBLIC 17.
+Classification can prevent extraction if the picture is not recognized as a
+supported chart. The enrichment stage also skips chart data already present;
+using standard conversion avoids reusing the small VLM's incorrect chart table.
+
+Chart generation is capped at 2048 tokens. Unlike full-page VLM conversion,
+the installed enrichment code does not propagate the generation finish reason
+into conversion status. Treat native chart output as unverified, including
+possible truncation; this path has no automatic chart-to-SDMX mapping.
+
 ## First end-to-end example
 
 The income profile supplies the interpretation of the axes and expected column

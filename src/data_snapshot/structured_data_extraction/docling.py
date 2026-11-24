@@ -14,9 +14,11 @@ def extract_image(
     image_path : Path
         Existing snapshot image.
     pipeline : str
-        ``standard`` for OCR/table recognition or ``granite`` for the small VLM.
+        ``standard`` for OCR/tables, ``granite`` for the small VLM, or
+        ``chart`` for standard conversion plus dedicated Chart2CSV enrichment.
     device : str
-        ``cpu`` or ``cuda:0``. VLM weights use FP32 on both devices.
+        ``cpu`` or ``cuda:0``. Chart enrichment uses CPU BF16 or GPU FP16
+        with CPU weight offloading; the small Granite model uses FP32.
 
     Returns
     -------
@@ -39,11 +41,14 @@ def extract_image(
 
     if device not in {"cpu", "cuda:0"}:
         raise ValueError("Device must be cpu or cuda:0")
-    accelerator = AcceleratorOptions(device=device, num_threads=4)
+    chart_offload = pipeline == "chart" and device == "cuda:0"
+    accelerator = AcceleratorOptions(
+        device="cpu" if chart_offload else device, num_threads=4
+    )
     artifacts = settings.cache_dir / "models"
     if not artifacts.is_dir():
         raise FileNotFoundError("Prefetch Docling models before running extraction")
-    if pipeline == "standard":
+    if pipeline in {"standard", "chart"}:
         options = PdfPipelineOptions(
             artifacts_path=artifacts,
             accelerator_options=accelerator,
@@ -55,6 +60,38 @@ def extract_image(
                 rapidocr_params={"EngineConfig.onnxruntime.use_cuda": False},
             ),
         )
+        if pipeline == "chart":
+            from docling.datamodel.chart_extraction_options import (
+                ChartExtractionVlmEngineOptions,
+            )
+            from docling.datamodel.vlm_engine_options import (
+                TransformersVlmEngineOptions,
+            )
+
+            chart = ChartExtractionVlmEngineOptions.from_preset(
+                "granite_vision_v3_3",
+                engine_options=TransformersVlmEngineOptions(
+                    device=AcceleratorDevice.CPU,
+                    torch_dtype="float16" if chart_offload else "bfloat16",
+                    load_in_8bit=False,
+                    compile_model=False,
+                ),
+            )
+            chart.model_spec.max_new_tokens = 2048
+            for folder in (
+                chart.model_spec.default_repo_id.replace("/", "--"),
+                options.picture_classification_options.repo_cache_folder,
+            ):
+                if not (artifacts / folder).is_dir():
+                    raise FileNotFoundError(
+                        "Prefetch chart models: uv run --no-sync docling-tools "
+                        "models download picture_classifier granite_chart_extraction_v3_3"
+                    )
+            options.do_chart_extraction = True
+            options.generate_picture_images = True
+            # Reduce image tokens for CPU inference; retain the original PNG.
+            options.images_scale = 0.5
+            options.chart_extraction_options = chart
         image_options = ImageFormatOption(pipeline_options=options)
     elif pipeline == "granite":
         from docling.datamodel.pipeline_options import (
@@ -88,10 +125,38 @@ def extract_image(
     else:
         raise ValueError(f"Unknown Docling pipeline: {pipeline}")
 
-    result = DocumentConverter(
+    converter = DocumentConverter(
         allowed_formats=[InputFormat.IMAGE],
         format_options={InputFormat.IMAGE: image_options},
-    ).convert(image_path)
+    )
+    if chart_offload:
+        import torch
+        from accelerate import cpu_offload
+        from docling.models.inference_engines.vlm.transformers_engine import (
+            TransformersVlmEngine,
+        )
+        from docling.models.stages.chart_extraction.granite_vision import (
+            ChartExtractionVlmEngineModel,
+        )
+
+        if not torch.cuda.is_available():
+            raise RuntimeError(
+                "CUDA is unavailable; verify GPU access or use --device cpu"
+            )
+        converter.initialize_pipeline(InputFormat.IMAGE)
+        # shortcut: pinned Docling exposes no offload option; configure its engine.
+        stages = next(iter(converter.initialized_pipelines.values())).enrichment_pipe
+        stage = next(s for s in stages if isinstance(s, ChartExtractionVlmEngineModel))
+        engine = stage.engine
+        if not isinstance(engine, TransformersVlmEngine) or engine.vlm_model is None:
+            raise RuntimeError("Expected an initialized Transformers chart model")
+        cpu_offload(
+            engine.vlm_model,
+            execution_device=torch.device(device),
+            offload_buffers=True,
+        )
+        engine.device = device
+    result = converter.convert(image_path)
     if result.status != ConversionStatus.SUCCESS:
         raise ValueError(f"Docling conversion did not succeed: {result.status}")
     return result.document.export_to_dict()
