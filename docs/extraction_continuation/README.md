@@ -98,9 +98,7 @@ steps 6–11. Metadata field-classification notebooks are separate work.
 
 ## Local evidence and environment
 
-The observations below describe the original 2026-11-23 investigation. See
-[the 2026-11-24 environment update](ENVIRONMENT.md) for the subsequent local
-launcher/activation repair and coordination with the structured-data task.
+The observations below describe the original 2026-11-23 investigation.
 
 Original completed run roots, relative to this checkout:
 

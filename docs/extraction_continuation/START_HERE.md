@@ -30,9 +30,6 @@ Begin read-only and reconcile this snapshot with newer commits before acting.
   source PDFs, weights, and environments do not. Recover archived predictions
   and native sidecars into a fresh location if needed. Do not treat an absent
   local artifact as proof that its recorded experiment never completed.
-- Read [the local environment repair](ENVIRONMENT.md) before relying on the
-  older path observations. The shared local launchers were repaired on
-  2026-11-24 without syncing dependencies; another machine needs its own setup.
 - Five fixed-half benchmarks completed: DocLayout-YOLO, YOLO11, YOLO26, Heron,
   and Egret Medium. PP-DocLayoutV3 and Surya Fast Layout remain planned, and
   checkpoint A's visual audit and incumbent selection remain unfinished.
@@ -69,8 +66,7 @@ them. Batch necessary clarification questions.
   out-of-memory failure, including preceding rendering events.
 - `ARCHIVE.md`, the historical ZIP, its manifest, and checksum: original local
   experiment outputs and restoration instructions.
-- `ENVIRONMENT.md` and the dated repair inventory: the local path repair and
-  coordination guidance for the structured-data workstream.
+- `environment_path_repair_2026-11-24.json`: the inventory of local path repairs.
 
 Include this whole folder when committing. After committing and pushing it,
 the next machine can pull the repository and start with this instruction:
