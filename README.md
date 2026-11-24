@@ -36,6 +36,7 @@ Source-document metadata is a third, separate concern.
 | Schema Discovery | Reproduce the discovery, validation, and schema-evolution research | [Schema discovery guide](notebooks/schema_discovery/README.md) |
 | Canonical Metadata Schema | Validate metadata and generate JSON Schema and field references | [Schema guide](src/data_snapshot/metadata_schema/README.md) |
 | Data Snapshot Metadata Extraction | Extract Schema v1.4 metadata from images and review gold records | [Metadata extraction guide](src/data_snapshot/metadata_extraction/README.md) |
+| Structured Data Extraction Prototype | Run Docling on PNGs and map reviewed table observations to SDMX-JSON | [Plan and findings](docs/data_extraction/working_notebook.md), [usage](src/data_snapshot/structured_data_extraction/README.md) |
 | Source Document Metadata | Convert and normalize parent-document metadata for dataset publication | [Source metadata guide](src/data_snapshot/metadata/README.md) |
 | Research Notebooks | Run maintained notebooks and identify historical material | [Notebook guide](notebooks/README.md) |
 | Schema Discovery Manuscript | Build and maintain the Paper 2 manuscript | [Manuscript guide](docs/schema-discovery_manuscript/README.md) |

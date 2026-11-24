@@ -1,0 +1,10 @@
+{
+  "id": "INCOME_SUMMARY",
+  "title": "Monthly labor income in Afghanistan and remittances from abroad",
+  "measure": "Reported monthly income or remittance amount; currency not stated in crop",
+  "axes": [
+    {"id": "CATEGORY", "name": "Income category"},
+    {"id": "STATISTIC", "name": "Summary statistic"}
+  ],
+  "column_labels": ["Mean", "Median"]
+}

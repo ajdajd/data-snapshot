@@ -22,6 +22,10 @@ dependencies = [
 
 
 [project.optional-dependencies]
+structured_data = [
+    "data-snapshot[docling_heron]",
+    "jsonschema>=4,<5",
+]
 docling_heron = [
     "docling[rapidocr]==2.140.0",
     "torch==2.10.0",
@@ -90,11 +94,15 @@ dev = [
 conflicts = [
     [{ extra = "tfid" }, { extra = "unlimitedocr" }],
     [{ extra = "tfid" }, { extra = "docling_heron" }],
+    [{ extra = "tfid" }, { extra = "structured_data" }],
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["data_snapshot.metadata_extraction_v1_1*"]
+
+[tool.setuptools.package-data]
+"data_snapshot.structured_data_extraction" = ["schemas/*.json", "profiles/*.json", "examples.json"]
 
 
 [tool.pytest.ini_options]
