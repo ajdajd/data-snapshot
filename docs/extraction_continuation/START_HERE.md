@@ -13,6 +13,8 @@ Begin read-only and reconcile this snapshot with newer commits before acting.
 3. Inspect [the preserved evidence](evidence/2026-11-23/verification.json)
    and the relevant model's reports under that same directory. The original
    [roadmap image](evidence/2026-11-23/roadmap.png) is included.
+   For the full historical local outputs and trial scripts, read
+   [the archive instructions](ARCHIVE.md) before opening or restoring the ZIP.
 4. Read the repository guidance, [extraction guide](../../src/data_snapshot/inference/README.md),
    and [evaluation guide](../../src/data_snapshot/evaluation/README.md) before
    implementation. Follow the current
@@ -24,9 +26,13 @@ Begin read-only and reconcile this snapshot with newer commits before acting.
   `/home/ajd/...` paths describe the original machine; do not require that path
   or recreate the former `data-snapshot-annotation` checkout on another machine.
 - Check which datasets, predictions, native sidecars, weights, and environments
-  exist locally. Report copies and hashes survive Git; large ignored artifacts
-  and the original environment do not. Do not treat an absent local artifact
-  as proof that its recorded experiment never completed.
+  exist locally. Report copies and the historical extraction ZIP survive Git;
+  source PDFs, weights, and environments do not. Recover archived predictions
+  and native sidecars into a fresh location if needed. Do not treat an absent
+  local artifact as proof that its recorded experiment never completed.
+- Read [the local environment repair](ENVIRONMENT.md) before relying on the
+  older path observations. The shared local launchers were repaired on
+  2026-11-24 without syncing dependencies; another machine needs its own setup.
 - Five fixed-half benchmarks completed: DocLayout-YOLO, YOLO11, YOLO26, Heron,
   and Egret Medium. PP-DocLayoutV3 and Surya Fast Layout remain planned, and
   checkpoint A's visual audit and incumbent selection remain unfinished.
@@ -61,6 +67,10 @@ them. Batch necessary clarification questions.
 - `evidence/2026-11-23/roadmap.png`: the user's original planning notes.
 - `evidence/2026-11-23/unlimitedocr_failure.jsonl`: the real sample attempt's
   out-of-memory failure, including preceding rendering events.
+- `ARCHIVE.md`, the historical ZIP, its manifest, and checksum: original local
+  experiment outputs and restoration instructions.
+- `ENVIRONMENT.md` and the dated repair inventory: the local path repair and
+  coordination guidance for the structured-data workstream.
 
 Include this whole folder when committing. After committing and pushing it,
 the next machine can pull the repository and start with this instruction:

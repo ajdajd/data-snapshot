@@ -23,11 +23,11 @@ your current checkout and assess available local assets before using commands.
   [evaluation guide](../../src/data_snapshot/evaluation/README.md), and
   [evaluation specification](../evaluation_spec.md).
 
-Large predictions, native Docling sidecars, PDFs, weights, and environments are
-still local assets. The evidence copies preserve results and context, not the
-ability to repeat every verification on a clean clone. Hashes identify originals;
-they do not back up those files. Preserve the local artifact roots below before
-cleaning this machine.
+The [historical ZIP added on 2026-11-24](ARCHIVE.md) preserves the original
+extraction predictions, native Docling sidecars, trial scripts, and logs in Git,
+alongside the small readable reports. Source PDFs, weights, and environments
+remain separate local assets. Use the archive instructions to recover selected
+outputs without overwriting current work. Original local files were retained.
 
 ## Verified benchmark progress
 
@@ -98,6 +98,10 @@ steps 6–11. Metadata field-classification notebooks are separate work.
 
 ## Local evidence and environment
 
+The observations below describe the original 2026-11-23 investigation. See
+[the 2026-11-24 environment update](ENVIRONMENT.md) for the subsequent local
+launcher/activation repair and coordination with the structured-data task.
+
 Original completed run roots, relative to this checkout:
 
 | Models | Root |
@@ -118,9 +122,10 @@ under `logs/`. The verification record preserves exact paths and hashes.
 - Python 3.10.19 and `uv` are available. `.venv` has Torch 2.10.0,
   Transformers 5.20.1, PyMuPDF 1.27.2.3, pytest, and jsonschema; Docling,
   RapidOCR, ONNX Runtime, Ultralytics, and DocLayout-YOLO are absent.
-- The rename left `.venv/bin/pytest` and the editable package `.pth` pointing to
-  `/home/ajd/data-snapshot-annotation`. Use the workaround below for offline
-  checks; do not assume command launchers work or sync just to investigate.
+- At the initial investigation, the rename left `.venv/bin/pytest` and the
+  editable package `.pth` pointing to `/home/ajd/data-snapshot-annotation`.
+  By 2026-11-24 the editable link was correct, and 46 remaining local launchers
+  and activation scripts were repaired. Do not sync just to investigate.
 - YOLO weights remain under `models/`. TF-ID and Unlimited-OCR checkpoints
   are cached under `/home/ajd/.cache/huggingface/hub/` at approximately 3.29 GB
   and 6.67 GB respectively. Cached weights do not establish runnable inference.

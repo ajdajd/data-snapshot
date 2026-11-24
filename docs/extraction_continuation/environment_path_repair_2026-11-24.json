@@ -1,0 +1,248 @@
+{
+  "repaired_on": "2026-11-24",
+  "timezone": "Asia/Manila",
+  "old_environment_path": "/home/ajd/data-snapshot-annotation/.venv",
+  "new_environment_path": "/home/ajd/data-snapshot/.venv",
+  "repair": "Replace only the old absolute environment path in existing text launchers and activation scripts; preserve permissions and replace each file atomically.",
+  "file_count": 46,
+  "files": [
+    {
+      "path": ".venv/bin/accelerate",
+      "sha256_before": "db2b198d90108f198d87b63d66101049cb6d1295a6141032cc6436abd267052c",
+      "sha256_after": "9c800d73df50810c9557cd9ce28b80d11a94da2c67c0d2b61e88154e4a2a66ad"
+    },
+    {
+      "path": ".venv/bin/accelerate-config",
+      "sha256_before": "c78ceed665d9cd14d3f5c625e16cdde228bce510beaf556581ec17a4b165336b",
+      "sha256_after": "298126a4b39a61f35c003cb3e37159d77bbb4caf2712fdaeedbd94ccb1a42b00"
+    },
+    {
+      "path": ".venv/bin/accelerate-estimate-memory",
+      "sha256_before": "4809abe46351b45796c82b3bbd4ed58bc798a6205783dd76c0d531f7a29fc424",
+      "sha256_after": "0bd122ce1d9229d04f4c4d10ce7f6ed151c70ded6d21b56351c87ab3ebff273e"
+    },
+    {
+      "path": ".venv/bin/accelerate-launch",
+      "sha256_before": "b572efdd17ee0e0bef803e99c7fa9ca10ab3aa29d80d57bb7c551b30212277d6",
+      "sha256_after": "7c3a85a6a2c6ea2d7fb92b885e0f7c5f202ffcbaf9bf2eae4138931b9b38291d"
+    },
+    {
+      "path": ".venv/bin/accelerate-merge-weights",
+      "sha256_before": "ba08696b62e79e7be36a76fa1006b65bedb2143871b900cc495157759b6df9ad",
+      "sha256_after": "9c45298e308fdfcd35ed8a509654dbfafd6dfaba5eb18890331e9942a6859218"
+    },
+    {
+      "path": ".venv/bin/activate",
+      "sha256_before": "9702086face28833690f972d32e3ed60a812a394e10ec0aa6647d650581da597",
+      "sha256_after": "23faf349a1e92ba60083f468211acb64a37d41a89a51abdc2d66736fb673909c"
+    },
+    {
+      "path": ".venv/bin/activate-global-python-argcomplete",
+      "sha256_before": "df31459628c3f39f1c7d7e443a749f61731135fc575de89b7e5e45a0200df325",
+      "sha256_after": "bca5523af691c4cae1aaedef9cf2ca10893b38b3584751e4e07923d862911e88"
+    },
+    {
+      "path": ".venv/bin/activate.bat",
+      "sha256_before": "3ab73909b243d327c2c2645c5bf381381b7e18924efc1939b965a4bf6f95b4d8",
+      "sha256_after": "92a0a318e41fb8e89ed087a09bfb7d589fc46e0b046cfbfc367469afebc22783"
+    },
+    {
+      "path": ".venv/bin/activate.csh",
+      "sha256_before": "cee8f232f6ad287762eca935113eef75e5324c5351da63dfd541afaac270beac",
+      "sha256_after": "172d40395ea0275ab8bdd0a39e4a97c21dedfde11f0899ff12f3e2b9b7198232"
+    },
+    {
+      "path": ".venv/bin/activate.fish",
+      "sha256_before": "1d858093b6067753c78344de80f630b48ed86e5e17aa16983402d3db83bf0bcd",
+      "sha256_after": "2bd6d580d098865b682d87e6672ecd17e6a8a17b2099af4d8d26baa38ca8061f"
+    },
+    {
+      "path": ".venv/bin/activate.nu",
+      "sha256_before": "047fd5abeae29402ec2e2444a8d03a5563402f258416f232121a1113060d238f",
+      "sha256_after": "110e1dd7d27cb1adb67662b0b24831a1dbdc79ec38e156bbbbfd053b1153a671"
+    },
+    {
+      "path": ".venv/bin/black",
+      "sha256_before": "e84716888451599ec18aae4c462a77096d3c66b586b7e72d08ab96e7cff31a39",
+      "sha256_after": "c405ce4d20e4100f72125763033dfc0693479f6d05db8c9c7df8004145f9279a"
+    },
+    {
+      "path": ".venv/bin/blackd",
+      "sha256_before": "ddf852c2a6499c98db4c6fd26215bf6ab95caf1d8c01c195285c0f6c3aa867ea",
+      "sha256_after": "5ab9ab27eab3859c44ccacd918f067385a23414483e66583f89bbf610227c9d9"
+    },
+    {
+      "path": ".venv/bin/datamodel-codegen",
+      "sha256_before": "f1d63a120ee6315f8909c361a1300b38b11f7991e7a6c9ac6e7b0c6774ec8729",
+      "sha256_after": "879f84cab34f2ce320ddb0b5a8bca9d5609816d653799b6a91c543b4fba2f386"
+    },
+    {
+      "path": ".venv/bin/distro",
+      "sha256_before": "7e580795e1d9e90ec6bf2de2e8377162c4a49a933bc8bd46056da9985894adbf",
+      "sha256_after": "1101e54e6212bea1e77f61de637a8fd6653e2ff2bf3ae78bdb6cba67f40d41d4"
+    },
+    {
+      "path": ".venv/bin/dotenv",
+      "sha256_before": "78c58bbd2a32a2d5db5753d16651010aaf1381680c3105e31dd12b3aaa0ced10",
+      "sha256_after": "a289160bcf976a48bbe16fb3b1a53e400c186252e9748e68514b128a887d5246"
+    },
+    {
+      "path": ".venv/bin/email_validator",
+      "sha256_before": "856ae6d4aab1f4e54df2e1c0848c3681732230b8daca9e098ff9adeced021f94",
+      "sha256_after": "ac911ce26c3a0083f5336436391dfc985275febfd3c58429f6e9ceadbab9ffdb"
+    },
+    {
+      "path": ".venv/bin/f2py",
+      "sha256_before": "35ab513f71cb9fdc101591609fd649e34c271b9ebb20d260e4eee21d1a13fcc6",
+      "sha256_after": "7f0837d856aba6abb201940d6d8e948fc4e35e81a371f23c5ae4c1bb74f5446c"
+    },
+    {
+      "path": ".venv/bin/faker",
+      "sha256_before": "c2fd1a4cf099ad05bb15a32de9ecd5d9a615db9aedb08b701743692d94a97ae9",
+      "sha256_after": "8a4effb4cf036c6391d9dca18ebe8e111ec197e4357158f0c5b949dfdc43c245"
+    },
+    {
+      "path": ".venv/bin/genson",
+      "sha256_before": "cace1acba14ead7728151ffa27db1b9474a100e0e9e397b71f1aeb648f2638c1",
+      "sha256_after": "35c54957685bbdfb35f6309ae7a0ad11a4b42da5ca7cdb7b652dce486ad50ce9"
+    },
+    {
+      "path": ".venv/bin/httpx",
+      "sha256_before": "1bbc70503085d864de6b8cd58552653ff57cb86989f26b4dfae90c9bb3e007fa",
+      "sha256_after": "fcfae61110993d68464796cf051e634e0ce13f8b61eef23c3cb6e7b391603d0f"
+    },
+    {
+      "path": ".venv/bin/idna",
+      "sha256_before": "03b31a73d21d84becd0d547cedb7d06d234b0122359b6ffba7350cccb3f2ab2f",
+      "sha256_after": "7336f5dbe65c091aa9064f1b7b1ea0e2cdc8656d160f9b79162a43a84ae699d0"
+    },
+    {
+      "path": ".venv/bin/isort",
+      "sha256_before": "6f2babb1510bdbfed01dfbf83162086a9b08619305516196c1c070d9dd6de7ed",
+      "sha256_after": "69e94006c5c6de83e6afc2e6532958b34b9829cdf187bd3879717921b3381740"
+    },
+    {
+      "path": ".venv/bin/isort-identify-imports",
+      "sha256_before": "268b87001cc07839f74910647c70016fba64471cfe38c9925256724f470ee624",
+      "sha256_after": "211504b2481ab080c9eb17d87cd77b4549391b82ffd846425561bea0c03c71a2"
+    },
+    {
+      "path": ".venv/bin/isympy",
+      "sha256_before": "ce9a5c6f761a91276b12fc44f41ac5f57789a2b2b953627b530ce7e72fcfb97e",
+      "sha256_after": "1d6141d8f14f018c282ca6def4fe3c3732cafb16e6ba7f9a88beb8aa22d5ec28"
+    },
+    {
+      "path": ".venv/bin/jsf",
+      "sha256_before": "d3722a0ef5919f878fcc2cda313ea62c5d7432223e7f58d1260ed1f0669fbdd9",
+      "sha256_after": "0e54065ad6576381bc61c3853f05223c4f3a5efc0d276bf234713dbb7acca3c3"
+    },
+    {
+      "path": ".venv/bin/jsonschema",
+      "sha256_before": "4661eb028f1a8607c3aabd0f2e33398bbf7afa3c57db6cfd5c615eaaf8b3d260",
+      "sha256_after": "5bb25e68b4214300a1e3f59ce0c3b5b274b1c7bcdb03fc1b55fedb281ce784dc"
+    },
+    {
+      "path": ".venv/bin/label-studio-converter",
+      "sha256_before": "de76be138a18796ef4e30ed7643ad33a9166cbd88580118271e238c6e715eb16",
+      "sha256_after": "2329d895d9a5f103c7d2626f5408fed5f3bbb4df3429c7576b462c210eb86336"
+    },
+    {
+      "path": ".venv/bin/markdown-it",
+      "sha256_before": "3439ce70f1450dae3ce28f782385e1d98eda70e35b20097a6ea9c079a84b2978",
+      "sha256_after": "ad5a6274c454915d79f31c0cd062e51370c3790b6a627010f6621a84bb2d289c"
+    },
+    {
+      "path": ".venv/bin/nltk",
+      "sha256_before": "a971f3c1a0cf75cee9aa8e0fc910abf95a1a4c9d984675a512271ecc85754907",
+      "sha256_after": "67461cd8ea46d5fb6cf4d997068da06063e7fe71d42670ca7041ce6b5246a73d"
+    },
+    {
+      "path": ".venv/bin/normalizer",
+      "sha256_before": "24d53ba1dd77a269e5fac3d72f9595e6bd623f3a080d9251de7b122d7da7fa0b",
+      "sha256_after": "142b1870a911d16c888a8c1a1c0dbf5d05de84f1980e7205821a6a9ce56efc78"
+    },
+    {
+      "path": ".venv/bin/numpy-config",
+      "sha256_before": "752291c2103501a39602ed36555bfc93a7efdc1c8ec59becae0b109b4c944216",
+      "sha256_after": "0cecd894dfa2204a721989b9418d0f711c7db18dd9bd14895be018b065f5ae05"
+    },
+    {
+      "path": ".venv/bin/proton",
+      "sha256_before": "abb5d56c36357a439f98fe9e471cabd92d99455d14203f50997cb642587624f9",
+      "sha256_after": "6b7b06ac8d4516c18444073646991fe948107e45ed05436b2f9c924803b789d9"
+    },
+    {
+      "path": ".venv/bin/proton-viewer",
+      "sha256_before": "d20ec898fc48923d91f99e5de5cb1cbc5e830cf9f39a94bec3b6e97555c42619",
+      "sha256_after": "4c8457d488020880c8e8ffc482465e196cd88d76b699d455e58fc2ab4fb5e451"
+    },
+    {
+      "path": ".venv/bin/py.test",
+      "sha256_before": "26e95b23335eab8a0daa8ae7a19e606cd543d53f62220fa10767fb5b9bfb4408",
+      "sha256_after": "1e0c2edfe29e29a39ca5342fe125880785b7d8dddef55968bda43796ac80f32f"
+    },
+    {
+      "path": ".venv/bin/pygmentize",
+      "sha256_before": "bfea991b9931d903b8d6a16ad2d1ed021412bd61124f0317c4714a5d3210312a",
+      "sha256_after": "dc7b1d4dd02f2ac7a901ea984bea549c81f4d2012734a36fd0fc6e5f7ba22a3e"
+    },
+    {
+      "path": ".venv/bin/pymupdf",
+      "sha256_before": "c89a59ffe7a34c00abb188cb1fb9fba397171bbdbf7ad847a24cc8c42d47e77f",
+      "sha256_after": "2a853b44aec7f4a0e06c3cafc0fec795e054963ff196aba279027d858af4c689"
+    },
+    {
+      "path": ".venv/bin/pytest",
+      "sha256_before": "26e95b23335eab8a0daa8ae7a19e606cd543d53f62220fa10767fb5b9bfb4408",
+      "sha256_after": "1e0c2edfe29e29a39ca5342fe125880785b7d8dddef55968bda43796ac80f32f"
+    },
+    {
+      "path": ".venv/bin/python-argcomplete-check-easy-install-script",
+      "sha256_before": "c425180429f52bbd21db6513cc9aeb26c1498e6693f421ff2d0133d56d42a95a",
+      "sha256_after": "10fe5b51e13d10913076e398c1c04e07fee92c72941adeb027900b578bd96ddd"
+    },
+    {
+      "path": ".venv/bin/register-python-argcomplete",
+      "sha256_before": "81b28cd30880f9727481d8b631be99005d79e25a8bc239f7c2ac09bc530f3230",
+      "sha256_after": "9bdc515681eadf290b8edc2b9641cdbc280c924d3bf25881850276283132b5f3"
+    },
+    {
+      "path": ".venv/bin/torchfrtrace",
+      "sha256_before": "12b1e766fc94fbe652b4aafa83b8f752abf16e3cdb563230d735d23e59524d58",
+      "sha256_after": "b03ece5ea522758646a37eeed6472b4f6906dbe068b1321199df88fc479a7c70"
+    },
+    {
+      "path": ".venv/bin/torchrun",
+      "sha256_before": "344c08de5a897e015042d9c0d73d0682ff5dc200f5902ff1e9cb358bd2e32a60",
+      "sha256_after": "225bef1bca72ed8513c9efe1f3a92ac2845be4126de9fe7807542dc5e97881f7"
+    },
+    {
+      "path": ".venv/bin/tqdm",
+      "sha256_before": "a4381a21930bd3ee76fb5f8707492348bae72a1e5ae1fc32c9967a664952fb8b",
+      "sha256_after": "d349d72275fe7a47d2a614bb5fb06a69200f7bc0b150a0253a5adff63865ec28"
+    },
+    {
+      "path": ".venv/bin/transformers",
+      "sha256_before": "df0b7103db8d265b1529a1b439cc877558a47b23a4000284a9c1bff75e6284be",
+      "sha256_after": "3e887890c6f1fc41d984f4a020acdaf92632167d544e9f36ea571b35939c9608"
+    },
+    {
+      "path": ".venv/bin/websockets",
+      "sha256_before": "770c1167d2010fb3926d5edc12110232ca99c8f734451c86f1ca009261919a66",
+      "sha256_after": "0f76aec0dd77db701555dad55d16d8054c04f1b836993feea708d1f2285beee1"
+    },
+    {
+      "path": ".venv/bin/xml2json",
+      "sha256_before": "6cc1b49d959439195005a6f084e666aa86e03e837505bc99a7f6f26ab06885dc",
+      "sha256_after": "9a935f02d5dc5f4b2b906d0ec64128193dcec086998879ddd4f76ca302b92f4b"
+    }
+  ],
+  "editable_package_link": "Already correct before repair; unchanged.",
+  "python_executable": "Existing symlinks already resolved; unchanged.",
+  "installed_distributions_changed": false,
+  "installed_distributions_sha256": "b94f1b591157a0198f09f1721f31c1da910b9ebce2b54cb7cd03321e3e795169",
+  "dependency_sync_or_install_performed": false,
+  "historical_paths_in_evidence_changed": false,
+  "local_venv_committed": false,
+  "note": "This repairs the observed local environment; new machines should create their own environment from the lockfile with required extras."
+}
