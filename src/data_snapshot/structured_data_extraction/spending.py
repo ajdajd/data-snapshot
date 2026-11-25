@@ -1,8 +1,10 @@
 """Track the cumulative $5 OpenRouter research budget, including uncertain charges."""
 
+import base64
 import fcntl
 import json
 import os
+import struct
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -33,8 +35,78 @@ def reported_cost(usage: dict[str, Any] | None) -> str | None:
     return str(value) if value.is_finite() and value >= 0 else None
 
 
-def quote_request(model: str, max_output_tokens: int) -> dict[str, Any]:
-    """Fetch public model pricing and reserve a conservative context-wide allowance.
+def request_input_bound(request: dict[str, Any]) -> dict[str, Any]:
+    """Bound a prepared GPT-5.6 image request without sending it to a provider.
+
+    Parameters
+    ----------
+    request : dict
+        Our two-message Responses request, with PNG data URLs and no tools.
+
+    Returns
+    -------
+    dict
+        Text/schema UTF-8 byte bound, 4,096 framing tokens, and image patch bound.
+        These three GPT-5.6 tiers use 32-pixel patches and a 1.2 multiplier;
+        auto/original does not enlarge images. One rounding token is added per PNG.
+
+    Raises
+    ------
+    ValueError
+        If request contents cannot be bounded by this supported recipe.
+    """
+    if request.get("model") not in {
+        "openai/gpt-5.6-luna",
+        "openai/gpt-5.6-terra",
+        "openai/gpt-5.6-sol",
+    }:
+        raise ValueError("Request-specific token bound is limited to GPT-5.6 tiers")
+    if "tools" in request or "previous_response_id" in request:
+        raise ValueError(
+            "Token bound requires a standalone image request without tools"
+        )
+    body = json.loads(json.dumps(request))
+    image_tokens = 0
+    dimensions = []
+    for message in body["input"]:
+        for part in message["content"]:
+            if part["type"] == "input_text":
+                continue
+            if part["type"] != "input_image" or part.get("detail", "auto") not in {
+                "auto",
+                "original",
+                "high",
+                "low",
+            }:
+                raise ValueError("Unsupported input for token bound")
+            prefix = "data:image/png;base64,"
+            if not part["image_url"].startswith(prefix):
+                raise ValueError("Token bound requires embedded PNG evidence")
+            png = base64.b64decode(part["image_url"][len(prefix) :], validate=True)
+            if png[:8] != b"\x89PNG\r\n\x1a\n" or png[12:16] != b"IHDR":
+                raise ValueError("Invalid PNG header")
+            width, height = struct.unpack(">II", png[16:24])
+            patches = ((width + 31) // 32) * ((height + 31) // 32)
+            if width <= 0 or height <= 0 or patches > 30000:
+                raise ValueError("PNG exceeds supported original-detail patch limit")
+            image_tokens += (patches * 6 + 4) // 5 + 1
+            dimensions.append([width, height])
+            part["image_url"] = "<image counted separately>"
+    text_bytes = len(json.dumps(body, ensure_ascii=False).encode("utf-8"))
+    return {
+        "input_tokens_bound": text_bytes + 4096 + image_tokens,
+        "text_schema_bytes": text_bytes,
+        "framing_allowance_tokens": 4096,
+        "image_tokens_bound": image_tokens,
+        "image_dimensions": dimensions,
+        "source": "https://developers.openai.com/api/docs/guides/images-vision",
+    }
+
+
+def quote_request(
+    model: str, max_output_tokens: int, request: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Fetch public model pricing and reserve a conservative per-request allowance.
 
     Parameters
     ----------
@@ -42,12 +114,14 @@ def quote_request(model: str, max_output_tokens: int) -> dict[str, Any]:
         Exact OpenRouter model ID; automatic model selection is not used.
     max_output_tokens : int
         Explicit response token ceiling, including reasoning tokens.
+    request : dict, optional
+        Prepared request for a tighter supported input bound. Other model families
+        retain full-context reservation; unsupported GPT-5.6 input fails closed.
 
     Returns
     -------
     dict
-        Price snapshot, allowance, and provider rate ceilings. Uses the full
-        context length for input instead of an unverified vision-token estimate.
+        Price snapshot, allowance, input bound, and provider rate ceilings.
 
     Raises
     ------
@@ -89,8 +163,17 @@ def quote_request(model: str, max_output_tokens: int) -> dict[str, Any]:
     context = entry["context_length"]
     if not isinstance(context, int) or context <= 0:
         raise ValueError("Missing model context bound")
+    bound = {"input_tokens_bound": context, "method": "full_context"}
+    if request is not None and model in {
+        "openai/gpt-5.6-luna",
+        "openai/gpt-5.6-terra",
+        "openai/gpt-5.6-sol",
+    }:
+        bound = {**request_input_bound(request), "method": "request_bytes_and_patches"}
+        if bound["input_tokens_bound"] + max_output_tokens > context:
+            raise ValueError("Request token allowance exceeds the model context")
     allowance = (
-        context * input_rate
+        bound["input_tokens_bound"] * input_rate
         + max_output_tokens * output_rate
         + image_rate
         + request_rate
@@ -102,6 +185,7 @@ def quote_request(model: str, max_output_tokens: int) -> dict[str, Any]:
         "source": "https://openrouter.ai/api/v1/models",
         "context_length": context,
         "pricing": pricing,
+        "input_bound": bound,
         "allowance_usd": str(allowance),
         "provider_max_price": {
             "prompt": float(input_rate * 1_000_000),

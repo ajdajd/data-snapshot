@@ -8,6 +8,7 @@ import pytest
 
 from data_snapshot.structured_data_extraction.spending import (
     quote_request,
+    request_input_bound,
     record_spending,
     reported_cost,
 )
@@ -88,3 +89,49 @@ def test_quote_covers_long_context_cache_and_output_rates(
     assert quote["provider_max_price"]["completion"] == 3
     with pytest.raises(ValueError, match="not found"):
         quote_request("test/unknown", 100)
+    model["id"] = "openai/gpt-5.6-sol"
+    model["context_length"] = 100000
+    prepared = {
+        "model": model["id"],
+        "input": [{"content": [{"type": "input_text", "text": "test"}]}],
+    }
+    tighter = quote_request(model["id"], 100, prepared)
+    assert tighter["input_bound"]["method"] == "request_bytes_and_patches"
+    assert tighter["input_bound"]["input_tokens_bound"] < 5000
+    assert float(tighter["allowance_usd"]) < 0.021
+
+
+def test_request_bound_includes_png_and_entire_response_schema() -> None:
+    """Exclude compressed image bytes from text while including all patch tokens."""
+    import base64
+    import struct
+
+    header = (
+        b"\x89PNG\r\n\x1a\n"
+        + struct.pack(">I", 13)
+        + b"IHDR"
+        + struct.pack(">II", 1024, 1024)
+    )
+    request = {
+        "model": "openai/gpt-5.6-sol",
+        "input": [
+            {
+                "content": [
+                    {"type": "input_text", "text": "Aé"},
+                    {
+                        "type": "input_image",
+                        "image_url": "data:image/png;base64,"
+                        + base64.b64encode(header).decode(),
+                    },
+                ]
+            }
+        ],
+        "text": {"format": {"schema": {"description": "a" * 1000}}},
+    }
+    bound = request_input_bound(request)
+    assert bound["image_tokens_bound"] == 1230
+    assert bound["input_tokens_bound"] == bound["text_schema_bytes"] + 4096 + 1230
+    assert bound["text_schema_bytes"] > 1000
+    request["tools"] = []
+    with pytest.raises(ValueError, match="without tools"):
+        request_input_bound(request)

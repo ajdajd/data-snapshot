@@ -58,13 +58,17 @@ record the batch cost, running total, outstanding reservations and remaining fun
 an experiment; its default is the output directory name. The journal uses a process
 lock and flushes reservations before any generation request.
 
-Preflight fetches the public model catalogue (no generation charge), snapshots
-prices in `pricing.json`, and reserves an allowance using the full model context,
-the output ceiling and worst published price tiers, including cache writes.
-Provider price ceilings are sent with the request. A call that cannot fit the
-remaining budget is refused. This deliberately conservative reservation is not
-an estimate of expected cost and may block expensive models even for small inputs.
-Spending controls for such models would need a tighter verified input-token bound.
+Preflight fetches the public model catalogue (no generation charge) and snapshots
+prices in `pricing.json`. For the three GPT-5.6 tiers, the input allowance uses
+text/schema UTF-8 bytes, a 4,096-token framing allowance, and documented PNG patch
+coverage with a 1.2 multiplier and rounding allowance. Other models retain a
+full-context reservation. The output ceiling and worst published price tiers,
+including cache writes, determine the reserved cost. Provider price ceilings are
+sent with the request. A call that cannot fit the remaining budget is refused.
+This conservative allowance is not an expected-cost estimate. An actual input
+count exceeding the bound marks the run as failed and stops a comparison arm
+for audit; its charge remains counted. See the
+[image-token rules](https://developers.openai.com/api/docs/guides/images-vision).
 
 After a response, OpenRouter's actual `usage.cost` replaces the reservation,
 including when extraction validation fails. Missing/invalid billing retains the
@@ -75,8 +79,13 @@ metadata-calibration experiments. See
 [OpenRouter usage accounting](https://openrouter.ai/docs/cookbook/administration/usage-accounting)
 and [provider price ceilings](https://openrouter.ai/docs/guides/routing/provider-selection).
 
-The first smoke test cost **$0.00556775**, leaving **$4.99443225**. These are billed
-generation charges, not estimates using historical Flex prices.
+The first smoke test cost $0.00556775. The subsequent six-image Luna/Terra/Sol
+comparison cost $0.91863977, bringing total spend to **$0.92420752**, leaving
+**$4.07579248**. These are billed generation charges, not historical Flex estimates.
+The comparison supports keeping Luna medium as the routine development reference:
+Luna captured 58/60 printed observations and both larger tiers 60/60; all three
+recovered the 36 chart estimates within tolerance. Interpretation differences
+remain. Full scores and examples are in the working notebook.
 
 On a completed response it preserves `response.json`, `raw_output.txt`, and
 `observations.json`; numerical datasets additionally produce `structure.sdmx.json`

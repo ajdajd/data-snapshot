@@ -348,3 +348,21 @@ def test_budget_blocks_call_before_generation(
     assert report["status"] == "failed" and report["api_attempts"] == 0
     assert "$5 budget would be exceeded" in report["error"]
     assert not client.calls
+
+
+def test_input_bound_breach_is_a_billed_failure(
+    tmp_path: Path, image: Path, payload: dict, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Stop an arm when provider input accounting exceeds the preflight recipe."""
+    from data_snapshot.structured_data_extraction import llm
+
+    quote = llm.quote_request("test", 10)
+    quote["input_bound"] = {"input_tokens_bound": 100}
+    monkeypatch.setattr(llm, "quote_request", lambda *args: quote)
+    report = run_extraction(
+        image, tmp_path / "bound_breach", execute=True, client=fake_client(payload)
+    )
+    assert report["status"] == "failed"
+    assert "exceeded preflight bound" in report["error"]
+    assert report["input_bound_exceeded"] is True
+    assert report["spending"]["call_cost_usd"] == "0.001"

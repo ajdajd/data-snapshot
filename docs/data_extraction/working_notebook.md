@@ -261,6 +261,176 @@ persistent batch totals, preflight budget refusal, unresolved-charge retention,
 pricing tiers, existing extraction behavior and official SDMX schema validation.
 Black and `git diff --check` passed. No additional paid calls were made by tests.
 
+### C1 — controlled reference-model comparison (protocol, 2026-11-25)
+
+The user authorized a Luna/Terra/Sol comparison before selecting the development
+reference model. The proposed seven development batches are deferred. Compare
+`openai/gpt-5.6-luna`, `openai/gpt-5.6-terra`, and `openai/gpt-5.6-sol`, all at
+medium reasoning, default service tier, and the same 12,000-token output ceiling.
+Use one first-pass call per image/model, six development images, 18 calls total.
+No prompt/DSD tuning, automatic repair, retry or fallback during the comparison.
+The earlier income smoke test is historical context, not a reused C1 result.
+
+Purposive sample: one figure and one table from each corpus, all verified members
+of the original 210-image development set. The six cases cover unlabelled grouped
+trade-restrictiveness bars (`document_10455617_figure_003`), firm-level TFP
+regressions (`document_6213782_table_001`), the two-panel enrollment/nonreading
+figure (`054_Sudan-Basic-Education-Emergency-Support-Project_figure_001`), project
+financing (`040_Iraq-COVID-19-Vaccination-Project_table_000`), Spanish residence
+duration percentages (`acnur_anlisis-madre_de_dios_vf_figure_024`), and the existing
+income table (`108733-revised-public-wb-unhcr-policy-brief-final_table_000`).
+
+Before model calls, freeze image hashes, the DSD/config snapshots, request-contract
+hashes, numerical references and interpretation rubric in
+`data/structured_data_trials/C1_model_comparison_20261125/`. The image/prompt/schema
+contract for each case must match across models. References are never model input.
+The existing DSD/prompts are held unchanged, including known interpretation limits.
+
+There are **60 printed numeric reference observations** and **36 unlabelled-bar
+estimates**. Printed values require exact value/association matches. Geometry
+references use predeclared absolute tolerances: 2 restrictiveness-axis units and
+15 thousand pupils for unlabelled pyramid bars. These are approximate image
+references, not raw-data truth. Report coverage and additions separately from
+accuracy; omission of difficult values must not improve apparent accuracy.
+
+The preregistered rubric has five interpretation checks per image (30 per model),
+scored 1 / 0.5 / 0 for correct / partial / missing-or-wrong. It checks keys, units,
+statistical forms, significance, footnote scope, demographic associations, source
+versus observation periods, zero/missingness, printed/estimated status and
+unsupported assertions. Distinguish explicit DSD limitations from model mistakes.
+Review the image and output directly; a model is never another model's gold.
+
+Budget preflight now supports these three GPT-5.6 tiers using a conservative
+request-specific bound: UTF-8 bytes of request text/schema, a 4,096-token framing
+allowance, and unresized 32-pixel patch coverage with the documented 1.2 image
+multiplier plus rounding allowance. See
+[OpenAI vision-token rules](https://developers.openai.com/api/docs/guides/images-vision).
+Other model families retain full-context reservation. Image payload bytes are not
+miscounted as text tokens. Actual input usage is checked against the bound; a
+breach stops the arm for audit. Published worst-tier prices and provider rate
+ceilings remain in force, with the same persistent $5 ledger. This avoids reserving
+a million-token input for each small experimental request.
+
+Run each model arm with `scripts/run_structured_data_comparison.py`; it verifies
+the frozen contracts and resumes without repeating already attempted calls.
+Record per-model batch cost and running workstream spend after each arm. A missing
+settled charge stops the arm; budget insufficiency stops before generation.
+Cost/latency are observed for this run and cache state, not controlled throughput
+estimates. Prefer Luna unless a more expensive tier materially improves this
+development assistance on reviewed evidence. One replicate per case is a pilot,
+not a statistically precise ranking or a coverage validation.
+
+#### C1 running cost ledger
+
+| Arm | Calls | Billed arm cost | Running workstream total | Remaining from $5 |
+|---|---:|---:|---:|---:|
+| Luna medium | 6 | $0.03024877 | $0.03581652 | $4.96418348 |
+| Terra medium | 6 | $0.30305300 | $0.33886952 | $4.66113048 |
+| Sol medium | 6 | $0.58533800 | $0.92420752 | $4.07579248 |
+
+The running total includes the earlier $0.00556775 smoke test. Luna returned five
+`complete` and one `partial` extraction, with no schema/serialization failures.
+All outputs remain original. One manual reference typo (Manufacturing/Foreign-owned
+coefficient 0.423 -> 0.433) was corrected after enlarging the source PNG, with an
+audit record in `reference_corrections.json`; model output was not changed.
+
+#### C1 results and reference decision
+
+All **18 API calls completed** and generated exchange files that passed the
+vendored official SDMX-JSON schemas. There were no retries, fallbacks, truncated
+responses or unsettled charges. The input/prompt/schema contract was verified
+against the frozen hashes for every actual request. All three models consumed
+exactly **33,239 input tokens** across the same six images. The largest output
+was 7,212 tokens, below the common 12,000-token ceiling; the ceiling did not bind.
+
+| Model (medium reasoning) | Printed values correctly captured / 60 | Bar estimates within tolerance / 36 | Interpretation rubric / 30 | Billed cost | Observed mean time/image |
+|---|---:|---:|---:|---:|---:|
+| Luna | 58 | 36 | 27.0 | $0.03024877 | 27.00 s |
+| Terra | 60 | 36 | 29.0 | $0.30305300 | 27.28 s |
+| Sol | 60 | 36 | 29.0 | $0.58533800 | 27.78 s |
+
+The two missing Luna observations are the **51 and 35 country-survey counts** in
+the regression table. It retained them in source-note text but did not represent
+them as separate numerical observations. Its other 58 printed values and all
+their reviewed associations are correct. None of the models produced a wrong
+numeric value among the matched observations or an additional unmatched numerical
+observation. Estimated chart values are within the predeclared tolerances; this
+does not establish exact recovery of the source's unprinted raw data.
+
+The interpretation rubric is a structured visual-review aid, not a statistical
+accuracy estimate. This pilot's transcriptions and scores come from assistant
+inspection of the images; independent human adjudication has not been performed.
+Scores by case:
+
+| Case | Luna / 5 | Terra / 5 | Sol / 5 |
+|---|---:|---:|---:|
+| PRWP grouped bars | 5 | 5 | 5 |
+| PRWP regression | 4 | 5 | 5 |
+| Refugee PAD education composite | 4.5 | 4.5 | 5 |
+| Refugee PAD financing | 5 | 5 | 5 |
+| UNHCR Spanish duration chart | 5 | 5 | 5 |
+| UNHCR income table | 3.5 | 4.5 | 4 |
+
+Material observations from direct image/output review:
+
+- **Luna:** retains the source footnote but again overextends male-worker/
+  age-[14,35] restrictions to remittances. It places `Monthly` in the reporting-
+  period field, mixing frequency with observation time. Regression survey counts
+  remain only in notes. Its omission record describes control entries generically
+  as Yes/No rather than retaining the actual Yes values.
+- **Terra:** separates firm and country-survey counts, preserves the Yes controls
+  as explicit nonnumeric omissions, and scopes the male/age restriction correctly.
+  It assigns `ALCS 2013-14` to reporting period: the source qualification remains
+  visible, but source provenance and observation time are still mixed.
+- **Sol:** also captures the survey counts and scopes demographics correctly.
+  It expresses enrollment as `pupils` with `UNIT_MULT=3`, which is clearer than
+  Luna/Terra's scale word `thousand` plus a separate multiplier of 3. However, it
+  asserts `2013-14` as the income observation period without the source qualification.
+  Neither larger model eliminates interpretation errors.
+- **All three:** preserve explicit zeros, financing subsets, 1% significance
+  notation, sector/term associations, Spanish duration bands and their unadjusted
+  99% rounded sum. They avoid inventing a numeric standard error or an unspecified
+  country for the financing crop. Their reported `partial` statuses reflect
+  different caution about nonnumeric context, not API/schema failure.
+
+The enrollment-unit deduction is for an unclear base counted unit, not an error
+in the number read from the chart. The period deductions distinguish a measurement
+frequency or a visibly source-qualified year (partial credit) from an unqualified
+claim of observation time. Full check-level scores and notes are in
+`interpretation_review.json`; numeric matches, omissions and method checks are in
+`numeric_review.json`. No extraction was rewritten to agree with the review.
+
+Observed costs are cache-dependent: Luna read 15,776 cached input tokens, compared
+with 10,965 for each larger model. An illustrative all-uncached calculation using
+ordinary short-context input/output list prices gives $0.03221620 / $0.31166200 /
+$0.60255600 for Luna/Terra/Sol respectively. This illustration excludes actual
+cache-write billing and is not the spending ledger. It leaves the same cost
+ordering; Luna's warmer cache does not explain away the approximately 10x/19x
+observed cost gap. Reasoning tokens were 2,475 / 2,498 / 4,270 respectively.
+The small observed latency differences are not evidence of a general speed ranking.
+
+**Decision: retain Luna medium as the routine development reference.** The larger
+tiers show useful but limited structural improvements on this pilot, while all
+require image-grounded review. Their approximately 10x/19x costs do not justify
+replacing Luna for routine development at this point. Terra/Sol remain potential
+diagnostic comparators for specific unresolved cases; no automatic escalation
+workflow or additional paid run is introduced. This is a cost-benefit decision
+from six purposively selected cases, not a claim that Luna is universally best.
+
+The comparison itself cost **$0.91863977**. With S0, total workstream spend is
+**$0.92420752 of $5**, with **$4.07579248 remaining** and no pending reservations.
+All artifacts, frozen configs, raw responses, review scripts, fingerprints and
+`comparison_summary.json` are retained in the C1 experiment directory. The larger
+development-batch discussion remains deferred; none of those batches has run.
+
+Next DSD/prompt refinements suggested by this comparison (not applied mid-run):
+clarify base unit versus multiplier, source period versus observation period versus
+frequency, footnote scope across different measures, and numerical counts embedded
+inside explanatory cell text. Keep these representation questions distinct from
+the choice of model. Software verification after the budget-bound update: **53
+focused tests passed**, including request-size/patch accounting and billed failures
+when an input bound is exceeded. Black and `git diff --check` also passed.
+
 The gap after Docling includes assigning statistical roles and meanings,
 selecting/adapting a DSD, mapping observations to it, and serialization/validation.
 A DSD describes the structure; it does not itself correct extraction errors.

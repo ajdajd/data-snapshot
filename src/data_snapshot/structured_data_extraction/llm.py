@@ -194,7 +194,7 @@ def run_extraction(
             client = OpenAI(
                 api_key=key, base_url="https://openrouter.ai/api/v1", max_retries=0
             )
-        quote = quote_request(config.model, config.max_output_tokens)
+        quote = quote_request(config.model, config.max_output_tokens, request)
         write("pricing.json", quote)
         report["canonical_model"] = quote.get("canonical_slug")
         request["extra_body"]["provider"].update(
@@ -230,6 +230,14 @@ def run_extraction(
             resolved_model=raw.get("model"),
             service_tier=raw.get("service_tier"),
         )
+        actual_input = (raw.get("usage") or {}).get("input_tokens")
+        if isinstance(actual_input, int) and actual_input > quote.get(
+            "input_bound", {}
+        ).get("input_tokens_bound", float("inf")):
+            report["input_bound_exceeded"] = True
+            raise ValueError(
+                "Actual input exceeded preflight bound; stop and audit spending assumptions"
+            )
         text = getattr(response, "output_text", None)
         if text:
             (output_dir / "raw_output.txt").write_text(text, encoding="utf-8")
