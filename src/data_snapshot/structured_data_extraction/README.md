@@ -49,6 +49,32 @@ The authorized income smoke test completed on 2026-11-25: all 16 values and thei
 Mean/Median associations match the image, and both exchange schemas validate.
 A population-qualifier error remains on the remittance observations; see the notebook.
 
+### Independent open discovery
+
+For DSD development, discover representation requirements before choosing a
+statistical structure. This task uses separate prompts and a recording schema;
+it supplies neither the experimental DSD nor prior discovery results to the model.
+
+```bash
+uv run --no-sync python -m data_snapshot.structured_data_extraction.discovery \
+  /absolute/path/to/snapshot.png \
+  --output-dir data/structured_data_trials/discovery_example
+```
+
+The default prepares offline without loading an API key. Add `--execute` to allow
+one OpenRouter attempt under the same cumulative $5 spending ledger, and use
+`--batch-id` to group its costs. `--config` selects the model/settings file.
+Existing output directories cannot be overwritten or retried in place.
+
+The output is `discovery.json`, not SDMX: image-grounded analytical units,
+provisional requirements/functions, evidence, relationships, representative
+observations and ambiguities. Validation checks the recording schema, unique IDs
+and resolvable references. Review against the image is still needed to establish
+accuracy and completeness. Raw responses, schema/settings snapshots, request
+fingerprints, usage and billed costs are preserved. Consolidation and standards
+alignment happen later, after independent discovery. The working notebook records
+the six-image pilot and the subsequent development/validation plan.
+
 ### Spending guardrail
 
 The user authorized a **$5 cumulative budget** for this workstream. Every live

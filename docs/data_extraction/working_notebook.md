@@ -52,6 +52,12 @@ Discovery prompts and their recording format remain fixed across the main
 development discovery run. Consolidated evidence informs subsequent design
 iterations. The seven-batch arrangement is not yet activated.
 
+The six-image discovery calibration and three focused follow-up calls are now
+complete. Revised discovery instrument **v0.1.0** is recorded for the development
+run. The next step is independent discovery across the 210 development images;
+none of those main-run calls have started. Current cumulative spending is
+**$0.95945468 / $5**, leaving **$4.04054532**. Detailed pilot findings follow below.
+
 Docling remains a working local baseline and an optional preprocessing candidate.
 Its added value should be tested by comparing the same LLM with image-only input
 versus image plus Docling output, measuring accuracy, latency and cost. Do not
@@ -168,16 +174,135 @@ review governs conceptual distinctions and the resulting representation. Batch
 boundaries do not trigger automatic DSD changes. The 202 validation images are
 reserved for assessing the subsequently frozen representation.
 
-**Status:** draft prompts and recording schema prepared; no discovery runner is
-wired yet. The existing extraction CLI still uses the experimental DSD and must
-not be treated as open discovery. No paid discovery calls have been made. The
-workstream running total remains **$0.92420752 of $5**, leaving **$4.07579248**.
-Record the updated running total after every future paid batch, including pilots.
+**Status:** independent discovery runner implemented and the initial six-image
+pilot completed; see the pilot review below. The existing extraction CLI still
+uses the experimental DSD and must not be treated as open discovery. Record the
+updated running total after every paid batch, including pilots.
 
 Offline checks passed: JSON Schema validity, strict object shapes, acceptance of
 open candidate names and empty lists, and rejection of missing evidence and
 unexpected fields. Synthetic fixtures tested format only, not discovery quality
 or live-provider compatibility.
+
+### Open-discovery pilot D1 — 2026-11-25
+
+Implemented `python -m data_snapshot.structured_data_extraction.discovery` as a
+separate task. It uses independent discovery prompts/schema and accepts a PNG,
+fresh output directory, model configuration and batch ID. Its default is offline;
+`--execute` permits one API attempt. Extraction and discovery share the existing
+PNG request builder, one-attempt execution and persistent spending guardrail.
+Neither discovery nor its request preparation loads a DSD. Discovery outputs are
+requirements records, not SDMX observations.
+
+Validation checks JSON shape, image-wide ID uniqueness, resolvable example and
+relationship references, and distinct IDs within each relationship. Invalid
+responses retain raw output and billed cost; there are no automatic repair calls.
+All **61 relevant tests passed**, including the existing extraction, exchange and
+spending tests and eight discovery cases. Black and whitespace checks passed.
+
+D1 reused the six C1 development images: one figure and one table per corpus.
+Model: **Luna medium**, default service tier, 12,000 output-token ceiling, one
+independent call per image. The requests contained no DSD, prior discovery result,
+filename or parent-document metadata. All six calls completed and passed schema
+and reference validation: **seven analytical units and 44 provisional
+requirements**. This is a count of image-local findings, not 44 canonical DSD
+components or a coverage score.
+
+| Image | Units / requirements | Source-image review |
+| --- | --- | --- |
+| PRWP trade-policy figure | 1 / 7 | Keeps region/mode pairing, scale, legend and numbered-mode note; records missing exact bar values and unresolved correspondence of mode numbers to legend labels. |
+| PRWP TFP table | 1 / 8 | Keeps sector/term/result relationships, significance, dummy-variable inclusion, firm counts, survey counts and standard-error qualification. |
+| Refugee education figure | 2 / 10 | Separates panels, sex/grade enrollment in thousands and country reading percentages; preserves distinct time qualifications and missing exact bar values. |
+| Refugee financing table | 1 / 6 | Keeps US-dollar/millions scale, printed zero, precision and the indented “of which” relationship; invents no country, time or financing status. |
+| UNHCR duration figure | 1 / 5 | Keeps Spanish duration labels and percentages, lifetime versus bounded-duration distinction and unknown referent country; source-year meaning stays unresolved. Analytical prose was also returned in Spanish. |
+| UNHCR income table | 1 / 8 | Keeps mean/median, exclusion of remittances from total, labor-income population note and source basis; flags uncertain remittance applicability, unspecified currency and absent calendar month. |
+
+Review was performed by the assistant against all six source images; these
+records have not been independently human-adjudicated. The outputs discover
+requirements instead of filling the experimental DSD's dimensions. Formatting,
+visual association and provenance sometimes appear as separate requirements or
+escape records; consolidation must decide their representation rather than
+turning every candidate into a DSD component. Multilingual candidate names can be
+reconciled at consolidation while retaining original wording and evidence.
+
+**Instrument issue found:** evidence text sometimes joins distinct labels/cells
+with invented separators or ellipses. Some `observed_examples` are constructed
+descriptions instead of literal source text. The TFP standard-error quote also
+normalizes source punctuation. These are evidence-fidelity issues even where the
+underlying requirement is useful; schema validation cannot catch them. The income
+record also shows that context links on representative examples need review:
+the labor-income population requirement is retained but not linked uniformly to
+every labor-income example. Discovery records are not final extracted datasets.
+
+Revised the system prompt to require one contiguous source fragment per evidence
+entry, separate entries for separate fragments, no inserted punctuation/ellipses
+or spelling corrections, and literal-only `observed_examples`. Schema and
+candidate vocabulary remain unchanged. A focused D1b check uses the two charts
+with repeated joined quotes (PRWP trade and refugee education). Original D1
+prompts, schema, requests, responses and fingerprints remain preserved.
+
+D1 artifacts: `data/structured_data_trials/D1_discovery_pilot_20261125/`.
+`manifest.json` freezes inputs/configuration and prompt/schema hashes;
+`offline/` holds previews, `live/` raw responses and validated records, and
+`runs.json` the reports. `run_pilot.py` verifies frozen inputs and resumes without
+repeating attempted calls. A sandbox DNS failure during the initial free pricing
+lookup made **zero generation attempts** and is retained separately under
+`preflight_network_failure_01/`; the subsequent network-enabled run succeeded.
+
+D1 billed **$0.02205570**, bringing the workstream total to **$0.94626322 / $5**;
+remaining **$4.05373678**, with no unresolved reservations at batch completion.
+The full 210-image discovery run has not started. D1b/D1c results and updated
+running totals follow below.
+
+**D1b: literal evidence check.** Both repeated chart calls completed and passed
+schema/reference validation. The trade chart now quotes axis labels and legend
+entries separately, and its constructed visual examples became empty lists.
+The education chart likewise uses separate source fragments, preserves both
+panels and their periods, and distinguishes printed enrollment examples from
+unlabelled magnitudes. It yielded two units and 12 requirements versus D1's
+two/10: local discovery granularity varies between calls and counts are not a
+completeness score. The joined/elliptical quote issue was not observed in these
+two follow-up records. This does not establish universal OCR fidelity.
+
+D1b artifacts: `data/structured_data_trials/D1b_discovery_quote_check_20261125/`.
+Billed **$0.00893466**; workstream total **$0.95519788 / $5**; remaining
+**$4.04480212**, with no unresolved reservations at batch completion.
+
+**D1c: context/result distinction.** D1b's trade chart inserted the source labels
+`SAR`, `Cross border` and the axis tick `80` into `observation_examples`, explicitly
+describing them as context rather than bar values. These belong in requirements
+and evidence, not result examples. Clarified that observation examples must be
+reported analytical results, numeric or categorical, and must remain empty when
+no result values are printed. A single focused trade-chart call checks this
+clarification; this is an instrument revision rather than a DSD revision.
+
+The D1c call completed and passed schema/reference validation. Its observation
+example list is empty, as intended, while requirements retain the categories,
+scale, series associations, substantive note and unresolved mappings. The source
+quotes remain separate or contiguous fragments; no exact bar values are invented.
+The record splits the three series into separate candidate requirements, unlike
+earlier runs: consolidation must reconcile this variation without treating every
+series label as a new universal concept.
+
+D1c artifacts: `data/structured_data_trials/D1c_discovery_context_check_20261125/`.
+Billed **$0.00425680**; workstream total **$0.95945468 / $5**; remaining
+**$4.04054532**, with no unresolved reservations at batch completion. Combined
+D1/D1b/D1c cost: **$0.03524716 for nine generation calls**. The failed initial
+pricing lookup incurred no generation charge.
+
+**Decision:** use the revised discovery instrument **v0.1.0** for development.
+`D1_discovery_pilot_20261125/review.json` records the decision, each batch's cost
+and running total, and final prompt/schema/config hashes. D1c contains the final
+material snapshots. No canonical concept inventory or DSD has been selected.
+Do not mix the pilot's earlier prompt versions into a main run that claims a
+single frozen instrument; generate all main-run records with the final version.
+
+Revalidated all nine saved records and their request contracts, reconciled billed
+costs against the shared journal, and confirmed no outstanding reservations.
+Additionally, all six original C1 extraction request contracts remain unchanged
+after sharing the execution code. The full discovery run, consolidation and
+202-image representation-coverage assessment remain ahead; the pilot establishes
+instrument usability rather than general DSD coverage or guaranteed completeness.
 
 ### DSD protocol and independent LLM path
 

@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Literal
 
@@ -60,6 +61,30 @@ def prepare_request(
     ValueError
         If input is not a readable PNG or a prompt placeholder is missing.
     """
+    system = (_PACKAGE / "prompts" / "system.md").read_text(encoding="utf-8")
+    user = (_PACKAGE / "prompts" / "user.md").read_text(encoding="utf-8")
+    if user.count("{{DSD}}") != 1:
+        raise ValueError("User prompt must contain {{DSD}} exactly once")
+    user = user.replace("{{DSD}}", dsd.model_dump_json(indent=2))
+    return _prepare_image_request(
+        image_path,
+        config,
+        system,
+        user,
+        extraction_model(dsd).model_json_schema(),
+        "data_snapshot_observations",
+    )
+
+
+def _prepare_image_request(
+    image_path: Path,
+    config: APISettings,
+    system: str,
+    user: str,
+    schema: dict[str, Any],
+    schema_name: str,
+) -> dict[str, Any]:
+    """Build the common standalone PNG request for extraction or discovery."""
     import fitz
 
     content = image_path.read_bytes()
@@ -67,11 +92,6 @@ def prepare_request(
         raise ValueError("Only PNG snapshot input is supported")
     with fitz.open(stream=content, filetype="png") as document:
         document[0].get_pixmap()
-    system = (_PACKAGE / "prompts" / "system.md").read_text(encoding="utf-8")
-    user = (_PACKAGE / "prompts" / "user.md").read_text(encoding="utf-8")
-    if user.count("{{DSD}}") != 1:
-        raise ValueError("User prompt must contain {{DSD}} exactly once")
-    user = user.replace("{{DSD}}", dsd.model_dump_json(indent=2))
     settings = config.model_dump(exclude={"provider", "timeout"}, exclude_none=True)
     return {
         **settings,
@@ -92,9 +112,9 @@ def prepare_request(
         "text": {
             "format": {
                 "type": "json_schema",
-                "name": "data_snapshot_observations",
+                "name": schema_name,
                 "strict": True,
-                "schema": extraction_model(dsd).model_json_schema(),
+                "schema": schema,
             }
         },
         "extra_body": {"provider": {"require_parameters": True}},
@@ -145,27 +165,77 @@ def run_extraction(
     dsd = DraftDSD.model_validate_json(dsd_path.read_text(encoding="utf-8"))
     config = APISettings.model_validate_json(config_path.read_text(encoding="utf-8"))
     request = prepare_request(image_path, dsd, config)
+
+    def process_output(text: str) -> dict[str, Any]:
+        result = extraction_model(dsd).model_validate_json(text)
+        _write_json(output_dir / "observations.json", result.model_dump(mode="json"))
+        if result.datasets:
+            structure, data = statistical_messages(dsd, result)
+            _write_json(output_dir / "structure.sdmx.json", structure)
+            _write_json(output_dir / "data.sdmx.json", data)
+        return {
+            "status": result.status,
+            "observations": sum(len(d.observations) for d in result.datasets),
+        }
+
+    return _run_prepared_request(
+        image_path,
+        output_dir,
+        config,
+        request,
+        process_output,
+        {"dsd.json": dsd.model_dump(mode="json")},
+        {
+            "dsd": f"LOCAL:{dsd.id}({dsd.version})",
+            "dsd_sha256": hashlib.sha256(dsd.model_dump_json().encode()).hexdigest(),
+        },
+        execute,
+        client,
+        ledger_path,
+        batch_id,
+    )
+
+
+def _write_json(path: Path, value: Any) -> None:
+    """Persist inspectable artifacts without nonstandard JSON numbers."""
+    path.write_text(
+        json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _run_prepared_request(
+    image_path: Path,
+    output_dir: Path,
+    config: APISettings,
+    request: dict[str, Any],
+    process_output: Callable[[str], dict[str, Any]],
+    artifacts: dict[str, Any],
+    details: dict[str, Any],
+    execute: bool,
+    client: Any | None,
+    ledger_path: Path | None,
+    batch_id: str | None,
+) -> dict[str, Any]:
+    """Share fresh artifacts, one-shot execution and accounting across PNG tasks."""
     output_dir.mkdir(parents=True, exist_ok=False)
 
     def write(filename: str, value: Any) -> None:
-        (output_dir / filename).write_text(
-            json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
-            encoding="utf-8",
-        )
+        _write_json(output_dir / filename, value)
 
     preview = json.loads(json.dumps(request))
     preview["input"][1]["content"][1][
         "image_url"
     ] = "<local PNG data URL omitted from preview>"
     write("request.preview.json", preview)
-    write("dsd.json", dsd.model_dump(mode="json"))
+    for filename, value in artifacts.items():
+        write(filename, value)
     write("config.json", config.model_dump(mode="json", exclude_none=True))
     report = {
         "image": str(image_path.resolve()),
         "image_sha256": hashlib.sha256(image_path.read_bytes()).hexdigest(),
         "model": config.model,
-        "dsd": f"LOCAL:{dsd.id}({dsd.version})",
-        "dsd_sha256": hashlib.sha256(dsd.model_dump_json().encode()).hexdigest(),
+        **details,
         "request_sha256": hashlib.sha256(
             json.dumps(request, sort_keys=True).encode()
         ).hexdigest(),
@@ -247,14 +317,7 @@ def run_extraction(
             )
         if not text:
             raise ValueError("No structured output (the response may be a refusal)")
-        result = extraction_model(dsd).model_validate_json(text)
-        write("observations.json", result.model_dump(mode="json"))
-        if result.datasets:
-            structure, data = statistical_messages(dsd, result)
-            write("structure.sdmx.json", structure)
-            write("data.sdmx.json", data)
-        report["status"] = result.status
-        report["observations"] = sum(len(d.observations) for d in result.datasets)
+        report.update(process_output(text))
     except KeyboardInterrupt:
         report["status"] = "interrupted"
         raise
