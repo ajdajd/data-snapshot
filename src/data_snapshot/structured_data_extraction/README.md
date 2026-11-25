@@ -62,7 +62,11 @@ The corrected GPU/CPU-offload path also matched all four bar-chart observations.
 It took 263.16 seconds versus 437.51 seconds on CPU in individual smoke tests
 (about 1.7× faster), with peak PyTorch allocation of 1.59 GiB and peak process
 RSS of 9.87 GiB. CUDA context/driver memory is additional to PyTorch's figures.
-The CPU pie example also matched both percentages; GPU pie/Shona runs are untested.
+The pie example matched both percentages on CPU and GPU/offload. The Shona GPU
+run recovered 20 estimates but contains numerical errors and omits error bars.
+The regression table's 42 printed numeric cell strings match the image, but its
+statistical interpretation/mapping remains pending. See the notebook for the
+five-example review. Peak process RSS reached 10.60 GiB in the Shona offload run.
 
 For chart GPU execution, layout/OCR/classification stay on CPU. The chart model
 uses FP16, retains its small image-feature parameter on GPU, and streams its

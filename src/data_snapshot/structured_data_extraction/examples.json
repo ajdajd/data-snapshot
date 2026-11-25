@@ -2,9 +2,9 @@
   "dataset_root": "/home/ajd/hf_datasets/data-snapshot/snapshots",
   "examples": [
     {"id": "income", "image": "unhcr/108733-revised-public-wb-unhcr-policy-brief-final_table_000.png", "pipeline": "standard", "purpose": "Eight income categories, mean and median; 16 printed values"},
-    {"id": "guarantee", "image": "prwp/document_10000660_figure_002.png", "pipeline": "granite", "purpose": "Grouped bars with four printed values: 15, 7, 7, 17"},
-    {"id": "refugees", "image": "unhcr/68488_figure_006.png", "pipeline": "granite", "purpose": "Province shares 9% and 91%; keep the total population separate"},
-    {"id": "shona", "image": "unhcr/policy_brief_on_shona_community_from_stateless_to_citizens_figure_000.png", "pipeline": "granite", "purpose": "Population group, employment status, irregular periods, estimated points and unspecified error bars"},
+    {"id": "guarantee", "image": "prwp/document_10000660_figure_002.png", "pipeline": "chart", "purpose": "Grouped bars with four printed values: 15, 7, 7, 17"},
+    {"id": "refugees", "image": "unhcr/68488_figure_006.png", "pipeline": "chart", "purpose": "Province shares 9% and 91%; keep the total population separate"},
+    {"id": "shona", "image": "unhcr/policy_brief_on_shona_community_from_stateless_to_citizens_figure_000.png", "pipeline": "chart", "purpose": "Population group, employment status, irregular periods, estimated points and unspecified error bars"},
     {"id": "regression", "image": "prwp/document_11174028_table_007.png", "pipeline": "standard", "purpose": "Nested headings, coefficients, standard errors and significance markers; mapping requires review"}
   ]
 }

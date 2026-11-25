@@ -6,30 +6,36 @@ is motivation for preserving evidence, not a required output of this prototype.
 
 ## Current plan
 
-Build a complete local Docling example before expanding to other stacks:
+The local Docling feasibility phase is complete on the initial five examples.
+The income table has an end-to-end PNG-to-SDMX prototype using a local DSD;
+other examples have reviewed native extractions and identified mapping/accuracy
+limits. Detailed evidence is retained below.
 
-1. Accept a PNG already saved on disk.
-2. Extract its contents with Docling, preserving native JSON.
-3. Interpret the extracted structure and map it to long statistical observations.
-4. Describe those observations using a local DSD informed by existing standards.
-5. Generate SDMX-JSON and validate its representation and the mapped observations.
-6. Compare the values and associations against the image; keep failures as evidence.
+The proposed MVP direction is now image-first LLM extraction and interpretation:
 
-The first success case is the monthly-income table. After that, compare the
-remaining agreed examples to identify which extraction and mapping problems need
-attention. Consult Aivin once tangible outputs are available; no message has been
-sent. After dedicated chart enrichment has been tested, use the examples to
-clarify what he meant by the data model and the scope of a separate review workflow.
+1. Select, adapt or define a provisional DSD, with an explicitly bounded scope.
+2. Supply the image, DSD and extraction instructions to an LLM.
+3. Obtain long-format observations aligned with that DSD.
+4. Validate and serialize observations and structure as SDMX-JSON using Python.
+5. Evaluate correctness and unsupported cases against reviewed source images.
 
-Later experiments, in order:
+This replaces handwritten general Docling-to-DSD mapping rules with LLM
+interpretation; it does not remove mapping, DSD coverage questions or validation.
+Developing and claiming coverage for a general deterministic mapper would require
+a development sample and independent validation. That study is not the proposed
+MVP's immediate path. LLM extraction/mapping is not yet implemented or tested.
 
-- An image plus native extraction supplied to an LLM for model interpretation,
-  conversion, and evidence-backed extraction corrections. Use Structured Outputs
-  through OpenRouter/OpenAI, then the same SDMX serialization and validation.
-- RapidAI extraction with stack-specific mapping into the common statistical model.
-- A pure LLM image-to-statistical-data path, compared using the same examples.
+Docling remains a working local baseline and an optional preprocessing candidate.
+Its added value should be tested by comparing the same LLM with image-only input
+versus image plus Docling output, measuring accuracy, latency and cost. Do not
+assume preprocessing improves results or make it a dependency of the first LLM MVP.
+RapidAI, the separate review workflow/UI and PDF-workflow integration are deferred.
 
-These alternatives are deferred until the Docling path produces reviewable results.
+On 2026-11-25, the user reported sending two messages to Aivin: asking whether the
+DSD is the intended "data model", and proposing the LLM-based workflow for the
+MVP timeline. A reply has not been reported. The user intentionally left the
+review-workflow question out to focus the discussion. The obsolete draft has
+been removed from this notebook at the user's request.
 
 ## Agreed scope and constraints
 
@@ -77,7 +83,8 @@ The later review workflow may involve checking source images, correcting values
 and their associations, resolving uncertain statistical meanings, and approving
 results. It may need a UI, but its design and scope are not decided. Do not make
 an interactive confirmation step a prerequisite for this extraction prototype.
-Confirm the intended separation with Aivin alongside the meaning of data model.
+The user deferred asking Aivin about review to keep the current discussion focused
+on the data model. No review workflow or UI is implemented.
 
 The gap after Docling includes assigning statistical roles and meanings,
 selecting/adapting a DSD, mapping observations to it, and serialization/validation.
@@ -169,7 +176,7 @@ image text, and TableFormer for table structure. Heron identifies regions such a
 tables and pictures; it does not itself recover the numerical series in a chart.
 Our alternative VLM pipeline uses Granite-Docling-258M with a chart-to-table
 prompt, then parses its generated output into the same document representation.
-It is already a local generative-model experiment; the deferred LLM work concerns
+It is already a local generative-model experiment; the planned LLM work concerns
 alternative models and statistical/SDMX interpretation, including remote APIs.
 
 Docling also supports optional chart-extraction enrichment using separate models.
@@ -290,6 +297,9 @@ allocated memory, not total GPU memory including context and other allocations.
 | Guarantee / dedicated Chart2CSV (2026-11-25) | CPU BF16, image scale 0.5 | ~7 min (CLI: 437.51 s) | Correct 3×3 chart table: all four printed values and their category/series associations match. Peak process RSS 7.90 GiB. Single-example result; no SDMX mapping. |
 | Refugee pie / dedicated Chart2CSV (2026-11-25) | CPU BF16, image scale 0.5 | ~6 min (CLI: 348.73 s) | Correct province/percentage pairs: Nord-Kivu 91%, Sud-Kivu 9%. Total/year stay in separate OCR text. Peak process RSS 7.85 GiB. |
 | Guarantee / dedicated Chart2CSV with CPU offloading (2026-11-25) | CUDA FP16, image scale 0.5 | 263.16 s | Same four correct observations as CPU. Observed CLI speedup 1.66×; peak PyTorch allocated 1.59 GiB, reserved 1.69 GiB; peak process RSS 9.87 GiB. |
+| Refugee pie / dedicated Chart2CSV with CPU offloading | CUDA FP16, image scale 0.5 | 258.52 s | Same two correct province/percentage pairs as CPU; 1.35× observed CLI speedup. Peak allocated CUDA 1.34 GiB; process RSS 10.42 GiB. |
+| Shona / dedicated Chart2CSV with CPU offloading | CUDA FP16, image scale 0.5 | 510.14 s | Recovered four series over five periods (20 estimates), but numerical discrepancies remain and error bars are omitted. Peak allocated CUDA 2.53 GiB; process RSS 10.60 GiB. |
+| Regression / standard | CUDA FP32 | 26.18 s | Same cell text/spans as prior CPU run. All 42 displayed numeric text cells match the PNG, including significance marks; statistical mapping remains pending. Peak allocated CUDA 0.56 GiB; process RSS 2.20 GiB. |
 
 Evidence roots under `data/structured_data_trials/`:
 
@@ -313,6 +323,9 @@ Evidence roots under `data/structured_data_trials/`:
   to diagnose functional attention and direct image-parameter hook problems.
 - `20261125_chart_offload_debug_03`: successful corrected GPU/offload run, native
   result, exact comparison with CPU, runtime/RAM and peak PyTorch CUDA measurements.
+- `remaining_gpu_20261125_150556`: user-run pie, Shona and regression GPU batch,
+  each with native output, run metadata, console logs, resources and CUDA figures.
+  Separate comparison/review files retain the verification and its limits.
 
 These large/generated outputs are gitignored. The income test fixture is manually
 transcribed from the source image and is independent of model predictions.
@@ -567,13 +580,112 @@ The tradeoff is increased RAM use: process maximum RSS was 10,348,192 KiB
 other images. Large cropped figures, more tokens or other concurrent workloads
 may behave differently. The adapter's component graph is specific to the pinned
 Granite Vision LlavaNext implementation and should be rechecked after upgrades.
-GPU/offload execution has not been checked on the pie or Shona images yet.
+Subsequent GPU/offload pie and Shona checks are recorded below.
 
 - [Reviewed comparison](../../data/structured_data_trials/20261125_chart_offload_debug_03/comparison.json).
 - [Native extraction](../../data/structured_data_trials/20261125_chart_offload_debug_03/document_10000660_figure_002/native.json).
 - [Run metadata](../../data/structured_data_trials/20261125_chart_offload_debug_03/document_10000660_figure_002/run.json).
 - [Peak CUDA measurements](../../data/structured_data_trials/20261125_chart_offload_debug_03/cuda_memory.json).
 - [Runtime/RAM measurements](../../data/structured_data_trials/20261125_chart_offload_debug_03/resources.txt).
+
+### Remaining GPU batch review — 2026-11-25
+
+All three user-run jobs completed conversion and exited successfully. Their
+inference status remains `extracted_only`; the following review separately
+assesses numerical content. Source PNG hashes match all three run reports.
+No new inference, extraction corrections or pipeline changes were performed
+for this review.
+
+| Sample | CLI duration | Peak CUDA allocated / reserved | Peak process RSS | Review |
+|---|---:|---:|---:|---|
+| Refugee pie | 258.521 s | 1.34 / 1.43 GiB | 10.42 GiB | 2/2 exact province/percentage matches; same chart table as reviewed CPU output. |
+| Shona | 510.138 s | 2.53 / 2.63 GiB | 10.60 GiB | Structure recovered; numerical estimates need review. |
+| Regression | 26.178 s | 0.56 / 0.68 GiB | 2.20 GiB | 42/42 printed numeric text cells match; interpretation/mapping pending. |
+
+GPU measurements are PyTorch figures, excluding some driver/context memory.
+GNU time wall durations were 251.87, 488.22 and 32.58 seconds respectively;
+retain these alongside the CLI values rather than silently treating them as
+identical clocks. Chart runs remain RAM-intensive for this approximately 11 GiB
+WSL instance; these successful cases do not establish resource bounds.
+
+#### Pie: verified on GPU too
+
+The 3×2 table is identical to the reviewed CPU result: Nord-Kivu `91%`, Sud-Kivu
+`9%`. Both the labels and percentage strings match. Total `35,416` and `en2018`
+remain separate text; raw OCR still misreads another block as `%6`, whereas
+the chart enrichment has the correct `9%`. Generation produced 29 tokens in
+159.71 seconds, below the token cap. Observed speedup is 1.35× for the CLI and
+1.89× for generation versus the earlier individual CPU run, not a controlled
+throughput benchmark.
+
+[Pie comparison](../../data/structured_data_trials/remaining_gpu_20261125_150556/refugee_pie/comparison.json)
+records the source hash, exact CPU-table agreement, values and resource figures.
+
+#### Shona: useful structure, unreliable numerical estimates
+
+The dedicated model produced a 6×5 chart table, a substantial improvement over
+the earlier small VLM's empty chart data. It preserves both populations, both
+employment statuses and all five irregular time intervals, with 20 estimated
+percentages:
+
+| Date | Urban Nationals employed | Urban Nationals unemployed | Shona employed | Shona unemployed |
+|---|---:|---:|---:|---:|
+| May-Jun '20 | 40% | 15% | 20% | 20% |
+| Jul-Sep '20 | 45% | 20% | 15% | 55% |
+| Oct-Nov '20 | 50% | 25% | 20% | 30% |
+| Jan-Mar '21 | 55% | 15% | 25% | 20% |
+| Apr-Jun '21 | 70% | 10% | 50% | 15% |
+
+These are **raw model estimates**, not verified exact source values. Visual
+review identifies a clear error: Shona employment in Oct-Nov 2020 is plotted
+around 30%, but the extraction says 20%. Shona unemployment in Jan-Mar 2021 is
+around 25-26%, but the extraction says 20%. Other points are coarsely rounded;
+every output is a multiple of five percentage points. Error bars are missing,
+and their statistical meaning/confidence level is unspecified in the crop.
+
+Because the chart prints no data labels, this is a qualitative comparison with
+geometry, not a ground-truth numeric score. No exact-match count is assigned.
+Generation produced 138 tokens in 410.91 seconds, below the cap. This is a
+completed but partially incorrect extraction, not an empty/truncated result.
+
+[Shona review](../../data/structured_data_trials/remaining_gpu_20261125_150556/shona/review.json)
+retains the raw table, concrete discrepancies and limits of the visual check.
+
+#### Regression: numerical transcription verified, mapping still needed
+
+The standard GPU pipeline recovered the same 22×5 table cell texts and spans as
+the prior CPU run. A fresh manual transcription from the original image checked
+all **42 displayed numeric text cells** at their row/column positions, including
+signs, decimal precision, commas and significance marks; all matched. Source
+blanks were checked separately. This count includes coefficients, standard
+errors, sample counts, fit statistics and estimated effects; it is not a count
+of homogeneous SDMX observations.
+
+Nested group labels (One lag/Two lags, prior year/two years ago, Early/Late
+onset) still require explicit interpretation. Native `One lag` spans one column,
+while `Two lags` spans two; mapping must associate both Coef and SE with each
+model explicitly. Stars are preserved in the cells where the image prints them;
+their meaning depends on the external table notes and must not be invented or
+silently reassigned. No generic table-to-SDMX mapping has been applied.
+
+[Regression comparison](../../data/structured_data_trials/remaining_gpu_20261125_150556/regression/comparison.json)
+contains all 42 manually reviewed cell strings and positions, CPU equivalence
+and the remaining interpretation issues.
+
+#### Initial five-sample set: current conclusion
+
+| Sample | Extraction evidence | SDMX status |
+|---|---|---|
+| Income | 16/16 reviewed values/associations; CPU and GPU agree | Complete first example using experimental local income DSD |
+| Guarantee | 4/4 reviewed values/associations; dedicated CPU and GPU agree | Native chart data; statistical mapping pending |
+| Refugee pie | 2/2 reviewed province percentages; dedicated CPU and GPU agree | Native chart data; separate total/year not mapped |
+| Shona | Four series/five periods recovered; estimated values contain errors; error bars absent | Needs numerical review and statistical mapping |
+| Regression | 42/42 printed numeric text cells match; CPU/GPU table cells agree | Needs nested statistical interpretation/mapping |
+
+The extraction screen of the initial five images is complete. It shows strong
+results for the reviewed printed values, plus a concrete remaining failure on
+unlabelled chart geometry. Do not aggregate the cell counts into a dataset-wide
+accuracy score or describe all five as completed SDMX datasets.
 
 ## Checks and interpretation
 
@@ -585,7 +697,9 @@ GPU/offload execution has not been checked on the pie or Shona images yet.
   functional attention child-weight access.
 - The focused suite plus existing metadata-schema tests pass (111 tests).
 - Live assertions verified the bar chart on CPU and GPU/offload (4/4 each), and
-  the pie on CPU (2/2), without altering the native extraction files.
+  the pie on CPU and GPU/offload (2/2 each), plus regression's 42 printed numeric
+  text cells and its CPU/GPU cell equivalence. Shona's structural checks and
+  numerical limitations are recorded separately. Native files were not altered.
 - `uv lock --check --offline` passes. The new `structured_data` extra reuses the
   pinned Docling stack and declares its TF-ID dependency conflict explicitly.
 - A wheel build includes both official schemas, the income mapping profile and
@@ -598,56 +712,24 @@ they are never labelled verified numerical datasets.
 
 ## Next actions and open questions
 
-1. Use the worked income example above to explain the data/DSD/exchange distinction.
-2. Dedicated enrichment checks are complete on the guarantee chart (4/4 on CPU
-   and GPU/offload) and refugee pie (2/2 on CPU). Use these results before expanding
-   to Shona or more samples. Keep raw failures; do not add automatic chart-to-SDMX
-   mappings before review. No quantization is planned as part of the offload fix.
-3. Compare the actual extracted examples with WDI/UNICEF/UNHCR concepts; document
-   where reuse works, where extensions are needed, and what requires confirmation.
-4. The draft below now includes measured enrichment results. Use the native
-   extraction, long observations and local DSD to clarify the data-model meaning
-   and extraction/review separation with Aivin. Sending remains the user's action.
+The user completed the remaining checks in the initial five-image set from WSL:
+refugee pie and Shona with `--pipeline chart --device cuda:0`, then regression
+with `--pipeline standard --device cuda:0`. Outputs and review are recorded above.
+The example manifest now selects `chart` for the three chart images; `granite`
+remains available for reproducing the earlier small-model baseline.
+
+1. Incorporate Aivin's clarification when received; DSD candidate review can
+   proceed using the actual five examples in the meantime.
+2. Select/adapt a provisional MVP DSD from the reviewed WDI, UNICEF, global SDG
+   and UNHCR-aligned concepts. Record scope and extensions; no shared DSD has
+   been adopted. A downloadable formal UNHCR DSD has not been verified.
+3. Build an image-first LLM prototype, preserving independence from the metadata
+   extraction module, with Python validation and SDMX serialization.
+4. Evaluate the LLM on the reviewed examples, including Shona's known numerical
+   failures and regression's nested statistical roles. Treat Docling preprocessing
+   as a paired comparison, rather than a presumed requirement. No quantization,
+   RapidAI integration or review UI is planned for this step.
 
 Unresolved: the eventual shared DSD; standard-code mapping; units absent from
 crops; time intervals that are not regular frequencies; confidence/error-bar
 interpretation; regression-table semantics; and correction review policy.
-
-## Draft message to Aivin (not sent)
-
-Status: draft updated after the bar/pie CPU checks and bar GPU/offload check; not sent.
-
-Hi Aivin, a quick update on structured data extraction from Data Snapshots.
-
-I've implemented an initial local Docling pipeline that takes a PNG and preserves
-the extracted document structure. For the simple income table, all 16 values and
-their category/statistic associations matched the image. The regression table
-was extracted, but its nested headers and coefficient/standard-error relationships
-still need mapping. The initial chart results from the small Granite-Docling model
-were incorrect or empty. With dedicated chart enrichment, the guarantee bar chart
-now has all four values and their category/series associations correct. The refugee
-pie chart also has both province percentages correct. CPU runs took about six to
-seven minutes; GPU execution with CPU offloading reduced the bar-chart run to
-about four minutes while preserving all four observations. These are initial
-examples; broader chart accuracy remains to be tested.
-
-Docling provides text, table cells and document structure, and can provide chart
-data depending on the pipeline/model. To reach our SDMX target, we still need to
-interpret these as statistical dimensions, measures and attributes, map them to
-a Data Structure Definition (DSD), and write the observations in SDMX-JSON.
-
-I'm understanding the DSD as the statistical schema: analogous to how the Data
-Snapshot Metadata Schema defines our metadata fields, it defines the fields and
-roles of the extracted statistical data. For example, the income table has
-income category and summary statistic (Mean/Median) as dimensions, and the amount
-as the measure. We have an experimental DSD for that example; the shared structure
-still needs to be developed, preferably reusing existing SDMX concepts/DSDs.
-
-Is this the kind of "data model" you meant in our last call, or were you referring
-to something broader?
-
-I'm also proposing two separate workflows: first, automated extraction and
-conversion; second, a review workflow for correcting extraction errors and
-confirming uncertain interpretations. The second may need a UI, but I suggest
-deferring its design until we understand the extraction results better. Does
-that separation match what you had in mind?
