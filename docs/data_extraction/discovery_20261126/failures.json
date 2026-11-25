@@ -1,0 +1,461 @@
+[
+  {
+    "sample_id": "refugee__099_PAD2358-ARABIC-PAD-LebanonHealthResilienceArabicPAD_table_001",
+    "image": "refugee/099_PAD2358-ARABIC-PAD-LebanonHealthResilienceArabicPAD_table_001.png",
+    "image_sha256": "989861a6af170914a8f406a2615dcd75131dd58ec89ebad69515e4d342644956",
+    "contract_sha256": "6b529c91c11ff5140754b8aacdbac03c5ce98ed509640a505b041f26fb58a8ca",
+    "attempt": "D2_discovery_development_20261125/runs/refugee__099_PAD2358-ARABIC-PAD-LebanonHealthResilienceArabicPAD_table_001/attempt_001",
+    "status": "failed",
+    "reason": "A relationship must connect distinct IDs",
+    "run": {
+      "image": "/home/ajd/data-snapshot/notebooks/schema_discovery/data/snapshots/refugee/099_PAD2358-ARABIC-PAD-LebanonHealthResilienceArabicPAD_table_001.png",
+      "image_sha256": "989861a6af170914a8f406a2615dcd75131dd58ec89ebad69515e4d342644956",
+      "model": "openai/gpt-5.6-luna",
+      "task": "open_discovery",
+      "contract_sha256": "6b529c91c11ff5140754b8aacdbac03c5ce98ed509640a505b041f26fb58a8ca",
+      "request_sha256": "8e4c59655e4d678291f1c41a971865cf6d49497b21317392e9d52fa562ec057f",
+      "execution_requested": true,
+      "status": "failed",
+      "api_attempts": 1,
+      "canonical_model": "openai/gpt-5.6-luna-20260709",
+      "ledger": "/home/ajd/data-snapshot/data/structured_data_trials/openrouter_spend.jsonl",
+      "spending": {
+        "budget_usd": "5.00",
+        "batch_id": "D2_discovery_development_20261125",
+        "call_cost_usd": "0.00389684",
+        "batch_cost_usd": "0.46586604",
+        "running_total_usd": "1.42532072",
+        "reserved_usd": "0",
+        "remaining_usd": "3.57467928",
+        "cost_status": "reported"
+      },
+      "response_id": "gen-1795619365-kiWmxTWPa3CQen7mrUUc",
+      "api_status": "completed",
+      "usage": {
+        "input_tokens": 4181,
+        "input_tokens_details": {
+          "cache_write_tokens": 2756,
+          "cached_tokens": 1422
+        },
+        "output_tokens": 2649,
+        "output_tokens_details": {
+          "reasoning_tokens": 286
+        },
+        "total_tokens": 6830,
+        "cost": 0.00389684,
+        "is_byok": false,
+        "cost_details": {
+          "upstream_inference_cost": 0.00389684,
+          "upstream_inference_input_cost": 0.00071804,
+          "upstream_inference_output_cost": 0.0031788
+        }
+      },
+      "incomplete_details": null,
+      "resolved_model": "openai/gpt-5.6-luna",
+      "service_tier": "default",
+      "error_type": "ValueError",
+      "error": "A relationship must connect distinct IDs",
+      "seconds": 22.552
+    },
+    "unvalidated_candidate": {
+      "analytical_units": [
+        {
+          "id": "u1",
+          "description": "A financing summary table showing funding sources and their amounts, with a total row. The title states that amounts are in millions of dollars.",
+          "location": "Upper table, approximately y=18–477",
+          "requirements": [
+            {
+              "id": "r1",
+              "candidate_name": "financing summary context",
+              "description": "The unit's title and stated scale must be retained to identify what the amounts describe and their displayed magnitude.",
+              "function_in_this_unit": "Frames the table as financing and indicates that the amounts are expressed in millions of dollars.",
+              "observed_examples": [],
+              "why_needed": "Without this context, the numeric amounts would lack their subject and displayed scale.",
+              "evidence": [
+                {
+                  "text": "التمويل (بملايين الدولارات)",
+                  "location": "Top-right title above the upper table"
+                }
+              ],
+              "interpretation_note": null
+            },
+            {
+              "id": "r2",
+              "candidate_name": "funding source label",
+              "description": "Each non-total amount must remain associated with the visible funding-source label.",
+              "function_in_this_unit": "Distinguishes the sources contributing to the financing summary.",
+              "observed_examples": [
+                "الصندوق العالمي للتمويل الميسر",
+                "IBRD-87710"
+              ],
+              "why_needed": "Removing the source labels would make the individual amounts uninterpretable as source-specific financing.",
+              "evidence": [
+                {
+                  "text": "مصدر التمويل",
+                  "location": "Right-side header cell of the upper table"
+                },
+                {
+                  "text": "الصندوق العالمي للتمويل الميسر",
+                  "location": "First data row, right-side source cell"
+                },
+                {
+                  "text": "IBRD-87710",
+                  "location": "Second data row, right-side source cell"
+                }
+              ],
+              "interpretation_note": null
+            },
+            {
+              "id": "r3",
+              "candidate_name": "source-level financing amount",
+              "description": "A numeric amount must be represented for each funding source, preserving the displayed precision.",
+              "function_in_this_unit": "Reports the amount associated with each funding source in the table's stated unit.",
+              "observed_examples": [
+                "24.20",
+                "95.80"
+              ],
+              "why_needed": "The source-level financing values are the primary quantitative results of this unit.",
+              "evidence": [
+                {
+                  "text": "المبلغ",
+                  "location": "Middle header cell of the upper table"
+                },
+                {
+                  "text": "24.20",
+                  "location": "First data row, amount cell aligned with الصندوق العالمي للتمويل الميسر"
+                },
+                {
+                  "text": "95.80",
+                  "location": "Second data row, amount cell aligned with IBRD-87710"
+                }
+              ],
+              "interpretation_note": null
+            },
+            {
+              "id": "r4",
+              "candidate_name": "financing total row",
+              "description": "The aggregate row labeled as a total must be retained separately from the source-level rows.",
+              "function_in_this_unit": "Provides the displayed overall financing amount for the table.",
+              "observed_examples": [
+                "120.00"
+              ],
+              "why_needed": "Treating the aggregate as another funding source would change the meaning and could lead to double counting.",
+              "evidence": [
+                {
+                  "text": "المجموع",
+                  "location": "Bottom row, right-side label cell of the upper table"
+                },
+                {
+                  "text": "120.00",
+                  "location": "Bottom row, amount cell aligned with المجموع"
+                }
+              ],
+              "interpretation_note": null
+            }
+          ],
+          "observation_examples": [
+            {
+              "source_value": "24.20",
+              "location": "Upper table, first data row amount cell",
+              "context_requirement_ids": [
+                "r1",
+                "r2",
+                "r3"
+              ],
+              "interpretation": "Displayed amount aligned with the source label الصندوق العالمي للتمويل الميسر."
+            },
+            {
+              "source_value": "95.80",
+              "location": "Upper table, second data row amount cell",
+              "context_requirement_ids": [
+                "r1",
+                "r2",
+                "r3"
+              ],
+              "interpretation": "Displayed amount aligned with the source label IBRD-87710."
+            },
+            {
+              "source_value": "120.00",
+              "location": "Upper table, bottom total row amount cell",
+              "context_requirement_ids": [
+                "r1",
+                "r4"
+              ],
+              "interpretation": "Displayed amount aligned with the total label المجموع."
+            }
+          ]
+        },
+        {
+          "id": "u2",
+          "description": "A time-distributed table of expected disbursement operations, with financial years as columns and an annual row of displayed amounts. The title states that amounts are in millions of dollars.",
+          "location": "Lower table, approximately y=680–1015",
+          "requirements": [
+            {
+              "id": "r5",
+              "candidate_name": "expected-disbursement context and scale",
+              "description": "The unit title and its stated scale must be retained.",
+              "function_in_this_unit": "Identifies the values as expected disbursement operations and indicates that they are in millions of dollars.",
+              "observed_examples": [],
+              "why_needed": "The same numeric values would have a different interpretation without the expected-disbursement context and scale.",
+              "evidence": [
+                {
+                  "text": "عمليات الصرف المتوقعة (بملايين الدولارات)",
+                  "location": "Right-side title above the lower table"
+                }
+              ],
+              "interpretation_note": null
+            },
+            {
+              "id": "r6",
+              "candidate_name": "financial-year column identity",
+              "description": "Each displayed value must retain the financial year shown above its column.",
+              "function_in_this_unit": "Provides the time position for each expected annual disbursement value.",
+              "observed_examples": [
+                "2023",
+                "2022",
+                "2021",
+                "2020",
+                "2019",
+                "2018",
+                "2017"
+              ],
+              "why_needed": "Without the year identity and its alignment to the value, the time series cannot be interpreted or reused.",
+              "evidence": [
+                {
+                  "text": "السنة المالية",
+                  "location": "Right-side header label of the lower table"
+                },
+                {
+                  "text": "2023",
+                  "location": "First visible year column from the left in the lower table"
+                },
+                {
+                  "text": "2022",
+                  "location": "Second visible year column from the left in the lower table"
+                },
+                {
+                  "text": "2021",
+                  "location": "Third visible year column from the left in the lower table"
+                },
+                {
+                  "text": "2020",
+                  "location": "Fourth visible year column from the left in the lower table"
+                },
+                {
+                  "text": "2019",
+                  "location": "Fifth visible year column from the left in the lower table"
+                },
+                {
+                  "text": "2018",
+                  "location": "Sixth visible year column from the left in the lower table"
+                },
+                {
+                  "text": "2017",
+                  "location": "Seventh visible year column from the left in the lower table"
+                }
+              ],
+              "interpretation_note": "The table is visually right-to-left in Arabic, while the visible year labels run from 2023 at the left toward 2017 at the right."
+            },
+            {
+              "id": "r7",
+              "candidate_name": "annual expected-disbursement value",
+              "description": "A numeric result must be retained for each financial-year column, preserving displayed precision and its column alignment.",
+              "function_in_this_unit": "Reports the expected disbursement amount for the annual row at each financial year.",
+              "observed_examples": [
+                "35.00",
+                "30.00",
+                "23.00",
+                "20.00",
+                "7.00",
+                "5.00",
+                "0.00"
+              ],
+              "why_needed": "These values constitute the time-distributed analytical results; detaching them from the years would destroy their meaning.",
+              "evidence": [
+                {
+                  "text": "سنوياً",
+                  "location": "Right-side row label beneath the financial-year header"
+                },
+                {
+                  "text": "35.00",
+                  "location": "Lower table, value cell under 2023"
+                },
+                {
+                  "text": "30.00",
+                  "location": "Lower table, value cell under 2022"
+                },
+                {
+                  "text": "23.00",
+                  "location": "Lower table, value cell under 2021"
+                },
+                {
+                  "text": "20.00",
+                  "location": "Lower table, value cell under 2020"
+                },
+                {
+                  "text": "7.00",
+                  "location": "Lower table, value cell under 2019"
+                },
+                {
+                  "text": "5.00",
+                  "location": "Lower table, value cell under 2018"
+                },
+                {
+                  "text": "0.00",
+                  "location": "Lower table, value cell under 2017"
+                }
+              ],
+              "interpretation_note": null
+            }
+          ],
+          "observation_examples": [
+            {
+              "source_value": "35.00",
+              "location": "Lower table, annual row under the 2023 column",
+              "context_requirement_ids": [
+                "r5",
+                "r6",
+                "r7"
+              ],
+              "interpretation": "Displayed annual expected-disbursement amount aligned with financial year 2023."
+            },
+            {
+              "source_value": "20.00",
+              "location": "Lower table, annual row under the 2020 column",
+              "context_requirement_ids": [
+                "r5",
+                "r6",
+                "r7"
+              ],
+              "interpretation": "Displayed annual expected-disbursement amount aligned with financial year 2020."
+            },
+            {
+              "source_value": "0.00",
+              "location": "Lower table, annual row under the 2017 column",
+              "context_requirement_ids": [
+                "r5",
+                "r6",
+                "r7"
+              ],
+              "interpretation": "Displayed annual expected-disbursement amount aligned with financial year 2017."
+            }
+          ]
+        }
+      ],
+      "relationships": [
+        {
+          "related_ids": [
+            "u1",
+            "r2",
+            "r3"
+          ],
+          "description": "Each funding-source label in the upper table is horizontally aligned with one source-level financing amount.",
+          "evidence": [
+            {
+              "text": "الصندوق العالمي للتمويل الميسر",
+              "location": "Upper table first data row, source cell"
+            },
+            {
+              "text": "24.20",
+              "location": "Upper table first data row, amount cell"
+            },
+            {
+              "text": "IBRD-87710",
+              "location": "Upper table second data row, source cell"
+            },
+            {
+              "text": "95.80",
+              "location": "Upper table second data row, amount cell"
+            }
+          ],
+          "interpretation_note": "The pairing is supported by row alignment; the image does not state the relationship in prose."
+        },
+        {
+          "related_ids": [
+            "u1",
+            "r3",
+            "u1",
+            "r4"
+          ],
+          "description": "The upper-table total is presented as a separate aggregate row beneath the two source rows.",
+          "evidence": [
+            {
+              "text": "المجموع",
+              "location": "Upper table bottom row label"
+            },
+            {
+              "text": "120.00",
+              "location": "Upper table bottom row amount"
+            }
+          ],
+          "interpretation_note": "The label indicates an aggregate, but no calculation rule is printed."
+        },
+        {
+          "related_ids": [
+            "u2",
+            "r6",
+            "r7"
+          ],
+          "description": "Each lower-table annual value is visually aligned beneath a corresponding financial-year column.",
+          "evidence": [
+            {
+              "text": "2023",
+              "location": "Lower table year header"
+            },
+            {
+              "text": "35.00",
+              "location": "Lower table annual row beneath 2023"
+            },
+            {
+              "text": "2017",
+              "location": "Lower table year header"
+            },
+            {
+              "text": "0.00",
+              "location": "Lower table annual row beneath 2017"
+            }
+          ],
+          "interpretation_note": "The year-to-value association is inferred from the table grid and column alignment."
+        },
+        {
+          "related_ids": [
+            "u1",
+            "r1",
+            "u2",
+            "r5"
+          ],
+          "description": "Both analytical units state the scale in millions of dollars, but they are presented as separate titled components.",
+          "evidence": [
+            {
+              "text": "التمويل (بملايين الدولارات)",
+              "location": "Upper unit title"
+            },
+            {
+              "text": "عمليات الصرف المتوقعة (بملايين الدولارات)",
+              "location": "Lower unit title"
+            }
+          ],
+          "interpretation_note": "The shared scale does not by itself establish that the two tables represent the same measure or that the lower values sum to the upper total."
+        }
+      ],
+      "ambiguities": [
+        {
+          "description": "The source does not explicitly state whether the upper-table funding amounts and lower-table expected disbursement amounts refer to the same project, commitment, or accounting basis.",
+          "location": "Relationship between the upper and lower tables",
+          "implication_for_representation": "Keep the two analytical units distinct and do not infer a reconciliation or cross-table identity from the shared phrase indicating millions of dollars."
+        },
+        {
+          "description": "The upper-table total is labeled as an aggregate, but the image does not print an explicit formula or identify whether it includes only the two visible source rows.",
+          "location": "Upper table total row",
+          "implication_for_representation": "Represent the total as a separately labeled result and preserve its displayed value without asserting a calculation rule."
+        },
+        {
+          "description": "The lower table title describes expected disbursement operations, while the row label reads سنوياً; the image does not provide a more specific definition of the annual measure.",
+          "location": "Lower table title and annual row",
+          "implication_for_representation": "Retain both the title and row label rather than replacing them with a more specific interpretation of the measure."
+        }
+      ],
+      "other_analytical_content": []
+    }
+  }
+]

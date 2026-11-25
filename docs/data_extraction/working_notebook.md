@@ -6,69 +6,88 @@ is motivation for preserving evidence, not a required output of this prototype.
 
 ## Current plan
 
-The local Docling feasibility phase is complete on the initial five examples.
-The income table has an end-to-end PNG-to-SDMX prototype using a local DSD;
-other examples have reviewed native extractions and identified mapping/accuracy
-limits. Detailed evidence is retained below.
+**Decision — 2026-11-26:** the deliverable is tooling plus an interactive review
+workflow for **one snapshot at a time**. Follow Approach 1: propose a
+snapshot-specific data model, obtain user acceptance, extract the values, and
+review them. A bespoke Streamlit app is the starting UI choice. Develop an
+end-to-end example and use the next team sync for feedback and corrective action.
 
-The MVP direction remains image-first LLM extraction and interpretation:
+Aivin clarified that an LLM should suggest the DSD for a snapshot parsed with
+Docling, then extract using an accepted structure. He also noted existing standard
+fields/codelists and said formalizing the output can follow extraction. Treat the
+early proposal as a readable **working data dictionary/statistical model**; full
+SDMX structure encoding and code assignments can follow review. Establishing what
+the values mean still comes before extracting them into that model.
 
-1. Select, adapt or define a provisional DSD, with an explicitly bounded scope.
-2. Supply the image, DSD and extraction instructions to an LLM.
-3. Obtain long-format observations aligned with that DSD.
-4. Validate and serialize observations and structure as SDMX-JSON using Python.
-5. Evaluate correctness and unsupported cases against reviewed source images.
+The intended workflow is:
 
-This replaces handwritten general Docling-to-DSD mapping rules with LLM
-interpretation; it does not remove mapping, DSD coverage questions or validation.
-Developing and claiming coverage for a general deterministic mapper would require
-a development sample and independent validation. That study is not the proposed
-MVP's immediate path. The independent OpenRouter path has offline preparation, a
-persistent spending guardrail, a completed income smoke test and the completed
-18-call Luna/Terra/Sol comparison. Luna medium remains the working reference.
-The current DSD is an experimental extraction contract, not an evidence-validated
-general design. Detailed findings and running costs are retained below.
+1. **Open PNG and preprocess.** Run Docling and retain its native output alongside
+   the original image. Keep the image available as evidence throughout review.
+2. **Propose a working model.** Use the image and Docling output to suggest the
+   analytical components, identifying categories, measured results, units,
+   qualifications and relationships needed for this snapshot. Preserve source
+   labels and expose ambiguity instead of guessing.
+3. **Review and accept the model.** Let the user edit directly or ask the LLM for
+   a revision. Explain proposals in plain language, save revisions and record
+   which model version was accepted.
+4. **Extract observations.** Use the image, relevant Docling evidence and accepted
+   model with OpenRouter Structured Outputs. Save long-format observations,
+   evidence and unresolved content against that exact model version.
+5. **Review extracted data.** Keep the image visible while the user checks and
+   edits the results or requests a targeted model revision. Changing the accepted
+   statistical model marks dependent extracted data as needing review again.
+6. **Formalize and export.** Map appropriate concepts/codes, construct the formal
+   DSD, validate the structure and reviewed observations, and export SDMX-JSON.
+   CSV remains an optional later export. Provisional reviewed JSON must not be
+   described as SDMX-compliant until this step succeeds.
 
-**Current development strategy:** a lean artifact-first adaptation of Paper 2.
-Open discovery comes before choosing a shared DSD:
+**Standard fields and codelists:** reuse suitable SDMX concepts and verified
+codes where their meaning matches the evidence. Do not require every snapshot to
+contain REF_AREA or TIME_PERIOD, turn an unspecified date into a reporting period,
+or invent a country/unit to fill a code. Preserve raw source labels and proposed
+mappings separately. Generic shape/type/reference validation remains useful
+throughout; final SDMX encoding is deferred, not all validation or interpretation.
 
-1. Define the discovery objective, prompts and recording format; check them on a
-   small development pilot before freezing the discovery instrument.
-2. Discover requirements independently across the **210 development images**,
-   without existing DSDs, the current experimental profile, a canonical concept
-   inventory, prior discovery records or parent-document metadata in the prompt.
-3. Consolidate artifact-grounded requirements and relationships, keeping traceability
-   to image evidence. Introduce existing DSD concepts as comparison candidates
-   during consolidation/design, after independent discovery.
-4. Review conceptual distinctions and design the statistical representation,
-   selecting/adapting suitable standards components. Aim for one or two DSDs;
-   requirements and scope must justify that choice.
-5. Exercise the proposed representation on development examples, then freeze a
-   version and assess coverage on the **202 validation images**. Distinguish DSD
-   gaps from extraction errors, documentation issues and out-of-scope content.
+**Starting UI:** a separate Streamlit reviewer with the image on the left and
+Model, Data and Export stages on the right. Structured editors hold the current
+working result; a compact assistant area explains or proposes revisions for the
+user to apply. Include saved drafts/resume, versioned generated and reviewed
+records, visible changes, unresolved issues and explicit acceptance of both model
+and data. Use plain labels in the main UI; advanced views can expose JSON and
+SDMX details. Follow the metadata reviewer's interaction patterns without a
+runtime dependency on its models, forms or storage module.
 
-Processing batches are execution partitions, not automatic DSD-revision rounds.
-Discovery prompts and their recording format remain fixed across the main
-development discovery run. Consolidated evidence informs subsequent design
-iterations. The seven-batch arrangement is not yet activated.
+**Next implementation milestones, after this archival step:**
 
-The six-image discovery calibration and three focused follow-up calls are now
-complete. Revised discovery instrument **v0.1.0** is recorded for the development
-run. The next step is independent discovery across the 210 development images;
-none of those main-run calls have started. Current cumulative spending is
-**$0.95945468 / $5**, leaving **$4.04054532**. Detailed pilot findings follow below.
+1. Build the independent per-snapshot model-proposal/revision and accepted-model
+   extraction path, saving inspectable JSON before a UI depends on it. Reuse the
+   existing OpenRouter execution/accounting utilities; keep the old fixed-DSD
+   pipeline as an experimental baseline.
+2. Add the small Streamlit workspace around that path and demonstrate one complete
+   review session. Expand to contrasting income, financing and multi-panel examples
+   to expose the important interaction and representation choices.
+3. Show the workflow at the next team sync: proposed model, user correction,
+   accepted revision, extracted values, review and the current export state.
+   Gather feedback before investing in more interaction complexity. Finish formal
+   SDMX export after extraction/review works, clearly labeling any interim JSON.
 
-Docling remains a working local baseline and an optional preprocessing candidate.
-Its added value should be tested by comparing the same LLM with image-only input
-versus image plus Docling output, measuring accuracy, latency and cost. Do not
-assume preprocessing improves results or make it a dependency of the first LLM MVP.
-RapidAI, the separate review workflow/UI and PDF-workflow integration are deferred.
+Luna medium remains the initial model reference from the completed extraction
+comparison; its quality for snapshot-specific model proposals still needs to be
+established. Docling is the preprocessing baseline in the intended workflow.
+Its incremental value over image-only LLM input remains an experiment to conduct,
+rather than an established quality improvement. RapidAI, custom frontend work and
+PDF detection/cropping integration remain deferred.
 
-On 2026-11-25, the user reported sending two messages to Aivin: asking whether the
-DSD is the intended "data model", and proposing the LLM-based workflow for the
-MVP timeline. A reply has not been reported. The user intentionally left the
-review-workflow question out to focus the discussion. The obsolete draft has
-been removed from this notebook at the user's request.
+**Discovery closed and saved:** all 210 development images were attempted;
+209 records passed structural validation and one failed a repeated-ID
+relationship rule. Retain the valid records and the failed raw response for later
+use. Shared-DSD consolidation/design and the proposed 202-image coverage study are
+parked; they are not prerequisites for this MVP. The seven-batch DSD strategy was
+not activated. Detailed closeout, archive paths and costs are recorded below.
+
+Current recorded workstream spending: **$1.96872847 / $5**; remaining
+**$3.03127153**, with no outstanding reservations. The original dropped request
+was written off on user instruction, as documented in the recovery record.
 
 ## Agreed scope and constraints
 
@@ -81,13 +100,14 @@ been removed from this notebook at the user's request.
   `/home/ajd/hf_datasets/data_snapshot_metadata_gold` contains metadata JSON only;
   all 102 filenames match PNGs in `/home/ajd/hf_datasets/data-snapshot/snapshots`.
   The gold metadata is not an inference input or numerical ground truth.
-- DSD development now uses the original Paper 2 split: 210 development images and
-  202 validation images. Reusing samples does not create a runtime dependency on
-  the metadata modules.
-- Aim for one shared DSD, or at most two if the examples justify it. Separate
-  figure/table extraction code does not itself require separate statistical DSDs.
-- Develop the definition from consolidated requirements, version changes, and
-  record their reasons; do not automatically revise it after each discovery batch.
+- The completed discovery used Paper 2's 210 development images. The associated
+  202-image validation set remains unused in this workstream. The shared-DSD study
+  is retained for later use; it is not the current delivery strategy.
+- Propose a working model per snapshot and permit the components required by its
+  evidence. A single shared DSD, or a fixed figure/table split, is not a constraint
+  on the interactive workflow.
+- Record model versions and their reasons for change; keep raw extractions,
+  model-proposed revisions and human-reviewed records distinguishable.
 - Do not invent missing dates, frequencies, units, category meanings, confidence
   levels, or values. Keep extraction corrections distinguishable from raw output.
 - Use `uv` in `/home/ajd/data-snapshot`. Hand lengthy installations/downloads to
@@ -109,20 +129,66 @@ For example, the income image shows Mean and Median as columns. Long observation
 use `(income category, summary statistic) -> value`. A renderer could show the same
 observations as a table or figure without changing their statistical structure.
 
-### Extraction and review are separate workflows
+### Model review and data review
 
-User clarification: build extraction first and defer the user-confirmation/review
-workflow. Extraction is the automated path from PNG through native extraction,
-statistical interpretation/mapping, long observations and SDMX output. Calling it
-mechanical does not imply that it is error-free or that statistical interpretation
-is solved; uncertain cases still need explicit failure or review flags.
+The initial feasibility work separated automated extraction from a deferred review
+workflow. The 2026-11-26 decision brings both into the deliverable, with two
+distinct acceptance points: accept the snapshot's statistical model, then review
+the extracted values and their associations. Keep the backend independently
+testable while adding the UI that supports these interactions. There is no new
+structured-data review app implemented yet; the current task saves discovery and
+updates the plan before that implementation begins.
 
-The later review workflow may involve checking source images, correcting values
-and their associations, resolving uncertain statistical meanings, and approving
-results. It may need a UI, but its design and scope are not decided. Do not make
-an interactive confirmation step a prerequisite for this extraction prototype.
-The user deferred asking Aivin about review to keep the current discussion focused
-on the data model. No review workflow or UI is implemented.
+### Discovery closeout — 2026-11-26
+
+The user completed the discovery exercise and chose to retain it for later use
+before proceeding with the snapshot-specific interactive approach. D2 attempted
+all **210 images**, producing **209 structurally validated records** and **one
+validation failure**, with no pending images or unsettled charges. Each corpus
+contributed 35 figures and 35 tables; the failure is one refugee table.
+
+The 209 valid records contain **396 analytical units, 2,271 image-local requirement
+records, 757 relationships and 842 ambiguity records**. These counts are not a
+canonical concept inventory or evidence of DSD coverage. The records have not
+undergone a complete image-grounded semantic adjudication or consolidation.
+
+Failed image:
+`refugee/099_PAD2358-ARABIC-PAD-LebanonHealthResilienceArabicPAD_table_001.png`.
+Its raw response repeats `u1` inside one relationship's `related_ids`. The original
+response, failure report and billed usage are retained without repair, relabeling
+as success or another API call.
+
+Saved artifacts:
+
+- `docs/data_extraction/discovery_20261126/records.jsonl`: all 209 valid records,
+  unchanged in meaning, with image/request identifiers and source-attempt links.
+- `docs/data_extraction/discovery_20261126/failures.json`: failed raw candidate,
+  reason, input identity and original run report, explicitly unvalidated.
+- `docs/data_extraction/discovery_20261126/summary.json`: counts, corpus/type
+  breakdown, costs, disposition and accounting/review limits.
+- `docs/data_extraction/discovery_20261126/manifest.json` and `archive.sha256`:
+  archive-entry inventory and checksums.
+- `data/structured_data_archives/discovery_20261126.zip`: portable local bundle of
+  D1/D1b/D1c/D2 evidence, all 210 source PNGs, the shared spending journal, exported
+  records and relevant code/configuration/tests/lockfile snapshots. This archive
+  is under the gitignored data directory; the compact exports above are eligible
+  for source control. No Git stash, commit, upload or deletion was performed.
+
+Rechecked all frozen image/request identities, validated-record/raw-output
+agreement, JSON schemas, ID/reference rules and billed-cost totals. The archive
+excludes credentials and lock files and is checked against its per-file hashes.
+Original experiment directories remain at
+`data/structured_data_trials/D2_discovery_development_20261125/` and the preceding
+pilot directories. The archive is for preservation, not a new runtime input or a
+selected DSD/template library.
+
+D2 recorded cost: **$1.00927379**. Workstream recorded total:
+**$1.96872847 / $5**; remaining **$3.03127153**; outstanding reservations **$0**.
+The user's write-off of the initial dropped call is preserved as such, not
+reported as provider-verified zero billing. No API calls were made during
+closeout. Consolidation, further shared-DSD development and the 202-image coverage
+assessment are parked. Historical protocols and results below describe that
+earlier workstream and do not override the current plan.
 
 ### Open-discovery instrument — 2026-11-25
 
@@ -379,6 +445,35 @@ failures, preflight recovery, uncertainty and locking. The actual 210-image
 manifest was prepared and then verified again through the offline resume path;
 all 210 remain pending and cumulative spending is unchanged. Black and whitespace
 checks passed. No additional dependencies or downloads were needed.
+
+### D2 dropped-call recovery — 2026-11-25
+
+The first user-run request, PRWP `document_10002285_table_002.png`, returned HTTP
+400, `Request path cannot be relayed`. The runner stopped with its $0.03029350
+allowance unresolved, as designed. The user explicitly authorized ignoring the
+dropped call and fixing the issue.
+
+Non-generating, empty-body probes reached both API routes and returned normal
+missing-input validation errors. The configured Responses path matches the
+[official endpoint](https://openrouter.ai/docs/api/api-reference/responses/create-responses).
+The failed request was retried once as `attempt_002` with an **identical request
+hash**, including model, image, prompts, schema and provider ceilings. It completed
+and passed discovery validation in 39.166 seconds. This points to a transient
+routing rejection; no endpoint, prompt or instrument change was needed.
+
+Released the original reservation through an append-only zero-dollar settlement
+on the user's instruction. This is a **user-authorized write-off**, not a
+provider-verified zero charge. Preserved the original failure report and recorded
+the authorization, accounting adjustment and successful retry in
+`D2_discovery_development_20261125/dropped_request_reconciliation.json` and the
+runner log. No automatic paid-retry policy was added.
+
+The diagnostic retry cost **$0.00533124**. D2 recorded batch cost:
+**$0.00533124**; workstream recorded total: **$0.96478592 / $5**; remaining:
+**$4.03521408**. Refreshed and checked summary: **one discovered, 209 pending,
+zero failed/blocked images and zero outstanding reservations**. Resume the same
+batch command; it skips the successful image. No other main-run calls were made
+by the assistant during this recovery.
 
 ### DSD protocol and independent LLM path
 

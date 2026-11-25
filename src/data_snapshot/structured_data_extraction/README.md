@@ -4,7 +4,16 @@ Independent of `metadata_extraction` and `metadata_schema`. Input is a PNG;
 native extraction is Docling JSON. A reviewed table mapping can additionally
 produce long observations, a local DSD, and SDMX-JSON 2.1.0 data. A separate
 OpenRouter entry point prepares image-first LLM extraction offline by default.
-CSV, RapidAI, Docling-assisted LLM input, and an interactive reviewer are deferred.
+
+**Current direction (2026-11-26):** tooling plus an interactive workflow for one
+snapshot at a time: PNG/Docling evidence -> LLM working-model proposal -> user
+acceptance -> extraction -> data review -> formal SDMX structure/code mapping and
+export. A separate Streamlit app is planned. Its model-proposal and review stages
+are not implemented yet; the fixed-DSD CLI below remains an experimental baseline.
+SDMX concepts and codelists can guide appropriate mappings without forcing absent
+information into the snapshot. Final encoding can follow reviewed extraction;
+interpreting the statistical meaning and validating provisional records still
+happen earlier. CSV, RapidAI and PDF-workflow integration remain deferred.
 
 The central [plan and experiment notebook](../../../docs/data_extraction/working_notebook.md)
 records decisions, candidate DSDs, hardware checks and live findings.
@@ -74,6 +83,15 @@ accuracy and completeness. Raw responses, schema/settings snapshots, request
 fingerprints, usage and billed costs are preserved. Consolidation and standards
 alignment happen later, after independent discovery. The working notebook records
 the six-image pilot and the subsequent development/validation plan.
+
+The discovery exercise is now **closed and saved for later use**: all 210 images
+were attempted, 209 records validated, and one structural failure is preserved.
+Compact exports and their summary/inventory are in
+`docs/data_extraction/discovery_20261126/`; a portable local archive is at
+`data/structured_data_archives/discovery_20261126.zip`. Shared-DSD consolidation
+and the associated 202-image coverage study are parked. See the current plan in
+the working notebook before starting further discovery calls. The following
+batch command is retained for reproducibility.
 
 For the frozen 210-image development run, use the resumable batch script:
 

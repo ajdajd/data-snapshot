@@ -1,0 +1,65 @@
+{
+  "exercise": "D2 independent open discovery",
+  "saved_at": "2026-11-26T00:16:43.150702+08:00",
+  "disposition": "Closed and retained for later research; no consolidation, shared DSD design or validation-set calls are scheduled.",
+  "instrument_version": "0.1.0",
+  "model": "openai/gpt-5.6-luna",
+  "reasoning": {
+    "effort": "medium"
+  },
+  "images_attempted": 210,
+  "validated_records": 209,
+  "failed_records": 1,
+  "api_attempt_directories": 211,
+  "analytical_units": 396,
+  "provisional_requirement_records": 2271,
+  "relationship_records": 757,
+  "ambiguity_records": 842,
+  "groups": {
+    "prwp/table": {
+      "attempted": 35,
+      "validated": 35,
+      "failed": 0
+    },
+    "prwp/figure": {
+      "attempted": 35,
+      "validated": 35,
+      "failed": 0
+    },
+    "refugee/table": {
+      "attempted": 35,
+      "validated": 34,
+      "failed": 1
+    },
+    "refugee/figure": {
+      "attempted": 35,
+      "validated": 35,
+      "failed": 0
+    },
+    "unhcr/table": {
+      "attempted": 35,
+      "validated": 35,
+      "failed": 0
+    },
+    "unhcr/figure": {
+      "attempted": 35,
+      "validated": 35,
+      "failed": 0
+    }
+  },
+  "failed_samples": [
+    {
+      "id": "refugee__099_PAD2358-ARABIC-PAD-LebanonHealthResilienceArabicPAD_table_001",
+      "reason": "A relationship must connect distinct IDs"
+    }
+  ],
+  "d2_recorded_cost_usd": "1.00927379",
+  "workstream_recorded_cost_usd": "1.96872847",
+  "remaining_usd": "3.03127153",
+  "outstanding_reservations_usd": "0",
+  "accounting_note": "The original HTTP 400 dropped call was written off at zero on user instruction; provider billing for that call was not independently verified. Original reconciliation retained.",
+  "review_note": "All saved records revalidated structurally against the frozen schema and ID/reference rules. Main-run semantic/image correctness has not been independently adjudicated. Counts are image-local findings, not canonical concepts or DSD coverage.",
+  "validation_images_used": 0,
+  "original_results": "/home/ajd/data-snapshot/data/structured_data_trials/D2_discovery_development_20261125",
+  "archive": "/home/ajd/data-snapshot/data/structured_data_archives/discovery_20261126.zip"
+}
