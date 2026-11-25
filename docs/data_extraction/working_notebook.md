@@ -304,6 +304,82 @@ after sharing the execution code. The full discovery run, consolidation and
 202-image representation-coverage assessment remain ahead; the pilot establishes
 instrument usability rather than general DSD coverage or guaranteed completeness.
 
+### Resumable development discovery D2
+
+Prepared `scripts/run_structured_data_discovery.py` for the user to execute the
+main **210-image** development discovery. Uses Luna medium and discovery
+instrument v0.1.0, with 35 figures and 35 tables from each of PRWP, refugee and
+UNHCR. This is independent open discovery; no DSD, standards inventory or prior
+discovery record enters a model request. The 202 validation images are not inputs.
+The six pilot images will receive fresh main-run records under the same final
+instrument as all other development images.
+
+`config/discovery_instrument.json` records the calibrated prompt/schema/settings
+hashes. Preparation verifies the exact 210 PNGs, group counts, image hashes,
+request fingerprints and supported input bounds, and snapshots the instrument.
+Resuming verifies those identities again. Each pending call also checks its
+request against the frozen contract before execution. Changed inputs/settings
+stop the run rather than silently changing the discovery instrument.
+
+Prepared output directory:
+`data/structured_data_trials/D2_discovery_development_20261125/`.
+Preparation made **no API calls**. Initial status: 210 pending, no failures or
+blocked attempts, workstream spend **$0.95945468 / $5**, remaining **$4.04054532**.
+The manifest anchors the existing shared spending journal by a prefix hash;
+deleting, resetting or rewriting that history prevents resume.
+
+Run or resume using the **same output directory**:
+
+```bash
+cd /home/ajd/data-snapshot
+uv run --no-sync python -u scripts/run_structured_data_discovery.py \
+  --output-dir data/structured_data_trials/D2_discovery_development_20261125 \
+  --execute
+```
+
+Omit `--execute` to prepare/verify offline and refresh the progress summary.
+The script appends UTC progress/error messages to `runner.log` automatically;
+no `tee` is required. Monitor from another terminal:
+
+```bash
+tail -f /home/ajd/data-snapshot/data/structured_data_trials/D2_discovery_development_20261125/runner.log
+```
+
+`summary.json` is updated atomically after each attempt and at shutdown. It
+contains completed/failed/pending/blocked counts, per-image paths/reasons, batch
+cost, workstream running total, reservations and remaining funds. Logs also print
+these totals after each attempt. Per-image artifacts live under
+`runs/<image-id>/attempt_001/`, with raw API responses, text, validated
+`discovery.json`, request/schema/settings snapshots, billing and failure reports.
+Further attempt folders are created only for confirmed pre-API failures.
+
+Resume behavior:
+
+- Validate and skip completed records; preserve and skip known billed failures.
+  Continue other pending images, without paid retries or automatic repair calls.
+- Stop on a preflight failure; rerunning may retry it only when the report confirms
+  zero API attempts and no ledger reservation. Preserve its previous attempt.
+- Stop for unknown charges, missing attempt reports, unresolved reservations,
+  exceeded input bounds, changed frozen evidence or edited results. A Ctrl+C or
+  disconnection during an in-flight request may require billing reconciliation
+  before resume; it never triggers an automatic duplicate paid request.
+- Reject a second process on the same output directory. The existing per-call
+  ledger lock and cumulative $5 cap remain active.
+
+The process exits nonzero if an executed run ends incomplete or with failures;
+the summary distinguishes failures from pending/blocked work. Report back
+`summary.json` and relevant `runner.log` errors after running. Billed failures
+need review and are not counted as successful coverage. Processing is sequential;
+this script does not introduce DSD revision rounds or activate the previously
+discussed seven-batch design.
+
+Verification: **73 relevant tests passed**, including 12 batch cases covering
+resume, duplicate prevention, changed inputs/results, ledger reset, known billed
+failures, preflight recovery, uncertainty and locking. The actual 210-image
+manifest was prepared and then verified again through the offline resume path;
+all 210 remain pending and cumulative spending is unchanged. Black and whitespace
+checks passed. No additional dependencies or downloads were needed.
+
 ### DSD protocol and independent LLM path
 
 The user agreed to combine reusable concepts from the candidate DSDs and develop

@@ -1,0 +1,9 @@
+{
+  "instrument_version": "0.1.0",
+  "artifacts_sha256": {
+    "prompts/discovery_system.md": "1c605cf1acfad58b34554405d34a4d1b6f2fd10ac2f967b401efde0c457b9c1c",
+    "prompts/discovery_user.md": "414d2e9651b3b9eb516fa4c5458437fd61de7b71473a59aef56e56f15a22b3ff",
+    "schemas/discovery_record.schema.json": "ecb48aa5196ab8953e21a49f73d2a64aee7de85f1434a02f652ddef4ad196ba9"
+  },
+  "config_sha256": "57a705b2eb4038f0444dd088cc4627b13485d1d435ca87fa3ab47d2c3ece02f7"
+}

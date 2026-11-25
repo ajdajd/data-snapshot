@@ -75,6 +75,21 @@ fingerprints, usage and billed costs are preserved. Consolidation and standards
 alignment happen later, after independent discovery. The working notebook records
 the six-image pilot and the subsequent development/validation plan.
 
+For the frozen 210-image development run, use the resumable batch script:
+
+```bash
+uv run --no-sync python -u scripts/run_structured_data_discovery.py \
+  --output-dir data/structured_data_trials/D2_discovery_development_20261125 \
+  --execute
+```
+
+Reuse that exact output directory to resume. Omit `--execute` for offline
+preparation/status. The runner appends `runner.log` and updates `summary.json`
+with progress, failures and cumulative spending. It skips completed and known
+billed attempts, preserves all responses, and stops on uncertain charges or
+changed frozen inputs. See `docs/data_extraction/working_notebook.md` for recovery
+behavior and the experiment record. No additional environment sync is required.
+
 ### Spending guardrail
 
 The user authorized a **$5 cumulative budget** for this workstream. Every live
