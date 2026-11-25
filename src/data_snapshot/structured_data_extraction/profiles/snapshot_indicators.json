@@ -1,0 +1,30 @@
+{
+  "id": "SNAPSHOT_OBSERVATIONS",
+  "title": "Data Snapshot numerical observations — provisional design",
+  "version": "0.1.0",
+  "scope": "Experimental numeric observations from tables, charts and infographics. Concepts adapted from WDI/ECOFIN indicators, OECD statistical operation, UNICEF population/demographic/geographic breakdowns, and SDG bounds/source detail; local extensions describe reporting roles and model results. All dimensions are uncoded strings, preserving source terminology. This is not a validated general DSD or a copy of any institutional DSD. Null keys mean unknown and serialize as local _UNKNOWN; local _NOT_APPLICABLE means a dimension does not apply. REPORTING_PERIOD deliberately retains source text as a string, not a normalized SDMX time dimension. Mixed record tables and geometry are outside this numeric draft. Missing distinctions must be reported, not squeezed into generic fields.",
+  "dimensions": [
+    {"id": "INDICATOR", "name": "Measured concept", "description": "Source-supported outcome, indicator or measured concept, distinct from its statistical operation. Retain source wording.", "data_type": "String"},
+    {"id": "CATEGORY", "name": "Category", "description": "Primary substantive category, such as income sector, employment status, project component or guarantee system. Preserve source label. A total is its own explicit category. Do not concatenate several independent dimensions.", "data_type": "String"},
+    {"id": "COMPARISON_GROUP", "name": "Comparison group", "description": "A separate comparison classification, such as HIGH versus LOW_MIDDLE income group. Do not repeat a population group here when POPULATION_GROUP already expresses it.", "data_type": "String"},
+    {"id": "STATISTICAL_OPERATION", "name": "Statistical operation", "description": "Source-supported statistical form, such as Mean, Median, count, percentage, coefficient, standard error or sample size. Preserve source terminology; an unspecified Mean must not be upgraded to arithmetic or weighted mean.", "data_type": "String"},
+    {"id": "POPULATION_GROUP", "name": "Population group", "description": "Source population or beneficiary group, such as refugees, host community or Shona. Do not invent subgroup definitions or age thresholds.", "data_type": "String"},
+    {"id": "SEX", "name": "Sex breakdown", "description": "Sex category explicitly shown in the source; do not interpret an absent breakdown as total population.", "data_type": "String"},
+    {"id": "AGE", "name": "Age breakdown", "description": "Age group exactly as displayed. Do not assign numeric thresholds to Children, Adult or Elderly without visible evidence.", "data_type": "String"},
+    {"id": "REF_AREA", "name": "Reference area", "description": "Geographic area of this observation at the reported level. Do not infer country from directory, source agency or external knowledge.", "data_type": "String"},
+    {"id": "REPORTING_PERIOD", "name": "Source reporting period", "description": "Source-visible period applying to the observation, retaining irregular intervals as printed. Not a normalized TIME_PERIOD, publication date, map scale, deadline or extraction date.", "data_type": "String"},
+    {"id": "OBSERVATION_ROLE", "name": "Reporting role", "description": "Source-supported distinction such as Baseline, Closing Period, Target, Planned, Actual, overall cost, financed subset, fitted or raw series. Do not call closing-period values achieved or target without evidence. If no such distinction applies use _NOT_APPLICABLE.", "data_type": "String"},
+    {"id": "UNIT_MEASURE", "name": "Unit of measure", "description": "Unit as supported by the source, such as persons, percent or US dollars. Preserve per-unit meaning. Unknown currency stays unknown; a bare number is not proof of a dimensionless measure.", "data_type": "String"},
+    {"id": "MODEL", "name": "Model specification", "description": "Visible model/column/specification identifier distinguishing statistical estimates; retain nested heading context. Not an invented dataset identifier.", "data_type": "String"},
+    {"id": "TERM", "name": "Model term", "description": "Source regressor, coefficient term, lag or intercept for a model result. Model summary statistics may use _NOT_APPLICABLE here and identify the statistic in STATISTICAL_OPERATION.", "data_type": "String"}
+  ],
+  "attributes": [
+    {"id": "UNIT_MULT", "name": "Unit multiplier", "description": "Base-10 scale explicitly supported by the source, for example 6 for millions and 3 for thousands. Values remain on the printed scale. Leave null when not established.", "data_type": "Integer"},
+    {"id": "LOWER_BOUND", "name": "Lower bound", "description": "Lower bound on the observation's displayed scale, only when recoverable and its association is clear. Do not invent omitted error bars.", "data_type": "Double"},
+    {"id": "UPPER_BOUND", "name": "Upper bound", "description": "Upper bound on the observation's displayed scale, only when recoverable and its association is clear.", "data_type": "Double"},
+    {"id": "CONFIDENCE_LEVEL", "name": "Confidence level", "description": "Stated confidence level as a percentage, such as 95. Null for error bars whose confidence meaning is not specified.", "data_type": "Double"},
+    {"id": "SIGNIFICANCE", "name": "Significance notation", "description": "Printed significance markers and their visible definition, if any; do not infer thresholds absent a legend.", "data_type": "String"},
+    {"id": "OBS_STATUS", "name": "Source observation status", "description": "Status stated by the source, such as provisional, estimated or projected. This differs from whether our extraction estimated a plotted value.", "data_type": "String"},
+    {"id": "SOURCE_NOTE", "name": "Interpretive source note", "description": "Visible note or explanation needed to interpret this observation, its denominator, bounds, cost coverage or model. Do not invent source text.", "data_type": "String"}
+  ]
+}

@@ -1,13 +1,12 @@
 """Represent long observations and serialize a local SDMX prototype profile."""
 
-import json
 import re
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from jsonschema import Draft201909Validator, FormatChecker
 from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, model_validator
+
+from .exchange import exchange_messages
 
 
 class Axis(BaseModel):
@@ -142,127 +141,29 @@ def map_table(native: dict[str, Any], profile: Profile, image: Path) -> Dataset:
 
 
 def sdmx_messages(dataset: Dataset) -> tuple[dict, dict]:
-    """Build and validate matching SDMX-JSON 2.1.0 structure and data messages.
+    """Build matching SDMX-JSON 2.1.0 messages for the reviewed table profile.
 
     Parameters
     ----------
     dataset : Dataset
-        Observations mapped to the local prototype profile.
+        Validated observations from the original deterministic mapper.
 
     Returns
     -------
-    tuple[dict, dict]
-        Structure message (including concepts and DSD), followed by data message.
+    tuple of dict
+        Structure and data messages validated against official exchange schemas.
     """
-    profile = dataset.profile
-    version = "0.1.0"
-    identity = {
-        "id": profile.id,
-        "agencyID": "LOCAL",
-        "version": version,
-        "name": profile.title,
-    }
-    concept_prefix = f"urn:sdmx:org.sdmx.infomodel.conceptscheme.Concept=LOCAL:{profile.id}({version})."
-    dsd_urn = f"urn:sdmx:org.sdmx.infomodel.datastructure.DataStructure=LOCAL:{profile.id}({version})"
-    prepared = datetime.now(timezone.utc).isoformat()
-    meta = {
-        "id": profile.id,
-        "prepared": prepared,
-        "sender": {"id": "LOCAL"},
-        "test": True,
-    }
-    concepts = [{"id": a.id, "name": a.name} for a in profile.axes]
-    concepts.append({"id": "OBS_VALUE", "name": profile.measure})
-    dims = [
-        {
-            "id": a.id,
-            "position": index,
-            "conceptIdentity": concept_prefix + a.id,
-            "localRepresentation": {"format": {"dataType": "String"}},
-        }
-        for index, a in enumerate(profile.axes)
-    ]
-    measure = {
-        "id": "OBS_VALUE",
-        "conceptIdentity": concept_prefix + "OBS_VALUE",
-        "localRepresentation": {"format": {"dataType": "Double"}},
-    }
-    structure = {
-        "$schema": "https://json.sdmx.org/2.1.0/sdmx-json-structure-schema.json",
-        "meta": meta,
-        "data": {
-            "conceptSchemes": [{**identity, "concepts": concepts}],
-            "dataStructures": [
-                {
-                    **identity,
-                    "dataStructureComponents": {
-                        "dimensionList": {
-                            "id": "DimensionDescriptor",
-                            "dimensions": dims,
-                        },
-                        "measureList": {
-                            "id": "MeasureDescriptor",
-                            "measures": [measure],
-                        },
-                    },
-                }
-            ],
-        },
-    }
-    values = [
-        list(dict.fromkeys(o.key[i] for o in dataset.observations)) for i in range(2)
-    ]
-    observations = {
-        ":".join(str(values[i].index(v)) for i, v in enumerate(o.key)): [o.value]
-        for o in dataset.observations
-    }
-    data = {
-        "$schema": "https://json.sdmx.org/2.1.0/sdmx-json-data-schema.json",
-        "meta": meta,
-        "data": {
-            "structures": [
-                {
-                    "name": profile.title,
-                    "links": [
-                        {
-                            "rel": "datastructure",
-                            "urn": dsd_urn,
-                            "href": "structure.sdmx.json",
-                        }
-                    ],
-                    "dimensions": {
-                        "observation": [
-                            {
-                                "id": a.id,
-                                "name": a.name,
-                                "keyPosition": i,
-                                "format": {"dataType": "String"},
-                                "values": [{"value": v} for v in values[i]],
-                            }
-                            for i, a in enumerate(profile.axes)
-                        ]
-                    },
-                    "measures": {
-                        "observation": [
-                            {
-                                "id": "OBS_VALUE",
-                                "name": profile.measure,
-                                "format": {"dataType": "Double"},
-                            }
-                        ]
-                    },
-                }
-            ],
-            "dataSets": [
-                {"structure": 0, "action": "Information", "observations": observations}
-            ],
-        },
-    }
-    for kind, message in (("structure", structure), ("data", data)):
-        schema = json.loads(
-            (
-                Path(__file__).parent / "schemas" / f"sdmx-json-{kind}-schema.json"
-            ).read_text()
-        )
-        Draft201909Validator(schema, format_checker=FormatChecker()).validate(message)
-    return structure, data
+    return exchange_messages(
+        dataset.profile.id,
+        dataset.profile.title,
+        "0.1.0",
+        [axis.model_dump() for axis in dataset.profile.axes],
+        [],
+        [
+            [
+                {"key": observation.key, "value": observation.value}
+                for observation in dataset.observations
+            ]
+        ],
+        measure_name=dataset.profile.measure,
+    )

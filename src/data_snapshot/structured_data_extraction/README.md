@@ -2,11 +2,100 @@
 
 Independent of `metadata_extraction` and `metadata_schema`. Input is a PNG;
 native extraction is Docling JSON. A reviewed table mapping can additionally
-produce long observations, a local DSD, and SDMX-JSON 2.1.0 data. CSV, remote
-models, RapidAI, and an interactive reviewer are deferred.
+produce long observations, a local DSD, and SDMX-JSON 2.1.0 data. A separate
+OpenRouter entry point prepares image-first LLM extraction offline by default.
+CSV, RapidAI, Docling-assisted LLM input, and an interactive reviewer are deferred.
 
 The central [plan and experiment notebook](../../../docs/data_extraction/working_notebook.md)
 records decisions, candidate DSDs, hardware checks and live findings.
+
+## OpenRouter workflow — offline preparation first
+
+The independent implementation follows the production repository's pattern of
+JSON settings, system/user prompt files, an OpenAI-compatible Responses client,
+and strict local validation. It imports neither metadata module and does not
+require Docling or GPU models. Its lightweight optional extra is `structured_llm`;
+the current `structured_data`/test environment already contains its dependencies.
+No environment rebuild is needed for this change.
+
+Prepare a smoke test without reading `.env`, constructing a client or making
+network/API calls:
+
+```bash
+uv run --no-sync python -m data_snapshot.structured_data_extraction.llm \
+  /home/ajd/hf_datasets/data-snapshot/snapshots/unhcr/108733-revised-public-wb-unhcr-policy-brief-final_table_000.png \
+  --dry-run --output-dir data/structured_data_trials/llm_income_prepare_01
+```
+
+The directory must be fresh. The default is also offline when `--dry-run` is
+omitted. Files are `request.preview.json` (prompts/schema/settings with image
+bytes omitted), `config.json`, `dsd.json`, and `run.json` (image and request hashes,
+model, DSD version, status and attempt count). The preview is for inspection,
+not a directly replayable API request. Local file paths are recorded in the run
+report but not supplied as model evidence.
+
+The default settings are in `config/openrouter.json`; override with `--config`.
+`openai/gpt-5.6-luna` is a provisional smoke-test setting, not a model-selection
+result. The configured token ceiling is not a dollar budget. No real API request
+has been tested. Spending guardrails and model-comparison rules must be agreed
+before live use. The CLI requires `--execute` for any API attempt; it then loads
+`OPENROUTER_API_KEY` from the environment/`.env`. There is one request, with SDK
+automatic retries disabled, and no automatic repair or fallback-model calls.
+Do not use `--execute` yet: the user has explicitly deferred all API costs.
+
+The future live path is PNG + DSD -> model-produced long observations -> Python
+validation -> SDMX-JSON. It requests strict Structured Outputs and compatible
+provider routing, following the
+[OpenRouter documentation](https://openrouter.ai/docs/guides/features/structured-outputs).
+Backend compatibility remains unverified until an authorized live smoke test.
+
+On a completed response it preserves `response.json`, `raw_output.txt`, and
+`observations.json`; numerical datasets additionally produce `structure.sdmx.json`
+and `data.sdmx.json`. Validation rejects missing/extra fields, nonfinite numbers,
+string/boolean numbers, duplicate complete keys, inconsistent status, and missing
+evidence for estimates. Truncated, refused, invalid and failed responses retain
+available evidence and never become a successful SDMX result. Partial extractions
+retain their usable observations, identify omissions, and exit nonzero. Unsupported
+images produce an explicit result without fabricated SDMX observations. Inspect
+`run.json` and `observations.json` alongside exchange files for omissions and
+completion status; schema validation does not verify image accuracy.
+SDMX dataset annotations of local type `DATA_SNAPSHOT_COMPONENT` also retain
+component ID/title and image-level extraction status, omissions and notes.
+
+### Provisional DSD, not a frozen design
+
+`profiles/snapshot_indicators.json` is the editable LOCAL
+`SNAPSHOT_OBSERVATIONS(0.1.0)` draft; override it with `--dsd`. Its exact dimension
+and attribute definitions generate both the response schema and the SDMX DSD.
+The model cannot introduce new dimensions. It can return multiple component
+datasets using the same DSD, with image-local evidence on each observation.
+
+The initial draft combines indicator/category/comparison structure, statistical
+operation, population/sex/age, reference area, source reporting period, reporting
+role, units and model/term distinctions. Attributes cover scale, bounds, stated
+confidence, significance, source observation status and interpretive notes.
+Python adds printed/estimated method, original number text, location and an
+extraction qualification as observation attributes.
+
+This draft borrows concepts from the reviewed standards; it has not adopted their
+code lists or established interoperability with those datasets. Dimensions remain
+uncoded strings. Null key values serialize as the local `_UNKNOWN` marker;
+`_NOT_APPLICABLE` is a different local literal with an explicit meaning in the
+draft. Neither is an official universal SDMX code. `REPORTING_PERIOD` deliberately
+preserves source text and is not yet a normalized SDMX `TIME_PERIOD`. No country,
+currency or date is filled in merely to satisfy a borrowed structure.
+
+Known design questions include multiple independent category breakdowns, geographic
+hierarchies, continuous x coordinates, and simultaneous reporting-role distinctions
+such as planned/actual and overall/financed amounts. These must be checked on the
+development images; the current generic fields are not evidence that every case
+is covered. Record an omission when a key cannot represent a distinction faithfully.
+
+DSD design will reuse Paper 2's 210 development images and 202 validation images
+from Paper 1's corpus. Develop and revise on the 210, freeze a version, then assess
+representational coverage on the 202. LLM extraction accuracy, model selection and
+cost comparison are separate experiments; validation images should not be used
+for prompt/model tuning before the final assessment.
 
 ## Environment
 
@@ -181,6 +270,7 @@ Original sources for the unmodified schemas:
 
 ```bash
 uv run --no-sync python -m pytest -q tests/test_structured_data_extraction.py
+uv run --no-sync python -m pytest -q tests/test_structured_data_llm.py
 ```
 
 The income test values were manually transcribed from the PNG, independently of

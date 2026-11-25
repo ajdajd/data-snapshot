@@ -22,6 +22,9 @@ dependencies = [
 
 
 [project.optional-dependencies]
+structured_llm = [
+    "jsonschema>=4,<5",
+]
 structured_data = [
     "data-snapshot[docling_heron]",
     "jsonschema>=4,<5",
@@ -103,7 +106,7 @@ where = ["src"]
 exclude = ["data_snapshot.metadata_extraction_v1_1*"]
 
 [tool.setuptools.package-data]
-"data_snapshot.structured_data_extraction" = ["schemas/*.json", "profiles/*.json", "examples.json"]
+"data_snapshot.structured_data_extraction" = ["schemas/*.json", "profiles/*.json", "config/*.json", "prompts/*.md", "examples.json"]
 
 
 [tool.pytest.ini_options]

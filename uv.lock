@@ -523,6 +523,9 @@ structured-data = [
     { name = "torchvision", version = "0.25.0", source = { registry = "https://pypi.org/simple" } },
     { name = "transformers", version = "5.20.1", source = { registry = "https://pypi.org/simple" } },
 ]
+structured-llm = [
+    { name = "jsonschema" },
+]
 test = [
     { name = "jsonschema" },
     { name = "pytest" },
@@ -577,6 +580,7 @@ requires-dist = [
     { name = "huggingface-hub", marker = "extra == 'yolo26'" },
     { name = "ipykernel", marker = "extra == 'notebooks'", specifier = ">=6,<8" },
     { name = "jsonschema", marker = "extra == 'structured-data'", specifier = ">=4,<5" },
+    { name = "jsonschema", marker = "extra == 'structured-llm'", specifier = ">=4,<5" },
     { name = "jsonschema", marker = "extra == 'test'", specifier = ">=4,<5" },
     { name = "jupyterlab", marker = "extra == 'notebooks'", specifier = ">=4,<5" },
     { name = "label-studio-sdk", specifier = "==2.0.19" },
@@ -610,7 +614,7 @@ requires-dist = [
     { name = "ultralytics", marker = "extra == 'yolo11'" },
     { name = "ultralytics", marker = "extra == 'yolo26'" },
 ]
-provides-extras = ["structured-data", "docling-heron", "review", "pdf2image", "notebooks", "tfid", "unlimitedocr", "doclayoutyolo", "yolo11", "yolo26", "viz", "test", "dev"]
+provides-extras = ["structured-llm", "structured-data", "docling-heron", "review", "pdf2image", "notebooks", "tfid", "unlimitedocr", "doclayoutyolo", "yolo11", "yolo26", "viz", "test", "dev"]
 
 [[package]]
 name = "datamodel-code-generator"

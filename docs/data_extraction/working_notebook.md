@@ -23,7 +23,9 @@ This replaces handwritten general Docling-to-DSD mapping rules with LLM
 interpretation; it does not remove mapping, DSD coverage questions or validation.
 Developing and claiming coverage for a general deterministic mapper would require
 a development sample and independent validation. That study is not the proposed
-MVP's immediate path. LLM extraction/mapping is not yet implemented or tested.
+MVP's immediate path. The independent OpenRouter path is implemented with offline
+preparation and mocked tests; live extraction/mapping is not yet tested. The user
+has explicitly prohibited API costs until spending guardrails are established.
 
 Docling remains a working local baseline and an optional preprocessing candidate.
 Its added value should be tested by comparing the same LLM with image-only input
@@ -85,6 +87,103 @@ results. It may need a UI, but its design and scope are not decided. Do not make
 an interactive confirmation step a prerequisite for this extraction prototype.
 The user deferred asking Aivin about review to keep the current discussion focused
 on the data model. No review workflow or UI is implemented.
+
+### DSD development protocol and independent LLM path — 2026-11-25
+
+The user agreed to combine reusable concepts from the candidate DSDs and develop
+the Data Snapshots definition incrementally. Reuse the original **210 development
+and 202 validation images**. These are the Paper 2 schema-study samples drawn
+from Paper 1's corpus, rather than a separate Paper 1 schema split. Initial image
+inspection is pre-research problem understanding; retain the original split.
+
+Verified locally: 210 unique development filenames, 202 unique validation
+filenames, and zero filename overlap. Their source directories are:
+
+- Development: `notebooks/schema_discovery/data/snapshots/`.
+- Validation: `notebooks/schema_validation1/data/snapshots/` (also reused by the
+  subsequent metadata-schema validations).
+
+The proposed sequence is:
+
+1. Review development images for the statistical structures they contain,
+   including their dimensions, measures, units, qualifications and relationships.
+   Start with small batches spanning all three corpora; record requirements and
+   reasons for each design change rather than adding every possible field.
+2. Select/adapt concepts and representations from the reviewed standards, then
+   test whether the provisional DSD faithfully represents contrasting development
+   artifacts. Resolve indicator/statistic distinctions, multiple breakdowns,
+   reporting roles, missing context and composite components explicitly.
+3. Freeze the DSD version and the coverage-assessment instructions, then assess
+   representational coverage on all 202 validation images. Record full/partial/
+   unsupported coverage and the reasons, by corpus and statistical structure.
+   This is a fresh assessment of numerical/analytical content; the earlier metadata
+   validation outcomes do not establish DSD coverage.
+4. Keep LLM extraction correctness separate from DSD coverage. Compare candidate
+   models and prompts on development examples using a fixed DSD and reviewed
+   numerical/semantic references. Do not tune prompts/models on the 202 before
+   their final assessment. If validation leads to revisions, version and report
+   the changes; a revised assessment of that set is not a new held-out result.
+
+The entire 210-image development review and 202-image coverage assessment have
+not been conducted yet. They do not require paid extraction calls to begin.
+
+The user requested an independent OpenRouter implementation in this R&D repo,
+following `/home/ajd/data-snapshot-pipeline` as an implementation reference only.
+Production integration remains a separate later exercise. New entry point:
+`python -m data_snapshot.structured_data_extraction.llm`. It imports neither
+metadata module, accepts one PNG, and has separate JSON settings and system/user
+prompt files. It does not load Docling or GPU models. The `structured_llm` extra
+requires only the already-used JSON Schema dependency in addition to base packages.
+
+The default is **offline preparation**: it does not load dotenv, construct an API
+client or send any request. It saves inspectable prompts/schema/settings with
+image bytes omitted, the DSD/config snapshots, image/request hashes and a report.
+An explicit `--execute` is required for the implemented future live path, which
+uses OpenRouter's Responses endpoint and Structured Outputs. Automatic SDK retries,
+automatic correction calls and model fallback are not enabled. Failure responses
+retain available raw output, status and usage; incomplete/invalid output cannot
+become a successful SDMX result. Partial and unsupported content are explicit.
+
+`profiles/snapshot_indicators.json` is a **working design artifact**, LOCAL
+`SNAPSHOT_OBSERVATIONS(0.1.0)`, not a selected/frozen general DSD. It combines
+indicator/category/comparison concepts, statistical operation, population/sex/age,
+reference area, source reporting period, observation role, units, model and term.
+Attributes describe scale, bounds, confidence, significance, source status and
+notes. Per-observation evidence records original number text, location and
+printed-versus-estimated extraction. Source terminology remains uncoded; no claim
+of compatibility with institutional indicator/code lists is made. `REPORTING_PERIOD`
+is deliberately a string until time normalization is designed. Missing context
+remains unknown. Multiple independent breakdowns, geographic hierarchies,
+continuous coordinates and overlapping reporting-role distinctions remain design
+questions for the development review.
+
+The DSD configuration generates a strict response model. Python rejects missing/
+extra fields, nonfinite or incorrectly typed numbers, duplicate full keys,
+inconsistent completion status, and missing evidence for estimates. It serializes
+validated observations and evidence through the same exchange writer as the
+original Docling table example, validating against the official vendored SDMX-JSON
+schemas. These checks establish software behavior, not image accuracy or domain
+interoperability. See the module README for file details and an offline command.
+
+**Cost decision:** no paid calls are authorized at this stage. The user permits
+`openai/gpt-5.6-luna` as a future smoke-test setting but wants experiments to select
+models on quality versus cost. The configured output-token limit is not a monetary
+cap. Before live trials, agree the model list, fixed development subset, per-call/
+per-experiment spending controls, output limits, stop conditions and retry policy.
+No prices, actual model availability, native Structured Output compatibility or
+API accuracy have been established by these offline tests.
+
+Offline verification: prepared the real income PNG in
+`data/structured_data_trials/llm_offline_income_20261125_01/`; `run.json` records
+`execution_requested: false`, `status: prepared`, and `api_attempts: 0`. The API
+key was not loaded. Original split filenames/counts are retained locally in
+`data/dsd_review/20261125/sample_split.json`. The locked dependency update adds
+only the `structured_llm` extra; all package versions remain unchanged.
+The final focused check passed **42 tests** across the independent LLM and
+existing Docling/table-mapping suites, including official SDMX schema validation,
+numeric attributes, component annotations, partial results and preserved failure
+evidence. Black formatting, `git diff --check`, and the locked dependency check
+passed. Tests use injected fake Responses clients; none incurred API costs.
 
 The gap after Docling includes assigning statistical roles and meanings,
 selecting/adapting a DSD, mapping observations to it, and serialization/validation.
@@ -200,15 +299,159 @@ recommend reuse of DSDs and code lists as the first guiding principle.
 | UNICEF `UNICEF:DSD_AGGREGATE(1.0)` | Cross-sector social indicators, uncertainty and provenance | Live definition retrieved: area, indicator, sex, time; units, bounds, sample size, footnotes and source attributes. [DSD](https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/datastructure/UNICEF/DSD_AGGREGATE/latest/?format=sdmx-json&references=none). |
 | UNHCR Refugee Data Portal model | Displacement, protection, population groups and socioeconomic outcomes | Explicitly SDMX-aligned; location, population type, origin, nationality, age, sex and source concepts. A downloadable formal DSD has not been verified. [Model](https://refugeedata.unhcr.org/en/documentation/data-structure/data-model/). |
 | OECD `OECD.DCD.FSD:DSD_CRS(1.7)` | Aid flows and development/humanitarian financing | Live definition retrieved: donor, recipient, sector, channel, modality, flow type, units, time and project attributes. [Explorer](https://data-explorer.oecd.org/vis?df%5Bag%5D=OECD.DCD.FSD&df%5Bds%5D=DcdDisseminateFinalDMZ&df%5Bid%5D=DSD_CRS%40DF_CRS&lc=en). |
-| IMF ECOFIN | Broad economic/financial dissemination through one relatively compact DSD | Domain, area, indicator, counterpart area, frequency and time; substantial meaning is encoded in indicator codes. Documentation reviewed; attempted live DSD request returned 404. [IMF description](https://www.imf.org/-/media/files/news/seminars/2021/sdmx/siii-presentation-02-modeling-approaches-ecofin-dsd.pdf). |
+| IMF `IMF:ECOFIN_DSD(1.0)` | Broad economic/financial dissemination through one relatively compact DSD | Live definition retrieved on 2026-11-25 using the correct structure ID, resolving the earlier 404: domain, area, indicator, counterpart area, frequency and time; substantial meaning is encoded in indicator codes. [DSD](https://sdmxcentral.imf.org/ws/public/sdmxapi/rest/datastructure/IMF/ECOFIN_DSD/1.0/?references=none), [IMF description](https://www.imf.org/-/media/files/news/seminars/2021/sdmx/siii-presentation-02-modeling-approaches-ecofin-dsd.pdf). |
 | Global SDG DSD | Development indicators and disaggregation | Broad reference with explicit customization guidance; SDG codes should not be assigned to unrelated data. [DSD and guides](https://unstats.un.org/sdgs/iaeg-sdgs/sdmx-working-group/). |
 | Global labour, education, national accounts, government finance and CPI DSDs | Domain-specific concepts and classifications | Reference candidates when an example needs those concepts. [Labour](https://sdmx.org/sdmx-for-labour/), [education](https://sdmx.org/sdmx-for-education/), [accounts/prices](https://sdmx.org/sdmx-data-structure-definitions-for-national-accounts-sdmx-na/). |
 | SDMX cross-domain concepts and code lists | Common definitions for area, time, units, multipliers and status | Reusable building blocks, not a complete DSD. [Guidelines](https://sdmx.org/guidelines/). |
 
-Initial priority: compare WDI and UNICEF for compact structure, UNHCR for
-humanitarian meaning, and CRS when reaching funding examples. No candidate has
-yet been adopted wholesale. Changed definitions need our own identity/version;
-they must not be presented as unmodified global DSDs.
+The initial comparison prioritized WDI and UNICEF for compact structure, UNHCR
+for humanitarian meaning, and CRS for aid flows. The expanded review below adds
+concrete domain structures and examines fit against actual artifacts. No
+candidate has been adopted wholesale. Changed definitions need our own
+identity/version; they must not be presented as unmodified global DSDs.
+
+### Expanded DSD review and artifact inspection — 2026-11-25
+
+Purpose: broaden the standards review before selecting a provisional DSD for the
+image-first LLM MVP. This is a qualitative comparison, not a coverage-validation
+study or a claim that any one existing DSD represents all Data Snapshots.
+
+Evidence retained locally in `data/dsd_review/20261125/` (gitignored): downloaded
+SDMX-ML definitions, registry inventories, source URLs, HTTP status codes and
+parsed dimension/attribute inventories in `first_fetch.json`, `second_fetch.json`,
+`third_fetch.json`, and `ilo_fetch.json`. Each DSD identified as retrieved below
+returned HTTP 200 and was parsed as a full structure, rather than relying on an
+institution's name or a registry listing. These downloads use SDMX 2.1 structure
+syntax; adapting their concepts to our SDMX 3.1 / SDMX-JSON 2.1 prototype requires
+an explicit representation and validation step.
+
+#### What the papers and images establish
+
+Reviewed the attached papers' task definitions, scope, methodology and relevant
+examples. Paper 1, section 1.1 and Appendix A, explicitly includes financing
+matrices, operational maps, dashboards, econometric tables and network diagrams.
+A Data Snapshot is broader than a country/indicator/year table. Titles, legends,
+panel associations and footnotes can be necessary evidence for an observation.
+
+Paper 2, section 5.4 and Appendix G, separates metadata about the artifact from
+the analytical content within it. Its schema describes identity, context,
+structure and meaning; its validation does not establish coverage for extraction
+of all numerical observations. We can use the papers and existing metadata to
+choose examples without adding a runtime dependency on `metadata_extraction` or
+`metadata_schema`.
+
+The existing metadata-gold directory contains 102 records, 34 from each corpus.
+An inventory of their visualization labels is saved in `artifact_inventory.json`.
+Labels overlap: they include 51 tables, 23 bar charts, 14 line charts, 12
+composites and 8 maps, plus other forms. These are metadata labels, not a new
+visual adjudication or numerical ground truth.
+
+Visually inspected 13 additional PNGs selected for variety, beyond the five
+pipeline examples. Exact paths are retained in `visual_review_images.json`.
+Paths in this table are relative to
+`/home/ajd/hf_datasets/data-snapshot/snapshots`.
+
+| PNG | Visible content and implications for statistical representation |
+|---|---|
+| `refugee/001_BOSIB-3f2311b3-9a20-44d3-b637-b3b2b3d21695_table_008.png` | Results framework with baseline and closing-period columns, dates, beneficiary counts and percentages for refugee/female subgroups. Preserve reporting role, indicator hierarchy and differing units. Whether closing-period values are targets requires interpretation; do not silently treat them as achieved outcomes. |
+| `refugee/006_BOSIB-2c22668f-f4ba-42f5-a0d1-7949b7b8fe34_table_000.png` | Two project components with explicit US-dollar costs. Project component is the distinguishing category; no observation period appears in the crop. |
+| `refugee/006_BOSIB-2c22668f-f4ba-42f5-a0d1-7949b7b8fe34_table_004.png` | Activity details and estimated direct beneficiaries. Text also includes road length, school count and pupils per school; these have different units and roles. Superscript footnote numbers must not become digits in a value. Do not assume beneficiary rows can be added without overlap. |
+| `refugee/202_multi0page_table_004.png` | Project cost by component and procurement method, in US$ millions. The footnote defines parenthesized figures as Bank-loan/IDA-credit financing, not negative costs or standard errors. Totals and financing subsets must remain distinguishable. |
+| `refugee/161_28046_table_013.png` | Consulting-assignment records mix descriptions, estimated costs, selection methods, review categories and submission dates. This is partly a record table; dates here are deadlines, not necessarily observation periods. Currency/scale is not given in this crop. |
+| `refugee/202_multi0page_table_007.png` | Project budget and schedule: planned/actual columns, US$ thousands, duration in months and milestone dates. Blank actual cells are not zero. Distinguish date-valued content from the reference time of a numerical observation. |
+| `refugee/196_multi-page_figure_002.png` | Cambodia project map uses repeated symbols by province and project type, with inset panels. Recovering counts would require reliable symbol interpretation/counting, not merely OCR. No counts were transcribed in this review. |
+| `refugee/197_multi-page_figure_002.png` | Rwanda map shows roads, boundaries, parks and forests without an ordinary numerical indicator series. It remains a valid snapshot under Paper 1; do not manufacture numerical observations to fit a DSD. |
+| `unhcr/68487_figure_002.png` | Composite with a registered-refugee total, demographic shares, residence shares and province counts displayed both as bars and map labels. Preserve component relationships and units; repeated map/bar displays are evidence for the same counts, not independent observations. Age thresholds are not supplied beside the age-group labels. |
+| `unhcr/acnur_anlisis-madre_de_dios_vf_figure_012.png` | Spanish infographic gives travel-group count, person count and mean group size. Preserve the printed rounded mean; do not replace it with a recomputed ratio. No date appears in this crop. |
+| `prwp/document_15348558_figure_008.png` | Scatterplot relates log GDP per capita to a banking-income ratio, with group symbols and a fitted curve. Individual point identities are not printed, legend wording is ambiguous, and the note refers to another figure. Distinguish estimated point coordinates from the fitted curve and do not invent countries or corrected legend meanings. |
+| `prwp/document_12916918_figure_008.png` | Two panels show monthly petroleum price and percentage returns with detected breaks. Preserve panel, measure, transformation and event distinctions. Dense unlabelled curves do not supply exact numerical ground truth. |
+| `prwp/document_11174028_figure_002.png` | Local polynomial smooth over a continuous residual axis, with a labelled 95% confidence band and estimation settings. The x-axis is not time. Representing it requires support for the x coordinate, fitted value and bounds; geometry-based values would be estimates. |
+
+#### Additional structures verified
+
+Versions below are the definitions returned on the review date, not a promise
+that `latest` will remain unchanged. Candidate fit is our interpretation of their
+components and the images, not a claim by the publishing institution.
+
+| Candidate and primary definition | Components useful to us | Fit and limits |
+|---|---|---|
+| OECD Income Distribution, `OECD.WISE.INE:DSD_WISE_IDD(1.0)` — [DSD](https://sdmx.oecd.org/public/rest/datastructure/OECD.WISE.INE/DSD_WISE_IDD/latest/?references=none) | Measure, **statistical operation**, units, age, methodology, definition, poverty line, area and time; currency and price-base attributes. | Strong reference for the income table and poverty/distribution statistics. Its country/time and income-specific structure does not directly cover procurement or regression output. |
+| ILO `ILO:IMF_ILOSTAT(1.0)` — [DSD](https://sdmx.ilo.org/rest/datastructure/ILO/IMF_ILOSTAT/1.0?references=none), [API guide](https://webapps.ilo.org/ilostat-files/Documents/SDMX_User_Guide.pdf) | Measure, sex, age and further labour classifications; units, source notes, observation status and upper/lower bounds. | Concrete labour reference for Shona-like examples. Population-group distinctions and mixed-length reporting periods still need explicit treatment. Do not assign standard labour codes without confirming the source definitions. |
+| UNICEF Migration, `UNICEF:MIGRATION(1.0)` — [DSD](https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/datastructure/UNICEF/MIGRATION/1.0/?references=none) | Area, indicator, age, statistical population and time; units, source link, time-coverage/method and footnotes. | Useful for displacement/population statistics. Its dimensions do not include all demographic and residence distinctions visible in the composite. |
+| UNICEF Migration Flows, `UNICEF:MG_FLOW(1.0)` — [DSD](https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/datastructure/UNICEF/MG_FLOW/1.0/?references=none) | Separate origin and destination areas, indicator, sex, age and time; units and source. | Useful when movement is genuinely an origin-to-destination flow. An intention-to-travel infographic is not automatically a measured migration flow. |
+| UNICEF Social Protection, `UNICEF:SOC_PROTECTION(1.0)` — [DSD](https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/datastructure/UNICEF/SOC_PROTECTION/1.0/?references=none) | Area, indicator, sex, residence, wealth quintile, poverty threshold and time; units, source, time method and footnotes. | Useful social/welfare breakdowns, but project activity and baseline/target distinctions are not explicit dimensions. |
+| UNICEF Child Poverty, `UNICEF:DSD_CHLD_POV(1.0)` — [DSD](https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/datastructure/UNICEF/DSD_CHLD_POV/1.0/?references=none) | Area, indicator, sex, residence and time; units, source, status and footnotes. | Compact thematic alternative. Its child-poverty scope is narrower than the corpus. |
+| UNICEF Conflict, `UNICEF:PT_CONFLICT(1.0)` — [DSD](https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/datastructure/UNICEF/PT_CONFLICT/1.0/?references=none) | Area, parent area, administrative level, indicator, sex, age and time; mandatory unit attribute. | Useful reference for subnational hierarchy and population disaggregation, not a general representation of map geometry or all humanitarian content. |
+| UNICEF Hazard Population, `UNICEF:HAZARD_POPULATION(1.0)` — [DSD](https://sdmx.data.unicef.org/ws/public/sdmxapi/rest/datastructure/UNICEF/HAZARD_POPULATION/1.0/?references=none) | Parent-country identifier, area, administrative level, indicator, sex, age and time; units and region. | Useful for hazard-exposure statistics and local geography. Does not turn a context map into an indicator dataset. |
+| UNESCO/UIS `UIS:UOE_NON_FINANCE(1.2)` — [DSD](https://registry.sdmx.org/ws/public/sdmxapi/rest/datastructure/UIS/UOE_NON_FINANCE/1.2/?references=none), [official guidance](https://sdmx.org/sdmx-for-education/) | Education level/type/field, grade, intensity, origin, mobility, statistical unit, sex, age and other dimensions. | Useful education terminology for schooling artifacts. Detailed UOE reporting structure is too specialized as the default for every snapshot. |
+| OECD Short-Term Economic Statistics, `OECD.SDD.STES:DSD_STES(4.4)` — [DSD](https://sdmx.oecd.org/public/rest/datastructure/OECD.SDD.STES/DSD_STES/latest/?references=none) | Measure, units, activity, adjustment, transformation, time horizon, methodology, area, frequency and time. | Useful macroeconomic time-series reference. The transformation distinction is relevant to price versus return panels; direct code equivalence is not established. |
+| IMF Government Finance Statistics, `IMF:GFS(1.0)` — [DSD](https://registry.sdmx.org/ws/public/sdmxapi/rest/datastructure/IMF/GFS/1.0/?references=none) | Sectors, counterpart area/sector, expenditure, units, currency, valuation, time and further classifications. | Useful fiscal concepts. A project's procurement-cost matrix is not automatically a government-accounts dataset. |
+
+The OECD income DSD references
+[`OECD:CL_STATISTICAL_OPERATION(1.0)`](https://sdmx.oecd.org/public/rest/codelist/OECD/CL_STATISTICAL_OPERATION/1.0/?references=none).
+Downloaded codes explicitly include arithmetic/geometric/weighted mean, median,
+count, standard deviation, standard error, lower/upper confidence bounds,
+minimum/maximum and quantiles. This is a particularly useful reusable building
+block for our Mean/Median table and research outputs. It does not itself define
+regression-model, dependent-variable or regressor dimensions. A source label
+"Mean" is not sufficient evidence for selecting weighted versus arithmetic mean.
+
+The Global SDG DSD was also retrieved as `IAEG-SDGs:SDG(1.26)`, matching the
+[official release page](https://unstats.un.org/sdgs/iaeg-sdgs/sdmx-working-group/)
+(30 September 2026 release). It offers broad disaggregation, custom/composite
+breakdowns, bounds, time coverage and source detail. Its published customization
+guidance makes it a serious adaptation reference. Do not assign SDG indicator
+codes to unrelated observations or assume its reporting-type codes mean our
+project baseline/target distinction.
+
+The IMF ECOFIN definition has now been retrieved successfully (see corrected
+entry above). It is a compact broad economic scaffold, but an indicator code
+carries much of the meaning; arbitrary categories and model-output distinctions
+still require deliberate design. WDI remains a verified World Bank candidate.
+No additional formal World Bank DSD was established for PIP or ASPIRE in this
+review. UNHCR's published model is SDMX-aligned; a formal downloadable DSD remains
+unverified. Lack of verification is not evidence that no such structure exists.
+
+Retrieval limits: the Global Labour ZIP and the individual ILO employment DSD
+request returned HTTP 403. The separate `ILO:IMF_ILOSTAT(1.0)` definition above
+was retrieved successfully. A UNICEF.EMOPS structure request returned 404;
+the humanitarian candidates listed above were retrieved under agency `UNICEF`.
+
+#### Implications for the provisional DSD
+
+1. **Keep structure separate from presentation.** A table and chart can encode
+   the same observations. The strongest reason for a second DSD would be a
+   different statistical family, such as model estimates versus indicator
+   observations, rather than PNG figure versus PNG table.
+2. **Compare a small set of base structures.** WDI, UNICEF aggregate, IMF ECOFIN
+   and the Global SDG DSD are the broad scaffold candidates. OECD income/labour
+   and the humanitarian structures provide domain concepts and code lists to
+   reuse where the artifact supports their meanings. No base is selected yet.
+3. **Allow multiple datasets from a composite.** Preserve the snapshot/component
+   relationship in provenance. Do not force unrelated measures and units into a
+   single series or duplicate values repeated in map and chart panels.
+4. **Preserve analytical roles.** Mean/median, baseline/closing-period, planned/
+   actual, overall/financed cost, fitted/raw series and coefficient/standard-error
+   distinctions cannot be inferred from the numeric value alone. Some belong in
+   keys when they distinguish observations; explanatory details can be attributes.
+5. **Define the MVP boundary explicitly.** Numeric tables/charts and printed
+   map/infographic statistics are plausible first targets. Context-only maps,
+   network geometry and mixed record tables need an explicit unsupported/partial
+   result until their representation is designed; they remain valid snapshots.
+6. **Do not invent missing context to satisfy a borrowed structure.** Several
+   crops omit dates or units, and some axes are continuous variables rather than
+   time. SDMX does not universally require a time dimension; see the
+   [SDMX glossary](https://sdmx.org/wp-content/uploads/SDMX_Glossary_Version_2_1_December_2020.htm).
+   The Metadata Editor's
+   [required Indicator ID / Time Period / Observation Value fields](https://worldbank.github.io/metadata-editor-docs/managing_data_structures.html)
+   are application requirements, not proof that every SDMX DSD must have them.
+
+Next concrete comparison: hand-represent a few already inspected artifacts under
+the leading scaffold candidates, recording preserved distinctions, required
+extensions and unsupported content. Include the existing income and regression
+examples, one humanitarian composite, and one project results/financing table.
+This is a small design exercise for the provisional MVP, not a substitute for
+later independent coverage validation or an implemented LLM trial.
 
 ## Agreed five examples
 
