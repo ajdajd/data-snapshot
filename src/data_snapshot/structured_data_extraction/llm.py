@@ -12,10 +12,14 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, FiniteFloat
 
 from .statistical import DraftDSD, extraction_model, statistical_messages
+from .spending import quote_request, record_spending, reported_cost
 
 _PACKAGE = Path(__file__).parent
 _DEFAULT_CONFIG = _PACKAGE / "config" / "openrouter.json"
 _DEFAULT_DSD = _PACKAGE / "profiles" / "snapshot_indicators.json"
+_DEFAULT_LEDGER = (
+    _PACKAGE.parents[2] / "data/structured_data_trials/openrouter_spend.jsonl"
+)
 
 
 class APISettings(BaseModel):
@@ -104,6 +108,8 @@ def run_extraction(
     config_path: Path = _DEFAULT_CONFIG,
     execute: bool = False,
     client: Any | None = None,
+    ledger_path: Path | None = None,
+    batch_id: str | None = None,
 ) -> dict[str, Any]:
     """Save a fresh run, preparing offline unless execution is explicitly requested.
 
@@ -117,6 +123,10 @@ def run_extraction(
         Allow one API attempt. False by default; no client or key is loaded then.
     client : Any, optional
         Injectable Responses client for offline tests.
+    ledger_path : Path, optional
+        Persistent ledger shared across batches; uses the workstream ledger by default.
+    batch_id : str, optional
+        Experiment group for cumulative batch reporting; defaults to output name.
 
     Returns
     -------
@@ -167,6 +177,11 @@ def run_extraction(
     if not execute:
         return report
     started = time.perf_counter()
+    ledger_path = ledger_path or _DEFAULT_LEDGER
+    batch_id = batch_id or output_dir.name
+    run_id = str(output_dir.resolve())
+    reserved = False
+    cost = None
     try:
         if client is None:
             from dotenv import load_dotenv
@@ -179,17 +194,41 @@ def run_extraction(
             client = OpenAI(
                 api_key=key, base_url="https://openrouter.ai/api/v1", max_retries=0
             )
+        quote = quote_request(config.model, config.max_output_tokens)
+        write("pricing.json", quote)
+        report["canonical_model"] = quote.get("canonical_slug")
+        request["extra_body"]["provider"].update(
+            max_price=quote["provider_max_price"], allow_fallbacks=False
+        )
+        preview["extra_body"] = request["extra_body"]
+        write("request.preview.json", preview)
+        report["request_sha256"] = hashlib.sha256(
+            json.dumps(request, sort_keys=True).encode()
+        ).hexdigest()
+        report["ledger"] = str(ledger_path.resolve())
+        report["spending"] = record_spending(
+            ledger_path,
+            run_id,
+            batch_id,
+            config.model,
+            quote["allowance_usd"],
+            "reserve",
+        )
+        reserved = True
         report["status"] = "requesting"
         report["api_attempts"] = 1
         write("run.json", report)
         response = client.responses.create(**request, timeout=config.timeout)
         raw = response.model_dump(mode="json")
+        cost = reported_cost(raw.get("usage"))
         write("response.json", raw)
         report.update(
             response_id=raw.get("id"),
             api_status=raw.get("status"),
             usage=raw.get("usage"),
             incomplete_details=raw.get("incomplete_details"),
+            resolved_model=raw.get("model"),
+            service_tier=raw.get("service_tier"),
         )
         text = getattr(response, "output_text", None)
         if text:
@@ -216,6 +255,10 @@ def run_extraction(
             status="failed", error_type=type(error).__name__, error=str(error)
         )
     finally:
+        if reserved:
+            report["spending"] = record_spending(
+                ledger_path, run_id, batch_id, config.model, cost, "settle"
+            )
         report["seconds"] = round(time.perf_counter() - started, 3)
         write("run.json", report)
     return report
@@ -228,18 +271,26 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--dsd", type=Path, default=_DEFAULT_DSD)
     parser.add_argument("--config", type=Path, default=_DEFAULT_CONFIG)
+    parser.add_argument(
+        "--batch-id", help="Experiment label used in the cumulative cost ledger"
+    )
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument(
         "--execute",
         action="store_true",
-        help="Allow one paid API attempt; agree spending guardrails before use",
+        help="Allow one API attempt under the cumulative $5 research budget",
     )
     mode.add_argument(
         "--dry-run", action="store_true", help="Prepare offline (the default)"
     )
     args = parser.parse_args()
     report = run_extraction(
-        args.image, args.output_dir, args.dsd, args.config, args.execute
+        args.image,
+        args.output_dir,
+        args.dsd,
+        args.config,
+        args.execute,
+        batch_id=args.batch_id,
     )
     print(json.dumps(report, ensure_ascii=False))
     if report["status"] in {"failed", "partial", "unsupported"}:

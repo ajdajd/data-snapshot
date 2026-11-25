@@ -19,6 +19,27 @@ from data_snapshot.structured_data_extraction.statistical import (
 PACKAGE = Path(__file__).parents[1] / "src/data_snapshot/structured_data_extraction"
 
 
+@pytest.fixture(autouse=True)
+def offline_spending(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep cost tests isolated and prohibit live pricing/network lookups."""
+    from data_snapshot.structured_data_extraction import llm
+
+    monkeypatch.setattr(llm, "_DEFAULT_LEDGER", tmp_path / "spend.jsonl")
+    monkeypatch.setattr(
+        llm,
+        "quote_request",
+        lambda *args: {
+            "allowance_usd": "0.10",
+            "provider_max_price": {
+                "prompt": 0.5,
+                "completion": 1.8,
+                "image": 0,
+                "request": 0,
+            },
+        },
+    )
+
+
 @pytest.fixture
 def dsd() -> DraftDSD:
     """Load the bundled experimental numerical-observation draft."""
@@ -70,7 +91,7 @@ def fake_client(payload: dict | str, status: str = "completed") -> SimpleNamespa
     raw = {
         "id": "offline_response",
         "status": status,
-        "usage": {"input_tokens": 123, "output_tokens": 45},
+        "usage": {"input_tokens": 123, "output_tokens": 45, "cost": 0.001},
         "incomplete_details": (
             {"reason": "max_output_tokens"} if status == "incomplete" else None
         ),
@@ -126,6 +147,8 @@ def test_explicit_execution_preserves_evidence_and_resolves_indexes(
     )
     assert image.name not in request["input"][1]["content"][0]["text"]
     assert report["usage"]["output_tokens"] == 45
+    assert report["spending"]["running_total_usd"] == "0.001"
+    assert request["extra_body"]["provider"]["allow_fallbacks"] is False
     assert (output / "raw_output.txt").read_text() == json.dumps(payload)
     data = json.loads((output / "data.sdmx.json").read_text())["data"]
     structure = data["structures"][0]
@@ -168,6 +191,7 @@ def test_failures_keep_raw_response_without_sdmx(
     assert (output / "response.json").exists()
     assert not (output / "data.sdmx.json").exists()
     assert report["error_type"]
+    assert report["spending"]["call_cost_usd"] == "0.001"
 
 
 @pytest.mark.parametrize(
@@ -308,3 +332,19 @@ def test_invalid_dsd_is_rejected_before_request_preparation(dsd: DraftDSD) -> No
     definition["dimensions"][0]["id"] = "TIME_PERIOD"
     with pytest.raises(ValidationError, match="non-reserved"):
         DraftDSD.model_validate(definition)
+
+
+def test_budget_blocks_call_before_generation(
+    tmp_path: Path, image: Path, payload: dict
+) -> None:
+    """Persist spending across runs and refuse calls that cannot fit the cap."""
+    from data_snapshot.structured_data_extraction.spending import record_spending
+
+    ledger = tmp_path / "spend.jsonl"
+    record_spending(ledger, "old_run", "previous_batch", "model", "4.99", "reserve")
+    record_spending(ledger, "old_run", "previous_batch", "model", "4.99", "settle")
+    client = fake_client(payload)
+    report = run_extraction(image, tmp_path / "blocked", execute=True, client=client)
+    assert report["status"] == "failed" and report["api_attempts"] == 0
+    assert "$5 budget would be exceeded" in report["error"]
+    assert not client.calls

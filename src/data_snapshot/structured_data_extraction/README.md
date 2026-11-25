@@ -35,19 +35,48 @@ not a directly replayable API request. Local file paths are recorded in the run
 report but not supplied as model evidence.
 
 The default settings are in `config/openrouter.json`; override with `--config`.
-`openai/gpt-5.6-luna` is a provisional smoke-test setting, not a model-selection
-result. The configured token ceiling is not a dollar budget. No real API request
-has been tested. Spending guardrails and model-comparison rules must be agreed
-before live use. The CLI requires `--execute` for any API attempt; it then loads
+The agreed working reference is `openai/gpt-5.6-luna` at medium reasoning.
+This is a fixed experimental baseline, not numerical or semantic ground truth.
+The CLI requires `--execute` for any API attempt; it then loads
 `OPENROUTER_API_KEY` from the environment/`.env`. There is one request, with SDK
-automatic retries disabled, and no automatic repair or fallback-model calls.
-Do not use `--execute` yet: the user has explicitly deferred all API costs.
+automatic retries disabled, and no automatic repair, model or provider fallback.
 
-The future live path is PNG + DSD -> model-produced long observations -> Python
+The live path is PNG + DSD -> model-produced long observations -> Python
 validation -> SDMX-JSON. It requests strict Structured Outputs and compatible
 provider routing, following the
 [OpenRouter documentation](https://openrouter.ai/docs/guides/features/structured-outputs).
-Backend compatibility remains unverified until an authorized live smoke test.
+The authorized income smoke test completed on 2026-11-25: all 16 values and their
+Mean/Median associations match the image, and both exchange schemas validate.
+A population-qualifier error remains on the remittance observations; see the notebook.
+
+### Spending guardrail
+
+The user authorized a **$5 cumulative budget** for this workstream. Every live
+request shares `data/structured_data_trials/openrouter_spend.jsonl`. Its entries
+record the batch cost, running total, outstanding reservations and remaining funds.
+`run.json` also records the spending summary. Use `--batch-id` to group calls into
+an experiment; its default is the output directory name. The journal uses a process
+lock and flushes reservations before any generation request.
+
+Preflight fetches the public model catalogue (no generation charge), snapshots
+prices in `pricing.json`, and reserves an allowance using the full model context,
+the output ceiling and worst published price tiers, including cache writes.
+Provider price ceilings are sent with the request. A call that cannot fit the
+remaining budget is refused. This deliberately conservative reservation is not
+an estimate of expected cost and may block expensive models even for small inputs.
+Spending controls for such models would need a tighter verified input-token bound.
+
+After a response, OpenRouter's actual `usage.cost` replaces the reservation,
+including when extraction validation fails. Missing/invalid billing retains the
+allowance as unresolved; it is never counted as zero. The ledger is persistent
+across runs and batches. Do not delete/reset it during this budget period. The
+budget applies to this workflow's generation charges, separately from prior
+metadata-calibration experiments. See
+[OpenRouter usage accounting](https://openrouter.ai/docs/cookbook/administration/usage-accounting)
+and [provider price ceilings](https://openrouter.ai/docs/guides/routing/provider-selection).
+
+The first smoke test cost **$0.00556775**, leaving **$4.99443225**. These are billed
+generation charges, not estimates using historical Flex prices.
 
 On a completed response it preserves `response.json`, `raw_output.txt`, and
 `observations.json`; numerical datasets additionally produce `structure.sdmx.json`

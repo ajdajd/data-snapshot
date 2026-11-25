@@ -24,8 +24,9 @@ interpretation; it does not remove mapping, DSD coverage questions or validation
 Developing and claiming coverage for a general deterministic mapper would require
 a development sample and independent validation. That study is not the proposed
 MVP's immediate path. The independent OpenRouter path is implemented with offline
-preparation and mocked tests; live extraction/mapping is not yet tested. The user
-has explicitly prohibited API costs until spending guardrails are established.
+preparation, a persistent spending guardrail and one completed live income smoke
+test. The user authorized a cumulative $5 budget and selected Luna as the working
+reference model. Detailed numerical/semantic findings and the running total are below.
 
 Docling remains a working local baseline and an optional preprocessing candidate.
 Its added value should be tested by comparing the same LLM with image-only input
@@ -165,13 +166,12 @@ original Docling table example, validating against the official vendored SDMX-JS
 schemas. These checks establish software behavior, not image accuracy or domain
 interoperability. See the module README for file details and an offline command.
 
-**Cost decision:** no paid calls are authorized at this stage. The user permits
-`openai/gpt-5.6-luna` as a future smoke-test setting but wants experiments to select
-models on quality versus cost. The configured output-token limit is not a monetary
-cap. Before live trials, agree the model list, fixed development subset, per-call/
-per-experiment spending controls, output limits, stop conditions and retry policy.
-No prices, actual model availability, native Structured Output compatibility or
-API accuracy have been established by these offline tests.
+**Cost decision:** the initial no-cost preparation phase was followed by explicit
+authorization for the smoke test and a **$5 cumulative workstream budget** on
+2026-11-25. Each batch must record its cost and running total. The user selected
+Luna as the small, inexpensive working reference; a larger model comparison can
+wait until a specific unresolved issue warrants it. See the spending ledger and
+live smoke-test findings below.
 
 Offline verification: prepared the real income PNG in
 `data/structured_data_trials/llm_offline_income_20261125_01/`; `run.json` records
@@ -184,6 +184,82 @@ existing Docling/table-mapping suites, including official SDMX schema validation
 numeric attributes, component annotations, partial results and preserved failure
 evidence. Black formatting, `git diff --check`, and the locked dependency check
 passed. Tests use injected fake Responses clients; none incurred API costs.
+
+### OpenRouter budget, reference model and smoke test — 2026-11-25
+
+Use the accounting/reporting pattern in
+[`calibration_lab.md`](../../notebooks/metadata_extraction/calibration_lab.md),
+with an independent ledger for structured extraction. The new **$5 budget starts
+at zero for this workstream**; historical metadata-calibration spending is not
+charged again. Do not reuse historical direct-OpenAI Flex prices for these calls.
+[OpenRouter usage accounting](https://openrouter.ai/docs/cookbook/administration/usage-accounting)
+returns billed `usage.cost`, which is retained with tokens, response ID and output.
+
+Implemented in `structured_data_extraction/spending.py` and the independent LLM
+runner. Every live call appends its reservation and final billing to
+`data/structured_data_trials/openrouter_spend.jsonl`, under a process lock. Each
+entry and `run.json` includes batch cost, running billed total, reserved funds and
+remaining budget. `--batch-id` identifies the experiment. The ledger persists
+across runs. Missing/invalid cost information retains the reservation rather than
+counting a call as free; a reported charge is counted even if extraction fails.
+
+Preflight snapshots the public model catalogue and reserves full-context input
+plus the configured output ceiling using the highest relevant published rates,
+including long-context and cache-write tiers. Provider price ceilings are sent
+with the request. No call is sent when the allowance cannot fit the remaining
+budget. This allowance is deliberately conservative and may block costlier models
+until a tighter verified input bound is available; it is not a cost prediction.
+SDK retries, correction calls and provider/model fallback remain disabled.
+
+| Batch | Model/settings | Calls | Billed batch cost | Running total | Budget remaining |
+|---|---|---:|---:|---:|---:|
+| S0_income_luna | GPT-5.6 Luna, medium reasoning, default service tier, 12,000 output-token ceiling | 1 | $0.00556775 | $0.00556775 | $4.99443225 |
+
+No other paid batch was run. Add a row and report the cumulative total after every
+subsequent batch, including failed or inconclusive experiments.
+
+**Reference decision:** use **`openai/gpt-5.6-luna`, medium reasoning**, as the
+fixed working reference for DSD/extraction development. Its catalogue snapshot
+identifies `openai/gpt-5.6-luna-20260709`. Reference means a stable model/settings
+baseline for experiments; image-grounded human review supplies the correctness
+reference. It does not mean that model output is gold or that Luna is proven best.
+
+Sol was considered because metadata calibration C15 recovered more reviewed
+content than Luna, while also introducing structural overfill. That is evidence
+about a different task. The user preferred the smaller/cheaper Luna for this
+workstream; no Sol call was made. Model/pricing snapshots are retained in
+`data/structured_data_trials/model_review_20261125/models.json`. Current standard
+short-context catalogue rates are Luna $0.20/$1.20 and Sol $4/$20 per million
+input/output tokens; rates and tiers must be rechecked for any future experiment.
+[Luna](https://openrouter.ai/openai/gpt-5.6-luna),
+[Sol](https://openrouter.ai/openai/gpt-5.6-sol).
+
+**S0 result:** the income PNG completed in **30.453 seconds**, returning 16
+observations. All **16 numerical values and 16 category/Mean-or-Median associations**
+match the manually transcribed source. Both SDMX-JSON exchange messages passed
+the official vendored schemas. Currency and observation period remained unknown;
+the ALCS 2013–14 wording was retained as source context rather than asserted as
+the observation period. Afghanistan was retained from the visible title.
+
+One material semantic issue remains: both remittance observations inherit the
+male-workers/age-[14,35] restriction even though the note explicitly describes
+labor income. This restriction is not established for remittances by the crop.
+Therefore the model's `complete` result is **not fully semantically verified**.
+The original output remains unchanged, with the review saved separately.
+
+Usage: 4,814 input tokens (4,811 reported cache-write tokens), 3,637 output tokens
+(334 reasoning tokens). OpenRouter reported **$0.00556775**, with no unresolved
+reservation. The preflight allowance was $0.5466000 and was released on settlement.
+This was default-tier OpenRouter processing, not the older Flex calibration path.
+
+Artifacts: `data/structured_data_trials/llm_smoke_income_20261125_01/` contains
+the request/config/DSD/pricing snapshots, raw response and output, observations,
+SDMX structure/data, `run.json`, and `review.json`. This is one smoke test on a
+development image, not a coverage assessment or a model-comparison experiment.
+Verification after adding spending controls: **51 focused tests passed**, including
+persistent batch totals, preflight budget refusal, unresolved-charge retention,
+pricing tiers, existing extraction behavior and official SDMX schema validation.
+Black and `git diff --check` passed. No additional paid calls were made by tests.
 
 The gap after Docling includes assigning statistical roles and meanings,
 selecting/adapting a DSD, mapping observations to it, and serialization/validation.
