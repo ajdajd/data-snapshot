@@ -173,6 +173,8 @@ def test_cli_retains_native_evidence(
     assert json.loads((output / "income/native.json").read_text()) == native
     assert calls == [{"pipeline": pipeline, "device": device}]
     report = json.loads((output / "income/run.json").read_text())
+    if not valid:
+        assert "Ambiguous number" in report["traceback"]
     assert report["chart_preset"] == (
         "granite_vision_v3_3" if pipeline == "chart" else None
     )
@@ -224,8 +226,6 @@ def test_chart_configuration_and_missing_models(
     monkeypatch.setattr(settings, "cache_dir", tmp_path)
     artifacts = tmp_path / "models"
     artifacts.mkdir()
-    with pytest.raises(ValueError, match="4 GiB GPU"):
-        extract_image(Path("chart.png"), pipeline="chart", device="cuda:0")
     with pytest.raises(FileNotFoundError, match="models download picture_classifier"):
         extract_image(Path("chart.png"), pipeline="chart")
     for folder in (
@@ -257,3 +257,76 @@ def test_chart_configuration_and_missing_models(
     assert not chart.engine_options.load_in_8bit
     assert not chart.engine_options.compile_model
     assert chart.model_spec.max_new_tokens == 2048
+    import torch
+
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    with pytest.raises(RuntimeError, match="CUDA is unavailable"):
+        extract_image(Path("chart.png"), pipeline="chart", device="cuda:0")
+
+
+def test_chart_offload_preloads_functional_attention_weights(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Exercise offload hooks on attention that reads its child weights directly."""
+    from types import SimpleNamespace
+
+    import torch
+    import docling.document_converter as converters
+    from docling.datamodel.base_models import ConversionStatus
+    from docling.datamodel.settings import settings
+    from docling.models.inference_engines.vlm.transformers_engine import (
+        TransformersVlmEngine,
+    )
+    from docling.models.stages.chart_extraction.granite_vision import (
+        ChartExtractionVlmEngineModel,
+    )
+    from data_snapshot.structured_data_extraction import docling as adapter
+
+    monkeypatch.setattr(settings, "cache_dir", tmp_path)
+    for folder in (
+        "ibm-granite--granite-vision-3.3-2b-chart2csv-preview",
+        "docling-project--DocumentFigureClassifier-v2.5",
+    ):
+        (tmp_path / "models" / folder).mkdir(parents=True)
+    attention = torch.nn.MultiheadAttention(4, 1, batch_first=True).eval()
+    multimodal = torch.nn.Module()
+    multimodal.register_parameter("image_newline", torch.nn.Parameter(torch.ones(4)))
+    multimodal.add_module("attention", attention)
+    model = SimpleNamespace(model=multimodal, lm_head=torch.nn.Identity())
+    sample = torch.ones(1, 2, 4)
+    with torch.no_grad():
+        expected = attention(sample, sample, sample)[0] + multimodal.image_newline
+    engine = object.__new__(TransformersVlmEngine)
+    engine.vlm_model = model
+    engine.device = "cpu"
+    stage = object.__new__(ChartExtractionVlmEngineModel)
+    stage.engine = engine
+    offload = adapter._offload_chart_model
+
+    def configure_offload(model: object, device: str) -> None:
+        assert device == "cuda:0"
+        offload(model, "cpu")
+
+    def convert(_: Path) -> SimpleNamespace:
+        for _ in range(2):
+            with torch.no_grad():
+                actual = attention(sample, sample, sample)[0] + multimodal.image_newline
+            torch.testing.assert_close(actual, expected)
+        assert multimodal.image_newline.device.type == "cpu"
+        return SimpleNamespace(
+            status=ConversionStatus.SUCCESS,
+            document=SimpleNamespace(export_to_dict=lambda: {"pictures": []}),
+        )
+
+    converter = SimpleNamespace(
+        initialize_pipeline=lambda _: None,
+        initialized_pipelines={"chart": SimpleNamespace(enrichment_pipe=[stage])},
+        convert=convert,
+    )
+    monkeypatch.setattr(converters, "DocumentConverter", lambda **_: converter)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(adapter, "_offload_chart_model", configure_offload)
+    assert adapter.extract_image(
+        Path("chart.png"), pipeline="chart", device="cuda:0"
+    ) == {"pictures": []}
+    assert engine.device == "cuda:0"

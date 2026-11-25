@@ -4,6 +4,34 @@ from pathlib import Path
 from typing import Any
 
 
+def _offload_chart_model(model: Any, device: str) -> None:
+    """Offload LlavaNext components while retaining its direct image parameter.
+
+    Parameters
+    ----------
+    model : Any
+        Initialized Granite Vision LlavaNext model.
+    device : str
+        Execution device for image encoding and generation.
+    """
+    import torch
+    from accelerate import cpu_offload
+
+    multimodal = model.model
+    # Generation calls the image encoder before this parent's forward hook runs.
+    multimodal.image_newline = torch.nn.Parameter(
+        multimodal.image_newline.to(device), requires_grad=False
+    )
+    for component in (*multimodal.children(), model.lm_head):
+        cpu_offload(
+            component,
+            execution_device=torch.device(device),
+            offload_buffers=True,
+            # MultiheadAttention reads out_proj weights without calling that module.
+            preload_module_classes=["MultiheadAttention"],
+        )
+
+
 def extract_image(
     image_path: Path, *, pipeline: str = "standard", device: str = "cpu"
 ) -> dict[str, Any]:
@@ -131,7 +159,6 @@ def extract_image(
     )
     if chart_offload:
         import torch
-        from accelerate import cpu_offload
         from docling.models.inference_engines.vlm.transformers_engine import (
             TransformersVlmEngine,
         )
@@ -144,17 +171,13 @@ def extract_image(
                 "CUDA is unavailable; verify GPU access or use --device cpu"
             )
         converter.initialize_pipeline(InputFormat.IMAGE)
-        # shortcut: pinned Docling exposes no offload option; configure its engine.
+        # shortcut: configure the pinned engine until Docling exposes offload options.
         stages = next(iter(converter.initialized_pipelines.values())).enrichment_pipe
         stage = next(s for s in stages if isinstance(s, ChartExtractionVlmEngineModel))
         engine = stage.engine
         if not isinstance(engine, TransformersVlmEngine) or engine.vlm_model is None:
             raise RuntimeError("Expected an initialized Transformers chart model")
-        cpu_offload(
-            engine.vlm_model,
-            execution_device=torch.device(device),
-            offload_buffers=True,
-        )
+        _offload_chart_model(engine.vlm_model, device)
         engine.device = device
     result = converter.convert(image_path)
     if result.status != ConversionStatus.SUCCESS:

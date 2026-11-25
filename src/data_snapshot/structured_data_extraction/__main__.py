@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import time
+import traceback
 from importlib.metadata import version
 from pathlib import Path
 
@@ -87,7 +88,11 @@ def main() -> None:
             raise
         except Exception as error:
             failed = True
-            report.update(status="failed", error=f"{type(error).__name__}: {error}")
+            report.update(
+                status="failed",
+                error=f"{type(error).__name__}: {error}",
+                traceback=traceback.format_exc(),
+            )
         finally:
             report["seconds"] = round(time.monotonic() - started, 3)
             (output / "run.json").write_text(json.dumps(report, indent=2))

@@ -20,7 +20,7 @@ uv run --no-sync docling-tools models download \
 ```
 
 Models are prefetched in `~/.cache/docling/models`. The prototype uses that
-artifact directory explicitly. Both pipelines default to CPU; use `--device cuda:0`
+artifact directory explicitly. Pipelines default to CPU; use `--device cuda:0`
 for the verified GPU paths. Granite uses FP32 on both devices,
 without quantization or compilation, for compatibility with the GTX 1650 Ti.
 The standard pipeline performs full-image RapidOCR and TableFormer recognition.
@@ -54,8 +54,21 @@ uv run --no-sync docling-tools models download \
 The chart weights alone are approximately 6.15 GB on disk. They exceed this
 machine's 4 GiB GPU even at 16-bit precision. This configuration therefore uses
 CPU BF16 to reduce RAM requirements, without quantization or compilation.
-The CPU lacks native BF16 acceleration; runtime and peak RAM are unverified.
-CUDA requests for this pipeline are rejected before model loading.
+The CPU lacks native BF16 acceleration. The first verified guarantee-chart run
+used image scale 0.5, took approximately seven minutes, and peaked at 7.90 GiB
+process RSS; all four values and category/series associations matched the image.
+See the working notebook for the result and its single-example limitations.
+The corrected GPU/CPU-offload path also matched all four bar-chart observations.
+It took 263.16 seconds versus 437.51 seconds on CPU in individual smoke tests
+(about 1.7× faster), with peak PyTorch allocation of 1.59 GiB and peak process
+RSS of 9.87 GiB. CUDA context/driver memory is additional to PyTorch's figures.
+The CPU pie example also matched both percentages; GPU pie/Shona runs are untested.
+
+For chart GPU execution, layout/OCR/classification stay on CPU. The chart model
+uses FP16, retains its small image-feature parameter on GPU, and streams its
+larger components from CPU using Accelerate. Functional attention requires
+preloading its child weights. This adapter depends on the pinned LlavaNext/Docling
+implementation and must be checked after upgrades. No quantization is used.
 
 After downloading, run the first example in a fresh output directory:
 
@@ -65,6 +78,17 @@ uv run --no-sync python -m data_snapshot.structured_data_extraction \
   /home/ajd/hf_datasets/data-snapshot/snapshots/prwp/document_10000660_figure_002.png \
   --pipeline chart --device cpu \
   --output-dir data/structured_data_trials/guarantee_chart_enrichment_01
+```
+
+To use the tested GPU/offload path, select `--device cuda:0` and a fresh output
+directory, for example:
+
+```bash
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 \
+uv run --no-sync python -m data_snapshot.structured_data_extraction \
+  /home/ajd/hf_datasets/data-snapshot/snapshots/prwp/document_10000660_figure_002.png \
+  --pipeline chart --device cuda:0 \
+  --output-dir data/structured_data_trials/guarantee_chart_gpu_01
 ```
 
 Inspect `native.json` for picture classification and

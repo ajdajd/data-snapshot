@@ -221,8 +221,8 @@ The machine-readable selection is in
 
 The independent module is
 [`structured_data_extraction`](../../src/data_snapshot/structured_data_extraction/README.md).
-It has a PNG CLI, two tested local Docling pipelines and a prepared chart-enrichment
-configuration, a reviewed income mapping profile,
+It has a PNG CLI, three local Docling pipelines (including dedicated chart
+enrichment verified on one example), a reviewed income mapping profile,
 long observations with native cell references, and matching structure/data SDMX
 messages. Official schemas are vendored for offline validation. Native evidence
 and errors are retained in fresh run folders; existing runs are not overwritten.
@@ -287,6 +287,9 @@ allocated memory, not total GPU memory including context and other allocations.
 | Guarantee / standard | CPU | 15.77 s | One picture and no tables/chart metadata. OCR reads chart text, including the four data labels and axis ticks, without assigning them to series/category observations. |
 | Refugee pie / standard | CPU | 4.42 s | One picture and no tables/chart metadata. OCR reads `91%`, but reads the other percentage as `%6`; no usable numerical series. |
 | Shona / standard | CPU | 4.77 s | One picture and no tables/chart metadata. OCR recovers labels/ticks but does not estimate plotted values. |
+| Guarantee / dedicated Chart2CSV (2026-11-25) | CPU BF16, image scale 0.5 | ~7 min (CLI: 437.51 s) | Correct 3×3 chart table: all four printed values and their category/series associations match. Peak process RSS 7.90 GiB. Single-example result; no SDMX mapping. |
+| Refugee pie / dedicated Chart2CSV (2026-11-25) | CPU BF16, image scale 0.5 | ~6 min (CLI: 348.73 s) | Correct province/percentage pairs: Nord-Kivu 91%, Sud-Kivu 9%. Total/year stay in separate OCR text. Peak process RSS 7.85 GiB. |
+| Guarantee / dedicated Chart2CSV with CPU offloading (2026-11-25) | CUDA FP16, image scale 0.5 | 263.16 s | Same four correct observations as CPU. Observed CLI speedup 1.66×; peak PyTorch allocated 1.59 GiB, reserved 1.69 GiB; peak process RSS 9.87 GiB. |
 
 Evidence roots under `data/structured_data_trials/`:
 
@@ -301,6 +304,15 @@ Evidence roots under `data/structured_data_trials/`:
 - `20261124_standard_charts_01`: standard-pipeline baseline on all three charts,
   in one process. Later images benefit from warm imports/caches; times are not
   comparable controlled benchmarks.
+- `guarantee_chart_20261125_135646`: user-run dedicated CPU Chart2CSV result,
+  original native JSON, run metadata, logs, GNU time resources and reviewed
+  `comparison.json` with four exact observation matches.
+- `refugee_pie_20261125_142540`: user-run dedicated CPU pie extraction, original
+  evidence/resources and reviewed `comparison.json` with two exact percentage matches.
+- `20261125_chart_offload_debug_01` and `_02`: retained GPU failure tracebacks used
+  to diagnose functional attention and direct image-parameter hook problems.
+- `20261125_chart_offload_debug_03`: successful corrected GPU/offload run, native
+  result, exact comparison with CPU, runtime/RAM and peak PyTorch CUDA measurements.
 
 These large/generated outputs are gitignored. The income test fixture is manually
 transcribed from the source image and is independent of model predictions.
@@ -323,12 +335,13 @@ total approximately 6.15 GB. The newer default
 has approximately 7.99 GB of weight files. Neither is a full-GPU fit on this
 4 GiB card at the published 16-bit precision, before runtime allocations.
 
-The prepared smaller-model configuration is CPU BF16, no quantization or
-compilation, capped at 2048 generated tokens. This reduces weight RAM relative
-to FP32 but does not establish peak RAM or acceptable runtime. This CPU lacks
-native BF16 acceleration. The user completed the additional download and the
-first guarantee-chart trial is now running. No Python dependency changes were
-needed. Download command:
+The tested smaller-model configuration is CPU BF16, no quantization or
+compilation, image scale 0.5, capped at 2048 generated tokens. This reduces weight
+RAM relative to FP32. The completed guarantee-chart trial took approximately
+seven minutes and peaked at 7.90 GiB process RSS; these figures are not bounds
+for other images. This CPU lacks native BF16 acceleration. The user completed
+the additional download. Download
+command:
 
 ```bash
 uv run --no-sync docling-tools models download \
@@ -339,7 +352,10 @@ Local safetensors-header inspection confirms 3,076,068,416 stored parameters,
 all BF16, totaling 6,152,136,832 bytes (5.73 GiB) before runtime allocations.
 The model's "2B" name does not describe its full stored parameter count.
 
-The CLI refuses chart CUDA runs on this machine and checks for prefetched model
+The original configuration rejected chart CUDA runs. An experimental CPU-offload
+path initially failed; after CPU accuracy was established and the user authorized
+further GPU work, the corrected path matched all four bar-chart observations.
+The CLI checks for prefetched model
 directories. See the [usage guide](../../src/data_snapshot/structured_data_extraction/README.md#dedicated-chart-extraction)
 for the first guarantee-chart command and expected four associations.
 
@@ -349,13 +365,227 @@ conversion success. Raw chart output therefore remains unverified. Empty,
 truncated and inaccurate numerical extractions must be reviewed; no automatic
 chart-to-SDMX export was added.
 
+### Single-snapshot accuracy check — 2026-11-25
+
+Scope: establish whether dedicated Chart2CSV improves one known incorrect
+extraction before implementing further hardware optimizations or expanding the
+sample. Use `prwp/document_10000660_figure_002.png`, the guarantee chart. The
+initial small Granite model returned a 2×4 table:
+
+```text
+PUBLIC | MUTUAL | HIGH | LOW_MIDDLE
+15     | 7      | 7    | 5
+```
+
+This flattens the two axes and misreads the printed `17`. The manually reviewed
+targets, read directly from the original PNG, are:
+
+| Guarantee type | Series | Printed value |
+|---|---|---:|
+| MUTUAL | HIGH | 15 |
+| MUTUAL | LOW_MIDDLE | 7 |
+| PUBLIC | HIGH | 7 |
+| PUBLIC | LOW_MIDDLE | 17 |
+
+The comparison must check all four category/series/value associations, not just
+the presence of the numbers. Expected observations are stored separately in
+`data/structured_data_trials/20261125_chart_cpu_01/expected.json`; they are never
+passed to the model. Only this snapshot is being evaluated in this step.
+
+Previous attempts are retained, without treating execution failures as numerical
+accuracy measurements:
+
+- `20261124_chart_enrichment_01`: CPU BF16 at original rendering scale; interrupted
+  after approximately 11 minutes without a complete extraction. Peak process RSS
+  6,346,524 KiB (6.05 GiB). No usable native chart table.
+- `20261124_chart_offload_01`: experimental FP16 GPU execution with CPU offloading,
+  half-size rendering; failed with `RuntimeError: Pipeline StandardPdfPipeline
+  failed` after 49.99 seconds in the CLI. No native chart table. This was not a
+  successful GPU feasibility or accuracy result; further work is deferred.
+
+The CPU-only trial `20261125_chart_cpu_01` used the existing
+`--pipeline chart --device cpu` configuration: BF16, image scale 0.5, 2048-token
+cap, no quantization, compilation or CPU/GPU offloading. It was interrupted at
+the user's request to hand execution to their terminal; no complete extraction
+was produced. Logs, periodic stack traces and `/usr/bin/time -v` resource capture
+are retained. A fresh terminal run will use the same single snapshot/configuration.
+The original PNG remains unchanged. Any result applies to this rendering and
+single example; it is not a benchmark across charts.
+
+#### Completed terminal run and review
+
+The user completed the run in
+`data/structured_data_trials/guarantee_chart_20261125_135646`. The native chart
+table at `pictures[0].meta.tabular_chart.chart_data` contains:
+
+| Category | HIGH | LOW_MIDDLE |
+|---|---:|---:|
+| MUTUAL | 15 | 7 |
+| PUBLIC | 7 | 17 |
+
+**Result: 4/4 exact category/series/value matches, with no corrections applied.**
+The first row is marked as column headers and MUTUAL/PUBLIC as row headers.
+This corrects both the flattened axes and the misread `17` in the earlier small
+Granite-Docling output. The original image SHA-256 matches the run metadata.
+
+Verification combined a fresh visual check of the PNG and an assert-based
+comparison against the independently recorded `expected.json`. It checked the
+3×3 shape, nine unique unmerged cells, header labels, all four observation keys
+and exact numeric values. The native file was read without alteration.
+
+- Conversion status: `extracted_only` (native conversion completed; review is
+  recorded separately rather than rewriting the inference run's status).
+- Picture classification: `bar_chart`, confidence 0.99945. This confidence
+  concerns the chart type, not the correctness of the extracted numbers.
+- VLM generation: 27 tokens in 397.71 seconds, well below the 2048-token cap.
+- CLI duration: 437.513 seconds; Docling conversion log: 433.31 seconds.
+- GNU time wall duration: 419.41 seconds; its timing differs from the CLI/log.
+  Retain both measurements and summarize as approximately seven minutes.
+- GNU time maximum RSS: 8,288,412 KiB = 7.90 GiB; exit status 0.
+- Embedded chart image: 588×346 pixels, DPI 36, consistent with image scale 0.5.
+
+Artifacts:
+
+- [Reviewed comparison](../../data/structured_data_trials/guarantee_chart_20261125_135646/comparison.json).
+- [Native extraction](../../data/structured_data_trials/guarantee_chart_20261125_135646/document_10000660_figure_002/native.json).
+- [Run metadata](../../data/structured_data_trials/guarantee_chart_20261125_135646/document_10000660_figure_002/run.json).
+- [Console log](../../data/structured_data_trials/guarantee_chart_20261125_135646/console.log).
+- [Resource measurements](../../data/structured_data_trials/guarantee_chart_20261125_135646/resources.txt).
+
+Interpretation: dedicated chart enrichment demonstrates a clear improvement for
+this labelled grouped bar chart. This result alone does not establish performance
+on other chart types or the dataset generally. Subsequent pie/GPU checks are
+recorded below; no automatic chart mapping or SDMX export was performed in this review.
+
+#### Second CPU example: refugee pie chart
+
+The user ran `unhcr/68488_figure_006.png` with the same CPU BF16, scale 0.5,
+2048-token configuration. Review of the original PNG and native chart table found:
+
+| Category | Percentage |
+|---|---:|
+| Nord-Kivu | 91% |
+| Sud-Kivu | 9% |
+
+**2/2 exact province/percentage matches, without corrections.** The source image
+hash matches run metadata; the 3×2 table has six unique unmerged cells with
+Category/Percentage headers. The year (`en2018`) and total (`35,416`) remain
+separate OCR text blocks, rather than being mixed into the chart series. They
+have not been mapped into statistical observations. Raw OCR still contains the
+incorrect `%6` text block; the verified chart result comes from enrichment.
+
+- CLI duration: 348.732 seconds; generation: 301.53 seconds for 29 tokens.
+- GNU time wall duration: 326.85 seconds; as with the bar trial, retain both
+  timing sources and use approximately six minutes in summaries.
+- Peak process RSS: 8,229,632 KiB = 7.85 GiB; exit status 0.
+- Classifier: `pie_chart`, confidence 0.999959; this is not value-level confidence.
+- [Reviewed comparison](../../data/structured_data_trials/refugee_pie_20261125_142540/comparison.json).
+- [Native extraction](../../data/structured_data_trials/refugee_pie_20261125_142540/68488_figure_006/native.json).
+- [Run metadata](../../data/structured_data_trials/refugee_pie_20261125_142540/68488_figure_006/run.json).
+- [Resources](../../data/structured_data_trials/refugee_pie_20261125_142540/resources.txt).
+
+This is a second verified labelled-chart example, not a dataset-wide accuracy
+estimate. No pie-to-SDMX mapping or additional inference was performed to review it.
+
+### GPU acceleration assessment — 2026-11-25
+
+After the verified 4/4 CPU result, the user reopened GPU acceleration as a
+feasibility question. Direct full-model FP16 loading still exceeds 4 GiB VRAM:
+the stored weights alone occupy 5.73 GiB, before activations and the KV cache.
+
+The smallest next experiment is to diagnose the existing CPU-offload path.
+Accelerate is installed and the adapter exists, but the first run recorded only
+the generic `Pipeline StandardPdfPipeline failed` error. Capture the underlying
+exception and traceback before estimating the fix; do not treat this as proven
+GPU compatibility. Keep the same image, prompt, scale 0.5 and token cap, then
+compare all four keyed values with the CPU baseline and measure runtime/VRAM/RAM.
+See [Accelerate CPU offload](https://huggingface.co/docs/accelerate/package_reference/big_modeling#accelerate.cpu_offload).
+
+If transfers or offload compatibility are prohibitive, 4-bit quantization is a
+separate candidate. It requires an additional dependency and model/hardware
+compatibility checks, and may change extraction results. A fit and speedup are
+not guaranteed. See [Transformers bitsandbytes](https://huggingface.co/docs/transformers/quantization/bitsandbytes).
+
+This assessment did not modify pipeline code, install dependencies or run another
+inference. Difficulty remains a contained compatibility/memory investigation;
+the existing generic error is insufficient to promise a one-line fix or speedup.
+
+#### CPU offloading investigation (authorized subsequently)
+
+The user authorized trying CPU offloading after the CPU accuracy checks. The
+pipeline now records chained tracebacks in failed `run.json` files so underlying
+model errors survive Docling's generic pipeline exception.
+
+- `20261125_chart_offload_debug_01`: reproduced the error. `MultiheadAttention`
+  uses its `out_proj` weights through functional attention without calling that
+  child module, so ordinary offload hooks leave those weights on `meta`.
+- `20261125_chart_offload_debug_02`: preloading `MultiheadAttention` fixed the
+  first issue, then exposed `LlavaNextModel.image_newline` being on `meta` during
+  image-feature assembly. Transformers calls the image encoder before the
+  parent's normal forward hook runs.
+- The revised setup keeps the small `image_newline` parameter resident on the
+  execution device, offloads the vision/projector/language/output components
+  separately, and preloads functional attention's child weights. Model weights
+  use FP16 on this GPU; CPU OCR/layout/classification remain unchanged.
+- A small real attention regression test exercises both direct parameter access
+  and functional child-weight access over two calls. It runs offload hooks on CPU
+  with a simulated GPU adapter boundary; it does not substitute for a live GPU test.
+- `20261125_chart_offload_debug_03`: completed successfully on the same bar chart,
+  with the same prompt, image scale and token cap as the verified CPU run.
+
+No quantization or new dependency installation was introduced for these fixes.
+
+#### Verified GPU/offload result
+
+The resulting 3×3 chart table is identical to the reviewed CPU table: MUTUAL has
+HIGH 15 and LOW_MIDDLE 7; PUBLIC has HIGH 7 and LOW_MIDDLE 17. The source image
+hash, headers and all four keyed values match. No correction was applied to the
+native result. The inference run remains `extracted_only`; its separate comparison
+records the successful numerical review.
+
+| Measurement | CPU BF16 | GPU FP16 with CPU offloading |
+|---|---:|---:|
+| Exact keyed observation matches | 4/4 | 4/4 |
+| CLI duration | 437.513 s | 263.156 s |
+| Model generation duration | 397.71 s | 177.80 s |
+| Generated tokens | 27 | 27 |
+| Peak process RSS | 7.90 GiB | 9.87 GiB |
+| Peak PyTorch CUDA allocated | — | 1.59 GiB |
+| Peak PyTorch CUDA reserved | — | 1.69 GiB |
+
+Observed speedup: 1.66× for the full CLI run and 2.24× for generation. These are
+individual smoke tests, not a controlled throughput benchmark. The GPU run
+includes explicit model initialization and CPU BF16-to-FP16 loading; offline
+tests overlapped part of initialization, so its startup is not a clean isolated
+measurement. GNU time reported 254.86 seconds versus CLI 263.156 seconds; both
+are retained. PyTorch figures exclude some CUDA context/driver memory. A sampled
+`nvidia-smi` reading during generation was 597 MiB total GPU memory and 24%
+utilization, not a peak measurement.
+
+The tradeoff is increased RAM use: process maximum RSS was 10,348,192 KiB
+(9.87 GiB). This is substantial for this WSL instance and is not a RAM bound for
+other images. Large cropped figures, more tokens or other concurrent workloads
+may behave differently. The adapter's component graph is specific to the pinned
+Granite Vision LlavaNext implementation and should be rechecked after upgrades.
+GPU/offload execution has not been checked on the pie or Shona images yet.
+
+- [Reviewed comparison](../../data/structured_data_trials/20261125_chart_offload_debug_03/comparison.json).
+- [Native extraction](../../data/structured_data_trials/20261125_chart_offload_debug_03/document_10000660_figure_002/native.json).
+- [Run metadata](../../data/structured_data_trials/20261125_chart_offload_debug_03/document_10000660_figure_002/run.json).
+- [Peak CUDA measurements](../../data/structured_data_trials/20261125_chart_offload_debug_03/cuda_memory.json).
+- [Runtime/RAM measurements](../../data/structured_data_trials/20261125_chart_offload_debug_03/resources.txt).
+
 ## Checks and interpretation
 
-- 18 focused offline tests pass: observation associations, official-schema
+- 19 focused offline tests pass: observation associations, official-schema
   validation, indexed-data decoding, missing versus zero, ambiguous numbers,
   malformed structures, pipeline/device forwarding, immutable runs, interruption,
-  chart CPU/BF16 configuration and missing-model/GPU rejection.
-- The focused suite plus existing metadata-schema tests passed (110 tests).
+  chart CPU/BF16 configuration, unavailable-CUDA rejection, preserved failure
+  tracebacks and repeated component-offload calls with direct parameter and
+  functional attention child-weight access.
+- The focused suite plus existing metadata-schema tests pass (111 tests).
+- Live assertions verified the bar chart on CPU and GPU/offload (4/4 each), and
+  the pie on CPU (2/2), without altering the native extraction files.
 - `uv lock --check --offline` passes. The new `structured_data` extra reuses the
   pinned Docling stack and declares its TF-ID dependency conflict explicitly.
 - A wheel build includes both official schemas, the income mapping profile and
@@ -369,13 +599,13 @@ they are never labelled verified numerical datasets.
 ## Next actions and open questions
 
 1. Use the worked income example above to explain the data/DSD/exchange distinction.
-2. Once additional models finish downloading, run dedicated chart enrichment on
-   the guarantee image first. Check all four values and their associations, record
-   CPU runtime/RAM and classification, then decide whether to run pie and Shona.
-   Keep raw failures; do not add automatic chart-to-SDMX mappings before review.
+2. Dedicated enrichment checks are complete on the guarantee chart (4/4 on CPU
+   and GPU/offload) and refugee pie (2/2 on CPU). Use these results before expanding
+   to Shona or more samples. Keep raw failures; do not add automatic chart-to-SDMX
+   mappings before review. No quantization is planned as part of the offload fix.
 3. Compare the actual extracted examples with WDI/UNICEF/UNHCR concepts; document
    where reuse works, where extensions are needed, and what requires confirmation.
-4. Complete the draft below with measured enrichment results, then use the native
+4. The draft below now includes measured enrichment results. Use the native
    extraction, long observations and local DSD to clarify the data-model meaning
    and extraction/review separation with Aivin. Sending remains the user's action.
 
@@ -385,8 +615,7 @@ interpretation; regression-table semantics; and correction review policy.
 
 ## Draft message to Aivin (not sent)
 
-Status: draft while the dedicated chart model downloads. Replace the bracketed
-sentence with actual enriched results before sending; do not imply they are known.
+Status: draft updated after the bar/pie CPU checks and bar GPU/offload check; not sent.
 
 Hi Aivin, a quick update on structured data extraction from Data Snapshots.
 
@@ -395,7 +624,12 @@ the extracted document structure. For the simple income table, all 16 values and
 their category/statistic associations matched the image. The regression table
 was extracted, but its nested headers and coefficient/standard-error relationships
 still need mapping. The initial chart results from the small Granite-Docling model
-were incorrect or empty. [Add dedicated chart-enrichment results here.]
+were incorrect or empty. With dedicated chart enrichment, the guarantee bar chart
+now has all four values and their category/series associations correct. The refugee
+pie chart also has both province percentages correct. CPU runs took about six to
+seven minutes; GPU execution with CPU offloading reduced the bar-chart run to
+about four minutes while preserving all four observations. These are initial
+examples; broader chart accuracy remains to be tested.
 
 Docling provides text, table cells and document structure, and can provide chart
 data depending on the pipeline/model. To reach our SDMX target, we still need to
