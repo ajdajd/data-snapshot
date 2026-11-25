@@ -1,0 +1,146 @@
+{
+  "title": "Open statistical discovery record",
+  "description": "A fixed recording envelope with open candidate names and functions. This is not a statistical data structure or a canonical concept inventory.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "analytical_units": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/AnalyticalUnit"}
+    },
+    "relationships": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/Relationship"}
+    },
+    "ambiguities": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/Ambiguity"}
+    },
+    "other_analytical_content": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/OtherContent"}
+    }
+  },
+  "required": ["analytical_units", "relationships", "ambiguities", "other_analytical_content"],
+  "$defs": {
+    "Evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": ["string", "null"],
+          "description": "Exact visible source wording, or null for purely visual evidence. Do not put interpretation here."
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Precise image-local location of the supporting text or visual structure."
+        }
+      },
+      "required": ["text", "location"]
+    },
+    "Requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^r[1-9][0-9]*$"},
+        "candidate_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Provisional artifact-grounded name, not a choice from an existing concept list."
+        },
+        "description": {"type": "string", "minLength": 1},
+        "function_in_this_unit": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Explain in free text how this requirement functions in this unit; do not assign a mandatory global statistical role."
+        },
+        "observed_examples": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Source-visible examples illustrating the requirement; empty if no example can be recovered reliably."
+        },
+        "why_needed": {"type": "string", "minLength": 1},
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/Evidence"}
+        },
+        "interpretation_note": {"type": ["string", "null"]}
+      },
+      "required": ["id", "candidate_name", "description", "function_in_this_unit", "observed_examples", "why_needed", "evidence", "interpretation_note"]
+    },
+    "ObservationExample": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_value": {"type": "string", "minLength": 1},
+        "location": {"type": "string", "minLength": 1},
+        "context_requirement_ids": {
+          "type": "array",
+          "items": {"type": "string", "pattern": "^r[1-9][0-9]*$"}
+        },
+        "interpretation": {"type": ["string", "null"]}
+      },
+      "required": ["source_value", "location", "context_requirement_ids", "interpretation"]
+    },
+    "AnalyticalUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^u[1-9][0-9]*$"},
+        "description": {"type": "string", "minLength": 1},
+        "location": {"type": "string", "minLength": 1},
+        "requirements": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/Requirement"}
+        },
+        "observation_examples": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ObservationExample"}
+        }
+      },
+      "required": ["id", "description", "location", "requirements", "observation_examples"]
+    },
+    "Relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "related_ids": {
+          "type": "array",
+          "minItems": 2,
+          "items": {"type": "string", "pattern": "^[ru][1-9][0-9]*$"},
+          "description": "Local analytical-unit or requirement IDs connected by this relationship."
+        },
+        "description": {"type": "string", "minLength": 1},
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/Evidence"}
+        },
+        "interpretation_note": {"type": ["string", "null"]}
+      },
+      "required": ["related_ids", "description", "evidence", "interpretation_note"]
+    },
+    "Ambiguity": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {"type": "string", "minLength": 1},
+        "location": {"type": "string", "minLength": 1},
+        "implication_for_representation": {"type": "string", "minLength": 1}
+      },
+      "required": ["description", "location", "implication_for_representation"]
+    },
+    "OtherContent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "description": {"type": "string", "minLength": 1},
+        "location": {"type": "string", "minLength": 1},
+        "reason_for_separate_record": {"type": "string", "minLength": 1}
+      },
+      "required": ["description", "location", "reason_for_separate_record"]
+    }
+  }
+}

@@ -11,7 +11,7 @@ The income table has an end-to-end PNG-to-SDMX prototype using a local DSD;
 other examples have reviewed native extractions and identified mapping/accuracy
 limits. Detailed evidence is retained below.
 
-The proposed MVP direction is now image-first LLM extraction and interpretation:
+The MVP direction remains image-first LLM extraction and interpretation:
 
 1. Select, adapt or define a provisional DSD, with an explicitly bounded scope.
 2. Supply the image, DSD and extraction instructions to an LLM.
@@ -23,10 +23,34 @@ This replaces handwritten general Docling-to-DSD mapping rules with LLM
 interpretation; it does not remove mapping, DSD coverage questions or validation.
 Developing and claiming coverage for a general deterministic mapper would require
 a development sample and independent validation. That study is not the proposed
-MVP's immediate path. The independent OpenRouter path is implemented with offline
-preparation, a persistent spending guardrail and one completed live income smoke
-test. The user authorized a cumulative $5 budget and selected Luna as the working
-reference model. Detailed numerical/semantic findings and the running total are below.
+MVP's immediate path. The independent OpenRouter path has offline preparation, a
+persistent spending guardrail, a completed income smoke test and the completed
+18-call Luna/Terra/Sol comparison. Luna medium remains the working reference.
+The current DSD is an experimental extraction contract, not an evidence-validated
+general design. Detailed findings and running costs are retained below.
+
+**Current development strategy:** a lean artifact-first adaptation of Paper 2.
+Open discovery comes before choosing a shared DSD:
+
+1. Define the discovery objective, prompts and recording format; check them on a
+   small development pilot before freezing the discovery instrument.
+2. Discover requirements independently across the **210 development images**,
+   without existing DSDs, the current experimental profile, a canonical concept
+   inventory, prior discovery records or parent-document metadata in the prompt.
+3. Consolidate artifact-grounded requirements and relationships, keeping traceability
+   to image evidence. Introduce existing DSD concepts as comparison candidates
+   during consolidation/design, after independent discovery.
+4. Review conceptual distinctions and design the statistical representation,
+   selecting/adapting suitable standards components. Aim for one or two DSDs;
+   requirements and scope must justify that choice.
+5. Exercise the proposed representation on development examples, then freeze a
+   version and assess coverage on the **202 validation images**. Distinguish DSD
+   gaps from extraction errors, documentation issues and out-of-scope content.
+
+Processing batches are execution partitions, not automatic DSD-revision rounds.
+Discovery prompts and their recording format remain fixed across the main
+development discovery run. Consolidated evidence informs subsequent design
+iterations. The seven-batch arrangement is not yet activated.
 
 Docling remains a working local baseline and an optional preprocessing candidate.
 Its added value should be tested by comparing the same LLM with image-only input
@@ -46,13 +70,18 @@ been removed from this notebook at the user's request.
   workflow. Note PDF-only restrictions when evaluating other libraries.
 - Primary output: SDMX-JSON. CSV is a possible later export, not the design target.
 - Code must remain independent of `metadata_extraction` and `metadata_schema`.
-- Start from the same 102 images selected for metadata extraction. The directory
+- The initial extraction trials used the same 102 images selected for metadata
+  extraction. The directory
   `/home/ajd/hf_datasets/data_snapshot_metadata_gold` contains metadata JSON only;
   all 102 filenames match PNGs in `/home/ajd/hf_datasets/data-snapshot/snapshots`.
   The gold metadata is not an inference input or numerical ground truth.
+- DSD development now uses the original Paper 2 split: 210 development images and
+  202 validation images. Reusing samples does not create a runtime dependency on
+  the metadata modules.
 - Aim for one shared DSD, or at most two if the examples justify it. Separate
   figure/table extraction code does not itself require separate statistical DSDs.
-- Develop the definition incrementally, version changes, and record their reasons.
+- Develop the definition from consolidated requirements, version changes, and
+  record their reasons; do not automatically revise it after each discovery batch.
 - Do not invent missing dates, frequencies, units, category meanings, confidence
   levels, or values. Keep extraction corrections distinguishable from raw output.
 - Use `uv` in `/home/ajd/data-snapshot`. Hand lengthy installations/downloads to
@@ -89,7 +118,68 @@ an interactive confirmation step a prerequisite for this extraction prototype.
 The user deferred asking Aivin about review to keep the current discussion focused
 on the data model. No review workflow or UI is implemented.
 
-### DSD development protocol and independent LLM path — 2026-11-25
+### Open-discovery instrument — 2026-11-25
+
+The immediate next step is a small **development calibration pilot**, followed by
+freezing the discovery instrument before the main 210-image run. This stage
+discovers requirements for representing analytical data, rather than proposing
+metadata fields or exhaustively transcribing every value.
+
+Draft materials are separate from the existing DSD-conditioned extraction prompts:
+
+- `src/data_snapshot/structured_data_extraction/prompts/discovery_system.md`
+- `src/data_snapshot/structured_data_extraction/prompts/discovery_user.md`
+- `src/data_snapshot/structured_data_extraction/schemas/discovery_record.schema.json`
+
+Each request receives one PNG independently. It receives no candidate DSD,
+experimental extraction profile, standard codelists, canonical concept inventory,
+previous discovery records or parent-document metadata. Corpus/type labels and
+filenames remain outside the model input. The existing standards research is
+retained for consolidation and design after independent discovery.
+
+The JSON envelope records analytical units, provisional requirements and their
+function in each unit, source evidence, relationships, a few representative
+observation examples, ambiguities and other analytical content needing attention.
+Names and functions are open text, not selections from a statistical vocabulary.
+Local IDs provide traceability only. Preserve rare distinctions; do not impose a
+target number of requirements. Separate exact source text from interpretation,
+and allow visual evidence without a text quote. Discovery does not require
+digitizing unlabelled values or forcing spatial/categorical content into a cube.
+
+Use the six C1 development images for the initial instrument pilot. Start with
+Luna medium, the current extraction reference; the C1 comparison did not establish
+its performance on open discovery. Check each pilot record against its source:
+
+- Does it discover requirements rather than fill the experimental DSD's fields?
+- Are distinct panels, qualifications and relationships accounted for?
+- Are examples and interpretations supported by visible evidence?
+- Are rare requirements and unresolved ambiguities retained?
+- Are IDs unique and references resolvable, without unsupported assertions?
+
+Revise the instrument if necessary, then freeze its prompts/schema and record
+their hashes for the main run. Preserve image hashes, model/settings, raw outputs,
+validation results and usage alongside each record. The eventual runner needs
+local checks for ID uniqueness and reference integrity in addition to JSON Schema
+validation; neither check establishes factual correctness.
+
+After discovery, pool requirements with evidence links, consolidate their meanings
+and relationships, and then compare them with existing DSD components. Human
+review governs conceptual distinctions and the resulting representation. Batch
+boundaries do not trigger automatic DSD changes. The 202 validation images are
+reserved for assessing the subsequently frozen representation.
+
+**Status:** draft prompts and recording schema prepared; no discovery runner is
+wired yet. The existing extraction CLI still uses the experimental DSD and must
+not be treated as open discovery. No paid discovery calls have been made. The
+workstream running total remains **$0.92420752 of $5**, leaving **$4.07579248**.
+Record the updated running total after every future paid batch, including pilots.
+
+Offline checks passed: JSON Schema validity, strict object shapes, acceptance of
+open candidate names and empty lists, and rejection of missing evidence and
+unexpected fields. Synthetic fixtures tested format only, not discovery quality
+or live-provider compatibility.
+
+### DSD protocol and independent LLM path
 
 The user agreed to combine reusable concepts from the candidate DSDs and develop
 the Data Snapshots definition incrementally. Reuse the original **210 development
@@ -104,7 +194,9 @@ filenames, and zero filename overlap. Their source directories are:
 - Validation: `notebooks/schema_validation1/data/snapshots/` (also reused by the
   subsequent metadata-schema validations).
 
-The proposed sequence is:
+The earlier proposed sequence below is retained as workstream history. The
+artifact-first framework in the current plan and open-discovery protocol
+supersedes its batch-by-batch refinement interpretation:
 
 1. Review development images for the statistical structures they contain,
    including their dimensions, measures, units, qualifications and relationships.
