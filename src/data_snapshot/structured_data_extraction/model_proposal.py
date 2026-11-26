@@ -127,7 +127,7 @@ def prepare_model_request(
     if instruction is not None and not instruction.strip():
         raise ValueError("Reviewer instruction must not be blank")
     if current_model is not None and instruction is None:
-        raise ValueError("A model revision requires a reviewer instruction")
+        raise ValueError("A data model revision requires a reviewer instruction")
     if current_model is not None:
         current_model = WorkingModel.model_validate_json(
             current_model.model_dump_json()

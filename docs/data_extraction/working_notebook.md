@@ -66,18 +66,21 @@ runtime dependency on its models, forms or storage module.
    extraction path, saving inspectable JSON before a UI depends on it. Reuse the
    existing OpenRouter execution/accounting utilities; keep the old fixed-DSD
    pipeline as an experimental baseline. Proposal/revision and local
-   draft/acceptance are now implemented and checked offline. A live proposal
-   quality check and extraction against the accepted working model remain next.
-3. Add the small Streamlit workspace around that path and demonstrate one complete
-   review session. Exercise its controls against all eight design cases as it grows.
+   draft/acceptance are now implemented and checked offline. The first live
+   proposal completed and needs a scoped-qualification revision before acceptance.
+   Accepted-model extraction and the initial review UI are now implemented and
+   tested offline; a live accepted-model extraction remains to be tried.
+3. Try the initial Streamlit workspace with income, financing and education.
+   Exercise its controls against the remaining design cases as it grows.
 4. Show the workflow at the next team sync: proposed model, user correction,
    accepted revision, extracted values, review and the current export state.
    Gather feedback before investing in more interaction complexity. Finish formal
    SDMX export after extraction/review works, clearly labeling any interim JSON.
 
 Luna medium remains the initial model reference from the completed extraction
-comparison; its quality for snapshot-specific model proposals still needs to be
-established. Docling is the preprocessing baseline in the intended workflow.
+comparison. The first live working-model proposal passed structural validation
+but exposed a qualification-scope error; broader proposal quality remains open.
+Docling is the preprocessing baseline in the intended workflow.
 Its incremental value over image-only LLM input remains an experiment to conduct,
 rather than an established quality improvement. RapidAI, custom frontend work and
 PDF detection/cropping integration remain deferred.
@@ -89,8 +92,8 @@ use. Shared-DSD consolidation/design and the proposed 202-image coverage study a
 parked; they are not prerequisites for this MVP. The seven-batch DSD strategy was
 not activated. Detailed closeout, archive paths and costs are recorded below.
 
-Current recorded workstream spending: **$1.96872847 / $5**; remaining
-**$3.03127153**, with no outstanding reservations. The original dropped request
+Current recorded workstream spending: **$1.97849147 / $5**; remaining
+**$3.02150853**, with no outstanding reservations. The original dropped request
 was written off on user instruction, as documented in the recovery record.
 
 ## Agreed scope and constraints
@@ -139,10 +142,120 @@ The initial feasibility work separated automated extraction from a deferred revi
 workflow. The 2026-11-26 decision brings both into the deliverable, with two
 distinct acceptance points: accept the snapshot's statistical model, then review
 the extracted values and their associations. Keep the backend independently
-testable while adding the UI that supports these interactions. There is no new
-structured-data review app implemented yet. Discovery and the eight-case design
-pack are saved; the proposal/revision and draft/acceptance backend is now ready
-for the subsequent value-extraction and UI increments.
+testable alongside the UI that supports these interactions. Discovery and the
+eight-case design pack are saved. The initial independent Streamlit reviewer now
+connects model proposal/editing/acceptance to value extraction, correction review
+and interim JSON export. See the prototype walkthrough below.
+
+### First review prototype — 2026-11-26
+
+Implemented `src/data_snapshot/structured_data_reviewer/app.py`, independently
+of the metadata reviewer. The image remains beside plain-language model forms
+and an editable data table; users do not need to read or edit JSON. Work is saved
+under `data/structured_data_trials/reviewer_sessions/`, separately from the
+original trials. Existing example sessions resume without resetting edits.
+
+UI terminology: **Data Model** is the structure the user reviews and accepts;
+**LLM** is the system that proposes revisions or extracts values. The navigation
+now reads Input / Data Model / Data / Export, with **Edit data model**, **Save data
+model draft**, **Accept data model** and **Extract values with LLM** controls.
+Internal field names and saved-session identifiers remain compatible. The user
+has deferred the chat-focused UI redesign; the current editor remains in place.
+
+Start the app from this checkout:
+
+```bash
+cd /home/ajd/data-snapshot
+uv run --no-sync streamlit run \
+  /home/ajd/data-snapshot/src/data_snapshot/structured_data_reviewer/app.py \
+  --server.address 127.0.0.1
+```
+
+The locked `review` extra supplies Streamlit. For a future environment rebuild,
+preserve the extraction/model dependencies while adding the reviewer:
+
+```bash
+uv sync --locked --inexact --extra structured_data --extra structured_llm \
+  --extra review --extra test
+```
+
+Use `-- --workspace /absolute/path` after the server options to choose a separate
+work directory. Saved models, acceptances, raw API responses and correction
+histories are local. A reviewer name is attribution, not authentication; this is
+a local research app.
+
+The first three journeys are:
+
+| Example | Model review | Data review | Provenance |
+| --- | --- | --- | --- |
+| Income | Open the actual saved Luna proposal. Under Units, time and qualifications, select Population qualification, turn off All Table row values, and exclude Remittances. Review monthly wording in the component, result definitions and time context too; keep the unknown currency unknown. Save the draft, then accept. | Review Mean and Median separately: 16 printed amounts across eight categories. Edit a value and its source text/note, save a draft or explicitly save reviewed data. | The initial proposal is the user's real successful call. Preloaded values are manually transcribed. |
+| Financing | Inspect the monetary scale and the of-which relationship to Total Financing. Edit the relationship through named items. | Preserve 100.00, 100.00, 98.00 and 0.00 on their displayed scale; zero must remain zero. | Initial model is a labeled hand-authored design sketch; values are manually transcribed. |
+| Education | Keep the enrollment and reading panels separate, with distinct fields and unit/time contexts. Select a context to edit only its panel. | Switch components. There are 10 printed enrollment values, 12 explicit missing enrollment slots, and six printed reading percentages. Missing slots remain null with reasons. | Initial model is a labeled hand-authored design sketch; values are manually transcribed. |
+
+These are working examples, not accepted interpretations or new numerical
+accuracy measurements. Following the user's review feedback, example-specific
+assistant findings and review suggestions were removed from the app and its
+example configuration; discuss them in chat. Keep the app focused on what an end
+user would see, with source/model provenance and ordinary review controls. Other
+income-model qualifications are not automatically corrected by changing one
+scope. The user still reviews the source and each relevant interpretation.
+
+**Two ways to exercise the journey:** leave **Enable paid model actions** off to
+use the three drafts and **Load preloaded example values**, at no API cost. Or
+upload a PNG, run local standard Docling preprocessing, enable paid actions and
+explicitly request a proposal. Inspect/directly edit or request a revision, save
+and accept it, then explicitly **Extract values with model**. Both paid stages
+send the PNG plus matched Docling evidence; value extraction additionally sends
+the accepted model. The preloaded values are never supplied to live extraction.
+There are no automatic API calls on opening examples or ordinary widget reruns.
+The same submitted action is blocked from being repeated within the active
+browser session; failures and any charges remain in the existing API journal.
+
+`accepted_extraction.py` builds strict Structured Outputs for the accepted
+components, numeric/text results and categorical/open identifying fields. It
+retains printed fragments, approximate/missing status, optional bounds and
+omission reasons. Estimates are rejected for printed-only components. Model and
+source hashes pin each extraction to the accepted revision; a changed model
+makes previous results stale. `data_review.py` retains generated values plus
+versioned human corrections and a separate explicit data approval. Unsaved edits,
+unreviewed data and stale results block export. The JSON download includes the
+model, reviewed data, provenance and review history.
+
+**Export remains interim reviewed JSON, not SDMX-JSON.** Formal DSD/codelist
+mapping, SDMX serialization, assistant-driven data corrections and richer
+structure editing remain subsequent increments. Current data grids edit existing
+rows and evidence; they do not add omitted rows or edit bounds. Schema validity
+does not establish correctness, and accepting a model does not verify its values.
+
+Local standard Docling preprocessing was run offline on the financing and
+education images: **17.199 s**, one table; and **4.837 s**, two pictures,
+respectively. Outputs are retained under
+`data/structured_data_trials/review_preprocessing_20261126/`. The income example
+reuses its existing native output. No additional model download or paid API call
+was needed for this implementation. Running total remains **$1.97379467 / $5**;
+remaining **$3.02620533**, no outstanding reservations.
+
+**Checks:** 133 focused tests passed, including 26 new backend/UI checks and the
+existing extraction and metadata-reviewer app checks. They exercise strict output
+schemas, numeric/text and missing/zero values, synthetic billed calls, concurrent
+model changes, immutable generated data, approval/export guards, scope edits,
+grid corrections, duplicate display labels, resume and no automatic paid retries.
+Separate headless navigation checks opened the actual local PNG/Docling inputs
+for all three examples and reached download using preloaded values in a disposable
+`/tmp` workspace. Those navigation acceptances are test actions, not substantive
+approval of the original model interpretations. Black, `git diff --check` and
+`uv lock --check --offline` passed. Browser appearance and a live accepted-model
+extraction had not been checked at that point.
+
+**User-run accepted-data-model extraction:** the user subsequently ran
+**Extract values with LLM** for Income revision **3**. Run
+`data/structured_data_trials/reviewer_sessions/income/extractions/ded9e8662816437fbc4e678f4a2aef22/`
+completed in **15.177 s** with **16 observations** and status **partial**. This
+records execution, not numerical verification; the output still requires data
+review. Batch `interactive_value_extraction` cost **$0.00469680**. Running total
+is **$1.97849147 / $5**, remaining **$3.02150853**, with no reservations.
+The subsequent UI terminology change made no additional API calls and did not
+modify saved data models or extraction outputs.
 
 ### Review design pack — 2026-11-26
 
@@ -371,6 +484,55 @@ image correctness; reviewer interpretation still matters. The eight models
 demonstrate representability, not automatic extraction accuracy. Current recorded
 spend remains **$1.96872847 / $5**, with **$3.03127153** remaining and no new paid
 calls in this step.
+
+### First live model proposal — 2026-11-26
+
+The user executed the PNG-plus-Docling proposal for the income snapshot using
+Luna medium. Artifacts are in
+`data/structured_data_trials/income_model_proposal_20261126_140054/`.
+The call completed in **19.797 seconds**, used **11,659 input / 1,793 output
+tokens** (516 reasoning tokens included), and cost **$0.00506620**. Its raw output
+and validated model agree. No value dataset was requested or extracted.
+
+Source-image review: the proposal keeps all eight original row labels, uses one
+component with Mean and Median as separate numeric result fields, preserves the
+remittance-excluded total, leaves currency unknown and retains ALCS 2013–14 as
+source context. One component with two result definitions is a reasonable
+alternative to the hand-authored fixture's two components; do not force the
+response to match a particular draft decomposition.
+
+**Decision: revise before acceptance.** Structural validity did not catch these
+interpretation/evidence issues:
+
+1. The male-worker age qualification has `where=[]`, so it applies to Remittances
+   as well as labor income, despite the note explicitly specifying labor income.
+   Scope it to the seven labor-income/aggregate rows; keep its applicability to
+   remittances unresolved rather than asserting inheritance.
+2. Monthly wording is asserted across the component and both result meanings.
+   It clearly qualifies labor income; applicability to remittances can remain an
+   explicit question. Changing only the context selector is insufficient if the
+   component/result definitions still assert a blanket monthly interpretation.
+3. Evidence includes constructed `MEAN; MEDIAN` and semicolon-joined category
+   lists. These are useful associations but not literal contiguous quotations.
+   Preserve separate fragments or use null text with a visual/reference location.
+
+Saved the review and explicit reviewer instruction as `review.json` and
+`review_instruction.txt` beside the original proposal, without changing the raw
+response or proposed model. Prepared the revision request **offline** at
+`data/structured_data_trials/income_model_revision_prepare_20261126/`; source and
+starting-model hashes match, and `api_attempts=0`. No proposal has been applied
+to the income session, no model accepted, and no live revision request sent.
+The session remains at draft revision 0.
+
+Next interaction to exercise: apply the initial proposal as an **unaccepted
+draft**, request the explicit reviewer revision, inspect its changes and apply it
+only if appropriate. Acceptance remains a separate user action. This smoke test
+demonstrates why scope review matters; it does not establish Docling's incremental
+benefit or general model-proposal accuracy.
+
+Batch `model_proposal_income_smoke` cost **$0.00506620**. Recorded workstream total:
+**$1.97379467 / $5**; remaining **$3.02620533**; outstanding reservations **$0**.
+The review/preparation work made no additional paid calls.
 
 ### Discovery closeout — 2026-11-26
 

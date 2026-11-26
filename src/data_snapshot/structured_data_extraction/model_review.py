@@ -68,7 +68,9 @@ class ModelReviewSession(BaseModel):
                 acceptance.revision > len(self.revisions)
                 or self.revisions[acceptance.revision - 1].sha256 != acceptance.sha256
             ):
-                raise ValueError("Acceptance does not match a saved model revision")
+                raise ValueError(
+                    "Acceptance does not match a saved data model revision"
+                )
             if any(
                 getattr(acceptance, key) != getattr(self, key)
                 for key in ("image_sha256", "docling_sha256", "docling_run_sha256")
@@ -323,7 +325,7 @@ def accept_model(
         session = load_session(directory)
         _check_revision(session, expected_revision)
         if not session.revisions:
-            raise ValueError("No model draft to accept")
+            raise ValueError("No data model draft to accept")
         if session.accepted_revision == expected_revision:
             return session
         session.acceptances.append(

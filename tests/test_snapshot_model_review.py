@@ -289,7 +289,7 @@ def test_direct_edit_acceptance_and_reload_preserve_history(
     image, native = sources
     directory = tmp_path / "session"
     create_session(image, native, directory)
-    with pytest.raises(ValueError, match="No model draft"):
+    with pytest.raises(ValueError, match="No data model draft"):
         accept_model(directory, 0, "Aj")
     first = save_draft(directory, model, 0, "Aj", "Initial hand-authored design")
     assert len(first.revisions) == 1 and first.accepted_revision is None

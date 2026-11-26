@@ -107,6 +107,7 @@ exclude = ["data_snapshot.metadata_extraction_v1_1*"]
 
 [tool.setuptools.package-data]
 "data_snapshot.structured_data_extraction" = ["schemas/*.json", "profiles/*.json", "config/*.json", "prompts/*.md", "examples.json"]
+"data_snapshot.structured_data_reviewer" = ["examples.json"]
 
 
 [tool.pytest.ini_options]

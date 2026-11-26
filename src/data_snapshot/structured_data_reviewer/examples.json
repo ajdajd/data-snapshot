@@ -1,0 +1,1656 @@
+{
+  "dataset_root": "/home/ajd/hf_datasets/data-snapshot/snapshots",
+  "examples": [
+    {
+      "id": "income",
+      "name": "Income and remittances",
+      "image": "unhcr/108733-revised-public-wb-unhcr-policy-brief-final_table_000.png",
+      "image_sha256": "71fba5dbc2fef924632b0d23fda458d160de5bf833a74a279a35e99db7c33888",
+      "docling": "data/structured_data_trials/20261124_standard_02/108733-revised-public-wb-unhcr-policy-brief-final_table_000/native.json",
+      "proposal_dir": "data/structured_data_trials/income_model_proposal_20261126_140054",
+      "model_origin": "Initial data model: saved Luna proposal",
+      "model": {
+        "title": "Table 1 — Monthly labor income in Afghanistan and remittances from abroad",
+        "components": [
+          {
+            "id": "component_table1",
+            "name": "Monthly amounts by listed labor-income or remittance group",
+            "one_result_means": "One result is the printed mean or median monthly amount for one listed table row, including sector groups, public sector, health and education, remittances, or the total excluding remittances.",
+            "fields": [
+              {
+                "id": "field_table_row",
+                "name": "Table row",
+                "meaning": "The listed group or aggregate to which the mean and median results refer.",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "cat_agriculture",
+                    "source_label": "Agriculture",
+                    "display_label": null
+                  },
+                  {
+                    "id": "cat_manufacturing",
+                    "source_label": "Manufacturing",
+                    "display_label": null
+                  },
+                  {
+                    "id": "cat_construction",
+                    "source_label": "Construction",
+                    "display_label": null
+                  },
+                  {
+                    "id": "cat_services",
+                    "source_label": "Services",
+                    "display_label": null
+                  },
+                  {
+                    "id": "cat_public_sector",
+                    "source_label": "Public sector",
+                    "display_label": null
+                  },
+                  {
+                    "id": "cat_health_education",
+                    "source_label": "Health and Education",
+                    "display_label": null
+                  },
+                  {
+                    "id": "cat_remittances",
+                    "source_label": "Remittances",
+                    "display_label": null
+                  },
+                  {
+                    "id": "cat_total_excl_remittances",
+                    "source_label": "Total (excl. remittances)",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "result_mean",
+                "name": "Mean",
+                "meaning": "Mean of the monthly amount for the selected table row.",
+                "source_label": "MEAN",
+                "value_type": "number"
+              },
+              {
+                "id": "result_median",
+                "name": "Median",
+                "meaning": "Median of the monthly amount for the selected table row.",
+                "source_label": "MEDIAN",
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "Monthly labor income in Afghanistan and remittances from abroad",
+                "location": "Image title at top of page"
+              },
+              {
+                "basis": "image",
+                "text": "MEAN; MEDIAN",
+                "location": "Image table header"
+              },
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Image table body: rows are paired with mean and median columns; printed numeric values are intentionally not extracted into this working model"
+              },
+              {
+                "basis": "docling",
+                "text": "Monthly labor income in Afghanistan and remittances from abroad",
+                "location": "Docling #/texts/1"
+              },
+              {
+                "basis": "docling",
+                "text": "MEAN; MEDIAN",
+                "location": "Docling #/tables/0 grid, row 0"
+              },
+              {
+                "basis": "docling",
+                "text": "Agriculture; Manufacturing; Construction; Services; Public sector; Health and Education; Remittances; Total (excl. remittances)",
+                "location": "Docling #/tables/0 grid, rows 1–8"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "context_unit_missing",
+            "kind": "unit",
+            "name": "Amount unit",
+            "meaning": "Unit of the numeric monthly amounts.",
+            "value": null,
+            "status": "unresolved",
+            "applies_to": [
+              {
+                "component_id": "component_table1",
+                "result_ids": [
+                  "result_mean",
+                  "result_median"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "No unit is visibly printed in the table or title."
+              }
+            ]
+          },
+          {
+            "id": "context_monthly",
+            "kind": "time",
+            "name": "Time basis",
+            "meaning": "The table describes the amounts as monthly.",
+            "value": "Monthly",
+            "status": "source_stated",
+            "applies_to": [
+              {
+                "component_id": "component_table1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "Monthly labor income in Afghanistan and remittances from abroad",
+                "location": "Image title at top of page"
+              },
+              {
+                "basis": "docling",
+                "text": "Monthly labor income in Afghanistan and remittances from abroad",
+                "location": "Docling #/texts/1"
+              }
+            ]
+          },
+          {
+            "id": "context_age_sex_qualification",
+            "kind": "qualification",
+            "name": "Population qualification",
+            "meaning": "The note states that labor income was computed for male workers aged [14,35]. The bracket notation is preserved literally and not interpreted further.",
+            "value": "male workers aged [14,35]",
+            "status": "source_stated",
+            "applies_to": [
+              {
+                "component_id": "component_table1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "Notes: labor income has been computed for male workers aged [14,35]",
+                "location": "Image note at bottom of page"
+              }
+            ]
+          },
+          {
+            "id": "context_source",
+            "kind": "source",
+            "name": "Data source",
+            "meaning": "The source attribution printed below the table.",
+            "value": "Authors’ calculation based on ALCS 2013–14",
+            "status": "source_stated",
+            "applies_to": [
+              {
+                "component_id": "component_table1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "Source: Authors’ calculation based on ALCS 2013–14",
+                "location": "Image source line at bottom of page"
+              },
+              {
+                "basis": "docling",
+                "text": "Source: Authors' calculation based on ALCS 2013-14",
+                "location": "Docling #/texts/3"
+              }
+            ]
+          }
+        ],
+        "relationships": [
+          {
+            "id": "relationship_total_excludes_remittances",
+            "kind": "exclusion",
+            "description": "The total row explicitly excludes the Remittances row.",
+            "status": "source_stated",
+            "from_ref": {
+              "component_id": "component_table1",
+              "field_id": "field_table_row",
+              "category_id": "cat_total_excl_remittances",
+              "result_id": null
+            },
+            "to_ref": {
+              "component_id": "component_table1",
+              "field_id": "field_table_row",
+              "category_id": "cat_remittances",
+              "result_id": null
+            },
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "Total (excl. remittances)",
+                "location": "Image final table row"
+              },
+              {
+                "basis": "docling",
+                "text": "Total (excl. remittances)",
+                "location": "Docling #/tables/0 grid, row 8"
+              }
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "id": "question_amount_unit",
+            "question": "What unit or currency do the printed mean and median amounts use?",
+            "applies_to": [
+              {
+                "component_id": "component_table1",
+                "result_ids": [
+                  "result_mean",
+                  "result_median"
+                ],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "No unit or currency is visibly printed in the table or title."
+              }
+            ]
+          }
+        ]
+      },
+      "data": {
+        "status": "complete",
+        "observations": [
+          {
+            "component_id": "component_table1",
+            "result_id": "result_mean",
+            "dimensions": {
+              "field_table_row": "cat_agriculture"
+            },
+            "value": 5930,
+            "evidence": {
+              "raw_text": "5930",
+              "location": "cat_agriculture / result_mean",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_median",
+            "dimensions": {
+              "field_table_row": "cat_agriculture"
+            },
+            "value": 4800,
+            "evidence": {
+              "raw_text": "4800",
+              "location": "cat_agriculture / result_median",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_mean",
+            "dimensions": {
+              "field_table_row": "cat_manufacturing"
+            },
+            "value": 7496,
+            "evidence": {
+              "raw_text": "7496",
+              "location": "cat_manufacturing / result_mean",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_median",
+            "dimensions": {
+              "field_table_row": "cat_manufacturing"
+            },
+            "value": 7000,
+            "evidence": {
+              "raw_text": "7000",
+              "location": "cat_manufacturing / result_median",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_mean",
+            "dimensions": {
+              "field_table_row": "cat_construction"
+            },
+            "value": 6516,
+            "evidence": {
+              "raw_text": "6516",
+              "location": "cat_construction / result_mean",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_median",
+            "dimensions": {
+              "field_table_row": "cat_construction"
+            },
+            "value": 5600,
+            "evidence": {
+              "raw_text": "5600",
+              "location": "cat_construction / result_median",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_mean",
+            "dimensions": {
+              "field_table_row": "cat_services"
+            },
+            "value": 9927,
+            "evidence": {
+              "raw_text": "9927",
+              "location": "cat_services / result_mean",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_median",
+            "dimensions": {
+              "field_table_row": "cat_services"
+            },
+            "value": 8000,
+            "evidence": {
+              "raw_text": "8000",
+              "location": "cat_services / result_median",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_mean",
+            "dimensions": {
+              "field_table_row": "cat_public_sector"
+            },
+            "value": 14368,
+            "evidence": {
+              "raw_text": "14368",
+              "location": "cat_public_sector / result_mean",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_median",
+            "dimensions": {
+              "field_table_row": "cat_public_sector"
+            },
+            "value": 12000,
+            "evidence": {
+              "raw_text": "12000",
+              "location": "cat_public_sector / result_median",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_mean",
+            "dimensions": {
+              "field_table_row": "cat_health_education"
+            },
+            "value": 9402,
+            "evidence": {
+              "raw_text": "9402",
+              "location": "cat_health_education / result_mean",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_median",
+            "dimensions": {
+              "field_table_row": "cat_health_education"
+            },
+            "value": 7000,
+            "evidence": {
+              "raw_text": "7000",
+              "location": "cat_health_education / result_median",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_mean",
+            "dimensions": {
+              "field_table_row": "cat_remittances"
+            },
+            "value": 8581,
+            "evidence": {
+              "raw_text": "8581",
+              "location": "cat_remittances / result_mean",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_median",
+            "dimensions": {
+              "field_table_row": "cat_remittances"
+            },
+            "value": 5833,
+            "evidence": {
+              "raw_text": "5833",
+              "location": "cat_remittances / result_median",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_mean",
+            "dimensions": {
+              "field_table_row": "cat_total_excl_remittances"
+            },
+            "value": 8529,
+            "evidence": {
+              "raw_text": "8529",
+              "location": "cat_total_excl_remittances / result_mean",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "component_table1",
+            "result_id": "result_median",
+            "dimensions": {
+              "field_table_row": "cat_total_excl_remittances"
+            },
+            "value": 7000,
+            "evidence": {
+              "raw_text": "7000",
+              "location": "cat_total_excl_remittances / result_median",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          }
+        ],
+        "omissions": [],
+        "notes": "Manually transcribed example values for trying the review journey. Not a new extraction."
+      }
+    },
+    {
+      "id": "financing",
+      "name": "Project financing",
+      "image": "refugee/040_Iraq-COVID-19-Vaccination-Project_table_000.png",
+      "image_sha256": "db944217fca9b310080b2e532ef88d96d5efd59b83d992513a5738d5e7768b05",
+      "docling": "data/structured_data_trials/review_preprocessing_20261126/040_Iraq-COVID-19-Vaccination-Project_table_000/native.json",
+      "proposal_dir": null,
+      "model_origin": "Initial data model: hand-authored example",
+      "model": {
+        "title": "Project financing summary",
+        "components": [
+          {
+            "id": "c1",
+            "name": "Financing summary",
+            "one_result_means": "A monetary amount for a named financing item.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Item",
+                "meaning": "item",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Total Project Cost",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Total Financing",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "of which IBRD/IDA",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "Financing Gap",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A monetary amount for a named financing item.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Financing summary"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "unit_c1",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Source title: US$, Millions. Preserve displayed amounts and attach millions scale once.",
+            "value": "Source title: US$, Millions. Preserve displayed amounts and attach millions scale once.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Financing summary"
+              }
+            ]
+          },
+          {
+            "id": "time_c1",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "No observation date is printed.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Financing summary"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "The indented of which IBRD/IDA item is a component of Total Financing.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Financing summary"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "No project name, reference country or financing status is established by this crop.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Financing summary"
+              }
+            ]
+          }
+        ],
+        "relationships": [
+          {
+            "id": "r1",
+            "kind": "part_of",
+            "description": "The of-which IBRD/IDA item is under Total Financing.",
+            "status": "source_stated",
+            "from_ref": {
+              "component_id": "c1",
+              "field_id": "f1",
+              "category_id": "v3",
+              "result_id": null
+            },
+            "to_ref": {
+              "component_id": "c1",
+              "field_id": "f1",
+              "category_id": "v2",
+              "result_id": null
+            },
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "of which IBRD/IDA",
+                "location": "Indented financing row"
+              }
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "question": "Are the amounts planned, committed, approved or disbursed? The crop does not say.",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          }
+        ]
+      },
+      "data": {
+        "status": "complete",
+        "observations": [
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v1"
+            },
+            "value": 100.0,
+            "evidence": {
+              "raw_text": "100.00",
+              "location": "Total Project Cost",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v2"
+            },
+            "value": 100.0,
+            "evidence": {
+              "raw_text": "100.00",
+              "location": "Total Financing",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v3"
+            },
+            "value": 98.0,
+            "evidence": {
+              "raw_text": "98.00",
+              "location": "of which IBRD/IDA",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v4"
+            },
+            "value": 0.0,
+            "evidence": {
+              "raw_text": "0.00",
+              "location": "Financing Gap",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          }
+        ],
+        "omissions": [],
+        "notes": "Manually transcribed example values, not a new extraction."
+      }
+    },
+    {
+      "id": "education",
+      "name": "Enrollment and reading",
+      "image": "refugee/054_Sudan-Basic-Education-Emergency-Support-Project_figure_001.png",
+      "image_sha256": "3992eea19448a2e9e7facc7211466c2925d9cc98145cfafac6a68cd80e11acd4",
+      "docling": "data/structured_data_trials/review_preprocessing_20261126/054_Sudan-Basic-Education-Emergency-Support-Project_figure_001/native.json",
+      "proposal_dir": null,
+      "model_origin": "Initial data model: hand-authored example",
+      "model": {
+        "title": "Enrollment and reading composite",
+        "components": [
+          {
+            "id": "c1",
+            "name": "Panel A: Enrollment",
+            "one_result_means": "Enrollment for a school level and sex in the displayed 2017 context.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "School Level",
+                "meaning": "school level",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Secondary 3",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Secondary 2",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "Secondary 1",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "Basic 8",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v5",
+                    "source_label": "Basic 7",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v6",
+                    "source_label": "Basic 6",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v7",
+                    "source_label": "Basic 5",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v8",
+                    "source_label": "Basic 4",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v9",
+                    "source_label": "Basic 3",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v10",
+                    "source_label": "Basic 2",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v11",
+                    "source_label": "Basic 1",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f2",
+                "name": "Sex",
+                "meaning": "sex",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Male",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Female",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "Enrollment for a school level and sex in the displayed 2017 context.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel A: Enrollment"
+              }
+            ]
+          },
+          {
+            "id": "c2",
+            "name": "Panel B: Reading",
+            "one_result_means": "Percent of Grade 3 pupils unable to read a single word of a short Arabic text for a displayed country.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Country",
+                "meaning": "country",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Jordan",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Iraq",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "Morocco",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "Egypt",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v5",
+                    "source_label": "Yemen",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v6",
+                    "source_label": "Sudan",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "Percent of Grade 3 pupils unable to read a single word of a short Arabic text for a displayed country.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel B: Reading"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "unit_c1",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Enrollment in thousands; leftward bars are positive enrollment magnitudes.",
+            "value": "Enrollment in thousands; leftward bars are positive enrollment magnitudes.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel A: Enrollment"
+              }
+            ]
+          },
+          {
+            "id": "time_c1",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "2017 in panel heading; Education Sector Analysis, 2018 is source context.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel A: Enrollment"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "There are 22 bar positions, with ten printed values and twelve unlabeled magnitudes.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel A: Enrollment"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Country is not explicitly identified for this panel by the image.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel A: Enrollment"
+              }
+            ]
+          },
+          {
+            "id": "unit_c2",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Percent.",
+            "value": "Percent.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel B: Reading"
+              }
+            ]
+          },
+          {
+            "id": "time_c2",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "2014 or the latest available; country-specific observation years are not supplied.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel B: Reading"
+              }
+            ]
+          },
+          {
+            "id": "note_c2_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Do not transfer Panel A units, sex breakdown or 2017 period into Panel B.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel B: Reading"
+              }
+            ]
+          },
+          {
+            "id": "note_c2_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Sudan is highlighted by color; no reason for the highlight is stated.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel B: Reading"
+              }
+            ]
+          }
+        ],
+        "relationships": [],
+        "questions": [
+          {
+            "id": "q1",
+            "question": "Which actual observation year applies to each reading percentage?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              },
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          },
+          {
+            "id": "q2",
+            "question": "What country does the enrollment pyramid describe?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              },
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          }
+        ]
+      },
+      "data": {
+        "status": "partial",
+        "observations": [
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v1",
+              "f2": "v1"
+            },
+            "value": 185,
+            "evidence": {
+              "raw_text": "185",
+              "location": "Panel A, grade row 1, Male",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v1",
+              "f2": "v2"
+            },
+            "value": 197,
+            "evidence": {
+              "raw_text": "197",
+              "location": "Panel A, grade row 1, Female",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v2",
+              "f2": "v1"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 2, Male",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v2",
+              "f2": "v2"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 2, Female",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v3",
+              "f2": "v1"
+            },
+            "value": 164,
+            "evidence": {
+              "raw_text": "164",
+              "location": "Panel A, grade row 3, Male",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v3",
+              "f2": "v2"
+            },
+            "value": 177,
+            "evidence": {
+              "raw_text": "177",
+              "location": "Panel A, grade row 3, Female",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v4",
+              "f2": "v1"
+            },
+            "value": 255,
+            "evidence": {
+              "raw_text": "255",
+              "location": "Panel A, grade row 4, Male",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v4",
+              "f2": "v2"
+            },
+            "value": 246,
+            "evidence": {
+              "raw_text": "246",
+              "location": "Panel A, grade row 4, Female",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v5",
+              "f2": "v1"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 5, Male",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v5",
+              "f2": "v2"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 5, Female",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v6",
+              "f2": "v1"
+            },
+            "value": 341,
+            "evidence": {
+              "raw_text": "341",
+              "location": "Panel A, grade row 6, Male",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v6",
+              "f2": "v2"
+            },
+            "value": 312,
+            "evidence": {
+              "raw_text": "312",
+              "location": "Panel A, grade row 6, Female",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v7",
+              "f2": "v1"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 7, Male",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v7",
+              "f2": "v2"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 7, Female",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v8",
+              "f2": "v1"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 8, Male",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v8",
+              "f2": "v2"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 8, Female",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v9",
+              "f2": "v1"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 9, Male",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v9",
+              "f2": "v2"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 9, Female",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v10",
+              "f2": "v1"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 10, Male",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v10",
+              "f2": "v2"
+            },
+            "value": null,
+            "evidence": {
+              "raw_text": null,
+              "location": "Panel A, grade row 10, Female",
+              "method": "missing",
+              "note": "Value is not printed and image estimates are disabled."
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v11",
+              "f2": "v1"
+            },
+            "value": 524,
+            "evidence": {
+              "raw_text": "524",
+              "location": "Panel A, grade row 11, Male",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c1",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v11",
+              "f2": "v2"
+            },
+            "value": 464,
+            "evidence": {
+              "raw_text": "464",
+              "location": "Panel A, grade row 11, Female",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c2",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v1"
+            },
+            "value": 4,
+            "evidence": {
+              "raw_text": "4%",
+              "location": "Panel B / Jordan",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c2",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v2"
+            },
+            "value": 17,
+            "evidence": {
+              "raw_text": "17%",
+              "location": "Panel B / Iraq",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c2",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v3"
+            },
+            "value": 18,
+            "evidence": {
+              "raw_text": "18%",
+              "location": "Panel B / Morocco",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c2",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v4"
+            },
+            "value": 22,
+            "evidence": {
+              "raw_text": "22%",
+              "location": "Panel B / Egypt",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c2",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v5"
+            },
+            "value": 27,
+            "evidence": {
+              "raw_text": "27%",
+              "location": "Panel B / Yemen",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          },
+          {
+            "component_id": "c2",
+            "result_id": "value",
+            "dimensions": {
+              "f1": "v6"
+            },
+            "value": 40,
+            "evidence": {
+              "raw_text": "40%",
+              "location": "Panel B / Sudan",
+              "method": "printed",
+              "note": null
+            },
+            "bounds": null
+          }
+        ],
+        "omissions": [
+          {
+            "location": "Panel A unlabelled enrollment bars",
+            "reason": "Twelve values are not printed; printed-only policy leaves them unresolved."
+          }
+        ],
+        "notes": "Manually transcribed printed values and explicit missing slots for trying the review journey."
+      }
+    }
+  ]
+}

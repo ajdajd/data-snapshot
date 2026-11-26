@@ -8,10 +8,9 @@ OpenRouter entry point prepares image-first LLM extraction offline by default.
 **Current direction (2026-11-26):** tooling plus an interactive workflow for one
 snapshot at a time: PNG/Docling evidence -> LLM working-model proposal -> user
 acceptance -> extraction -> data review -> formal SDMX structure/code mapping and
-export. A separate Streamlit app is planned. The working-model proposal and local
-draft/acceptance backend is implemented below; the UI and extraction against the
-new accepted model remain to be added. The fixed-DSD CLI remains an experimental
-baseline.
+export. A separate Streamlit prototype now connects model review, accepted-model
+extraction, data corrections and interim JSON export. The fixed-DSD CLI remains
+an experimental baseline.
 SDMX concepts and codelists can guide appropriate mappings without forcing absent
 information into the snapshot. Final encoding can follow reviewed extraction;
 interpreting the statistical meaning and validating provisional records still
@@ -19,6 +18,31 @@ happen earlier. CSV, RapidAI and PDF-workflow integration remain deferred.
 
 The central [plan and experiment notebook](../../../docs/data_extraction/working_notebook.md)
 records decisions, candidate DSDs, hardware checks and live findings.
+
+## Interactive reviewer
+
+```bash
+cd /home/ajd/data-snapshot
+uv run --no-sync streamlit run \
+  /home/ajd/data-snapshot/src/data_snapshot/structured_data_reviewer/app.py \
+  --server.address 127.0.0.1
+```
+
+Requires the locked `review` extra alongside `structured_data` and
+`structured_llm`. Income uses the actual saved proposal; financing and education
+start from labeled hand-authored drafts. **Load preloaded example values** uses
+manually transcribed data at no API cost. Paid actions default off; enabling them
+only enables explicit proposal/revision and extraction buttons, with the existing
+shared $5 accounting guardrails. Uploads run local offline standard Docling first.
+
+In **Data Model**, use **Edit data model**, **Save data model draft** and
+**Accept data model**. Use **Extract values with LLM** for live value extraction.
+Extract/load values, review and correct them beside the image, then save reviewed
+data before downloading. Saved work resumes under
+`data/structured_data_trials/reviewer_sessions/`. Model changes invalidate older
+data for export; raw generated values and human corrections remain separate.
+The current export is clearly labeled interim reviewed JSON, **not SDMX-JSON**.
+See the notebook's three-example walkthrough and remaining limitations.
 
 ## Snapshot model proposal and acceptance
 
@@ -111,9 +135,20 @@ Tests use hand-authored models for all eight design cases, fake billed responses
 and temporary sessions. They verify shape, references, scope integrity, review
 history, source matching and atomic-save failure behavior. They do not establish
 LLM proposal quality, exhaustive context-rule coverage or factual correctness.
-There is no Streamlit UI or accepted-working-model value extractor yet. Do not
-pass this working-model JSON to the legacy fixed-DSD extractor or call it
-SDMX-compliant. Those are subsequent integration steps.
+`accepted_extraction.py` now prepares or explicitly executes extraction against
+the current accepted model. It defaults to offline preparation:
+
+```bash
+uv run --no-sync python -m data_snapshot.structured_data_extraction.accepted_extraction \
+  "$review_session_dir" --output-dir data/structured_data_trials/accepted_income_prepare_01
+```
+
+Add `--execute` for one billed call into a fresh output directory. Successful
+runs save `working_model.json`, `observations.json`, response/schema/source
+artifacts and a run report with pinned model revision and shared spending totals.
+`data_review.py` provides draft correction, explicit approval and interim export
+for the app. Do not pass working-model JSON to the legacy fixed-DSD extractor or
+call these reviewed packages SDMX-compliant.
 
 ## OpenRouter workflow — offline preparation first
 
