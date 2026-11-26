@@ -9,7 +9,7 @@ OpenRouter entry point prepares image-first LLM extraction offline by default.
 snapshot at a time: PNG/Docling evidence -> LLM working-model proposal -> user
 acceptance -> extraction -> data review -> formal SDMX structure/code mapping and
 export. A separate Streamlit prototype now connects model review, accepted-model
-extraction, data corrections and interim JSON export. The fixed-DSD CLI remains
+extraction, data corrections and SDMX-JSON bundle export. The fixed-DSD CLI remains
 an experimental baseline.
 SDMX concepts and codelists can guide appropriate mappings without forcing absent
 information into the snapshot. Final encoding can follow reviewed extraction;
@@ -47,13 +47,48 @@ Extract/load values, review and correct them beside the image, then save reviewe
 data before downloading. Saved work resumes under
 `data/structured_data_trials/reviewer_sessions/`. Model changes invalidate older
 data for export; raw generated values and human corrections remain separate.
-The current export is clearly labeled interim reviewed JSON, **not SDMX-JSON**.
+**Download SDMX-JSON bundle** exports a ZIP with `snapshot.png`,
+`structure.sdmx.json`, `data.sdmx.json`, `reviewed.json` and `manifest.json`.
+The structure and data messages use SDMX-JSON 2.1.0 / SDMX 3.1.0. Official-schema,
+local-reference and lossless reviewed-data checks run before download. The
+manifest records SHA-256 hashes of the four payload files. Unreviewed data,
+unsaved changes and results tied to an older data model cannot be exported.
 The source pane indicates whether Docling preprocessing was used, without showing
 its native extraction output.
 The **Session name** field saves on Enter/blur. It starts from a sanitized snapshot
-title, labels the **Select session** dropdown, and supplies the JSON download name.
+title, labels the **Select session** dropdown, and supplies the ZIP download name.
 Renaming preserves the data model, source fingerprints, approvals and storage path.
-See the notebook's three-example walkthrough and remaining limitations.
+See the [six-example MVP acceptance report](../../../docs/data_extraction/MVP_acceptance_20261126.md)
+for live runs, costs, source checks and remaining usability issues.
+
+### Snapshot-specific SDMX encoding
+
+`sdmx_export.py` builds on the existing `exchange.py` serializer. Each accepted
+component/result gets a DSD and dataset so numeric and text measures stay typed.
+Identifying fields become dimensions; source categories become LOCAL codelists.
+Source labels are the code names and optional display labels remain annotations.
+Open identifying text gets local codes with explicit source-value mappings; null
+keys get a distinct missing-key code. Scalar results use a documented singleton
+`SNAPSHOT_RECORD` dimension rather than inventing statistical categories.
+
+Scoped units, dates, qualifications and other context become observation
+attributes only where their accepted scope applies, with separate knowledge
+status attributes. Unknown units stay unknown; source-year wording is not
+silently normalized to `TIME_PERIOD`. Values keep their original scale.
+Printed/estimated/missing status, raw text, source location, notes and bounds are
+retained. Full model definitions, relationships, unresolved questions, omissions
+and source identities remain in SDMX annotations and the review record.
+Relationships are retained as local annotations, not registry constraints.
+
+These are research structures under agency `LOCAL`, marked `meta.test=true`.
+They are not registered domain DSDs or harmonized international codes. Output
+with unknown context, missing values or estimates can still be reviewed and
+serialized; successful serialization does not prove numerical correctness.
+
+`export_bundle(session_dir, extraction_dir)` gates export on the current accepted
+model and approved data. `validate_bundle(zip_bytes)` independently verifies file
+hashes, source identity, official schemas, local references and decoded records
+against the bundled review record, without a model call or original workspace.
 
 ## Snapshot model proposal and acceptance
 
@@ -163,9 +198,10 @@ uv run --no-sync python -m data_snapshot.structured_data_extraction.accepted_ext
 Add `--execute` for one billed call into a fresh output directory. Successful
 runs save `working_model.json`, `observations.json`, response/schema/source
 artifacts and a run report with pinned model revision and shared spending totals.
-`data_review.py` provides draft correction, explicit approval and interim export
-for the app. Do not pass working-model JSON to the legacy fixed-DSD extractor or
-call these reviewed packages SDMX-compliant.
+`data_review.py` provides draft correction, explicit approval and a reviewed
+audit package. That package alone is not SDMX; `sdmx_export.py` encodes it and
+validates the actual exchange messages. Do not pass working-model JSON to the
+legacy fixed-DSD extractor.
 
 ## OpenRouter workflow — offline preparation first
 

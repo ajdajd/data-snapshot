@@ -17,6 +17,7 @@ def exchange_messages(
     datasets: list[list[dict[str, Any]]],
     measure_name: str = "Observation value",
     dataset_annotations: list[dict[str, str]] | None = None,
+    measure_data_type: str = "Double",
 ) -> tuple[dict, dict]:
     """Serialize validated long observations using one local DSD.
 
@@ -33,6 +34,8 @@ def exchange_messages(
         Display name of the numeric observation measure.
     dataset_annotations : list of dict, optional
         One SDMX annotation per dataset, retaining component identity and status.
+    measure_data_type : str, optional
+        SDMX representation of OBS_VALUE, including String for text results.
 
     Returns
     -------
@@ -69,13 +72,17 @@ def exchange_messages(
         "sender": {"id": "LOCAL"},
         "test": True,
     }
-    measure = {"id": "OBS_VALUE", "name": measure_name, "data_type": "Double"}
+    measure = {"id": "OBS_VALUE", "name": measure_name, "data_type": measure_data_type}
     components = dimensions + [measure] + attributes
     concepts = [
         {k: c[k] for k in ("id", "name", "description") if k in c} for c in components
     ]
 
     def representation(component: dict[str, Any]) -> dict:
+        if component.get("codes"):
+            return {
+                "enumeration": f"urn:sdmx:org.sdmx.infomodel.codelist.Codelist=LOCAL:{identifier}_{component['id']}({version})"
+            }
         return {"format": {"dataType": component.get("data_type", "String")}}
 
     descriptors = {
@@ -124,10 +131,26 @@ def exchange_messages(
             "dataStructures": [{**identity, "dataStructureComponents": descriptors}],
         },
     }
+    lists = [
+        {
+            **identity,
+            "id": f"{identifier}_{c['id']}",
+            "name": c["name"],
+            "codes": c["codes"],
+        }
+        for c in dimensions
+        if c.get("codes")
+    ]
+    if lists:
+        structure["data"]["codelists"] = lists
     rows = [row for dataset in datasets for row in dataset]
     dimension_values = [
-        list(dict.fromkeys(row["key"][i] for row in rows))
-        for i in range(len(dimensions))
+        (
+            [code["id"] for code in c["codes"]]
+            if c.get("codes")
+            else list(dict.fromkeys(row["key"][i] for row in rows))
+        )
+        for i, c in enumerate(dimensions)
     ]
     attribute_values = [
         list(
@@ -150,8 +173,21 @@ def exchange_messages(
                     "id": c["id"],
                     "name": c["name"],
                     "keyPosition": i,
-                    "format": representation(c)["format"],
-                    "values": [{"value": v} for v in dimension_values[i]],
+                    "format": {"dataType": c.get("data_type", "String")},
+                    **(
+                        {
+                            "values": [
+                                {"id": code["id"], "name": code["name"]}
+                                for code in c["codes"]
+                            ]
+                        }
+                        if c.get("codes")
+                        else (
+                            {"values": [{"value": v} for v in dimension_values[i]]}
+                            if dimension_values[i]
+                            else {}
+                        )
+                    ),
                 }
                 for i, c in enumerate(dimensions)
             ]
@@ -206,6 +242,23 @@ def exchange_messages(
         "meta": meta,
         "data": {"structures": [data_structure], "dataSets": output_datasets},
     }
+    validate_messages(structure, data)
+    return structure, data
+
+
+def validate_messages(structure: dict, data: dict) -> None:
+    """Validate both exchange messages against the vendored official schemas.
+
+    Parameters
+    ----------
+    structure, data : dict
+        SDMX-JSON 2.1.0 structure and data messages.
+
+    Raises
+    ------
+    jsonschema.ValidationError
+        If a message violates the official exchange schema.
+    """
     for kind, message in (("structure", structure), ("data", data)):
         schema = json.loads(
             (
@@ -213,4 +266,3 @@ def exchange_messages(
             ).read_text()
         )
         Draft201909Validator(schema, format_checker=FormatChecker()).validate(message)
-    return structure, data

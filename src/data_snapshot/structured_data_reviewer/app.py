@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 import streamlit as st
+from jsonschema import ValidationError as SchemaValidationError
 from pydantic import ValidationError
 
 from data_snapshot.structured_data_extraction.accepted_extraction import (
@@ -23,6 +24,7 @@ from data_snapshot.structured_data_extraction.data_review import (
     reviewed_export,
     save_data_review,
 )
+from data_snapshot.structured_data_extraction.sdmx_export import export_bundle
 from data_snapshot.structured_data_extraction.llm import _DEFAULT_LEDGER, _write_json
 from data_snapshot.structured_data_extraction.model_proposal import run_model_proposal
 from data_snapshot.structured_data_extraction.model_review import (
@@ -791,20 +793,27 @@ def _export(directory: Path) -> None:
     if extraction:
         try:
             payload = reviewed_export(directory, extraction)
+            bundle = export_bundle(directory, extraction)
             st.download_button(
-                "Download reviewed JSON",
-                json.dumps(payload, ensure_ascii=False, indent=2),
-                file_name=session_name(directory) + ".json",
-                mime="application/json",
+                "Download SDMX-JSON bundle",
+                bundle,
+                file_name=session_name(directory) + ".zip",
+                mime="application/zip",
                 key="download_reviewed",
             )
+            st.caption(
+                "ZIP: snapshot, SDMX structure and data, review record and checksum manifest."
+            )
+            st.success(
+                "SDMX schemas, local references and reviewed-data round-trip validated."
+            )
             st.caption("Origin: " + payload["data_origin"])
-        except (ValueError, OSError, ValidationError) as error:
+        except (ValueError, OSError, ValidationError, SchemaValidationError) as error:
             _error(error)
     else:
         st.info("Review and save a result set in Data before exporting.")
     st.caption(
-        "Formal SDMX structure, code mapping and SDMX-JSON export are pending. This interim JSON is not SDMX-JSON."
+        "Uses snapshot-specific LOCAL structures and codes. Unknown context and estimates are preserved; numerical correctness still requires review."
     )
 
 

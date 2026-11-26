@@ -2,9 +2,11 @@
 
 import copy
 import hashlib
+import io
 import json
 import sys
 import runpy
+import zipfile
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Callable
@@ -39,6 +41,10 @@ from data_snapshot.structured_data_reviewer.session_names import (
     save_session_name,
 )
 from data_snapshot.structured_data_extraction.model_proposal import run_model_proposal
+from data_snapshot.structured_data_extraction.sdmx_export import (
+    export_bundle,
+    validate_bundle,
+)
 
 
 @pytest.fixture
@@ -284,6 +290,43 @@ def test_review_corrections_approval_resume_and_model_invalidation(
         reviewed_export(directory, output)
     with pytest.raises(ValueError, match="Data model changed"):
         save_data_review(directory, output, data, 2, "Reviewer", reviewed=True)
+
+
+@pytest.mark.parametrize("case_id", ["income", "financing", "education"])
+def test_download_bundle_approval_checksums_and_stale_model(
+    cases: dict, tmp_path: Path, case_id: str
+) -> None:
+    """Export only approved current data and verify the portable ZIP independently."""
+    directory = _session(cases[case_id], tmp_path)
+    output = examples.load_preloaded_values(directory, cases[case_id])
+    with pytest.raises(ValueError, match="Review data"):
+        export_bundle(directory, output)
+    save_data_review(
+        directory,
+        output,
+        load_data_review(output)["working"],
+        0,
+        "Reviewer",
+        reviewed=True,
+    )
+    content = export_bundle(directory, output)
+    assert validate_bundle(content)["observations"] == len(
+        cases[case_id]["data"]["observations"]
+    )
+    with zipfile.ZipFile(io.BytesIO(content)) as archive:
+        parts = {name: archive.read(name) for name in archive.namelist()}
+    parts["snapshot.png"] += b"changed"
+    altered = io.BytesIO()
+    with zipfile.ZipFile(altered, "w") as archive:
+        for name, value in parts.items():
+            archive.writestr(name, value)
+    with pytest.raises(ValueError, match="checksum"):
+        validate_bundle(altered.getvalue())
+    model = load_session(directory).revisions[-1].model
+    model.title = "Changed after approval"
+    save_draft(directory, model, 1, "Reviewer", "Test stale export")
+    with pytest.raises(ValueError, match="current accepted data model"):
+        export_bundle(directory, output)
 
 
 def test_changed_generated_values_are_not_silently_reviewed(

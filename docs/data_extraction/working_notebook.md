@@ -6,6 +6,18 @@ is motivation for preserving evidence, not a required output of this prototype.
 
 ## Current plan
 
+**MVP completed — 2026-11-26:** the app now supports PNG upload, optional Docling,
+data model proposal/revision/acceptance, value extraction, correction drafts,
+resume, explicit data approval and an SDMX-JSON bundle download. All six core
+examples reached the download through headless app tests with real LLM calls.
+The bundles passed official-schema validation, local-reference checks, checksums
+and lossless comparison with the reviewed observations. This establishes the
+working journey, not corpus-wide accuracy or validated human usability.
+
+See the [six-example acceptance report](MVP_acceptance_20261126.md) for artifacts,
+source checks, failures/recovery and human-facing issues. **The first post-MVP
+task is improving the Data Model page UX; that redesign has not started.**
+
 **Decision — 2026-11-26:** the deliverable is tooling plus an interactive review
 workflow for **one snapshot at a time**. Follow Approach 1: propose a
 snapshot-specific data model, obtain user acceptance, extract the values, and
@@ -38,15 +50,18 @@ The intended workflow is:
    statistical model marks dependent extracted data as needing review again.
 6. **Formalize and export.** Map appropriate concepts/codes, construct the formal
    DSD, validate the structure and reviewed observations, and export SDMX-JSON.
-   CSV remains an optional later export. Provisional reviewed JSON must not be
-   described as SDMX-compliant until this step succeeds.
+   The MVP uses snapshot-specific LOCAL concepts/codelists and one DSD/dataset
+   per component/result. Download a ZIP containing the PNG, separate SDMX-JSON
+   structure and data messages, review audit record and checksum manifest.
+   External code harmonization and optional CSV remain later work.
 
 **Standard fields and codelists:** reuse suitable SDMX concepts and verified
 codes where their meaning matches the evidence. Do not require every snapshot to
 contain REF_AREA or TIME_PERIOD, turn an unspecified date into a reporting period,
 or invent a country/unit to fill a code. Preserve raw source labels and proposed
 mappings separately. Generic shape/type/reference validation remains useful
-throughout; final SDMX encoding is deferred, not all validation or interpretation.
+throughout; final SDMX encoding now follows reviewed extraction, while
+interpretation and provisional validation happen earlier.
 
 **Starting UI:** a separate Streamlit reviewer with the image on the left and
 Model, Data and Export stages on the right. Structured editors hold the current
@@ -57,25 +72,20 @@ and data. Use plain labels in the main UI; advanced views can expose JSON and
 SDMX details. Follow the metadata reviewer's interaction patterns without a
 runtime dependency on its models, forms or storage module.
 
-**Next implementation milestones:**
+**Milestones and next work:**
 
-1. Use the eight image-grounded cases in `review_design_examples.json` to exercise
-   model proposal, direct editing, acceptance, extraction and data corrections.
-   This design pack is now prepared; see the review-design section below.
-2. Build the independent per-snapshot model-proposal/revision and accepted-model
-   extraction path, saving inspectable JSON before a UI depends on it. Reuse the
-   existing OpenRouter execution/accounting utilities; keep the old fixed-DSD
-   pipeline as an experimental baseline. Proposal/revision and local
-   draft/acceptance are now implemented and checked offline. The first live
-   proposal completed and needs a scoped-qualification revision before acceptance.
-   Accepted-model extraction and the initial review UI are now implemented and
-   tested offline; a live accepted-model extraction remains to be tried.
-3. Try the initial Streamlit workspace with income, financing and education.
-   Exercise its controls against the remaining design cases as it grows.
-4. Show the workflow at the next team sync: proposed model, user correction,
-   accepted revision, extracted values, review and the current export state.
-   Gather feedback before investing in more interaction complexity. Finish formal
-   SDMX export after extraction/review works, clearly labeling any interim JSON.
+1. Completed: eight-case design pack, independent model-proposal/revision and
+   accepted-model extraction backend, review app and formal SDMX export.
+2. Completed: new live app journeys for all six core cases, including corrections,
+   saved drafts/resume and validated downloads. Regression needed a corrective
+   proposal; duration exposed a stage-wording bug, now fixed and retested. The
+   education export deliberately retains missing values and trade uses estimates.
+3. Next: improve the Data Model page so a person can understand the proposal,
+   spot decisions and request corrections without exploring technical editors.
+   Preserve the advanced editor as secondary; use the same working examples.
+4. Show the complete MVP at the next team sync and gather feedback. No shared
+   corpus DSD, production port, RapidAI integration or broader accuracy study is
+   required to demonstrate this completed research MVP.
 
 Luna medium remains the initial model reference from the completed extraction
 comparison. The first live working-model proposal passed structural validation
@@ -93,8 +103,11 @@ use. Shared-DSD consolidation/design and the proposed 202-image coverage study a
 parked; they are not prerequisites for this MVP. The seven-batch DSD strategy was
 not activated. Detailed closeout, archive paths and costs are recorded below.
 
-Current recorded workstream spending: **$2.03134574 / $5**; remaining
-**$2.96865426**, with no outstanding reservations. The original dropped request
+Current recorded workstream spending: **$2.08377520 / $5**; remaining
+**$2.91622480**, with no outstanding reservations. The final MVP verification
+used 16 calls costing **$0.04745831**, including the failed regression proposal
+and duration retest. Per-call running totals and separate proposal/extraction
+batch totals are saved with the acceptance artifacts. The original dropped request
 was written off on user instruction, as documented in the recovery record.
 
 ## Agreed scope and constraints
@@ -146,7 +159,8 @@ the extracted values and their associations. Keep the backend independently
 testable alongside the UI that supports these interactions. Discovery and the
 eight-case design pack are saved. The initial independent Streamlit reviewer now
 connects model proposal/editing/acceptance to value extraction, correction review
-and interim JSON export. See the prototype walkthrough below.
+and SDMX-JSON bundle export. The walkthrough below records the earlier increments;
+the acceptance report describes the final MVP.
 
 ### First review prototype — 2026-11-26
 
@@ -351,8 +365,9 @@ versioned human corrections and a separate explicit data approval. Unsaved edits
 unreviewed data and stale results block export. The JSON download includes the
 model, reviewed data, provenance and review history.
 
-**Export remains interim reviewed JSON, not SDMX-JSON.** Formal DSD/codelist
-mapping, SDMX serialization, assistant-driven data corrections and richer
+**At this prototype stage, export was interim reviewed JSON.** The final MVP
+adds local DSD/codelist encoding and SDMX serialization, documented in the
+acceptance report. Assistant-driven data corrections and richer
 structure editing remain subsequent increments. Current data grids edit existing
 rows and evidence; they do not add omitted rows or edit bounds. Schema validity
 does not establish correctness, and accepting a model does not verify its values.
@@ -479,10 +494,9 @@ reviewed transformation and retained source values.
 5. **Save reviewed data:** preserve corrections, unresolved content and the review
    decision. Review acceptance is separate from extraction completeness: a person
    may review a partial extraction without claiming the whole image was recovered.
-6. **Export:** reviewed interim JSON can retain a partial result and its omissions.
-   Show SDMX formalization/export as pending until that implementation validates
-   the actual structure and observations. JSON syntax validity is not SDMX
-   compliance or proof of image accuracy.
+6. **Export:** retain partial results and omissions. The final MVP validates and
+   bundles the actual SDMX structure and observations, with the review record.
+   Schema validity and lossless serialization do not prove image accuracy.
 
 In printed-only mode the trade and Shona cases have no exact numeric result
 labels. Their models can still be accepted, while numerical extraction remains
@@ -2112,7 +2126,10 @@ Docling conversion success means a document was produced, not that chart values
 or statistical meanings are correct. Native-only runs use `extracted_only`;
 they are never labelled verified numerical datasets.
 
-## Next actions and open questions
+## Historical next actions — initial Docling phase
+
+The actions below record the end of the initial Docling investigation. The
+current MVP status and next task are at the top of this notebook.
 
 The user completed the remaining checks in the initial five-image set from WSL:
 refugee pie and Shona with `--pipeline chart --device cuda:0`, then regression
