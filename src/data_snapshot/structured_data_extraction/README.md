@@ -50,6 +50,9 @@ data for export; raw generated values and human corrections remain separate.
 The current export is clearly labeled interim reviewed JSON, **not SDMX-JSON**.
 The source pane indicates whether Docling preprocessing was used, without showing
 its native extraction output.
+The **Session name** field saves on Enter/blur. It starts from a sanitized snapshot
+title, labels the **Select session** dropdown, and supplies the JSON download name.
+Renaming preserves the data model, source fingerprints, approvals and storage path.
 See the notebook's three-example walkthrough and remaining limitations.
 
 ## Snapshot model proposal and acceptance

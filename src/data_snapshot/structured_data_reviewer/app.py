@@ -43,6 +43,10 @@ from data_snapshot.structured_data_reviewer.examples import (
     preprocess_upload,
 )
 from data_snapshot.structured_data_reviewer.model_forms import edit_model
+from data_snapshot.structured_data_reviewer.session_names import (
+    session_name,
+    save_session_name,
+)
 
 
 @st.cache_data(max_entries=1)
@@ -67,6 +71,14 @@ def _error(error: Exception) -> None:
             st.error(f"{' → '.join(map(str,item['loc']))}: {item['msg']}")
     else:
         st.error(str(error))
+
+
+def _rename_session(directory: Path, key: str) -> None:
+    try:
+        st.session_state[key] = save_session_name(directory, st.session_state[key])
+    except (ValueError, OSError) as error:
+        st.session_state[key] = session_name(directory)
+        _error(error)
 
 
 def _reload_editor(directory: Path) -> None:
@@ -178,10 +190,18 @@ def _input(workspace: Path) -> None:
     )
     st.subheader("Resume saved work")
     if existing:
+        labels = {}
+        for path in existing:
+            name = session_name(path)
+            label, index = name, 2
+            while label in labels.values():
+                label = f"{name} ({index})"
+                index += 1
+            labels[path] = label
         selected = st.selectbox(
-            "Resume saved work",
+            "Select session",
             existing,
-            format_func=lambda p: p.relative_to(workspace).as_posix(),
+            format_func=labels.get,
             key="resume_choice",
         )
         if st.button("Resume session", key="resume_session"):
@@ -770,7 +790,7 @@ def _export(directory: Path) -> None:
             st.download_button(
                 "Download reviewed JSON",
                 json.dumps(payload, ensure_ascii=False, indent=2),
-                file_name="reviewed_snapshot.json",
+                file_name=session_name(directory) + ".json",
                 mime="application/json",
                 key="download_reviewed",
             )
@@ -809,6 +829,21 @@ st.session_state.setdefault("stage", "Input")
 if "next_stage" in st.session_state:
     st.session_state["stage"] = st.session_state.pop("next_stage")
 st.title("Data snapshot reviewer")
+named_session = st.session_state.get("active_session")
+if named_session:
+    name_key = "session_name:" + named_session
+    st.session_state.setdefault(name_key, session_name(Path(named_session)))
+    st.text_input(
+        "Session name",
+        key=name_key,
+        on_change=_rename_session,
+        args=(Path(named_session), name_key),
+        persist_state="session",
+    )
+else:
+    st.text_input(
+        "Session name", value="Untitled snapshot", disabled=True, key="session_name:new"
+    )
 with st.sidebar:
     st.text_input("Reviewer name", value="Local reviewer", key="reviewer")
     st.checkbox("Enable paid LLM actions", value=False, key="enable_live")
@@ -853,9 +888,7 @@ elif active:
         with st.container(height=760, border=True):
             st.image(str(directory / "input.png"), width="stretch")
             used_docling = load_session(directory).docling_sha256 is not None
-            st.caption(
-                "Docling preprocessing: " + ("Used" if used_docling else "Not used")
-            )
+            st.caption("Docling preprocessing: " + ("Yes" if used_docling else "No"))
     with right:
         with st.container(height=760, border=True):
             if stage == "Model":

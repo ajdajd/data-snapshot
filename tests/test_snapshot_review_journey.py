@@ -33,6 +33,11 @@ from data_snapshot.structured_data_extraction.model_review import (
 from data_snapshot.structured_data_extraction.working_model import WorkingModel
 from data_snapshot.structured_data_extraction.spending import record_spending
 from data_snapshot.structured_data_reviewer import examples
+from data_snapshot.structured_data_reviewer.session_names import (
+    sanitize_name,
+    session_name,
+    save_session_name,
+)
 from data_snapshot.structured_data_extraction.model_proposal import run_model_proposal
 
 
@@ -464,6 +469,89 @@ def _select_label(app, label: str, value: object) -> None:
     assert not app.exception
 
 
+@pytest.mark.parametrize(
+    "title,expected",
+    [
+        (
+            "¿Cuánto tiempo estuvo viviendo en ese país?",
+            "Cuánto tiempo estuvo viviendo en ese país",
+        ),
+        ("../../A/B:  C?*\n", "A B C"),
+        ("\x00<>?*", "Untitled snapshot"),
+        ("CON", "_CON"),
+    ],
+)
+def test_session_name_sanitization(title: str, expected: str) -> None:
+    """Keep readable multilingual names without separators or control characters."""
+    assert sanitize_name(title) == expected
+    assert len(sanitize_name("数" * 200).encode("utf-8")) <= 180
+
+
+def test_session_rename_preserves_approval_and_failed_write_keeps_name(
+    cases: dict, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Naming is metadata; it must not alter accepted models or reviewed data."""
+    directory = _session(cases["income"], tmp_path)
+    values = examples.load_preloaded_values(directory, cases["income"])
+    save_data_review(
+        directory,
+        values,
+        load_data_review(values)["working"],
+        0,
+        "Reviewer",
+        reviewed=True,
+    )
+    before = (directory / "session.json").read_bytes()
+    assert session_name(directory) == sanitize_name(cases["income"]["model"]["title"])
+    assert save_session_name(directory, "My review / renamed") == "My review renamed"
+    assert session_name(directory) == "My review renamed"
+    assert (directory / "session.json").read_bytes() == before
+    assert reviewed_export(directory, values)["model_revision"] == 1
+    original = Path.replace
+
+    def failed(path: Path, target: Path) -> Path:
+        if path.name == "session_name.tmp":
+            raise OSError("Interrupted name save")
+        return original(path, target)
+
+    monkeypatch.setattr(Path, "replace", failed)
+    with pytest.raises(OSError, match="Interrupted name save"):
+        save_session_name(directory, "Must not replace")
+    assert session_name(directory) == "My review renamed"
+
+
+def test_session_name_autosaves_and_appears_when_resuming(app, cases: dict) -> None:
+    """Rename from the document header and recover that name in a fresh app session."""
+    from streamlit.testing.v1 import AppTest
+
+    app.button(key="open_example").click().run()
+    directory = Path(app.session_state["active_session"])
+    key = "session_name:" + str(directory)
+    assert app.text_input(key=key).value == sanitize_name(
+        cases["income"]["model"]["title"]
+    )
+    app.button(key="accept_model").click().run()
+    app.button(key="approve_data").click().run()
+    app.text_input(key=key).set_value("Income review / November").run()
+    assert not app.exception and app.get("download_button")
+    assert app.text_input(key=key).value == "Income review November"
+    assert session_name(directory) == "Income review November"
+    other = examples.open_example(cases["financing"], directory.parent)
+    save_session_name(other, "Income review November")
+    fresh = AppTest.from_file(
+        str(Path(examples.__file__).with_name("app.py")), default_timeout=20
+    ).run()
+    selector = fresh.selectbox(key="resume_choice")
+    assert selector.label == "Select session"
+    assert "Income review November" in selector.options
+    assert len(set(selector.options)) == 2
+    assert "Resume saved work" in [item.value for item in fresh.subheader]
+    selector.select(directory).run()
+    fresh.button(key="resume_session").click().run()
+    assert not fresh.exception
+    assert fresh.text_input(key=key).value == "Income review November"
+
+
 def test_income_model_scope_edit_to_reviewed_download(app) -> None:
     """Complete the motivating scope correction using readable controls, without JSON."""
     assert [item.value for item in app.subheader] == ["Upload", "Resume saved work"]
@@ -479,7 +567,7 @@ def test_income_model_scope_edit_to_reviewed_download(app) -> None:
     ] == ["Input", "Data Model", "Data", "Export"]
     app.button(key="open_example").click().run()
     assert "Docling preprocessing" not in [item.label for item in app.expander]
-    assert any(item.value == "Docling preprocessing: Used" for item in app.caption)
+    assert any(item.value == "Docling preprocessing: Yes" for item in app.caption)
     assert app.button(key="save_model").label == "Save data model draft"
     assert app.button(key="accept_model").label == "Accept data model"
     assert "Original example review notes" not in [item.label for item in app.expander]
@@ -549,12 +637,13 @@ def test_generate_from_upload_makes_one_proposal_and_does_not_accept(
     state = load_session(directory)
     assert len(state.revisions) == 1 and state.accepted_revision is None
     assert (state.docling_sha256 is not None) == use_docling
+    assert app.text_input(key="session_name:" + str(directory)).value == sanitize_name(
+        cases["financing"]["model"]["title"]
+    )
     assert any(
         item.value
         == (
-            "Docling preprocessing: Used"
-            if use_docling
-            else "Docling preprocessing: Not used"
+            "Docling preprocessing: Yes" if use_docling else "Docling preprocessing: No"
         )
         for item in app.caption
     )

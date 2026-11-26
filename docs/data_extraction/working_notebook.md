@@ -93,8 +93,8 @@ use. Shared-DSD consolidation/design and the proposed 202-image coverage study a
 parked; they are not prerequisites for this MVP. The seven-batch DSD strategy was
 not activated. Detailed closeout, archive paths and costs are recorded below.
 
-Current recorded workstream spending: **$2.02005181 / $5**; remaining
-**$2.97994819**, with no outstanding reservations. The original dropped request
+Current recorded workstream spending: **$2.02414906 / $5**; remaining
+**$2.97585094**, with no outstanding reservations. The original dropped request
 was written off on user instruction, as documented in the recovery record.
 
 ## Agreed scope and constraints
@@ -164,7 +164,7 @@ Internal field names and saved-session identifiers remain compatible. The user
 has deferred the chat-focused UI redesign; the current editor remains in place.
 
 Further review-screen feedback: the left pane now shows only **Docling
-preprocessing: Used / Not used**, based on the saved session's evidence identity.
+preprocessing: Yes / No**, based on the saved session's evidence identity.
 Its native-text expander is removed. The **Load preloaded example values** button
 is also removed. **Saved result set** retains existing runs and makes the three
 built-in examples' manually transcribed values available after model acceptance
@@ -173,6 +173,27 @@ for the current revision; an explicit selection still takes precedence. Sources
 remain clearly labeled, and no API call is made to prepare or select a reference.
 The focused journey suite passes **31 tests**, including both status indicators,
 reference selection, LLM-result preference, correction review and export.
+
+Session naming: a top-of-page **Session name** field is initialized from the
+sanitized first proposed snapshot title and saves on Enter/blur. It preserves
+Unicode letters, removes unsafe filename characters and uses an untitled fallback.
+The **Resume saved work** header is unchanged; its dropdown label is **Select
+session** and displays these descriptive names. Duplicate names receive display
+suffixes. Older sessions derive their initial name without an API call or a data
+migration. Custom names are stored atomically in `session_name.txt`, separately
+from model/source/history JSON, so renaming does not clear acceptance or reviewed
+data status. JSON downloads use the session name. **72 focused tests pass**,
+including naming, sanitization, interrupted writes, duplicate labels and resume
+in a fresh app instance; no paid call was made for this UI change.
+
+The user subsequently completed upload, model acceptance, value extraction and
+export for the Spanish duration snapshot. They could not meaningfully edit the
+Spanish model/data due to language; completing the workflow is not a semantic
+review. English review wording with preserved Spanish source labels remains a
+separate UX consideration. The saved session now defaults to **Cuánto tiempo
+estuvo viviendo en ese país**. Its user-run proposal cost **$0.00245200** and
+extraction **$0.00164525**; the extraction status is partial. Recorded running
+total is **$2.02414906 / $5**, remaining **$2.97585094**, reservations **$0**.
 
 Presentation discussion: Income's existing live run includes 16 values and is
 partial because its currency/unit is unspecified. Next user action is to inspect
