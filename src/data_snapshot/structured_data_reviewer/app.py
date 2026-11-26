@@ -439,7 +439,21 @@ def _model(directory: Path) -> None:
 
 
 def _select_extraction(directory: Path) -> Path | None:
+    session = load_session(directory)
+    case = _examples().get(st.session_state.get("active_example"))
+    if (
+        case
+        and session.accepted_revision is not None
+        and session.revisions[0].sha256
+        == model_digest(WorkingModel.model_validate(case["model"]))
+    ):
+        try:
+            load_preloaded_values(directory, case)
+        except ValidationError:
+            # Example fixtures may not fit a structurally revised data model.
+            pass
     folders = []
+    reports = {}
     for path in sorted(
         (directory / "extractions").glob("*/run.json"),
         key=lambda p: p.stat().st_mtime_ns,
@@ -453,6 +467,7 @@ def _select_extraction(directory: Path) -> Path | None:
             "preloaded",
         }:
             folders.append(path.parent)
+            reports[path.parent] = report
     if not folders:
         return None
     widget_key = "data_set:" + str(directory)
@@ -462,16 +477,22 @@ def _select_extraction(directory: Path) -> Path | None:
     labels = {
         path: (
             "Preloaded example"
-            if path.name.startswith("preloaded")
+            if reports[path]["status"] == "preloaded"
             else "LLM extraction"
         )
-        + f" {index} · data model revision {json.loads((path/'run.json').read_text())['model_revision']}"
+        + f" {index} · data model revision {reports[path]['model_revision']}"
         for index, path in enumerate(folders, 1)
     }
+    live = [
+        path
+        for path in folders
+        if reports[path]["status"] != "preloaded"
+        and reports[path]["model_revision"] == session.accepted_revision
+    ]
     selected = st.selectbox(
         "Saved result set",
         folders,
-        index=len(folders) - 1,
+        index=folders.index(live[-1]) if live else len(folders) - 1,
         format_func=labels.get,
         key=widget_key,
     )
@@ -623,18 +644,7 @@ def _data(directory: Path) -> None:
             "Save and accept the current data model before extracting or reviewing new data."
         )
         return
-    case = _examples().get(st.session_state.get("active_example"))
     with st.container(horizontal=True):
-        if st.button(
-            "Load preloaded example values", key="load_preloaded", disabled=case is None
-        ):
-            try:
-                st.session_state["new_extraction"] = str(
-                    load_preloaded_values(directory, case)
-                )
-                st.rerun()
-            except (ValueError, OSError, ValidationError) as error:
-                _error(error)
         if (
             st.button(
                 "Extract values with LLM",
@@ -671,9 +681,6 @@ def _data(directory: Path) -> None:
                     st.rerun()
                 except (ValueError, OSError, ValidationError) as error:
                     _error(error)
-    st.caption(
-        "Preloaded values cost nothing and are not a new extraction. Live extraction uses the accepted data model and the shared API budget."
-    )
     extraction = _select_extraction(directory)
     if extraction is None:
         return
@@ -845,17 +852,10 @@ elif active:
     with left:
         with st.container(height=760, border=True):
             st.image(str(directory / "input.png"), width="stretch")
-            with st.expander("Docling preprocessing"):
-                if not (directory / "native.json").exists():
-                    st.caption("Not used for this snapshot.")
-                else:
-                    native = json.loads((directory / "native.json").read_text())
-                    st.caption(
-                        f"{len(native.get('texts',[]))} text blocks · {len(native.get('tables',[]))} tables · {len(native.get('pictures',[]))} pictures"
-                    )
-                    for text in native.get("texts", []):
-                        if text.get("text"):
-                            st.write(text["text"])
+            used_docling = load_session(directory).docling_sha256 is not None
+            st.caption(
+                "Docling preprocessing: " + ("Used" if used_docling else "Not used")
+            )
     with right:
         with st.container(height=760, border=True):
             if stage == "Model":

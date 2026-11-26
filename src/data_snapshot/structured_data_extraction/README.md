@@ -30,8 +30,10 @@ uv run --no-sync streamlit run \
 
 Requires the locked `review` extra alongside `structured_data` and
 `structured_llm`. Income uses the actual saved proposal; financing and education
-start from labeled hand-authored drafts. **Load preloaded example values** uses
-manually transcribed data at no API cost. Paid actions default off; enabling them
+start from labeled hand-authored drafts. **Saved result set** includes manually
+transcribed reference values after accepting a compatible example data model,
+alongside any saved LLM results. The default favors an LLM result for the current
+revision. Selecting example values makes no API call. Paid actions default off; enabling them
 only enables explicit proposal/revision and extraction buttons, with the existing
 shared $5 accounting guardrails. Upload a PNG, optionally select **Preprocess with
 Docling**, and click **Generate Data Model**. One click saves the image, runs local
@@ -46,6 +48,8 @@ data before downloading. Saved work resumes under
 `data/structured_data_trials/reviewer_sessions/`. Model changes invalidate older
 data for export; raw generated values and human corrections remain separate.
 The current export is clearly labeled interim reviewed JSON, **not SDMX-JSON**.
+The source pane indicates whether Docling preprocessing was used, without showing
+its native extraction output.
 See the notebook's three-example walkthrough and remaining limitations.
 
 ## Snapshot model proposal and acceptance

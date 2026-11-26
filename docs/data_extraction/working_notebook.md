@@ -163,6 +163,24 @@ model draft**, **Accept data model** and **Extract values with LLM** controls.
 Internal field names and saved-session identifiers remain compatible. The user
 has deferred the chat-focused UI redesign; the current editor remains in place.
 
+Further review-screen feedback: the left pane now shows only **Docling
+preprocessing: Used / Not used**, based on the saved session's evidence identity.
+Its native-text expander is removed. The **Load preloaded example values** button
+is also removed. **Saved result set** retains existing runs and makes the three
+built-in examples' manually transcribed values available after model acceptance
+when compatible with the data model. New default selection prefers an LLM result
+for the current revision; an explicit selection still takes precedence. Sources
+remain clearly labeled, and no API call is made to prepare or select a reference.
+The focused journey suite passes **31 tests**, including both status indicators,
+reference selection, LLM-result preference, correction review and export.
+
+Presentation discussion: Income's existing live run includes 16 values and is
+partial because its currency/unit is unspecified. Next user action is to inspect
+both Mean and Median, make any corrections, then **Save reviewed data** and
+export. A simpler review presentation would show eight rows with Mean/Median
+side by side, with evidence details separate. That presentation change is proposed,
+not implemented; the stored long-format representation need not change.
+
 Input layout feedback: removed the journey tagline. Upload is first, with the
 primary action; Resume saved work is second; examples are in a collapsed
 expander last. Upload now offers **Preprocess with Docling** (initially unchecked)
@@ -223,6 +241,15 @@ resume/input-change guards. An actual resume self-check reused all 12 P1 attempt
 while replacing the request function with an assertion, confirming no new call.
 Black and `git diff --check` pass. No browser rendering check was performed.
 
+Runtime report: Generate Data Model raised `preprocess_upload() takes 2 positional
+arguments but 3 were given`. A fresh `uv` interpreter loads the expected module
+from this checkout and confirms its current three-argument signature, including
+`use_docling=True`. Three focused upload/generation tests pass. The traceback
+therefore points to an older imported function in the running Streamlit process;
+a full server restart is the first remedy, pending user confirmation. The failing
+call occurs before proposal execution, so that click did not reach an LLM call.
+No compatibility shim or source-code workaround was added.
+
 Start the app from this checkout:
 
 ```bash
@@ -262,7 +289,8 @@ income-model qualifications are not automatically corrected by changing one
 scope. The user still reviews the source and each relevant interpretation.
 
 **Two ways to exercise the journey:** leave **Enable paid model actions** off to
-use the three drafts and **Load preloaded example values**, at no API cost. Or
+use the three drafts and choose preloaded values in **Saved result set**, at no
+API cost. These references appear after accepting a compatible data model. Or
 upload a PNG, choose optional Docling preprocessing, enable paid actions and
 click **Generate Data Model**. Inspect/directly edit or request a revision, save
 and accept it, then explicitly **Extract values with LLM**. Both paid stages

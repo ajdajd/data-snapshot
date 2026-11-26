@@ -478,6 +478,8 @@ def test_income_model_scope_edit_to_reviewed_download(app) -> None:
         option.content for option in app.segmented_control(key="stage").proto.options
     ] == ["Input", "Data Model", "Data", "Export"]
     app.button(key="open_example").click().run()
+    assert "Docling preprocessing" not in [item.label for item in app.expander]
+    assert any(item.value == "Docling preprocessing: Used" for item in app.caption)
     assert app.button(key="save_model").label == "Save data model draft"
     assert app.button(key="accept_model").label == "Accept data model"
     assert "Original example review notes" not in [item.label for item in app.expander]
@@ -502,7 +504,7 @@ def test_income_model_scope_edit_to_reviewed_download(app) -> None:
     app.button(key="accept_model").click().run()
     assert app.button(key="extract_live").label == "Extract values with LLM"
     assert app.button(key="extract_live").disabled
-    app.button(key="load_preloaded").click().run()
+    assert "load_preloaded" not in [button.key for button in app.button]
     assert not app.exception and len(app.dataframe[0].value) == 8
     app.button(key="approve_data").click().run()
     assert not app.exception and len(app.get("download_button")) == 1
@@ -547,6 +549,15 @@ def test_generate_from_upload_makes_one_proposal_and_does_not_accept(
     state = load_session(directory)
     assert len(state.revisions) == 1 and state.accepted_revision is None
     assert (state.docling_sha256 is not None) == use_docling
+    assert any(
+        item.value
+        == (
+            "Docling preprocessing: Used"
+            if use_docling
+            else "Docling preprocessing: Not used"
+        )
+        for item in app.caption
+    )
     app.run()
     assert not app.exception and len(client.calls) == 1
 
@@ -558,7 +569,6 @@ def test_multiple_components_and_resume(app, case_id: str) -> None:
     app.button(key="open_example").click().run()
     assert not app.exception
     app.button(key="accept_model").click().run()
-    app.button(key="load_preloaded").click().run()
     assert not app.exception
     if case_id == "financing":
         assert app.dataframe[0].value["Value"].tolist() == [100, 100, 98, 0]
@@ -585,7 +595,6 @@ def test_unsaved_model_changes_block_export_and_paid_reruns(app) -> None:
     """Navigating or rerunning never triggers the assistant or exports unsaved edits."""
     app.button(key="open_example").click().run()
     app.button(key="accept_model").click().run()
-    app.button(key="load_preloaded").click().run()
     app.button(key="approve_data").click().run()
     app.session_state["stage"] = "Model"
     app.run()
@@ -604,7 +613,6 @@ def test_grid_correction_save_and_discard(app) -> None:
     """Carry a native grid edit through validation, saved review, and discarded changes."""
     app.button(key="open_example").click().run()
     app.button(key="accept_model").click().run()
-    app.button(key="load_preloaded").click().run()
     grid = next(k for k in app.session_state.filtered_state if ":grid:" in k)
     # AppTest has no grid-cell setter; inject the native editor's pending delta.
     app.session_state[grid] = {
@@ -644,7 +652,6 @@ def test_duplicate_display_labels_preserve_original_categories(app) -> None:
     save_draft(directory, model, 1, "Reviewer", "Display names may overlap")
     app.run()
     app.button(key="accept_model").click().run()
-    app.button(key="load_preloaded").click().run()
     assert not app.exception
     assert app.dataframe[0].value["field_table_row"].tolist()[:2] == [
         "Same name (1)",
@@ -653,6 +660,34 @@ def test_duplicate_display_labels_preserve_original_categories(app) -> None:
     assert not app.warning
     app.button(key="approve_data").click().run()
     assert not app.exception and app.get("download_button")
+
+
+def test_saved_result_selector_prefers_live_and_keeps_example_values(
+    app, cases: dict
+) -> None:
+    """Keep example data accessible without a load button or hiding live extraction."""
+    app.button(key="open_example").click().run()
+    app.button(key="accept_model").click().run()
+    directory = Path(app.session_state["active_session"])
+    live = directory / "extractions/live_test"
+    client = _client(cases["income"]["data"])
+    run_accepted_extraction(directory, live, execute=True, client=client)
+    app.session_state["stage"] = "Model"
+    app.run()
+    app.session_state["stage"] = "Data"
+    app.run()
+    selector = next(
+        widget for widget in app.selectbox if widget.label == "Saved result set"
+    )
+    assert not app.exception and not app.error
+    assert selector.value == live
+    preloaded = directory / "extractions/preloaded_revision_1"
+    selector.select(preloaded).run()
+    assert not app.exception and not app.error
+    assert any(
+        "Manually transcribed example values" in item.value for item in app.caption
+    )
+    assert len(client.calls) == 1
 
 
 def test_assistant_requests_only_on_explicit_click_and_no_duplicate_rerun(
