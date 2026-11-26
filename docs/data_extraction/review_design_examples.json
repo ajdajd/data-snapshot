@@ -1,0 +1,681 @@
+{
+  "pack_version": "0.1.0",
+  "status": "hand-authored design examples; no new model calls; not an accepted runtime model or full numeric gold set",
+  "dataset_root": "/home/ajd/hf_datasets/data-snapshot/snapshots",
+  "provenance": "Assistant visually inspected all eight PNGs on 2026-11-26. Proposed decompositions and edit scenarios are working designs for team feedback, not a single required statistical interpretation. Illustrative defects are deliberately invented UX exercises, not claims about current saved outputs.",
+  "cases": [
+    {
+      "id": "income",
+      "title": "Income and remittances",
+      "selection": "core",
+      "image": "unhcr/108733-revised-public-wb-unhcr-policy-brief-final_table_000.png",
+      "design_focus": [
+        "summary statistics",
+        "qualification scope",
+        "unknown unit",
+        "aggregate exclusion"
+      ],
+      "model_sketch": [
+        {
+          "component": "Labor income",
+          "one_result": "A displayed income summary for a row and summary statistic.",
+          "identifying_fields": {
+            "row": [
+              "Agriculture",
+              "Manufacturing",
+              "Construction",
+              "Services",
+              "Public sector",
+              "Health and Education",
+              "Total (excl. remittances)"
+            ],
+            "summary_statistic": [
+              "MEAN",
+              "MEDIAN"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Not printed; retain unknown.",
+          "time_context": "Monthly basis stated in title; ALCS 2013–14 is source wording, not an assigned observation date.",
+          "qualifications": [
+            "Afghanistan is stated for labor income in the title.",
+            "Labor income is computed for male workers aged [14,35].",
+            "Total excludes remittances; preserve printed summaries rather than summing row means or medians."
+          ]
+        },
+        {
+          "component": "Remittances",
+          "one_result": "A displayed mean or median for remittances from abroad.",
+          "identifying_fields": {
+            "summary_statistic": [
+              "MEAN",
+              "MEDIAN"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Not printed; retain unknown.",
+          "time_context": "Keep the shared title; applicability of monthly wording to remittances can remain unresolved.",
+          "qualifications": [
+            "Do not inherit the labor-income sex/age restriction without evidence or explicit user context."
+          ]
+        }
+      ],
+      "direct_edit": {
+        "illustrative_proposal_issue": "The population note is scoped to the entire snapshot.",
+        "control": "Qualification card: Applies to -> component multi-select.",
+        "action": "Select Labor income; deselect Remittances.",
+        "expected_change": "The note stays attached to labor income; remittance applicability is unresolved.",
+        "assistant_alternative": "Apply the male-worker age qualification to labor income only; keep remittance applicability unresolved."
+      },
+      "data_review": {
+        "illustrative_issue": "Agriculture mean has been entered as 5390.",
+        "action": "Edit that value to the source-visible 5930 without changing its row/statistic association.",
+        "source_anchors": [
+          {
+            "source_text": "5930",
+            "location": "Agriculture / MEAN"
+          },
+          {
+            "source_text": "4800",
+            "location": "Agriculture / MEDIAN"
+          },
+          {
+            "source_text": "8581",
+            "location": "Remittances / MEAN"
+          },
+          {
+            "source_text": "8529",
+            "location": "Total (excl. remittances) / MEAN"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        "Six labor-income categories plus their printed total and the separate remittance row remain distinguishable.",
+        "The complete printed table contains 16 numeric results; none is an inferred sum.",
+        "Currency remains unknown unless separately identified as user-supplied context.",
+        "Source year, time basis and observation period remain distinguishable."
+      ],
+      "questions_to_preserve": [
+        "Does monthly also qualify remittances?",
+        "Are the row categories mutually exclusive? The image does not establish that."
+      ],
+      "image_sha256": "71fba5dbc2fef924632b0d23fda458d160de5bf833a74a279a35e99db7c33888"
+    },
+    {
+      "id": "financing",
+      "title": "Project financing summary",
+      "selection": "core",
+      "image": "refugee/040_Iraq-COVID-19-Vaccination-Project_table_000.png",
+      "design_focus": [
+        "scale",
+        "hierarchy",
+        "genuine zero",
+        "source display precision"
+      ],
+      "model_sketch": [
+        {
+          "component": "Financing summary",
+          "one_result": "A monetary amount for a named financing item.",
+          "identifying_fields": {
+            "item": [
+              "Total Project Cost",
+              "Total Financing",
+              "of which IBRD/IDA",
+              "Financing Gap"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Source title: US$, Millions. Preserve displayed amounts and attach millions scale once.",
+          "time_context": "No observation date is printed.",
+          "qualifications": [
+            "The indented of which IBRD/IDA item is a component of Total Financing.",
+            "No project name, reference country or financing status is established by this crop."
+          ]
+        }
+      ],
+      "direct_edit": {
+        "illustrative_proposal_issue": "IBRD/IDA is represented as a peer total with no parent relationship.",
+        "control": "Relationship card: child item -> parent item.",
+        "action": "Set of which IBRD/IDA as a component of Total Financing.",
+        "expected_change": "The hierarchy is explicit without inventing an accounting formula.",
+        "assistant_alternative": "Preserve the of-which relationship under Total Financing."
+      },
+      "data_review": {
+        "illustrative_issue": "Financing Gap is marked missing, or millions scaling is applied twice.",
+        "action": "Restore source 0.00 and ensure 98.00 retains one millions qualification.",
+        "source_anchors": [
+          {
+            "source_text": "100.00",
+            "location": "Total Project Cost"
+          },
+          {
+            "source_text": "98.00",
+            "location": "of which IBRD/IDA"
+          },
+          {
+            "source_text": "0.00",
+            "location": "Financing Gap"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        "Four printed amounts remain four results, including the zero.",
+        "Source number text including trailing decimals is retained separately from numeric value.",
+        "Shared title unit/scale applies to all four monetary rows without double conversion.",
+        "No country is inferred from the filename."
+      ],
+      "questions_to_preserve": [
+        "Are the amounts planned, committed, approved or disbursed? The crop does not say."
+      ],
+      "image_sha256": "db944217fca9b310080b2e532ef88d96d5efd59b83d992513a5738d5e7768b05"
+    },
+    {
+      "id": "regression",
+      "title": "Sector-specific TFP regressions",
+      "selection": "core",
+      "image": "prwp/document_6213782_table_001.png",
+      "design_focus": [
+        "numeric and categorical content",
+        "multiple result kinds",
+        "significance",
+        "sample-count units"
+      ],
+      "model_sketch": [
+        {
+          "component": "Regression results",
+          "one_result": "A displayed regression result for one sector column and labeled term.",
+          "identifying_fields": {
+            "sector": [
+              "Manufacturing",
+              "Services"
+            ],
+            "term": [
+              "Fixed capital",
+              "Labor",
+              "Privatized",
+              "New private",
+              "Foreign-owned",
+              "Exporter",
+              "Capital city"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Coefficient units/transformation are not specified.",
+          "time_context": "No observation period is printed.",
+          "qualifications": [
+            "The coefficient interpretation follows from the table context; preserve that provenance.",
+            "Double asterisks mean significant at the 1% level. No exact p-values or numeric standard errors are printed.",
+            "Preserve heteroskedastic- and cluster robust standard errors as methodological wording; clustering dimension is unknown."
+          ]
+        },
+        {
+          "component": "Sample coverage",
+          "one_result": "A count of firms or country surveys for one sector regression.",
+          "identifying_fields": {
+            "sector": [
+              "Manufacturing",
+              "Services"
+            ],
+            "count_kind": [
+              "firms",
+              "country surveys"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Count unit depends on count_kind.",
+          "time_context": "Not printed.",
+          "qualifications": [
+            "Firm counts and survey counts are different results and are not interchangeable."
+          ]
+        },
+        {
+          "component": "Model specification",
+          "one_result": "A stated inclusion status for country-survey dummy variables in one sector regression.",
+          "identifying_fields": {
+            "sector": [
+              "Manufacturing",
+              "Services"
+            ]
+          },
+          "result_type": "categorical text",
+          "unit_and_scale": "Not applicable.",
+          "time_context": "Not printed.",
+          "qualifications": [
+            "Both source values are Yes; these may alternatively be scoped model qualifications if the working model preserves them."
+          ]
+        }
+      ],
+      "direct_edit": {
+        "illustrative_proposal_issue": "The sample row retains only firm counts and drops country-survey counts.",
+        "control": "Results card: add count_kind identifying field and its source labels.",
+        "action": "Represent firms and country surveys separately for each sector.",
+        "expected_change": "11,364/3,314 firms and 51/35 country surveys have distinct units and identities.",
+        "assistant_alternative": "Keep both firms and country surveys, scoped to their regression columns."
+      },
+      "data_review": {
+        "illustrative_issue": "Foreign-owned Manufacturing is entered as 0.423 or ** is interpreted as an exact p-value.",
+        "action": "Restore printed 0.433 and retain ** with its stated 1% threshold.",
+        "source_anchors": [
+          {
+            "source_text": "0.433**",
+            "location": "Foreign-owned / Manufacturing"
+          },
+          {
+            "source_text": "0.089",
+            "location": "Exporter / Services"
+          },
+          {
+            "source_text": "11,364 firms from 51 country surveys",
+            "location": "Number of observations / Manufacturing"
+          },
+          {
+            "source_text": "Yes",
+            "location": "Country-survey dummy variables included / Services"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        "All 14 coefficient displays and four sample-count quantities can be retained.",
+        "Both Yes statuses remain available as categorical results or scoped specifications.",
+        "Unmarked coefficients do not acquire invented p-values or significance classifications.",
+        "Numeric standard errors are not fabricated from the methodological footnote."
+      ],
+      "questions_to_preserve": [
+        "How are the regression variables transformed?",
+        "What is the clustering dimension?"
+      ],
+      "image_sha256": "f888b7f6b564839f8104addb50c2c8344ba02e22b70d34f59d81320f1275b357"
+    },
+    {
+      "id": "education",
+      "title": "Enrollment and reading composite",
+      "selection": "core",
+      "image": "refugee/054_Sudan-Basic-Education-Emergency-Support-Project_figure_001.png",
+      "design_focus": [
+        "multiple panels",
+        "component-scoped units and periods",
+        "printed versus estimated values"
+      ],
+      "model_sketch": [
+        {
+          "component": "Panel A: Enrollment",
+          "one_result": "Enrollment for a school level and sex in the displayed 2017 context.",
+          "identifying_fields": {
+            "school_level": [
+              "Secondary 3",
+              "Secondary 2",
+              "Secondary 1",
+              "Basic 8",
+              "Basic 7",
+              "Basic 6",
+              "Basic 5",
+              "Basic 4",
+              "Basic 3",
+              "Basic 2",
+              "Basic 1"
+            ],
+            "sex": [
+              "Male",
+              "Female"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Enrollment in thousands; leftward bars are positive enrollment magnitudes.",
+          "time_context": "2017 in panel heading; Education Sector Analysis, 2018 is source context.",
+          "qualifications": [
+            "There are 22 bar positions, with ten printed values and twelve unlabeled magnitudes.",
+            "Country is not explicitly identified for this panel by the image."
+          ]
+        },
+        {
+          "component": "Panel B: Reading",
+          "one_result": "Percent of Grade 3 pupils unable to read a single word of a short Arabic text for a displayed country.",
+          "identifying_fields": {
+            "country": [
+              "Jordan",
+              "Iraq",
+              "Morocco",
+              "Egypt",
+              "Yemen",
+              "Sudan"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Percent.",
+          "time_context": "2014 or the latest available; country-specific observation years are not supplied.",
+          "qualifications": [
+            "Do not transfer Panel A units, sex breakdown or 2017 period into Panel B.",
+            "Sudan is highlighted by color; no reason for the highlight is stated."
+          ]
+        }
+      ],
+      "direct_edit": {
+        "illustrative_proposal_issue": "All values inherit 2017 and thousands from Panel A.",
+        "control": "Component selector -> unit/scale and time-context cards.",
+        "action": "Select Panel B, set percent, and preserve 2014 or the latest available as qualified wording.",
+        "expected_change": "Panel A remains unchanged; Panel B no longer inherits its unit or year.",
+        "assistant_alternative": "Separate the two panels and preserve each panel's own unit and time qualification."
+      },
+      "data_review": {
+        "illustrative_issue": "A left-side enrollment is negative, or unlabeled bars are presented as exact source values.",
+        "action": "Keep positive enrollment magnitudes and leave unlabeled values missing with a reason unless image estimation was explicitly enabled.",
+        "source_anchors": [
+          {
+            "source_text": "185",
+            "location": "Panel A / Secondary 3 / Male"
+          },
+          {
+            "source_text": "197",
+            "location": "Panel A / Secondary 3 / Female"
+          },
+          {
+            "source_text": "4%",
+            "location": "Panel B / Jordan"
+          },
+          {
+            "source_text": "40%",
+            "location": "Panel B / Sudan"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        "Both components remain addressable with their own interpretation and scope.",
+        "Printed-only mode reports 16 printed numeric results and twelve unresolved enrollment slots, rather than claiming all 28 results are exact.",
+        "Estimated mode marks each of the twelve inferred enrollment values as estimated.",
+        "The displayed source year 2018 does not replace enrollment year 2017."
+      ],
+      "questions_to_preserve": [
+        "Which actual observation year applies to each reading percentage?",
+        "What country does the enrollment pyramid describe?"
+      ],
+      "image_sha256": "3992eea19448a2e9e7facc7211466c2925d9cc98145cfafac6a68cd80e11acd4"
+    },
+    {
+      "id": "trade",
+      "title": "Unlabelled services-trade bars",
+      "selection": "core",
+      "image": "prwp/document_10455617_figure_003.png",
+      "design_focus": [
+        "extraction policy",
+        "series association",
+        "unknown scale meaning",
+        "unresolved note mapping"
+      ],
+      "model_sketch": [
+        {
+          "component": "Restrictiveness by group and mode",
+          "one_result": "A bar-height restrictiveness magnitude for a displayed group and legend series.",
+          "identifying_fields": {
+            "group": [
+              "SAR",
+              "MENA",
+              "EAP",
+              "World",
+              "LAC",
+              "AFR",
+              "ECA",
+              "OECD"
+            ],
+            "mode": [
+              "Cross border",
+              "Commercial presence",
+              "Temporary movement of people"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Visible axis label and 0–80 ticks; index construction/unit and true maximum are not stated.",
+          "time_context": "Not printed.",
+          "qualifications": [
+            "24 bars have no printed numerical result labels.",
+            "Preserve mode 1/3/4 service-composition notes without silently mapping their numbers to legend labels."
+          ]
+        }
+      ],
+      "direct_edit": {
+        "illustrative_proposal_issue": "All chart values are proposed as exact percentages.",
+        "control": "Result unit card and extraction-policy selector.",
+        "action": "Keep unit unspecified; choose Printed values only, or explicitly allow image estimates with retained approximation status.",
+        "expected_change": "Axis ticks do not become observations; approximate values are not labeled source-exact.",
+        "assistant_alternative": "Do not infer percent units. Extract only printed results unless I enable image estimation."
+      },
+      "data_review": {
+        "illustrative_issue": "80 is reported as a measured bar value merely because it appears on the axis.",
+        "action": "Remove the tick-derived result. Review any geometry estimate against its group/series position and keep it marked estimated.",
+        "source_anchors": []
+      },
+      "acceptance_checks": [
+        "Printed-only mode yields no exact numeric bar results, while retaining the 24 intended result positions/omission reason.",
+        "A model can be accepted even when the requested policy leaves values unresolved.",
+        "Estimated mode preserves group/legend mapping and avoids unsupported precision.",
+        "The unknown code-to-label correspondence in the note stays visible."
+      ],
+      "questions_to_preserve": [
+        "What is the restrictiveness unit/index definition?",
+        "Which numbered modes correspond to the descriptive legend entries?"
+      ],
+      "image_sha256": "ed033f9eac29b5cde3e0239250d48159975c634dcd4d5d3191fc41063109a123"
+    },
+    {
+      "id": "duration",
+      "title": "Spanish duration-band percentages",
+      "selection": "core",
+      "image": "unhcr/acnur_anlisis-madre_de_dios_vf_figure_024.png",
+      "design_focus": [
+        "original labels",
+        "open category boundaries",
+        "unknown referent",
+        "rounding"
+      ],
+      "model_sketch": [
+        {
+          "component": "Duration responses",
+          "one_result": "A displayed percentage for an original Spanish response category to the residence-duration question.",
+          "identifying_fields": {
+            "duration_category": [
+              "a. 1 a 6 meses",
+              "b. 6 meses a 1 años",
+              "c. 1 año a 3 años",
+              "d. 3 años a 5 años",
+              "e. Más de 5 años",
+              "f. Toda la vida"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Percent, preserving printed whole-percentage values.",
+          "time_context": "ACNUR 2023 appears in the source attribution; observation-date meaning is unknown.",
+          "qualifications": [
+            "The referent country and respondent population/denominator are unspecified.",
+            "Keep Toda la vida distinct from Más de 5 años.",
+            "Do not silently repair source grammar or impose interval boundary conventions."
+          ]
+        }
+      ],
+      "direct_edit": {
+        "illustrative_proposal_issue": "Toda la vida has been merged into Más de 5 años.",
+        "control": "Category list editor; separate source label and optional display/translation label.",
+        "action": "Restore two distinct categories with their original source text.",
+        "expected_change": "Both 4% values remain separate results, even if a translation is added.",
+        "assistant_alternative": "Preserve all six Spanish categories; keep Toda la vida separate from the over-five-years category."
+      },
+      "data_review": {
+        "illustrative_issue": "Values are rescaled to total 100 or 48% is stored as 0.48 with percent units.",
+        "action": "Keep 9, 4, 48, 30, 4, 4 on the displayed percent scale.",
+        "source_anchors": [
+          {
+            "source_text": "48%",
+            "location": "c. 1 año a 3 años"
+          },
+          {
+            "source_text": "30%",
+            "location": "d. 3 años a 5 años"
+          },
+          {
+            "source_text": "4%",
+            "location": "f. Toda la vida"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        "Six categories and six printed percentages survive edits and save/reload.",
+        "The displayed values sum to 99; do not normalize them or assert rounding as a source-stated fact.",
+        "Source labels stay unchanged when English display labels are edited.",
+        "No country is inferred from the filename and 2023 is not silently promoted to observation year."
+      ],
+      "questions_to_preserve": [
+        "What does ese país refer to?",
+        "What are interval boundary conventions and the meaning of the source year?"
+      ],
+      "image_sha256": "38384eafdb1af9d4da1af53b915ddb548a3bdff442fe7d3f1ade5c83a6f55eba"
+    },
+    {
+      "id": "shona",
+      "title": "Shona labour-force chart",
+      "selection": "breadth addition",
+      "image": "unhcr/policy_brief_on_shona_community_from_stateless_to_citizens_figure_000.png",
+      "design_focus": [
+        "irregular periods",
+        "plotted bounds",
+        "denominator meaning",
+        "estimated values"
+      ],
+      "model_sketch": [
+        {
+          "component": "Labour-force status comparison",
+          "one_result": "A plotted share of population aged 18–64 for a population group, employment status and displayed reporting interval.",
+          "identifying_fields": {
+            "population_group": [
+              "Urban Nationals",
+              "Shona"
+            ],
+            "labour_status": [
+              "Employed",
+              "Unemployed"
+            ],
+            "reporting_interval": [
+              "May-Jun ’20",
+              "Jul-Sep ’20",
+              "Oct-Nov ’20",
+              "Jan-Mar ’21",
+              "Apr-Jun ’21"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Percent of population, as the axis states; do not substitute a labor-force denominator.",
+          "time_context": "Five mixed-length labeled intervals; preserve source text rather than assign quarterly frequency.",
+          "qualifications": [
+            "20 plotted points have no printed numeric result labels.",
+            "Visible whiskers are retained as uncertainty marks with unspecified statistical meaning.",
+            "Source names Kenya COVID-19 Rapid Response Phone Surveys; additional population eligibility is not inferred."
+          ]
+        }
+      ],
+      "direct_edit": {
+        "illustrative_proposal_issue": "The time field is quarterly and whiskers are labeled 95% confidence intervals.",
+        "control": "Time-context and uncertainty cards.",
+        "action": "Keep original interval labels, clear quarterly frequency, and set whisker meaning/confidence level to unknown.",
+        "expected_change": "The time ordering remains available without false regularity or an invented confidence level.",
+        "assistant_alternative": "Preserve the irregular intervals and the visible whiskers, but leave their statistical interpretation unspecified."
+      },
+      "data_review": {
+        "illustrative_issue": "The old chart extraction omits whiskers or reports precise-looking numbers as printed values.",
+        "action": "With explicit estimated mode, review point and visible bound estimates as approximate; retain unknown whisker meaning. With printed-only mode, record unresolved numeric results rather than zeros.",
+        "source_anchors": []
+      },
+      "acceptance_checks": [
+        "Two groups, two statuses and five intervals identify 20 point positions.",
+        "Printed-only mode does not invent point/bound numbers; estimated mode labels all geometry-derived values accordingly.",
+        "Employment and unemployment need not sum to 100 because the stated denominator is population.",
+        "Unresolved bounds/whisker meaning remain explicit if the extractor cannot recover them."
+      ],
+      "questions_to_preserve": [
+        "What do the whiskers represent?",
+        "Are there further eligibility restrictions or source-period definitions outside the crop?"
+      ],
+      "image_sha256": "1890bd37d06ecddccf62d1afa90e70c227a84253332e2ec8b9be62c14ade0765"
+    },
+    {
+      "id": "results_framework",
+      "title": "Hierarchical results framework",
+      "selection": "breadth addition",
+      "image": "refugee/001_BOSIB-3f2311b3-9a20-44d3-b637-b3b2b3d21695_table_008.png",
+      "design_focus": [
+        "indicator hierarchy",
+        "units by indicator",
+        "column role versus date",
+        "cropped content"
+      ],
+      "model_sketch": [
+        {
+          "component": "PDO indicator results",
+          "one_result": "A displayed indicator/subgroup value for a labeled baseline or closing-period column and the date printed for that indicator.",
+          "identifying_fields": {
+            "outcome_group": [
+              "Improved access to basic services",
+              "Improved economic opportunities",
+              "Improved environmental management in the target areas"
+            ],
+            "indicator": "Preserve full indicator labels, including subgroup and CRI source markers.",
+            "column_role": [
+              "Baseline",
+              "Closing Period"
+            ],
+            "source_date": [
+              "Aug/2025",
+              "Dec/2030"
+            ]
+          },
+          "result_type": "number",
+          "unit_and_scale": "Unit belongs to each indicator: Number, Percentage or Number of people as printed.",
+          "time_context": "Preserve the separate role and printed date; Closing Period is not an automatically asserted achieved outcome or target.",
+          "qualifications": [
+            "Refugee/female percentage rows are children of the appropriate parent indicator.",
+            "Seven indicators have both dates/values visible, giving 14 printed numeric results.",
+            "The final female-resilience indicator label is visible, but its dates/values are outside this crop."
+          ]
+        }
+      ],
+      "direct_edit": {
+        "illustrative_proposal_issue": "All rows use people counts and the Closing Period column is labeled Actual.",
+        "control": "Indicator editor -> unit and parent selector; column-role editor.",
+        "action": "Give percentage children their own percent units and correct parents; retain Closing Period with actual-versus-target meaning unresolved.",
+        "expected_change": "Two dates do not erase reporting roles, and subgroup percentages are not treated as beneficiary counts.",
+        "assistant_alternative": "Preserve the hierarchy and row-specific units, and do not assume Closing Period means actual results."
+      },
+      "data_review": {
+        "illustrative_issue": "30 percent is converted to 114,000 people, or the cropped female-resilience row gets a zero.",
+        "action": "Retain source percentage 30 without a derived count; preserve the cropped row as unresolved with an explicit omission reason.",
+        "source_anchors": [
+          {
+            "source_text": "380,000",
+            "location": "Basic services beneficiaries / Closing Period"
+          },
+          {
+            "source_text": "30",
+            "location": "Basic services / Percentage of which refugees / Closing Period"
+          },
+          {
+            "source_text": "17,500",
+            "location": "Economic opportunity beneficiaries / Closing Period"
+          },
+          {
+            "source_text": "115,000",
+            "location": "Enhanced resilience beneficiaries / Closing Period"
+          }
+        ]
+      },
+      "acceptance_checks": [
+        "Fourteen fully visible numeric results retain indicator, column role, date and unit.",
+        "Visible baseline zeros remain zeros.",
+        "Repeated subgroup labels remain attached to their own parents.",
+        "The cropped final indicator is retained as incomplete, never silently fabricated or dropped.",
+        "No assumption that female and refugee categories are disjoint is introduced."
+      ],
+      "questions_to_preserve": [
+        "Are Closing Period values targets or another reporting status?",
+        "What does CRI mean in this source?",
+        "Can the missing final-row portion be supplied later?"
+      ],
+      "image_sha256": "4894a5c603d4e651f88d86a40714e046521bf7508d31424421f0b867dfb73e55"
+    }
+  ]
+}

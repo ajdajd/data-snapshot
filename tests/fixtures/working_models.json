@@ -1,0 +1,2691 @@
+{
+  "status": "Hand-authored schema stress fixtures from the eight design sketches; not LLM outputs or independently adjudicated gold. Null evidence text denotes visual/contextual support; semantic accuracy is not established by these tests.",
+  "examples": [
+    {
+      "id": "income",
+      "image": "unhcr/108733-revised-public-wb-unhcr-policy-brief-final_table_000.png",
+      "image_sha256": "71fba5dbc2fef924632b0d23fda458d160de5bf833a74a279a35e99db7c33888",
+      "model": {
+        "title": "Income and remittances",
+        "components": [
+          {
+            "id": "c1",
+            "name": "Labor income",
+            "one_result_means": "A displayed income summary for a row and summary statistic.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Row",
+                "meaning": "row",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Agriculture",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Manufacturing",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "Construction",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "Services",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v5",
+                    "source_label": "Public sector",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v6",
+                    "source_label": "Health and Education",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v7",
+                    "source_label": "Total (excl. remittances)",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f2",
+                "name": "Summary Statistic",
+                "meaning": "summary statistic",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "MEAN",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "MEDIAN",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A displayed income summary for a row and summary statistic.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labor income"
+              }
+            ]
+          },
+          {
+            "id": "c2",
+            "name": "Remittances",
+            "one_result_means": "A displayed mean or median for remittances from abroad.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Summary Statistic",
+                "meaning": "summary statistic",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "MEAN",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "MEDIAN",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A displayed mean or median for remittances from abroad.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Remittances"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "unit_c1",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Not printed; retain unknown.",
+            "value": null,
+            "status": "unresolved",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labor income"
+              }
+            ]
+          },
+          {
+            "id": "time_c1",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "Monthly basis stated in title; ALCS 2013–14 is source wording, not an assigned observation date.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labor income"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Afghanistan is stated for labor income in the title.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labor income"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Labor income is computed for male workers aged [14,35].",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labor income"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_3",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Total excludes remittances; preserve printed summaries rather than summing row means or medians.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labor income"
+              }
+            ]
+          },
+          {
+            "id": "unit_c2",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Not printed; retain unknown.",
+            "value": null,
+            "status": "unresolved",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Remittances"
+              }
+            ]
+          },
+          {
+            "id": "time_c2",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "Keep the shared title; applicability of monthly wording to remittances can remain unresolved.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Remittances"
+              }
+            ]
+          },
+          {
+            "id": "note_c2_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Do not inherit the labor-income sex/age restriction without evidence or explicit user context.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Remittances"
+              }
+            ]
+          }
+        ],
+        "relationships": [],
+        "questions": [
+          {
+            "id": "q1",
+            "question": "Does monthly also qualify remittances?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              },
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          },
+          {
+            "id": "q2",
+            "question": "Are the row categories mutually exclusive? The image does not establish that.",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              },
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "financing",
+      "image": "refugee/040_Iraq-COVID-19-Vaccination-Project_table_000.png",
+      "image_sha256": "db944217fca9b310080b2e532ef88d96d5efd59b83d992513a5738d5e7768b05",
+      "model": {
+        "title": "Project financing summary",
+        "components": [
+          {
+            "id": "c1",
+            "name": "Financing summary",
+            "one_result_means": "A monetary amount for a named financing item.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Item",
+                "meaning": "item",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Total Project Cost",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Total Financing",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "of which IBRD/IDA",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "Financing Gap",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A monetary amount for a named financing item.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Financing summary"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "unit_c1",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Source title: US$, Millions. Preserve displayed amounts and attach millions scale once.",
+            "value": "Source title: US$, Millions. Preserve displayed amounts and attach millions scale once.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Financing summary"
+              }
+            ]
+          },
+          {
+            "id": "time_c1",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "No observation date is printed.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Financing summary"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "The indented of which IBRD/IDA item is a component of Total Financing.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Financing summary"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "No project name, reference country or financing status is established by this crop.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Financing summary"
+              }
+            ]
+          }
+        ],
+        "relationships": [
+          {
+            "id": "r1",
+            "kind": "part_of",
+            "description": "The of-which IBRD/IDA item is under Total Financing.",
+            "status": "source_stated",
+            "from_ref": {
+              "component_id": "c1",
+              "field_id": "f1",
+              "category_id": "v3",
+              "result_id": null
+            },
+            "to_ref": {
+              "component_id": "c1",
+              "field_id": "f1",
+              "category_id": "v2",
+              "result_id": null
+            },
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "of which IBRD/IDA",
+                "location": "Indented financing row"
+              }
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "question": "Are the amounts planned, committed, approved or disbursed? The crop does not say.",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "regression",
+      "image": "prwp/document_6213782_table_001.png",
+      "image_sha256": "f888b7f6b564839f8104addb50c2c8344ba02e22b70d34f59d81320f1275b357",
+      "model": {
+        "title": "Sector-specific TFP regressions",
+        "components": [
+          {
+            "id": "c1",
+            "name": "Regression results",
+            "one_result_means": "A displayed regression result for one sector column and labeled term.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Sector",
+                "meaning": "sector",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Manufacturing",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Services",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f2",
+                "name": "Term",
+                "meaning": "term",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Fixed capital",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Labor",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "Privatized",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "New private",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v5",
+                    "source_label": "Foreign-owned",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v6",
+                    "source_label": "Exporter",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v7",
+                    "source_label": "Capital city",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A displayed regression result for one sector column and labeled term.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Regression results"
+              }
+            ]
+          },
+          {
+            "id": "c2",
+            "name": "Sample coverage",
+            "one_result_means": "A count of firms or country surveys for one sector regression.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Sector",
+                "meaning": "sector",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Manufacturing",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Services",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f2",
+                "name": "Count Kind",
+                "meaning": "count kind",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "firms",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "country surveys",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A count of firms or country surveys for one sector regression.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Sample coverage"
+              }
+            ]
+          },
+          {
+            "id": "c3",
+            "name": "Model specification",
+            "one_result_means": "A stated inclusion status for country-survey dummy variables in one sector regression.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Sector",
+                "meaning": "sector",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Manufacturing",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Services",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A stated inclusion status for country-survey dummy variables in one sector regression.",
+                "source_label": null,
+                "value_type": "text"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Model specification"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "unit_c1",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Coefficient units/transformation are not specified.",
+            "value": null,
+            "status": "unresolved",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Regression results"
+              }
+            ]
+          },
+          {
+            "id": "time_c1",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "No observation period is printed.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Regression results"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "The coefficient interpretation follows from the table context; preserve that provenance.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Regression results"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Double asterisks mean significant at the 1% level. No exact p-values or numeric standard errors are printed.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Regression results"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_3",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Preserve heteroskedastic- and cluster robust standard errors as methodological wording; clustering dimension is unknown.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Regression results"
+              }
+            ]
+          },
+          {
+            "id": "time_c2",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "Not printed.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Sample coverage"
+              }
+            ]
+          },
+          {
+            "id": "note_c2_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Firm counts and survey counts are different results and are not interchangeable.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Sample coverage"
+              }
+            ]
+          },
+          {
+            "id": "unit_c3",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Not applicable.",
+            "value": null,
+            "status": "not_applicable",
+            "applies_to": [
+              {
+                "component_id": "c3",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Model specification"
+              }
+            ]
+          },
+          {
+            "id": "time_c3",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "Not printed.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c3",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Model specification"
+              }
+            ]
+          },
+          {
+            "id": "note_c3_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Both source values are Yes; these may alternatively be scoped model qualifications if the working model preserves them.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c3",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Model specification"
+              }
+            ]
+          },
+          {
+            "id": "unit_sample_1",
+            "kind": "unit",
+            "name": "Count unit",
+            "meaning": "Count kind determines which count unit is in use.",
+            "value": "firms",
+            "status": "source_stated",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [
+                  "value"
+                ],
+                "where": [
+                  {
+                    "field_id": "f2",
+                    "category_ids": [
+                      "v1"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "firms",
+                "location": "Number of observations row"
+              }
+            ]
+          },
+          {
+            "id": "unit_sample_2",
+            "kind": "unit",
+            "name": "Count unit",
+            "meaning": "Count kind determines which count unit is in use.",
+            "value": "country surveys",
+            "status": "source_stated",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [
+                  "value"
+                ],
+                "where": [
+                  {
+                    "field_id": "f2",
+                    "category_ids": [
+                      "v2"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "country surveys",
+                "location": "Number of observations row"
+              }
+            ]
+          }
+        ],
+        "relationships": [],
+        "questions": [
+          {
+            "id": "q1",
+            "question": "How are the regression variables transformed?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              },
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              },
+              {
+                "component_id": "c3",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          },
+          {
+            "id": "q2",
+            "question": "What is the clustering dimension?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              },
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              },
+              {
+                "component_id": "c3",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "education",
+      "image": "refugee/054_Sudan-Basic-Education-Emergency-Support-Project_figure_001.png",
+      "image_sha256": "3992eea19448a2e9e7facc7211466c2925d9cc98145cfafac6a68cd80e11acd4",
+      "model": {
+        "title": "Enrollment and reading composite",
+        "components": [
+          {
+            "id": "c1",
+            "name": "Panel A: Enrollment",
+            "one_result_means": "Enrollment for a school level and sex in the displayed 2017 context.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "School Level",
+                "meaning": "school level",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Secondary 3",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Secondary 2",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "Secondary 1",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "Basic 8",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v5",
+                    "source_label": "Basic 7",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v6",
+                    "source_label": "Basic 6",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v7",
+                    "source_label": "Basic 5",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v8",
+                    "source_label": "Basic 4",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v9",
+                    "source_label": "Basic 3",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v10",
+                    "source_label": "Basic 2",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v11",
+                    "source_label": "Basic 1",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f2",
+                "name": "Sex",
+                "meaning": "sex",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Male",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Female",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "Enrollment for a school level and sex in the displayed 2017 context.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel A: Enrollment"
+              }
+            ]
+          },
+          {
+            "id": "c2",
+            "name": "Panel B: Reading",
+            "one_result_means": "Percent of Grade 3 pupils unable to read a single word of a short Arabic text for a displayed country.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Country",
+                "meaning": "country",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Jordan",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Iraq",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "Morocco",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "Egypt",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v5",
+                    "source_label": "Yemen",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v6",
+                    "source_label": "Sudan",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "Percent of Grade 3 pupils unable to read a single word of a short Arabic text for a displayed country.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel B: Reading"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "unit_c1",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Enrollment in thousands; leftward bars are positive enrollment magnitudes.",
+            "value": "Enrollment in thousands; leftward bars are positive enrollment magnitudes.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel A: Enrollment"
+              }
+            ]
+          },
+          {
+            "id": "time_c1",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "2017 in panel heading; Education Sector Analysis, 2018 is source context.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel A: Enrollment"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "There are 22 bar positions, with ten printed values and twelve unlabeled magnitudes.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel A: Enrollment"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Country is not explicitly identified for this panel by the image.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel A: Enrollment"
+              }
+            ]
+          },
+          {
+            "id": "unit_c2",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Percent.",
+            "value": "Percent.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel B: Reading"
+              }
+            ]
+          },
+          {
+            "id": "time_c2",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "2014 or the latest available; country-specific observation years are not supplied.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel B: Reading"
+              }
+            ]
+          },
+          {
+            "id": "note_c2_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Do not transfer Panel A units, sex breakdown or 2017 period into Panel B.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel B: Reading"
+              }
+            ]
+          },
+          {
+            "id": "note_c2_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Sudan is highlighted by color; no reason for the highlight is stated.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Panel B: Reading"
+              }
+            ]
+          }
+        ],
+        "relationships": [],
+        "questions": [
+          {
+            "id": "q1",
+            "question": "Which actual observation year applies to each reading percentage?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              },
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          },
+          {
+            "id": "q2",
+            "question": "What country does the enrollment pyramid describe?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              },
+              {
+                "component_id": "c2",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "trade",
+      "image": "prwp/document_10455617_figure_003.png",
+      "image_sha256": "ed033f9eac29b5cde3e0239250d48159975c634dcd4d5d3191fc41063109a123",
+      "model": {
+        "title": "Unlabelled services-trade bars",
+        "components": [
+          {
+            "id": "c1",
+            "name": "Restrictiveness by group and mode",
+            "one_result_means": "A bar-height restrictiveness magnitude for a displayed group and legend series.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Group",
+                "meaning": "group",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "SAR",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "MENA",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "EAP",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "World",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v5",
+                    "source_label": "LAC",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v6",
+                    "source_label": "AFR",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v7",
+                    "source_label": "ECA",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v8",
+                    "source_label": "OECD",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f2",
+                "name": "Mode",
+                "meaning": "mode",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Cross border",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Commercial presence",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "Temporary movement of people",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A bar-height restrictiveness magnitude for a displayed group and legend series.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Restrictiveness by group and mode"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "unit_c1",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Visible axis label and 0–80 ticks; index construction/unit and true maximum are not stated.",
+            "value": null,
+            "status": "unresolved",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Restrictiveness by group and mode"
+              }
+            ]
+          },
+          {
+            "id": "time_c1",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "Not printed.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Restrictiveness by group and mode"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "24 bars have no printed numerical result labels.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Restrictiveness by group and mode"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Preserve mode 1/3/4 service-composition notes without silently mapping their numbers to legend labels.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Restrictiveness by group and mode"
+              }
+            ]
+          }
+        ],
+        "relationships": [],
+        "questions": [
+          {
+            "id": "q1",
+            "question": "What is the restrictiveness unit/index definition?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          },
+          {
+            "id": "q2",
+            "question": "Which numbered modes correspond to the descriptive legend entries?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "duration",
+      "image": "unhcr/acnur_anlisis-madre_de_dios_vf_figure_024.png",
+      "image_sha256": "38384eafdb1af9d4da1af53b915ddb548a3bdff442fe7d3f1ade5c83a6f55eba",
+      "model": {
+        "title": "Spanish duration-band percentages",
+        "components": [
+          {
+            "id": "c1",
+            "name": "Duration responses",
+            "one_result_means": "A displayed percentage for an original Spanish response category to the residence-duration question.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Duration Category",
+                "meaning": "duration category",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "a. 1 a 6 meses",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "b. 6 meses a 1 años",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "c. 1 año a 3 años",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "d. 3 años a 5 años",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v5",
+                    "source_label": "e. Más de 5 años",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v6",
+                    "source_label": "f. Toda la vida",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A displayed percentage for an original Spanish response category to the residence-duration question.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Duration responses"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "unit_c1",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Percent, preserving printed whole-percentage values.",
+            "value": "Percent, preserving printed whole-percentage values.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Duration responses"
+              }
+            ]
+          },
+          {
+            "id": "time_c1",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "ACNUR 2023 appears in the source attribution; observation-date meaning is unknown.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Duration responses"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "The referent country and respondent population/denominator are unspecified.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Duration responses"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Keep Toda la vida distinct from Más de 5 años.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Duration responses"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_3",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Do not silently repair source grammar or impose interval boundary conventions.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Duration responses"
+              }
+            ]
+          }
+        ],
+        "relationships": [],
+        "questions": [
+          {
+            "id": "q1",
+            "question": "What does ese país refer to?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          },
+          {
+            "id": "q2",
+            "question": "What are interval boundary conventions and the meaning of the source year?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "shona",
+      "image": "unhcr/policy_brief_on_shona_community_from_stateless_to_citizens_figure_000.png",
+      "image_sha256": "1890bd37d06ecddccf62d1afa90e70c227a84253332e2ec8b9be62c14ade0765",
+      "model": {
+        "title": "Shona labour-force chart",
+        "components": [
+          {
+            "id": "c1",
+            "name": "Labour-force status comparison",
+            "one_result_means": "A plotted share of population aged 18–64 for a population group, employment status and displayed reporting interval.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Population Group",
+                "meaning": "population group",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Urban Nationals",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Shona",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f2",
+                "name": "Labour Status",
+                "meaning": "labour status",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Employed",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Unemployed",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f3",
+                "name": "Reporting Interval",
+                "meaning": "reporting interval",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "May-Jun ’20",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Jul-Sep ’20",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "Oct-Nov ’20",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "Jan-Mar ’21",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v5",
+                    "source_label": "Apr-Jun ’21",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A plotted share of population aged 18–64 for a population group, employment status and displayed reporting interval.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labour-force status comparison"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "unit_c1",
+            "kind": "unit",
+            "name": "Unit and scale as described",
+            "meaning": "Percent of population, as the axis states; do not substitute a labor-force denominator.",
+            "value": "Percent of population, as the axis states; do not substitute a labor-force denominator.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labour-force status comparison"
+              }
+            ]
+          },
+          {
+            "id": "time_c1",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "Five mixed-length labeled intervals; preserve source text rather than assign quarterly frequency.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labour-force status comparison"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "20 plotted points have no printed numeric result labels.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labour-force status comparison"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Visible whiskers are retained as uncertainty marks with unspecified statistical meaning.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labour-force status comparison"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_3",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Source names Kenya COVID-19 Rapid Response Phone Surveys; additional population eligibility is not inferred.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Labour-force status comparison"
+              }
+            ]
+          }
+        ],
+        "relationships": [],
+        "questions": [
+          {
+            "id": "q1",
+            "question": "What do the whiskers represent?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          },
+          {
+            "id": "q2",
+            "question": "Are there further eligibility restrictions or source-period definitions outside the crop?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          }
+        ]
+      }
+    },
+    {
+      "id": "results_framework",
+      "image": "refugee/001_BOSIB-3f2311b3-9a20-44d3-b637-b3b2b3d21695_table_008.png",
+      "image_sha256": "4894a5c603d4e651f88d86a40714e046521bf7508d31424421f0b867dfb73e55",
+      "model": {
+        "title": "Hierarchical results framework",
+        "components": [
+          {
+            "id": "c1",
+            "name": "PDO indicator results",
+            "one_result_means": "A displayed indicator/subgroup value for a labeled baseline or closing-period column and the date printed for that indicator.",
+            "fields": [
+              {
+                "id": "f1",
+                "name": "Outcome Group",
+                "meaning": "outcome group",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Improved access to basic services",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Improved economic opportunities",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "Improved environmental management in the target areas",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f2",
+                "name": "Indicator",
+                "meaning": "indicator",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Beneficiaries with improved access to social and economic infrastructure and services (Number)",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Percentage of which refugees (Percentage)",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v3",
+                    "source_label": "Percentage of which female (Percentage)",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v4",
+                    "source_label": "People benefiting from actions to expand and enable economic opportunity (Number)",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v5",
+                    "source_label": "Percentage of which refugees (Percentage)",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v6",
+                    "source_label": "Percentage of which female (Percentage)",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v7",
+                    "source_label": "People benefiting from enhanced resilience of terrestrial and aquatic systems (Number of people) CRI",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v8",
+                    "source_label": "People benefiting from enhanced resilience of terrestrial and aquatic systems - Female (Number of people) CRI",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f3",
+                "name": "Column Role",
+                "meaning": "column role",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Baseline",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Closing Period",
+                    "display_label": null
+                  }
+                ]
+              },
+              {
+                "id": "f4",
+                "name": "Source Date",
+                "meaning": "source date",
+                "source_label": null,
+                "categories": [
+                  {
+                    "id": "v1",
+                    "source_label": "Aug/2025",
+                    "display_label": null
+                  },
+                  {
+                    "id": "v2",
+                    "source_label": "Dec/2030",
+                    "display_label": null
+                  }
+                ]
+              }
+            ],
+            "results": [
+              {
+                "id": "value",
+                "name": "Displayed result",
+                "meaning": "A displayed indicator/subgroup value for a labeled baseline or closing-period column and the date printed for that indicator.",
+                "source_label": null,
+                "value_type": "number"
+              }
+            ],
+            "extraction_policy": "printed_only",
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "PDO indicator results"
+              }
+            ]
+          }
+        ],
+        "contexts": [
+          {
+            "id": "time_c1",
+            "kind": "time",
+            "name": "Time context",
+            "meaning": "Retain source time wording and its qualification.",
+            "value": "Preserve the separate role and printed date; Closing Period is not an automatically asserted achieved outcome or target.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "PDO indicator results"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_1",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Refugee/female percentage rows are children of the appropriate parent indicator.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "PDO indicator results"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_2",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "Seven indicators have both dates/values visible, giving 14 printed numeric results.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "PDO indicator results"
+              }
+            ]
+          },
+          {
+            "id": "note_c1_3",
+            "kind": "qualification",
+            "name": "Interpretation/qualification for review",
+            "meaning": "Working interpretation or limit; not necessarily a verbatim source statement.",
+            "value": "The final female-resilience indicator label is visible, but its dates/values are outside this crop.",
+            "status": "interpretation",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "PDO indicator results"
+              }
+            ]
+          },
+          {
+            "id": "unit_indicator_1",
+            "kind": "unit",
+            "name": "Indicator-specific unit",
+            "meaning": "Source unit attached to selected indicators.",
+            "value": "Number",
+            "status": "source_stated",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": [
+                  {
+                    "field_id": "f2",
+                    "category_ids": [
+                      "v1",
+                      "v4"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "Number",
+                "location": "Indicator labels"
+              }
+            ]
+          },
+          {
+            "id": "unit_indicator_2",
+            "kind": "unit",
+            "name": "Indicator-specific unit",
+            "meaning": "Source unit attached to selected indicators.",
+            "value": "Percentage",
+            "status": "source_stated",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": [
+                  {
+                    "field_id": "f2",
+                    "category_ids": [
+                      "v2",
+                      "v3",
+                      "v5",
+                      "v6"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "Percentage",
+                "location": "Indicator labels"
+              }
+            ]
+          },
+          {
+            "id": "unit_indicator_3",
+            "kind": "unit",
+            "name": "Indicator-specific unit",
+            "meaning": "Source unit attached to selected indicators.",
+            "value": "Number of people",
+            "status": "source_stated",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [
+                  "value"
+                ],
+                "where": [
+                  {
+                    "field_id": "f2",
+                    "category_ids": [
+                      "v7",
+                      "v8"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "evidence": [
+              {
+                "basis": "image",
+                "text": "Number of people",
+                "location": "Indicator labels"
+              }
+            ]
+          }
+        ],
+        "relationships": [
+          {
+            "id": "r1",
+            "kind": "subgroup_of",
+            "description": "Indented subgroup indicator remains attached to its parent indicator.",
+            "status": "interpretation",
+            "from_ref": {
+              "component_id": "c1",
+              "field_id": "f2",
+              "category_id": "v2",
+              "result_id": null
+            },
+            "to_ref": {
+              "component_id": "c1",
+              "field_id": "f2",
+              "category_id": "v1",
+              "result_id": null
+            },
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Indicator indentation and outcome grouping"
+              }
+            ]
+          },
+          {
+            "id": "r2",
+            "kind": "subgroup_of",
+            "description": "Indented subgroup indicator remains attached to its parent indicator.",
+            "status": "interpretation",
+            "from_ref": {
+              "component_id": "c1",
+              "field_id": "f2",
+              "category_id": "v3",
+              "result_id": null
+            },
+            "to_ref": {
+              "component_id": "c1",
+              "field_id": "f2",
+              "category_id": "v1",
+              "result_id": null
+            },
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Indicator indentation and outcome grouping"
+              }
+            ]
+          },
+          {
+            "id": "r3",
+            "kind": "subgroup_of",
+            "description": "Indented subgroup indicator remains attached to its parent indicator.",
+            "status": "interpretation",
+            "from_ref": {
+              "component_id": "c1",
+              "field_id": "f2",
+              "category_id": "v5",
+              "result_id": null
+            },
+            "to_ref": {
+              "component_id": "c1",
+              "field_id": "f2",
+              "category_id": "v4",
+              "result_id": null
+            },
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Indicator indentation and outcome grouping"
+              }
+            ]
+          },
+          {
+            "id": "r4",
+            "kind": "subgroup_of",
+            "description": "Indented subgroup indicator remains attached to its parent indicator.",
+            "status": "interpretation",
+            "from_ref": {
+              "component_id": "c1",
+              "field_id": "f2",
+              "category_id": "v6",
+              "result_id": null
+            },
+            "to_ref": {
+              "component_id": "c1",
+              "field_id": "f2",
+              "category_id": "v4",
+              "result_id": null
+            },
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Indicator indentation and outcome grouping"
+              }
+            ]
+          },
+          {
+            "id": "r5",
+            "kind": "subgroup_of",
+            "description": "Indented subgroup indicator remains attached to its parent indicator.",
+            "status": "interpretation",
+            "from_ref": {
+              "component_id": "c1",
+              "field_id": "f2",
+              "category_id": "v8",
+              "result_id": null
+            },
+            "to_ref": {
+              "component_id": "c1",
+              "field_id": "f2",
+              "category_id": "v7",
+              "result_id": null
+            },
+            "evidence": [
+              {
+                "basis": "image",
+                "text": null,
+                "location": "Indicator indentation and outcome grouping"
+              }
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "id": "q1",
+            "question": "Are Closing Period values targets or another reporting status?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          },
+          {
+            "id": "q2",
+            "question": "What does CRI mean in this source?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          },
+          {
+            "id": "q3",
+            "question": "Can the missing final-row portion be supplied later?",
+            "applies_to": [
+              {
+                "component_id": "c1",
+                "result_ids": [],
+                "where": []
+              }
+            ],
+            "answer": null,
+            "resolution": "unresolved",
+            "evidence": []
+          }
+        ]
+      }
+    }
+  ]
+}

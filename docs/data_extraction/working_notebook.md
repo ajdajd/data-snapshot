@@ -57,16 +57,20 @@ and data. Use plain labels in the main UI; advanced views can expose JSON and
 SDMX details. Follow the metadata reviewer's interaction patterns without a
 runtime dependency on its models, forms or storage module.
 
-**Next implementation milestones, after this archival step:**
+**Next implementation milestones:**
 
-1. Build the independent per-snapshot model-proposal/revision and accepted-model
+1. Use the eight image-grounded cases in `review_design_examples.json` to exercise
+   model proposal, direct editing, acceptance, extraction and data corrections.
+   This design pack is now prepared; see the review-design section below.
+2. Build the independent per-snapshot model-proposal/revision and accepted-model
    extraction path, saving inspectable JSON before a UI depends on it. Reuse the
    existing OpenRouter execution/accounting utilities; keep the old fixed-DSD
-   pipeline as an experimental baseline.
-2. Add the small Streamlit workspace around that path and demonstrate one complete
-   review session. Expand to contrasting income, financing and multi-panel examples
-   to expose the important interaction and representation choices.
-3. Show the workflow at the next team sync: proposed model, user correction,
+   pipeline as an experimental baseline. Proposal/revision and local
+   draft/acceptance are now implemented and checked offline. A live proposal
+   quality check and extraction against the accepted working model remain next.
+3. Add the small Streamlit workspace around that path and demonstrate one complete
+   review session. Exercise its controls against all eight design cases as it grows.
+4. Show the workflow at the next team sync: proposed model, user correction,
    accepted revision, extracted values, review and the current export state.
    Gather feedback before investing in more interaction complexity. Finish formal
    SDMX export after extraction/review works, clearly labeling any interim JSON.
@@ -136,8 +140,237 @@ workflow. The 2026-11-26 decision brings both into the deliverable, with two
 distinct acceptance points: accept the snapshot's statistical model, then review
 the extracted values and their associations. Keep the backend independently
 testable while adding the UI that supports these interactions. There is no new
-structured-data review app implemented yet; the current task saves discovery and
-updates the plan before that implementation begins.
+structured-data review app implemented yet. Discovery and the eight-case design
+pack are saved; the proposal/revision and draft/acceptance backend is now ready
+for the subsequent value-extraction and UI increments.
+
+### Review design pack — 2026-11-26
+
+Prepared `docs/data_extraction/review_design_examples.json` after visually
+reopening all eight PNGs. It records each image path/hash, a working statistical
+interpretation, an illustrative proposal defect, direct editing controls, an
+equivalent assistant instruction, a data-correction scenario, source-visible
+anchors, acceptance checks and unresolved questions. Six cases are the C1 core;
+Shona and a hierarchical results-framework table add breadth. Existing Docling
+`examples.json`, frozen discovery prompts and experimental DSD profiles are
+unchanged.
+
+These are **hand-authored design examples**, not new LLM outputs, accepted DSDs,
+a full numerical gold set or the only valid statistical decomposition. Deliberate
+proposal/value defects are UX exercises, not claims about saved model outputs.
+The source images support the anchors; the proposed interpretation and interaction
+need team/user feedback. The design pack does not consolidate the parked D2 study.
+
+| Case ID | Model decision to exercise | Direct edit / data review |
+| --- | --- | --- |
+| `income` | Separate labor income from remittances; preserve mean/median and the remittance-excluded total. | Scope the male/age note to labor income, leaving remittance applicability unresolved. Correct an illustrative mistyped Agriculture mean to printed 5930. |
+| `financing` | Preserve monetary scale and the IBRD/IDA component relationship. | Select the parent Total Financing for the of-which item. Retain 0.00 as zero and apply millions scale once. |
+| `regression` | Coefficients, firm/survey counts and Yes model-specification content have different roles. | Add count kind with firms versus country surveys; retain each sector's context. Preserve 0.433** and its stated significance threshold without inventing a p-value or numeric standard error. |
+| `education` | Two panels have different identifying fields, units and time qualifications. | Edit Panel B's percent unit and qualified period without changing Panel A. Preserve printed versus unlabelled enrollment values. |
+| `trade` | A valid group-by-mode model exists although no bar result is printed. | Leave unit unspecified; choose printed-only or explicitly allow image estimates. Axis ticks cannot substitute for observed results. |
+| `duration` | Spanish category text and uncertain interval boundaries matter. | Restore Toda la vida as a separate category; retain source labels if translations are added. Preserve the 99% displayed total without normalizing. |
+| `shona` | Five irregular periods, population-based shares and whiskers of unknown meaning. | Remove invented quarterly frequency and 95% confidence wording. Geometry-derived points/bounds remain estimates; unexplained whiskers remain unexplained. |
+| `results_framework` | Indicator hierarchy, per-indicator units, reporting roles and dates coexist. | Assign correct parent/unit to percentage children; retain Closing Period rather than assert Actual. Keep the cropped final indicator unresolved. |
+
+#### Proposed workspace
+
+One snapshot session, with its image always available on the left. On the right:
+**Model**, **Data**, **Export**, plus an assistant area for the current stage.
+Keep original Docling/model outputs available as references. Preserve independent
+components within one snapshot; do not make users open a new session per panel.
+
+The Model view consists of editable cards/tables:
+
+| Card | User-facing fields and controls |
+| --- | --- |
+| Components | Name and “What does one result represent?”; add/separate components when their interpretation differs. |
+| Identifying fields | Display name, meaning and source category labels; editable rows with stable internal identities. Retain raw labels separately from optional translations/display labels. |
+| Results | Result name/meaning and number or categorical-text type. A numeric-only observation editor cannot preserve all regression content. |
+| Units and scale | Source wording, interpreted unit/scale and Applies to component/result/indicator selectors. An unknown unit is an explicit state, not an invitation to guess. |
+| Time and reporting roles | Raw source period/date, time basis, source-year wording and Baseline/Closing Period-type role as separate concepts. No forced regular frequency or observation date. |
+| Qualifications | Text, source location, interpretation/source distinction and Applies to selectors. Scope to a component or selected categories instead of blanket image-wide inheritance. |
+| Relationships | Child and parent item/indicator selectors; retain context across components without silently treating totals as ordinary peers. |
+| Extraction policy | Printed values only by default; explicit opt-in to image estimates per component. Retain the method, limitations and unresolved uncertainty marks. |
+| Questions | Source ambiguity, its affected content and resolution: leave unresolved, clarify from source, or add clearly marked user-provided context. |
+
+Scope selectors use named components and category values; do not require the user
+to write JSON paths or executable conditions. Shared context and component-level
+overrides must be visible, with no silent overwrite. SDMX field IDs/codes can be
+an advanced view later; they are not mandatory form labels for the first review.
+
+For income, an illustrative scope correction is:
+
+| Field | Proposed value | User's working edit |
+| --- | --- | --- |
+| Qualification | Male workers aged [14,35] | Same source wording |
+| Applies to | Entire snapshot | Labor income component only |
+| Remittance applicability | Silently inherited | Unresolved |
+| Source | Note below table | Same image evidence; scope interpretation recorded separately |
+
+The user can make this direct edit or ask the assistant for it. An assistant
+response proposes a revision with visible differences; it does not overwrite the
+accepted model automatically. Direct changes form the working draft; saving it
+does not call the model. Preserve original evidence when recording user context.
+
+The Data view displays each component's observations with meaningful identifiers,
+numeric/categorical value, unit/scale, source text/location, printed/estimated
+method and review/omission flags. A source-like pivot may aid comparison, while
+the saved representation remains long format. Corrections create a reviewed
+layer; source text and raw generated values remain intact. Do not recompute
+source totals, normalize rounded shares or convert scale without an explicit
+reviewed transformation and retained source values.
+
+#### Acceptance and session behavior
+
+1. **Save draft:** persist local working edits and questions for later resume;
+   no LLM call or acceptance is implied.
+2. **Ask for revision:** explicitly request a billable proposal; show differences
+   and let the user apply it. Retain the existing cumulative spending guardrail.
+3. **Accept model:** save an immutable accepted model version with image/evidence
+   identity. Check valid types and references, unique identifiers and intelligible
+   result/association definitions. Do not demand answers absent from the image.
+4. **Extract values:** an explicit action using that accepted revision; record
+   usage and retain the result's model-version link. Widget reruns must not repeat
+   requests. A model edit creates a new draft and marks dependent data as needing
+   review; old extractions are retained, not silently migrated or discarded.
+5. **Save reviewed data:** preserve corrections, unresolved content and the review
+   decision. Review acceptance is separate from extraction completeness: a person
+   may review a partial extraction without claiming the whole image was recovered.
+6. **Export:** reviewed interim JSON can retain a partial result and its omissions.
+   Show SDMX formalization/export as pending until that implementation validates
+   the actual structure and observations. JSON syntax validity is not SDMX
+   compliance or proof of image accuracy.
+
+In printed-only mode the trade and Shona cases have no exact numeric result
+labels. Their models can still be accepted, while numerical extraction remains
+explicitly incomplete. The education case has 16 printed results and 12 unlabelled
+enrollment slots. For the results framework, seven indicators have both dates
+and values visible (14 numeric results), while the final female-resilience label
+is cropped before its dates/values. Save that indicator as incomplete rather than
+inventing zero or claiming complete coverage.
+
+The team-sync walkthrough should demonstrate one ordinary scope correction, one
+component-specific unit/period correction, and one unresolved/estimated-value
+case, including save/reload and the distinction between model acceptance and data
+review. This is a starting interaction design to revise from observed use.
+
+#### Implementation implications
+
+The next backend increment needs a per-snapshot working model supporting multiple
+components, scoped context, row-specific units, numeric/categorical content and
+evidence/uncertainty. The existing fixed-DSD numeric extractor remains useful as a
+baseline; its single shared dimension/attribute contract cannot serve as the
+working model for all eight examples unchanged. Reuse its execution, accounting
+and validation patterns without changing the frozen experiment's meaning.
+
+For the later Streamlit implementation, the official agent skills look relevant
+for editable tables, chat, state and testing:
+[CLI skills](https://docs.streamlit.io/develop/api-reference/cli/skills) and
+[coding-agent guide](https://docs.streamlit.io/develop/concepts/ai-agents/coding-agents).
+The lockfile pins Streamlit 1.63.0, but it is not installed in the current
+environment. Enable the review extra while preserving the existing environment
+extras, then verify the pinned CLI supports skills and install project-local
+guidance. No environment update or skill installation was performed in this step.
+
+Checks for the design pack: all eight source images were visually reopened;
+case IDs, paths and image hashes are consistent; the six core paths match C1;
+source anchors/correction scenarios were read against the images. No paid calls,
+new Docling runs, application code or final SDMX schema were created. Current
+recorded spend remains **$1.96872847 / $5**, remaining **$3.03127153**.
+
+### Snapshot-model backend — 2026-11-26
+
+Implemented the first backend increment for Approach 1, independently of metadata
+extraction/schema/reviewer modules. It uses existing dependencies and does not
+require an environment rebuild or Streamlit installation.
+
+- `working_model.py`: strict Pydantic working-model contract. Supports multiple
+  components, component-local key/category/result identities, preserved source
+  labels and optional display labels, numeric/text result definitions, scoped
+  context, relationships, questions and a printed-only/allow-estimates policy.
+  This is a local review model before formal SDMX encoding, not a chosen DSD.
+- `model_proposal.py`: prepares or executes one PNG-plus-Docling proposal or
+  reviewer-instructed revision using separate system/user prompt files, Structured
+  Outputs and the existing execution/spending guardrails. Defaults to offline.
+- `model_review.py`: snapshots source evidence, saves human edits or explicitly
+  applied proposals as local drafts, and records acceptance of a specific model
+  version. All review-store operations are local and make no API calls.
+
+**Evidence boundary:** the native Docling file must have a sibling extraction
+`run.json` whose source image hash matches the PNG and whose conversion status is
+successful. The request includes relevant document content, layout references,
+cells and picture/chart metadata. Document name/origin metadata and embedded
+image assets are excluded. The original image is the primary evidence; Docling
+and prior-model text are not trusted instructions. Literal source placeholders
+cannot be substituted into prompt instructions by the template renderer.
+
+**Proposal boundary:** every output must pass the working-model contract before
+`proposed_model.json` is written. Checks include unique local IDs, valid component/
+result/category scopes, resolvable relationship references and explicit units for
+numeric results, including unresolved units. Source, interpreted and user-provided
+claims have distinct provenance requirements. An initial proposal without reviewer
+instructions cannot enable image estimates or invent user-provided evidence.
+Unknowns/questions can remain unresolved; no registry codes are required.
+
+Proposal output is not accepted or applied automatically. Raw responses, schema,
+settings, projected evidence, source/current-model hashes, instructions and usage
+are retained. Invalid/incomplete results keep their billed costs, with no repair
+or retry calls. The current Luna-medium settings and shared $5 journal remain in
+use; existing fixed-DSD and discovery prompts/configuration were not changed.
+
+**Review boundary:** a session snapshots the PNG, native JSON and extraction run
+report and keeps versioned models plus acceptance history in `session.json`.
+Writes are serialized under a file lock and atomically replace the state file.
+Direct edits create a new draft; unchanged content is a no-op. Real changes clear
+current acceptance while retaining previous revisions/acceptances. Applying an
+LLM proposal checks its raw output, image/Docling hashes and starting draft hash;
+a stale response cannot overwrite newer user edits. Saving/accepting also requires
+the revision expected by the caller. Acceptance includes model/source hashes and
+a reviewer label; that label is not an authentication mechanism. Only the current
+`accepted_revision` pointer is approval for the current model.
+
+CLI entry points:
+
+```bash
+uv run --no-sync python -m data_snapshot.structured_data_extraction.model_proposal --help
+uv run --no-sync python -m data_snapshot.structured_data_extraction.model_review --help
+```
+
+The review CLI supports `init`, `save`, `apply`, `accept` and `show`. `show` can
+export an editable model copy; `save` imports its changes as a new draft. Do not
+edit session history, raw responses or provenance files to make a correction.
+The module README contains source-matched income setup and review commands.
+
+Added `tests/fixtures/working_models.json`, hand-authored schema stress fixtures
+from all eight design cases. They exercise multiple panels, note scope, units by
+category/indicator, categorical model status, category hierarchies and unresolved
+uncertainty. They are not LLM-generated proposals or an independently adjudicated
+semantic gold set.
+
+Verification: **106 relevant tests passed** (33 new model/review cases plus the
+73 existing extraction/discovery/accounting cases). This includes strict response
+schema shape, all eight fixture models, invalid references and claim states,
+matched Docling input, offline key/client isolation, literal-placeholder handling,
+billed invalid proposals, direct scope edits, stale revision rejection, source/
+history/proposal tampering, unknown-field acceptance and atomic-save failure.
+
+Also exercised the real income PNG/native pair through both CLIs, without API
+calls. Inspectable artifacts are in
+`data/structured_data_trials/model_proposal_backend_20261126/`:
+
+- `income_prepare/`: real request/evidence/schema snapshots; `status=prepared`,
+  `api_attempts=0`.
+- `income_session/`: local input snapshots and an empty review store; draft
+  revision 0, no accepted model and no purported human acceptance.
+
+Limits/next work: no live model-proposal quality trial, value extraction against
+this working model, data-review store, Streamlit UI or final SDMX conversion has
+been implemented in this increment. The validator checks structure/references and
+the presence of unit context, not exhaustive scope coverage/conflicts or factual
+image correctness; reviewer interpretation still matters. The eight models
+demonstrate representability, not automatic extraction accuracy. Current recorded
+spend remains **$1.96872847 / $5**, with **$3.03127153** remaining and no new paid
+calls in this step.
 
 ### Discovery closeout — 2026-11-26
 

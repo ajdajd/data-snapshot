@@ -8,8 +8,10 @@ OpenRouter entry point prepares image-first LLM extraction offline by default.
 **Current direction (2026-11-26):** tooling plus an interactive workflow for one
 snapshot at a time: PNG/Docling evidence -> LLM working-model proposal -> user
 acceptance -> extraction -> data review -> formal SDMX structure/code mapping and
-export. A separate Streamlit app is planned. Its model-proposal and review stages
-are not implemented yet; the fixed-DSD CLI below remains an experimental baseline.
+export. A separate Streamlit app is planned. The working-model proposal and local
+draft/acceptance backend is implemented below; the UI and extraction against the
+new accepted model remain to be added. The fixed-DSD CLI remains an experimental
+baseline.
 SDMX concepts and codelists can guide appropriate mappings without forcing absent
 information into the snapshot. Final encoding can follow reviewed extraction;
 interpreting the statistical meaning and validating provisional records still
@@ -17,6 +19,101 @@ happen earlier. CSV, RapidAI and PDF-workflow integration remain deferred.
 
 The central [plan and experiment notebook](../../../docs/data_extraction/working_notebook.md)
 records decisions, candidate DSDs, hardware checks and live findings.
+
+## Snapshot model proposal and acceptance
+
+`working_model.py` defines the editable interpretation before formal SDMX coding:
+multiple components; component-local identifying fields and original category
+labels; numeric or text result definitions; scoped units, time and qualifications;
+relationships; and questions that can remain unresolved. A context scope selects
+a component, optional result fields, and optional categories. Numeric results
+need a unit context even when its value is unknown. This is not a general or
+accepted SDMX DSD, and contains no extracted observation dataset.
+
+The proposal entry point uses **PNG + matching native Docling JSON**. The native
+file must have its sibling local-extractor `run.json`, whose image hash and
+successful conversion status are checked. The model receives document content
+with references, cells and chart metadata preserved; document-name/origin metadata
+and embedded page-image assets are excluded. The PNG is the primary evidence and
+Docling content is explicitly untrusted preprocessing. This module reads existing
+Docling results; it does not launch Docling or download models.
+
+Create a fresh review session from the verified income example:
+
+```bash
+review_session_dir="data/structured_data_trials/model_review_income_01"
+
+uv run --no-sync python -m data_snapshot.structured_data_extraction.model_review init \
+  /home/ajd/hf_datasets/data-snapshot/snapshots/unhcr/108733-revised-public-wb-unhcr-policy-brief-final_table_000.png \
+  --docling data/structured_data_trials/20261124_standard_02/108733-revised-public-wb-unhcr-policy-brief-final_table_000/native.json \
+  --session-dir "$review_session_dir"
+
+uv run --no-sync python -m data_snapshot.structured_data_extraction.model_proposal \
+  "$review_session_dir/input.png" --docling "$review_session_dir/native.json" \
+  --output-dir data/structured_data_trials/income_model_prepare_01
+```
+
+That proposal command is **offline by default**: no dotenv, client or network.
+It writes the request preview, projected Docling evidence, input hashes,
+model-response schema, settings and revision inputs. It does not invent a model
+response or accept a draft. For a billable proposal, use a **fresh output path**
+and add `--execute`; the existing cumulative $5 ledger and no-retry behavior apply.
+A successful call additionally saves `response.json`, `raw_output.txt`, and
+`proposed_model.json`. Validation failures preserve raw output and billed cost.
+
+After a successful executed proposal, apply it as a draft and explicitly accept
+that draft (replace the proposal path with the actual successful output):
+
+```bash
+uv run --no-sync python -m data_snapshot.structured_data_extraction.model_review apply \
+  --session-dir "$review_session_dir" \
+  --proposal-dir data/structured_data_trials/income_model_proposal_01 \
+  --expected-revision 0 --reviewer Aj
+
+uv run --no-sync python -m data_snapshot.structured_data_extraction.model_review accept \
+  --session-dir "$review_session_dir" --expected-revision 1 --reviewer Aj
+```
+
+**Direct editing:** export an editable copy, edit that copy, and save a new draft.
+Do not edit the protected session history or the raw generated proposal:
+
+```bash
+uv run --no-sync python -m data_snapshot.structured_data_extraction.model_review show \
+  --session-dir "$review_session_dir" --model-output "$review_session_dir/edit.json"
+
+# Edit edit.json, for example the population qualification's applies_to scope.
+uv run --no-sync python -m data_snapshot.structured_data_extraction.model_review save \
+  --session-dir "$review_session_dir" --model "$review_session_dir/edit.json" \
+  --expected-revision 1 --reviewer Aj --note "Scope the note to labor income only"
+```
+
+Use the draft revision printed by each command for subsequent edits/acceptance.
+An unchanged model is a no-op; an actual change creates a new revision, clears
+current acceptance, and retains previous revisions and acceptance records.
+Source labels and optional display labels are separate. Unknown fields and
+unresolved questions do not require fabricated answers before model acceptance.
+
+**LLM revision:** export the current draft, pass it as `--current-model` with an
+explicit `--instruction`, and use a fresh proposal output directory. It prepares
+offline unless `--execute` is added. Inspect the result before `apply`; it never
+replaces a session draft automatically. Applying checks the proposal's image,
+Docling and current-model fingerprints, so a late model response cannot overwrite
+newer user edits. A changed source or edited raw proposal also stops import.
+
+`model_review` actions are local and make no API calls. Sessions snapshot the PNG,
+native Docling JSON and source run report; `session.json` is written under an
+exclusive file lock with atomic replacement. Acceptance records include the
+model and source hashes and a reviewer label. The reviewer label is not an
+authentication system. Only `accepted_revision` authorizes the **current** model;
+historical acceptance records are not current approval after an edit.
+
+Tests use hand-authored models for all eight design cases, fake billed responses
+and temporary sessions. They verify shape, references, scope integrity, review
+history, source matching and atomic-save failure behavior. They do not establish
+LLM proposal quality, exhaustive context-rule coverage or factual correctness.
+There is no Streamlit UI or accepted-working-model value extractor yet. Do not
+pass this working-model JSON to the legacy fixed-DSD extractor or call it
+SDMX-compliant. Those are subsequent integration steps.
 
 ## OpenRouter workflow — offline preparation first
 
