@@ -93,8 +93,8 @@ use. Shared-DSD consolidation/design and the proposed 202-image coverage study a
 parked; they are not prerequisites for this MVP. The seven-batch DSD strategy was
 not activated. Detailed closeout, archive paths and costs are recorded below.
 
-Current recorded workstream spending: **$2.02414906 / $5**; remaining
-**$2.97585094**, with no outstanding reservations. The original dropped request
+Current recorded workstream spending: **$2.03134574 / $5**; remaining
+**$2.96865426**, with no outstanding reservations. The original dropped request
 was written off on user instruction, as documented in the recovery record.
 
 ## Agreed scope and constraints
@@ -162,6 +162,26 @@ now reads Input / Data Model / Data / Export, with **Edit data model**, **Save d
 model draft**, **Accept data model** and **Extract values with LLM** controls.
 Internal field names and saved-session identifiers remain compatible. The user
 has deferred the chat-focused UI redesign; the current editor remains in place.
+
+MVP priority reaffirmed: defer the readable proposal/question-card redesign,
+collapsed Advanced editing placement, combined review submission and autosave
+status clarity until the existing end-to-end flow is completed. The initial
+proposal is already persisted as a draft; no new autosave behavior was added.
+Small requested fix: after a proposed revision is successfully applied as a
+draft, clear the instruction textbox on the next render. A failed/stale apply
+preserves its text. **39 focused journey tests pass**, including both cases,
+no automatic acceptance and no duplicate API request.
+
+Trade-chart walkthrough: the user's saved revision **4** permits image estimates.
+Printed service lists remain source-stated, while all three numbered-mode/legend
+associations are separate inferred relationships. Unit and year remain unknown.
+The revision adds a redundant Footnote mode field alongside the legend-mode field;
+their one-to-one relationships are recorded. This is usable for the MVP test;
+review extraction for **24 actual region/mode bars**, without extra combinations,
+and retain approximation evidence. The assistant did not accept or edit the model.
+The latest user-run revision cost **$0.00414019**, bringing recorded spending to
+**$2.03134574 / $5**; remaining **$2.96865426**, reservations **$0**. No paid call
+was made to implement or test the textbox fix.
 
 Further review-screen feedback: the left pane now shows only **Docling
 preprocessing: Yes / No**, based on the saved session's evidence identity.

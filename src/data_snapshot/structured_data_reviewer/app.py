@@ -251,9 +251,12 @@ def _input(workspace: Path) -> None:
 
 def _proposal(directory: Path, session: Any) -> None:
     current = session.revisions[-1].model if session.revisions else None
+    instruction_key = "assistant_instruction:" + str(directory)
+    if st.session_state.pop("clear_revision_instruction", None) == instruction_key:
+        st.session_state[instruction_key] = ""
     instruction = st.text_area(
         "How should the LLM revise the data model?",
-        key="assistant_instruction:" + str(directory),
+        key=instruction_key,
         placeholder="For example: apply the population note to labor income only.",
     )
     label = "Ask for a data model revision" if current else "Propose a data model"
@@ -336,6 +339,7 @@ def _proposal(directory: Path, session: Any) -> None:
                     )
                     _reload_editor(directory)
                     st.session_state.pop("proposal_output", None)
+                    st.session_state["clear_revision_instruction"] = instruction_key
                     st.rerun()
                 except (ValueError, OSError, ValidationError) as error:
                     _error(error)

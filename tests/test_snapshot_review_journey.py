@@ -805,3 +805,46 @@ def test_assistant_requests_only_on_explicit_click_and_no_duplicate_rerun(
     app.run()
     app.button(key="request_proposal").click().run()
     assert not app.exception and len(calls) == 1
+
+
+@pytest.mark.parametrize("stale", [False, True])
+def test_applying_revision_clears_instruction_without_acceptance_or_extra_call(
+    app, cases: dict, monkeypatch: pytest.MonkeyPatch, stale: bool
+) -> None:
+    """Clear submitted text only after its proposed revision is applied successfully."""
+    from data_snapshot.structured_data_extraction import model_proposal
+
+    candidate = copy.deepcopy(cases["income"]["model"])
+    candidate["title"] = "Revised income title"
+    client = _client(candidate)
+
+    def generate(*args: object, **kwargs: object) -> dict:
+        return run_model_proposal(*args, **kwargs, client=client)
+
+    monkeypatch.setattr(model_proposal, "run_model_proposal", generate)
+    app.button(key="open_example").click().run()
+    directory = Path(app.session_state["active_session"])
+    key = "assistant_instruction:" + str(directory)
+    app.checkbox(key="enable_live").check().run()
+    app.text_area(key=key).set_value("Revise the title.").run()
+    app.button(key="request_proposal").click().run()
+    assert app.text_area(key=key).value == "Revise the title."
+    if stale:
+        changed = load_session(directory).revisions[-1].model
+        changed.title = "Another saved edit"
+        save_draft(directory, changed, 1, "Reviewer", "Concurrent edit")
+        app.run()
+    app.button(key="apply_revision").click().run()
+    if stale:
+        assert not app.exception and app.error
+        assert app.text_area(key=key).value == "Revise the title."
+        assert len(client.calls) == 1
+        return
+    assert not app.exception and not app.error
+    assert app.text_area(key=key).value == ""
+    assert app.button(key="request_proposal").disabled
+    session = load_session(directory)
+    assert len(session.revisions) == 2 and session.accepted_revision is None
+    assert session.revisions[-1].model.title == "Revised income title"
+    app.run()
+    assert len(client.calls) == 1
