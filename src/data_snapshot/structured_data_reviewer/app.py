@@ -125,52 +125,41 @@ def _data_dirty(directory: Path) -> bool:
 
 
 def _input(workspace: Path) -> None:
-    st.subheader("Open a snapshot")
-    st.write(
-        "Choose a working example or upload a PNG. The image stays beside your data model and values throughout review."
-    )
     examples = _examples()
-    case_id = st.selectbox(
-        "Working example",
-        list(examples),
-        format_func=lambda key: examples[key]["name"],
-        key="example_choice",
-    )
-    case = examples[case_id]
-    st.caption(
-        case["model_origin"]
-        + ". Example values are manually transcribed and labeled separately from live extraction."
-    )
-    if st.button("Open example", key="open_example", type="primary"):
-        active = st.session_state.get("active_session")
-        if active and (_dirty(Path(active)) or _data_dirty(Path(active))):
-            st.error(
-                "Save or discard your data model or data draft before opening another snapshot."
-            )
-        else:
-            try:
-                directory = open_example(case, workspace)
-                st.session_state.update(
-                    active_session=str(directory),
-                    active_example=case_id,
-                    next_stage="Model",
-                )
-                st.rerun()
-            except (ValueError, OSError, ValidationError) as error:
-                _error(error)
-    upload = st.file_uploader("Or upload one PNG", type=["png"], key="png_upload")
-    if st.button(
-        "Process uploaded PNG with Docling",
-        disabled=upload is None,
-        key="preprocess_upload",
+    st.subheader("Upload")
+    upload = st.file_uploader("Upload one PNG", type=["png"], key="png_upload")
+    use_docling = st.checkbox("Preprocess with Docling", value=False, key="use_docling")
+    if (
+        st.button(
+            "Generate Data Model",
+            disabled=upload is None or not _live_allowed(),
+            key="preprocess_upload",
+            type="primary",
+        )
+        and _live_allowed()
     ):
         active = st.session_state.get("active_session")
         if active and (_dirty(Path(active)) or _data_dirty(Path(active))):
             st.error("Save or discard the current data model draft first.")
         else:
             try:
-                with st.spinner("Running local OCR and table preprocessing…"):
-                    directory = preprocess_upload(upload.getvalue(), workspace)
+                with st.spinner("Generating the data model…"):
+                    directory = preprocess_upload(
+                        upload.getvalue(), workspace, use_docling
+                    )
+                    proposal = directory / "proposals" / uuid.uuid4().hex
+                    report = run_model_proposal(
+                        directory / "input.png",
+                        directory / "native.json" if use_docling else None,
+                        proposal,
+                        execute=True,
+                        batch_id="interactive_model_review",
+                    )
+                    st.session_state["last_api_report"] = report
+                    if report["status"] == "proposed":
+                        apply_proposal(
+                            directory, proposal, 0, st.session_state["reviewer"]
+                        )
                 st.session_state.update(
                     active_session=str(directory),
                     active_example=None,
@@ -179,11 +168,15 @@ def _input(workspace: Path) -> None:
                 st.rerun()
             except (ValueError, OSError, TimeoutError) as error:
                 _error(error)
+    if upload is not None and not _live_allowed():
+        st.caption("Enable paid LLM actions to generate a data model.")
+
     existing = (
         sorted(p.parent for p in workspace.rglob("session.json"))
         if workspace.exists()
         else []
     )
+    st.subheader("Resume saved work")
     if existing:
         selected = st.selectbox(
             "Resume saved work",
@@ -202,6 +195,38 @@ def _input(workspace: Path) -> None:
                     next_stage="Model",
                 )
                 st.rerun()
+    else:
+        st.caption("No saved sessions yet.")
+
+    with st.expander("Open an example"):
+        case_id = st.selectbox(
+            "Working example",
+            list(examples),
+            format_func=lambda key: examples[key]["name"],
+            key="example_choice",
+        )
+        case = examples[case_id]
+        st.caption(
+            case["model_origin"]
+            + ". Example values are manually transcribed and labeled separately from live extraction."
+        )
+        if st.button("Open example", key="open_example"):
+            active = st.session_state.get("active_session")
+            if active and (_dirty(Path(active)) or _data_dirty(Path(active))):
+                st.error(
+                    "Save or discard your data model or data draft before opening another snapshot."
+                )
+            else:
+                try:
+                    directory = open_example(case, workspace)
+                    st.session_state.update(
+                        active_session=str(directory),
+                        active_example=case_id,
+                        next_stage="Model",
+                    )
+                    st.rerun()
+                except (ValueError, OSError, ValidationError) as error:
+                    _error(error)
 
 
 def _proposal(directory: Path, session: Any) -> None:
@@ -246,7 +271,11 @@ def _proposal(directory: Path, session: Any) -> None:
                     with st.spinner("Preparing a data model proposal…"):
                         report = run_model_proposal(
                             directory / "input.png",
-                            directory / "native.json",
+                            (
+                                directory / "native.json"
+                                if session.docling_sha256 is not None
+                                else None
+                            ),
                             output,
                             current_model=current,
                             instruction=instruction.strip() or None,
@@ -297,7 +326,7 @@ def _model(directory: Path) -> None:
     st.subheader("Review the data model")
     if not session.revisions:
         st.info(
-            "Preprocessing is saved. Ask the LLM to propose a data model, then inspect it before accepting."
+            "The snapshot is saved. Ask the LLM to propose a data model, then inspect it before accepting."
         )
         _proposal(directory, session)
         return
@@ -773,7 +802,6 @@ st.session_state.setdefault("stage", "Input")
 if "next_stage" in st.session_state:
     st.session_state["stage"] = st.session_state.pop("next_stage")
 st.title("Data snapshot reviewer")
-st.caption("One image → agree on its meaning → review its values → save your decisions")
 with st.sidebar:
     st.text_input("Reviewer name", value="Local reviewer", key="reviewer")
     st.checkbox("Enable paid LLM actions", value=False, key="enable_live")
@@ -818,13 +846,16 @@ elif active:
         with st.container(height=760, border=True):
             st.image(str(directory / "input.png"), width="stretch")
             with st.expander("Docling preprocessing"):
-                native = json.loads((directory / "native.json").read_text())
-                st.caption(
-                    f"{len(native.get('texts',[]))} text blocks · {len(native.get('tables',[]))} tables · {len(native.get('pictures',[]))} pictures"
-                )
-                for text in native.get("texts", []):
-                    if text.get("text"):
-                        st.write(text["text"])
+                if not (directory / "native.json").exists():
+                    st.caption("Not used for this snapshot.")
+                else:
+                    native = json.loads((directory / "native.json").read_text())
+                    st.caption(
+                        f"{len(native.get('texts',[]))} text blocks · {len(native.get('tables',[]))} tables · {len(native.get('pictures',[]))} pictures"
+                    )
+                    for text in native.get("texts", []):
+                        if text.get("text"):
+                            st.write(text["text"])
     with right:
         with st.container(height=760, border=True):
             if stage == "Model":

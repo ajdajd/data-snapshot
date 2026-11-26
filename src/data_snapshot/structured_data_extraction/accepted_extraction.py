@@ -236,7 +236,8 @@ def run_accepted_extraction(
     model = session.revisions[-1].model
     result_type = accepted_result_model(model)
     evidence, hashes = read_docling_evidence(
-        session_dir / "input.png", session_dir / "native.json"
+        session_dir / "input.png",
+        session_dir / "native.json" if session.docling_sha256 is not None else None,
     )
     config = APISettings.model_validate_json(config_path.read_text())
     system = (_PACKAGE / "prompts/accepted_extraction_system.md").read_text()

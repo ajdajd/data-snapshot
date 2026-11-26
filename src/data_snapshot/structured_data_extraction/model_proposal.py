@@ -18,21 +18,21 @@ from .working_model import WorkingModel, model_digest
 
 
 def read_docling_evidence(
-    image_path: Path, native_path: Path
-) -> tuple[dict[str, Any], dict[str, str]]:
-    """Load matched native evidence without document names or embedded page images.
+    image_path: Path, native_path: Path | None
+) -> tuple[dict[str, Any] | None, dict[str, str | None]]:
+    """Validate the PNG and optional matched native evidence without embedded assets.
 
     Parameters
     ----------
     image_path : Path
         PNG used to create the Docling artifact.
-    native_path : Path
-        Docling JSON with a sibling run.json from the local extraction CLI.
+    native_path : Path or None
+        Docling JSON with a sibling run.json, or None for image-only processing.
 
     Returns
     -------
-    tuple of dict, dict
-        Projected document content and hashes of the image/native/report inputs.
+    tuple of dict or None, dict
+        Optional projected document content and image/native/report identities.
 
     Raises
     ------
@@ -46,11 +46,17 @@ def read_docling_evidence(
         raise ValueError("Only PNG snapshot input is supported")
     with fitz.open(stream=image_bytes, filetype="png") as document:
         document[0].get_pixmap()
+    image_hash = hashlib.sha256(image_bytes).hexdigest()
+    if native_path is None:
+        return None, {
+            "image_sha256": image_hash,
+            "docling_sha256": None,
+            "docling_run_sha256": None,
+        }
     native_bytes = native_path.read_bytes()
     report_bytes = native_path.with_name("run.json").read_bytes()
     native = json.loads(native_bytes)
     report = json.loads(report_bytes)
-    image_hash = hashlib.sha256(image_bytes).hexdigest()
     if report.get("image_sha256") != image_hash:
         raise ValueError("Docling evidence belongs to a different image")
     if report.get("status") not in {"success", "extracted_only"}:
@@ -96,17 +102,19 @@ def read_docling_evidence(
 
 def prepare_model_request(
     image_path: Path,
-    native_path: Path,
+    native_path: Path | None,
     config: APISettings,
     current_model: WorkingModel | None = None,
     instruction: str | None = None,
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, str]]:
+) -> tuple[dict[str, Any], dict[str, Any] | None, dict[str, str | None]]:
     """Prepare a proposal or revision without loading a key or contacting a provider.
 
     Parameters
     ----------
-    image_path, native_path : Path
-        PNG and matched native Docling JSON.
+    image_path : Path
+        PNG snapshot.
+    native_path : Path or None
+        Optional matched native Docling JSON; None selects image-only.
     config : APISettings
         Validated OpenRouter settings.
     current_model : WorkingModel, optional
@@ -116,8 +124,8 @@ def prepare_model_request(
 
     Returns
     -------
-    tuple of dict, dict, dict
-        SDK request, projected evidence and source fingerprints.
+    tuple of dict, dict or None, dict
+        SDK request, optional projected evidence and source fingerprints.
 
     Raises
     ------
@@ -166,7 +174,7 @@ def prepare_model_request(
 
 def run_model_proposal(
     image_path: Path,
-    native_path: Path,
+    native_path: Path | None,
     output_dir: Path,
     config_path: Path = _DEFAULT_CONFIG,
     current_model: WorkingModel | None = None,
@@ -180,8 +188,10 @@ def run_model_proposal(
 
     Parameters
     ----------
-    image_path, native_path, output_dir : Path
-        PNG, matched Docling evidence, and fresh proposal directory.
+    image_path, output_dir : Path
+        PNG and fresh proposal directory.
+    native_path : Path or None
+        Optional matched native Docling evidence; None selects image-only.
     config_path : Path, optional
         Independent model/settings file.
     current_model : WorkingModel, optional
@@ -219,17 +229,19 @@ def run_model_proposal(
 
     def process_output(text: str) -> dict[str, Any]:
         result = WorkingModel.model_validate_json(text)
+        claims = [e for c in result.components for e in c.evidence] + [
+            e
+            for item in [*result.contexts, *result.relationships, *result.questions]
+            for e in item.evidence
+        ]
+        if native_path is None and any(e.basis == "docling" for e in claims):
+            raise ValueError("Image-only proposals cannot claim Docling evidence")
         if current_model is None and instruction is None:
             if any(c.extraction_policy != "printed_only" for c in result.components):
                 raise ValueError(
                     "Initial proposals must use printed-only policy without reviewer instructions"
                 )
-            evidence = [e for c in result.components for e in c.evidence] + [
-                e
-                for item in [*result.contexts, *result.relationships, *result.questions]
-                for e in item.evidence
-            ]
-            if any(e.basis == "user" for e in evidence):
+            if any(e.basis == "user" for e in claims):
                 raise ValueError(
                     "Initial proposal cannot invent user-provided evidence"
                 )
@@ -260,6 +272,7 @@ def run_model_proposal(
         },
         {
             "task": "model_revision" if current_model else "model_proposal",
+            "evidence_mode": "image_docling" if native_path else "image_only",
             **hashes,
             "current_model_sha256": (
                 model_digest(current_model) if current_model else None
@@ -276,7 +289,9 @@ def main() -> None:
     """Prepare a proposal offline, or explicitly execute one proposal/revision."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("image", type=Path)
-    parser.add_argument("--docling", type=Path, required=True)
+    parser.add_argument(
+        "--docling", type=Path, help="Optional matched Docling native JSON"
+    )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--config", type=Path, default=_DEFAULT_CONFIG)
     parser.add_argument("--current-model", type=Path)

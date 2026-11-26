@@ -135,8 +135,10 @@ def load_preloaded_values(session_dir: Path, case: dict[str, Any]) -> Path:
     return output
 
 
-def preprocess_upload(content: bytes, workspace: Path) -> Path:
-    """Run existing local Docling CLI offline and create a fresh PNG review session.
+def preprocess_upload(
+    content: bytes, workspace: Path, use_docling: bool = True
+) -> Path:
+    """Create a PNG session, optionally running the local Docling CLI offline.
 
     Parameters
     ----------
@@ -144,6 +146,8 @@ def preprocess_upload(content: bytes, workspace: Path) -> Path:
         Uploaded PNG bytes, validated before local preprocessing.
     workspace : Path
         Local work directory; generated identifiers never use upload filenames.
+    use_docling : bool, optional
+        Run standard CPU Docling first; false creates a genuine image-only session.
 
     Returns
     -------
@@ -160,6 +164,10 @@ def preprocess_upload(content: bytes, workspace: Path) -> Path:
     root.mkdir(parents=True)
     image = root / "snapshot.png"
     image.write_bytes(content)
+    directory = root / "review"
+    if not use_docling:
+        create_session(image, None, directory)
+        return directory
     environment = {
         **os.environ,
         "HF_HUB_OFFLINE": "1",
@@ -194,6 +202,5 @@ def preprocess_upload(content: bytes, workspace: Path) -> Path:
         raise ValueError(
             f'Local Docling preprocessing failed. See {root / "docling.log"}'
         )
-    directory = root / "review"
     create_session(image, root / "docling/snapshot/native.json", directory)
     return directory

@@ -206,6 +206,49 @@ def test_offline_proposal_uses_matched_docling_without_names_or_embedded_assets(
     assert not (output / "proposed_model.json").exists()
 
 
+def test_image_only_proposal_and_review_session_have_no_docling_sources(
+    tmp_path: Path, sources: tuple[Path, Path], model: WorkingModel
+) -> None:
+    """Support PNG-only proposals, application, acceptance and source validation."""
+    image, _ = sources
+    output = tmp_path / "image_proposal"
+    report = run_model_proposal(
+        image,
+        None,
+        output,
+        execute=True,
+        client=fake_client(model.model_dump(mode="json")),
+    )
+    assert report["status"] == "proposed"
+    assert report["evidence_mode"] == "image_only" and report["docling_sha256"] is None
+    assert json.loads((output / "docling_evidence.json").read_text()) is None
+    directory = tmp_path / "session"
+    create_session(image, None, directory)
+    apply_proposal(directory, output, 0, "Reviewer")
+    assert accept_model(directory, 1, "Reviewer").accepted_revision == 1
+    assert load_session(directory).source_docling is None
+    assert not (directory / "native.json").exists()
+    (directory / "native.json").write_text("{}")
+    with pytest.raises(ValueError, match="Unexpected Docling source"):
+        load_session(directory)
+
+
+def test_image_only_proposal_rejects_fabricated_docling_evidence(
+    tmp_path: Path, sources: tuple[Path, Path], model: WorkingModel
+) -> None:
+    """Do not accept claims that absent preprocessing supports an interpretation."""
+    model.components[0].evidence[0].basis = "docling"
+    report = run_model_proposal(
+        sources[0],
+        None,
+        tmp_path / "bad",
+        execute=True,
+        client=fake_client(model.model_dump(mode="json")),
+    )
+    assert report["status"] == "failed" and "cannot claim Docling" in report["error"]
+    assert report["spending"]["call_cost_usd"] == "0.001"
+
+
 def test_wrong_source_and_failed_docling_stop_before_api(
     tmp_path: Path, sources: tuple[Path, Path], model: WorkingModel
 ) -> None:

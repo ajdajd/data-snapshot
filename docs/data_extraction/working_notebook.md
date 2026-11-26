@@ -21,9 +21,9 @@ the values mean still comes before extracting them into that model.
 
 The intended workflow is:
 
-1. **Open PNG and preprocess.** Run Docling and retain its native output alongside
-   the original image. Keep the image available as evidence throughout review.
-2. **Propose a working model.** Use the image and Docling output to suggest the
+1. **Open PNG; optionally preprocess.** The user chooses whether to run Docling.
+   Retain its native output when used and keep the original image visible.
+2. **Propose a working model.** Use the image and optional Docling output to suggest the
    analytical components, identifying categories, measured results, units,
    qualifications and relationships needed for this snapshot. Preserve source
    labels and expose ambiguity instead of guessing.
@@ -80,9 +80,10 @@ runtime dependency on its models, forms or storage module.
 Luna medium remains the initial model reference from the completed extraction
 comparison. The first live working-model proposal passed structural validation
 but exposed a qualification-scope error; broader proposal quality remains open.
-Docling is the preprocessing baseline in the intended workflow.
-Its incremental value over image-only LLM input remains an experiment to conduct,
-rather than an established quality improvement. RapidAI, custom frontend work and
+P1 now compares six initial proposals with and without standard Docling.
+Results are mixed, so preprocessing is optional and initially unchecked for speed.
+The user retains the choice; numerical-extraction benefit remains untested by P1.
+RapidAI, custom frontend work and
 PDF detection/cropping integration remain deferred.
 
 **Discovery closed and saved:** all 210 development images were attempted;
@@ -92,8 +93,8 @@ use. Shared-DSD consolidation/design and the proposed 202-image coverage study a
 parked; they are not prerequisites for this MVP. The seven-batch DSD strategy was
 not activated. Detailed closeout, archive paths and costs are recorded below.
 
-Current recorded workstream spending: **$1.97849147 / $5**; remaining
-**$3.02150853**, with no outstanding reservations. The original dropped request
+Current recorded workstream spending: **$2.02005181 / $5**; remaining
+**$2.97994819**, with no outstanding reservations. The original dropped request
 was written off on user instruction, as documented in the recovery record.
 
 ## Agreed scope and constraints
@@ -162,6 +163,66 @@ model draft**, **Accept data model** and **Extract values with LLM** controls.
 Internal field names and saved-session identifiers remain compatible. The user
 has deferred the chat-focused UI redesign; the current editor remains in place.
 
+Input layout feedback: removed the journey tagline. Upload is first, with the
+primary action; Resume saved work is second; examples are in a collapsed
+expander last. Upload now offers **Preprocess with Docling** (initially unchecked)
+and a combined **Generate Data Model** action. With paid LLM actions enabled,
+one explicit click validates/saves the PNG, optionally runs offline standard
+Docling, requests a proposal and opens it as an unaccepted draft in Data Model.
+No proposal is accepted automatically. Existing sessions retain their original
+image/Docling source identity. Image-only sessions store null Docling identities
+and have no synthetic native output. Revisions and accepted-model value extraction
+continue with the same optional evidence choice; they do not silently run Docling.
+
+### P1 initial-proposal comparison — 2026-11-26
+
+Completed the authorized 12-call paired experiment using the six existing core
+images and Luna medium. Both arms used the same frozen prompt templates, schema
+and settings. Fresh standard CPU Docling preprocessing was used in the assisted
+arm; no chart enrichment, reviewer hints, retries or model repairs were included.
+All six source PNGs were visually reopened for review.
+
+| Metric | PNG only | PNG + Docling |
+| --- | ---: | ---: |
+| Application-valid proposals | 5/6 | 6/6 |
+| Six-call API cost | $0.01624410 | $0.02531624 |
+| Median LLM request-stage time | 16.9 s | 21.6 s |
+| Median request stage plus local preprocessing | 16.9 s | 27.8 s |
+
+Docling helped the education response satisfy required unit-context coverage:
+image-only retained the correct word Percent but placed it under scale instead
+of unit, causing validation failure. Conversely, image-only modeled regression
+firm/survey counts numerically, while the Docling arm retained combined sample
+descriptions as text. Income, financing, trade and duration had similar core
+coverage, with differing uncertainty treatment. Both income responses still need
+monthly-remittance scope review; both arms have some nonliteral joined evidence
+quotes to clean up. These are initial proposals, not reviewed/accepted models.
+
+Decision: expose Docling as a user option, default off for speed. The small paired
+sample does not show a consistent semantic benefit. Docling conversion alone
+took 5.4–19.4 s per image in one sequential process; request-stage times include
+pricing/network/writes. P1 does not test numerical extraction quality.
+
+[Full protocol and image-grounded findings](P1_docling_proposal_comparison.md).
+Artifacts and machine-readable review/metrics:
+`data/structured_data_trials/P1_docling_ab_20261126/`.
+The resumable runner is `scripts/run_proposal_docling_comparison.py`; it prepares
+offline by default and requires `--execute` for unattempted calls. Frozen hashes,
+failure preservation and the shared ledger prevent silent retuning or rebilling.
+
+Batch **$0.04156034**; running total **$2.02005181 / $5**; remaining
+**$2.97994819**; reservations **$0**. No experiment output was applied to an
+existing user session. The image-only education raw response remains saved as a
+failed attempt; it was not retried or repaired.
+
+Implementation checks: **139 focused tests pass**, including genuine PNG-only
+source/session handling, absent-preprocessing evidence rejection, image-only
+accepted-model extraction/review/export, one-click Upload generation with either
+checkbox choice, no automatic acceptance or rerun calls, and comparison-runner
+resume/input-change guards. An actual resume self-check reused all 12 P1 attempts
+while replacing the request function with an assertion, confirming no new call.
+Black and `git diff --check` pass. No browser rendering check was performed.
+
 Start the app from this checkout:
 
 ```bash
@@ -202,11 +263,11 @@ scope. The user still reviews the source and each relevant interpretation.
 
 **Two ways to exercise the journey:** leave **Enable paid model actions** off to
 use the three drafts and **Load preloaded example values**, at no API cost. Or
-upload a PNG, run local standard Docling preprocessing, enable paid actions and
-explicitly request a proposal. Inspect/directly edit or request a revision, save
-and accept it, then explicitly **Extract values with model**. Both paid stages
-send the PNG plus matched Docling evidence; value extraction additionally sends
-the accepted model. The preloaded values are never supplied to live extraction.
+upload a PNG, choose optional Docling preprocessing, enable paid actions and
+click **Generate Data Model**. Inspect/directly edit or request a revision, save
+and accept it, then explicitly **Extract values with LLM**. Both paid stages
+send the PNG and any matched Docling evidence; value extraction additionally
+sends the accepted model. Preloaded values are never supplied to live extraction.
 There are no automatic API calls on opening examples or ordinary widget reruns.
 The same submitted action is blocked from being repeated within the active
 browser session; failures and any charges remain in the existing API journal.

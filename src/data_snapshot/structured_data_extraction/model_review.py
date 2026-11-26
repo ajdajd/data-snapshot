@@ -35,8 +35,8 @@ class ModelAcceptance(BaseModel):
     revision: int = Field(gt=0)
     sha256: str
     image_sha256: str
-    docling_sha256: str
-    docling_run_sha256: str
+    docling_sha256: str | None
+    docling_run_sha256: str | None
     reviewer: Text
     accepted_at: str
 
@@ -47,10 +47,10 @@ class ModelReviewSession(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     version: Literal["0.1.0"]
     source_image: str
-    source_docling: str
+    source_docling: str | None
     image_sha256: str
-    docling_sha256: str
-    docling_run_sha256: str
+    docling_sha256: str | None
+    docling_run_sha256: str | None
     revisions: list[ModelRevision]
     acceptances: list[ModelAcceptance]
     accepted_revision: int | None
@@ -58,6 +58,13 @@ class ModelReviewSession(BaseModel):
     @model_validator(mode="after")
     def check_history(self) -> "ModelReviewSession":
         """Reject edited revision content and inconsistent acceptance pointers."""
+        identities = (self.source_docling, self.docling_sha256, self.docling_run_sha256)
+        if any(value is None for value in identities) and not all(
+            value is None for value in identities
+        ):
+            raise ValueError(
+                "Docling source identities must be all present or all absent"
+            )
         for number, revision in enumerate(self.revisions, start=1):
             if revision.number != number or revision.sha256 != model_digest(
                 revision.model
@@ -120,20 +127,25 @@ def load_session(directory: Path) -> ModelReviewSession:
         ("native.json", session.docling_sha256),
         ("run.json", session.docling_run_sha256),
     ):
-        if hashlib.sha256((directory / filename).read_bytes()).hexdigest() != digest:
+        if digest is None:
+            if (directory / filename).exists():
+                raise ValueError(
+                    f"Unexpected Docling source in image-only session: {filename}"
+                )
+        elif hashlib.sha256((directory / filename).read_bytes()).hexdigest() != digest:
             raise ValueError(f"Saved source changed: {filename}")
     return session
 
 
 def create_session(
-    image_path: Path, native_path: Path, directory: Path
+    image_path: Path, native_path: Path | None, directory: Path
 ) -> ModelReviewSession:
     """Create a fresh session with local PNG and matched Docling snapshots.
 
     Parameters
     ----------
     image_path, native_path : Path
-        Source PNG and native Docling JSON with its sibling run report.
+        Source PNG and optional native Docling JSON with its sibling run report.
     directory : Path
         Fresh output directory; never overwritten.
 
@@ -153,18 +165,22 @@ def create_session(
     session = ModelReviewSession(
         version="0.1.0",
         source_image=str(image_path.resolve()),
-        source_docling=str(native_path.resolve()),
+        source_docling=str(native_path.resolve()) if native_path else None,
         **hashes,
         revisions=[],
         acceptances=[],
         accepted_revision=None,
     )
     directory.mkdir(parents=True, exist_ok=False)
-    for target, source in (
-        ("input.png", image_path),
-        ("native.json", native_path),
-        ("run.json", native_path.with_name("run.json")),
-    ):
+    sources = [("input.png", image_path)]
+    if native_path is not None:
+        sources.extend(
+            [
+                ("native.json", native_path),
+                ("run.json", native_path.with_name("run.json")),
+            ]
+        )
+    for target, source in sources:
         (directory / target).write_bytes(source.read_bytes())
     _persist(directory, session)
     return load_session(directory)
@@ -353,7 +369,7 @@ def main() -> None:
         command.add_argument("--session-dir", type=Path, required=True)
         if action == "init":
             command.add_argument("image", type=Path)
-            command.add_argument("--docling", type=Path, required=True)
+            command.add_argument("--docling", type=Path)
         if action in {"save", "apply", "accept"}:
             command.add_argument("--expected-revision", type=int, required=True)
             command.add_argument("--reviewer", required=True)

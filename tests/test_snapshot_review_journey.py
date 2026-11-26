@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 import sys
+import runpy
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Callable
@@ -25,12 +26,14 @@ from data_snapshot.structured_data_extraction.data_review import (
 )
 from data_snapshot.structured_data_extraction.model_review import (
     accept_model,
+    create_session,
     load_session,
     save_draft,
 )
 from data_snapshot.structured_data_extraction.working_model import WorkingModel
 from data_snapshot.structured_data_extraction.spending import record_spending
 from data_snapshot.structured_data_reviewer import examples
+from data_snapshot.structured_data_extraction.model_proposal import run_model_proposal
 
 
 @pytest.fixture
@@ -320,6 +323,114 @@ def test_upload_uses_offline_docling_and_retains_failure_logs(
     assert "Synthetic failure" in log.read_text()
 
 
+def test_image_only_upload_and_accepted_value_extraction(
+    cases: dict, tmp_path: Path
+) -> None:
+    """An unchecked Docling option remains image-only through extraction and export."""
+    content = Path(cases["financing"]["image_path"]).read_bytes()
+    directory = examples.preprocess_upload(
+        content, tmp_path / "uploads", use_docling=False
+    )
+    assert not (directory / "native.json").exists()
+    assert load_session(directory).docling_sha256 is None
+    save_draft(
+        directory,
+        WorkingModel.model_validate(cases["financing"]["model"]),
+        0,
+        "Reviewer",
+        "Image-only test",
+    )
+    accept_model(directory, 1, "Reviewer")
+    output = tmp_path / "values"
+    result = run_accepted_extraction(
+        directory, output, execute=True, client=_client(cases["financing"]["data"])
+    )
+    assert result["status"] == "complete" and result["docling_sha256"] is None
+    save_data_review(
+        directory,
+        output,
+        load_data_review(output)["working"],
+        0,
+        "Reviewer",
+        reviewed=True,
+    )
+    assert reviewed_export(directory, output)["docling_sha256"] is None
+
+
+def test_comparison_runner_resumes_without_rebilling_and_rejects_changed_png(
+    cases: dict, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Frozen two-arm calls run once and changed evidence stops before new spending."""
+    from data_snapshot.structured_data_extraction import model_proposal
+
+    script = examples.REPO / "scripts/run_proposal_docling_comparison.py"
+    helpers = runpy.run_path(str(script))
+    root = tmp_path / "experiment"
+    root.mkdir()
+    config_path = root / "config.json"
+    config_path.write_bytes(llm._DEFAULT_CONFIG.read_bytes())
+    config = llm.APISettings.model_validate_json(config_path.read_text())
+    image = Path(cases["income"]["image_path"])
+    native = Path(cases["income"]["docling"])
+    names = ["prompts/model_proposal_system.md", "prompts/model_proposal_user.md"]
+    frozen = {
+        name: hashlib.sha256((llm._PACKAGE / name).read_bytes()).hexdigest()
+        for name in names
+    }
+    frozen["config.json"] = hashlib.sha256(config_path.read_bytes()).hexdigest()
+    sample = {
+        "id": "income",
+        "image": str(image),
+        "native": str(native),
+        "image_sha256": hashlib.sha256(image.read_bytes()).hexdigest(),
+        "contracts": {
+            arm: helpers["contract_hash"](
+                model_proposal.prepare_model_request(image, source, config)[0]
+            )
+            for arm, source in [("image_only", None), ("image_docling", native)]
+        },
+    }
+    manifest = {
+        "files": frozen,
+        "schema_sha256": hashlib.sha256(
+            json.dumps(WorkingModel.model_json_schema(), sort_keys=True).encode()
+        ).hexdigest(),
+        "batch_id": "synthetic",
+        "samples": [sample],
+    }
+    (root / "manifest.json").write_text(json.dumps(manifest))
+    calls = []
+
+    def fake(
+        image: Path,
+        native: Path | None,
+        output: Path,
+        config_path: Path,
+        **kwargs: object,
+    ) -> dict:
+        calls.append(output)
+        _, hashes = model_proposal.read_docling_evidence(image, native)
+        report = {
+            "status": "proposed",
+            **hashes,
+            "spending": {"cost_status": "reported"},
+        }
+        output.mkdir(parents=True)
+        (output / "run.json").write_text(json.dumps(report))
+        return report
+
+    monkeypatch.setattr(model_proposal, "run_model_proposal", fake)
+    monkeypatch.setattr(sys, "argv", [str(script), str(root), "--execute"])
+    main = runpy.run_path(str(script))["main"]
+    main()
+    main()
+    assert len(calls) == 2
+    image.write_bytes(b"changed")
+    with pytest.raises(ValueError, match="Frozen PNG changed"):
+        main()
+    assert len(calls) == 2
+
+
 @pytest.fixture
 def app(cases: dict, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Any:
     """Run the app in a temporary workspace and forbid genuine model calls."""
@@ -355,6 +466,14 @@ def _select_label(app, label: str, value: object) -> None:
 
 def test_income_model_scope_edit_to_reviewed_download(app) -> None:
     """Complete the motivating scope correction using readable controls, without JSON."""
+    assert [item.value for item in app.subheader] == ["Upload", "Resume saved work"]
+    assert app.button[0].key == "preprocess_upload"
+    assert app.button(key="preprocess_upload").proto.type == "primary"
+    assert app.button(key="preprocess_upload").label == "Generate Data Model"
+    assert not app.checkbox(key="use_docling").value
+    assert app.button(key="open_example").proto.type == "secondary"
+    assert not app.expander[0].proto.expanded
+    assert not any("One image →" in item.value for item in app.caption)
     assert [
         option.content for option in app.segmented_control(key="stage").proto.options
     ] == ["Input", "Data Model", "Data", "Export"]
@@ -391,6 +510,47 @@ def test_income_model_scope_edit_to_reviewed_download(app) -> None:
     assert load_session(directory).accepted_revision == 2
 
 
+@pytest.mark.parametrize("use_docling", [False, True])
+def test_generate_from_upload_makes_one_proposal_and_does_not_accept(
+    app, cases: dict, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, use_docling: bool
+) -> None:
+    """One explicit Generate action respects preprocessing choice and opens a draft."""
+    from data_snapshot.structured_data_extraction import model_proposal
+
+    preprocessing = []
+    client = _client(cases["financing"]["model"])
+
+    def prepare(content: bytes, workspace: Path, chosen: bool) -> Path:
+        preprocessing.append(chosen)
+        image = Path(cases["financing"]["image_path"])
+        native = Path(cases["financing"]["docling"]) if chosen else None
+        directory = workspace / "uploaded"
+        create_session(image, native, directory)
+        return directory
+
+    def generate(*args: object, **kwargs: object) -> dict:
+        return run_model_proposal(*args, **kwargs, client=client)
+
+    monkeypatch.setattr(examples, "preprocess_upload", prepare)
+    monkeypatch.setattr(model_proposal, "run_model_proposal", generate)
+    content = Path(cases["financing"]["image_path"]).read_bytes()
+    app.file_uploader(key="png_upload").set_value(
+        ("sample.png", content, "image/png")
+    ).run()
+    assert app.button(key="preprocess_upload").disabled
+    app.checkbox(key="enable_live").check().run()
+    app.checkbox(key="use_docling").set_value(use_docling).run()
+    app.button(key="preprocess_upload").click().run()
+    assert not app.exception and not app.error
+    assert preprocessing == [use_docling] and len(client.calls) == 1
+    directory = Path(app.session_state["active_session"])
+    state = load_session(directory)
+    assert len(state.revisions) == 1 and state.accepted_revision is None
+    assert (state.docling_sha256 is not None) == use_docling
+    app.run()
+    assert not app.exception and len(client.calls) == 1
+
+
 @pytest.mark.parametrize("case_id", ["financing", "education"])
 def test_multiple_components_and_resume(app, case_id: str) -> None:
     """Exercise the other example shapes and recover accepted decisions after reopening."""
@@ -409,6 +569,11 @@ def test_multiple_components_and_resume(app, case_id: str) -> None:
     assert not app.exception and app.get("download_button")
     app.session_state["stage"] = "Input"
     app.run()
+    assert [button.key for button in app.button] == [
+        "preprocess_upload",
+        "resume_session",
+        "open_example",
+    ]
     app.button(key="resume_session").click().run()
     assert not app.exception
     app.session_state["stage"] = "Export"

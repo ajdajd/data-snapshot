@@ -33,7 +33,11 @@ Requires the locked `review` extra alongside `structured_data` and
 start from labeled hand-authored drafts. **Load preloaded example values** uses
 manually transcribed data at no API cost. Paid actions default off; enabling them
 only enables explicit proposal/revision and extraction buttons, with the existing
-shared $5 accounting guardrails. Uploads run local offline standard Docling first.
+shared $5 accounting guardrails. Upload a PNG, optionally select **Preprocess with
+Docling**, and click **Generate Data Model**. One click saves the image, runs local
+offline standard Docling if chosen, and requests a proposal. It opens as a draft
+for review, never automatic acceptance. Docling defaults off after the mixed
+six-image P1 comparison; see the notebook for findings and costs.
 
 In **Data Model**, use **Edit data model**, **Save data model draft** and
 **Accept data model**. Use **Extract values with LLM** for live value extraction.
@@ -54,13 +58,19 @@ a component, optional result fields, and optional categories. Numeric results
 need a unit context even when its value is unknown. This is not a general or
 accepted SDMX DSD, and contains no extracted observation dataset.
 
-The proposal entry point uses **PNG + matching native Docling JSON**. The native
-file must have its sibling local-extractor `run.json`, whose image hash and
-successful conversion status are checked. The model receives document content
+The proposal entry point uses a **PNG with optional matching native Docling JSON**.
+Omit `--docling` for image-only processing. When provided, the native file must
+have its sibling local-extractor `run.json`, whose image hash and successful
+conversion status are checked. The LLM receives document content
 with references, cells and chart metadata preserved; document-name/origin metadata
 and embedded page-image assets are excluded. The PNG is the primary evidence and
 Docling content is explicitly untrusted preprocessing. This module reads existing
 Docling results; it does not launch Docling or download models.
+
+Image-only sessions have null Docling identities and no fabricated native files.
+They support proposal/revision, acceptance, value extraction and data review.
+Existing Docling sessions preserve their source fingerprints; changing this
+choice means starting a separate session, not silently changing accepted inputs.
 
 Create a fresh review session from the verified income example:
 
